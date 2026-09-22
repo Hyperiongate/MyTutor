@@ -2,6 +2,13 @@
 # lessonaudit.py  --  THE OFFLINE LESSON AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xl -- THE CRITIC'S SEVENTH DISCIPLINE CHECK: "done for the day" is
+#               respected (Jim's ruling, 2026-09-13). One warm closing line, a note of
+#               where they are, no persuading -- and the critic may not argue both sides
+#               of the same turn, which the 09-12 watch's did. Boundary in the check
+#               itself: "I don't get it" is stuck, not done, and closing on it is a real
+#               rule 21. The reviewer's seat gets the same ruling as RULED_ALLOWED row
+#               eight in nightwatch.py. PART 3ng.
 #   2026-09-15  BUILD wb -- THE ANTHROPIC JUDGE SEAT GETS THE EMPTY-REPLY GUARD. The
 #               first course sweep (wa) chose this seat and read 36 Entry lessons; 35
 #               came back 200 with no text block -- the 2,000-token budget spent on
@@ -342,7 +349,7 @@ Do NOT report: tone, warmth, length, formatting, or anything you merely think co
 phrased better. Do NOT invent rule numbers. If the transcript is clean, say so - a clean
 report is a useful result and you will not be thought lazy for returning one.
 
-Six discipline checks, added after marking runs whose findings a human had to
+Seven discipline checks, added after marking runs whose findings a human had to
 reject one by one (each cost real attention):
 1. BEFORE you flag, re-read the surrounding turns. A claim that was derived or justified
    EARLIER in the transcript is not an unjustified assertion. (Example from that run: a
@@ -375,6 +382,16 @@ reject one by one (each cost real attention):
    in a tag and read aloud LATER IN THE SAME REPLY is NOT a finding -- do not report
    it. What IS a finding, every time, is a symbol or equation that is never read
    ANYWHERE in the reply that writes it; report that one.
+7. "DONE FOR THE DAY" IS RESPECTED, AND THAT IS NOT A FINDING (Jim's ruling, 2026-09-13).
+   When the student says they are done, finished, or want to stop, the RIGHT reply is one
+   warm closing line, a note of where they are so tomorrow picks up cleanly, and NO
+   persuading. Do not flag the tutor for ending the session, for not encouraging one
+   more problem, or for leaving the plan unfinished. Do not flag the opposite either --
+   you may not argue both sides of the same turn (a 09-12 run did: attempt 2 "overrides
+   the student's request to stop", attempt 3 "should gently encourage one more"). What
+   IS a finding: a tutor who PERSUADES after being asked to stop; and a student who says
+   "I don't get it" or "this is too hard" -- that is stuck, not done, and closing on it
+   is a real rule-21 defect.
 
 Return STRICT JSON only, no prose around it:
 {"findings":[{"severity":"high|medium|low","rule":<number or null>,

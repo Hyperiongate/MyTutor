@@ -776,13 +776,17 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
       <select id="nwPick" class="btn" style="max-width:220px"></select>
       <button class="btn btn-primary" id="nwRead" type="button">&#128196; Read that night's report</button>
+      <button class="btn" id="nwLedger" type="button">&#128203; Read the monthly ledger</button>
     </div>
     <div class="msg" id="nwMsg"></div>
     <pre id="nwReport" style="display:none;white-space:pre-wrap;background:#0f172a;color:#e6edf7;
          padding:14px;border-radius:10px;margin-top:12px;font-size:12.5px;line-height:1.5;
          max-height:520px;overflow:auto"></pre>
     <div id="nwRepeat" style="margin-top:12px"></div>
-    <p class="note" style="margin-top:12px">It never touches a live lesson &mdash; it teaches an
+    <p class="note" style="margin-top:12px"><b>The policy (2026-09-14, in code since xl):</b> truth-class
+      and HIGH findings are actionable and lead the report; style and conduct findings go to the
+      ledger and are read monthly; a hole earns a new referee only when it is truth-class.
+      It never touches a live lesson &mdash; it teaches an
       audit student in the background. Turn it off with <b>NIGHTWATCH=off</b> in Render.
       The rendered <i>screen</i> is checked separately, by <b>screencheck.py</b>, on every push.</p>
   </div></section>
@@ -1951,6 +1955,11 @@
       } else {
         bits.push("no report yet \u2014 the first writes after " + d.hour_utc + ":00 UTC");
       }
+      // (xl) THE POLICY'S OWN NUMBER, first: truth-class or HIGH is what a morning is for.
+      if (d.actionable_last !== null && d.actionable_last !== undefined) {
+        bits.push(d.actionable_last === 0 ? "nothing actionable last night"
+                                          : d.actionable_last + " ACTIONABLE last night (truth-class or HIGH)");
+      }
       bits.push(d.open_findings + " finding(s) on the books");
       if (d.last_minutes) {
         bits.push(d.last_minutes + " min of " + d.max_minutes + " allowed");
@@ -1988,6 +1997,16 @@
       }
     } catch (e) { $("nwLine").textContent = "could not read the night watch: " + e.message; }
   }
+  // (xl) the monthly read: every style/conduct finding the policy kept out of the
+  // morning report, with its quote and fix, worst-recurring first.
+  $("nwLedger").addEventListener("click", async function () {
+    nwMsg("Opening the last 30 days\u2026", "ok");
+    try {
+      var d = await api("/api/admin/nightwatch/ledger?days=30");
+      var pre = $("nwReport"); pre.textContent = d.markdown || "(empty ledger)";
+      pre.style.display = "block"; nwMsg("");
+    } catch (e) { nwMsg(e.message); }
+  });
   $("nwRead").addEventListener("click", async function () {
     var when = $("nwPick").value;
     if (!when) { nwMsg("There are no reports to read yet."); return; }

@@ -2,6 +2,20 @@
 # nightwatch.py  --  THE GOVERNOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xl -- THE WATCH POLICY, IN CODE (project 2 of the 09-14 deep dive;
+#               the 09-22 deep dive found the watch still at ten lessons a night with no
+#               report read since 09-15). TRUTH_RULES / is_actionable(): a finding is
+#               ACTIONABLE when it is HIGH, floored, objected to by a truth referee, or
+#               names rule 13/18/61/63/64 -- the same test TRUTH_REFEREES uses. The report
+#               leads with the actionable findings in full ("## Actionable"), sends the
+#               rest to a one-line "## To the ledger" section, and says "Nothing
+#               actionable tonight" in one line when so. email_digest() wakes Jim for
+#               actionable findings only (a preflight failure still mails). The ledger row
+#               now keeps severity, fix and actionable; ledger_markdown() is the monthly
+#               read (quotes and fixes, worst-recurring first; older rows classified on
+#               read). summary() adds actionable_last, parsed from the report. RULED_ALLOWED
+#               row EIGHT: rule 29, 2026-09-13, "done for the day" is respected -- the
+#               oldest unpaid ruling -- with the boundary that STUCK is not DONE. PART 3ng.
 #   2026-09-12  BUILD vu -- THE VOICE MISSES, BY LANE. voice_miss joins the alarm kinds
 #               and voice_miss_lines() prints the week's live renders grouped by lane
 #               (the event name), each with its distinct line heads newest first and
@@ -320,7 +334,7 @@ import os
 import re
 import time
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -878,6 +892,29 @@ RULED_ALLOWED = [
                     "a real 44. The test is whether every symbol in the line has been "
                     "met. If one has not, this ruling does not reach it.",
     },
+    {
+        "rule": 29,
+        "date": "2026-09-13",
+        "shape": 'a student says they are DONE, finished, or wants to stop -- and the '
+                 "tutor lets them: one warm closing line, a note of where they are, and "
+                 "no persuading -- reported as the tutor \"not encouraging one more "
+                 'problem", "ending the session early", or "overriding the plan"',
+        "ruling": "Jim, 2026-09-13 (Rulings_2026-09-13 §2): the tutor RESPECTS it. "
+                  "One warm closing line, a note of where they are so tomorrow picks up "
+                  "cleanly, and no persuading. This row exists because the 09-12 watch's "
+                  "critic argued BOTH sides of the same turn -- attempt 2 \"overrides "
+                  'the student\'s request to stop", attempt 3 "should gently encourage '
+                  'one more problem" -- and a charter that lets a critic do that costs a '
+                  "morning every time it happens. Put into the charter by build xl, "
+                  "2026-09-22: the oldest unpaid ruling on the books.",
+        "boundary": "STOPPING IS NOT THE SAME AS BEING STUCK. A student who says \"I "
+                    'don\'t get it", "this is too hard" or "I give up" is asking for a '
+                    "SMALLER STEP (rule 21) and a tutor who closes the session on that "
+                    "is a real 21 -- confirm it. A closing line that states something "
+                    "FALSE about where the student is, or that persuades after all, is "
+                    "judged normally. This ruling covers a student who asked to stop "
+                    "being allowed to stop, and nothing else.",
+    },
 ]
 
 
@@ -1302,9 +1339,14 @@ def _record(out, ledger, sc, finding, verified_note="", shipped=None):
     ledger[fp] = {"first": stamp, "last": stamp, "seen": 1,
                   "scenario": sc["id"], "course": sc.get("course"),
                   "rule": finding.get("rule"), "what": finding.get("what"),
-                  "quote": (finding.get("quote") or "")[:400]}
+                  "quote": (finding.get("quote") or "")[:400],
+                  # (xl) the ledger view groups by these; older rows lack them and are
+                  # shown as "unclassified" rather than guessed at
+                  "severity": finding.get("severity"),
+                  "fix": (finding.get("fix") or "")[:400]}
     if shipped:
         ledger[fp]["shipped"] = dict(shipped)
+    ledger[fp]["actionable"] = is_actionable({**finding, "shipped": shipped})
     out["new"].append({"fp": fp, "scenario": sc["id"], "course": sc.get("course"),
                        "severity": finding.get("severity"), "rule": finding.get("rule"),
                        "what": finding.get("what"), "quote": finding.get("quote"),
@@ -1317,6 +1359,74 @@ def _record(out, ledger, sc, finding, verified_note="", shipped=None):
 # PART 5 -- THE REPORT
 # =============================================================================
 _SEV = {"high": 0, "medium": 1, "low": 2}
+
+# =============================================================================
+# THE WATCH POLICY (2026-09-22, build xl) -- project 2 of the 09-14 deep dive
+# -----------------------------------------------------------------------------
+# The 09-14 deep dive counted it: the referee list went 62 -> 100 in three weeks and the
+# nightly finding count did not fall (8, 10, 10, 17, 14, 10). That is a game that cannot
+# be won by playing harder, on the lane a child reaches only on a second consecutive
+# miss. The policy Jim adopted on 09-14 and this build puts into code:
+#
+#   * TRUTH-CLASS and HIGH findings are ACTIONABLE. They lead the report, in full, and
+#     they are the only thing the morning email is sent for.
+#   * Everything else -- MEDIUM and LOW conduct -- goes to the LEDGER: one line each at
+#     the bottom of the nightly report, and a monthly view (ledger_markdown) read once a
+#     month, not once a morning.
+#   * A night with no actionable finding says so in ONE LINE, at the top, and sends no
+#     email. A nightly email that usually says nothing is a nightly email nobody opens.
+#   * NO NEW REFEREE UNLESS THE FINDING IS TRUTH-CLASS. A conduct hole is ledgered, not
+#     built. This is a rule for the person reading the report; the report prints it.
+#
+# WHAT "TRUTH-CLASS" MEANS HERE, so it cannot drift: the same test tutor.TRUTH_REFEREES
+# uses (build sj) -- a false thing a student would be SHOWN or TOLD. A finding is truth-
+# class when (a) a truth referee objected to the very reply it quotes (the vg stamp), or
+# (b) it was floored (a truth draft withheld), or (c) the rule it names is one of the
+# rules whose breach IS a false statement: 13 (every spoken mathematical sentence must
+# be literally true), 18 (the tutor's words must match the student's actual answer),
+# 61 (a generalisation carries its condition), 63 (the words and the picture are the
+# same figure), 64 (never trade the student's number for a different one). Every other
+# numbered rule is a promise about HOW the tutor teaches -- conduct -- and stays enforced
+# by its live referee exactly as before; this policy changes what the REPORT leads with
+# and what wakes Jim, not what the referees do to a reply.
+TRUTH_RULES = frozenset({13, 18, 61, 63, 64})
+
+
+def is_actionable(finding) -> bool:
+    """Truth-class or HIGH. Never raises; an unreadable finding is not actionable."""
+    try:
+        if str(finding.get("severity") or "").lower() == "high":
+            return True
+        sh = finding.get("shipped") or {}
+        if sh.get("kind") == "floor":
+            return True
+        ref = sh.get("referee")
+        if ref:
+            try:
+                import tutor as _tu
+                if ref in getattr(_tu, "TRUTH_REFEREES", {}):
+                    return True
+            except Exception:  # noqa: BLE001 -- the watch runs with or without tutor
+                pass
+        rule = finding.get("rule")
+        if rule is not None and int(rule) in TRUTH_RULES:
+            return True
+    except Exception:  # noqa: BLE001
+        return False
+    return False
+
+
+def split_actionable(new):
+    """(actionable, ledgered) -- each sorted HIGH first, as the report has always been."""
+    key = lambda f: _SEV.get(str(f.get("severity")).lower(), 3)
+    act = sorted([f for f in new if is_actionable(f)], key=key)
+    led = sorted([f for f in new if not is_actionable(f)], key=key)
+    return act, led
+
+
+POLICY_LINE = ("_Policy (2026-09-14): truth-class and HIGH findings are actionable and lead "
+               "this report; style and conduct findings go to the ledger, read monthly; a "
+               "hole earns a new referee only when it is truth-class._")
 
 
 def report_markdown(result, build="") -> str:
@@ -1375,8 +1485,21 @@ def report_markdown(result, build="") -> str:
               ""]
     if not result.get("ok"):
         L += ["**The watch did not complete.**", ""]
+    # (xl) THE POLICY, ON THE PAGE. The report leads with what is actionable and says in
+    # one line when nothing is. The ledgered findings are still confirmed, still in the
+    # ledger, still one line each below -- they are not thrown away; they are not read
+    # every morning.
+    _act, _led = split_actionable(new)
+    if new and not _act:
+        L += [f"## Nothing actionable tonight — {len(_led)} style/conduct finding(s) went to the ledger", "",
+              POLICY_LINE, ""]
+    elif not new:
+        L += ["## Nothing actionable tonight — no new confirmed findings at all", "",
+              POLICY_LINE, ""]
+    if _act:
+        L += [f"## Actionable — truth-class or HIGH ({len(_act)}) — each survived an independent challenge", "", POLICY_LINE, ""]
+    new = _act
     if new:
-        L += ["## New, and each survived an independent challenge", ""]
         # (vg) THE TALLY THAT SAYS WHAT KIND OF WORK THE NIGHT IS ASKING FOR. Holes
         # want referees; pass-throughs already have them and want repairs or rulings.
         _kinds = [(f.get("shipped") or {}).get("kind") for f in new]
@@ -1400,8 +1523,15 @@ def report_markdown(result, build="") -> str:
                 L += [shipped_line(f["shipped"]), ""]
             if f.get("verified"):
                 L += [f"_Reviewer: {f['verified']}_", ""]
-    else:
-        L += ["No new confirmed findings tonight.", ""]
+    if _led:
+        L += [f"## To the ledger — style and conduct ({len(_led)})", "",
+              "_Confirmed, and on the books. One line each; the monthly ledger view carries "
+              "the quotes and the fixes. None of these wakes anyone._", ""]
+        for f in _led:
+            L += [f"- {str(f.get('severity','?')).upper()} · **{f.get('scenario')}** ({f.get('course')})"
+                  + (f" · rule {f['rule']}" if f.get("rule") else "")
+                  + f" — {f.get('what')}"]
+        L += [""]
 
     # (pq) WHAT THE REVIEWER COULD NOT JUDGE. Findings whose rule is not in
     # VERIFY_SYSTEM's conduct list. These are NOT refutations and are not counted as
@@ -1671,11 +1801,18 @@ def email_digest(result, build="") -> "tuple[str, str] | None":
     email nobody opens, and then the one that matters is missed too."""
     new = result.get("new") or []
     hard_errors = [e for e in (result.get("errors") or []) if "preflight" in e.lower()]
-    if not new and not hard_errors:
+    # (xl) THE POLICY: only an ACTIONABLE finding -- truth-class or HIGH -- is worth a
+    # morning email. A night of ledgered conduct findings is a night of silence; they are
+    # in the report and the ledger for the monthly read.
+    act, _led = split_actionable(new)
+    if not act and not hard_errors:
         return None
-    high = sum(1 for f in new if str(f.get("severity")).lower() == "high")
-    subject = (f"{len(new)} new teaching finding(s)"
-               + (f", {high} HIGH" if high else "")) if new else "night watch could not run"
+    high = sum(1 for f in act if str(f.get("severity")).lower() == "high")
+    truth = len(act) - high
+    subject = ((f"{len(act)} actionable finding(s)"
+                + (f" — {high} HIGH" if high else "")
+                + (f", {truth} truth-class" if truth else ""))
+               if act else "night watch could not run")
     return subject, report_markdown(result, build)
 
 
@@ -1742,7 +1879,8 @@ def summary(data_dir) -> dict:
            "lessons": LESSONS_PER_NIGHT, "turns": TURNS_PER_LESSON,
            "verify": VERIFY_FINDINGS, "reports": [], "last": "", "open_findings": 0,
            "recurring_worst": [], "health": None, "note": "",
-           "max_minutes": MAX_MINUTES, "last_minutes": None, "near_ceiling": False}
+           "max_minutes": MAX_MINUTES, "last_minutes": None, "near_ceiling": False,
+           "actionable_last": None}
     try:
         d = os.path.join(str(data_dir), REPORT_DIR_NAME)
         names = sorted((f[:-3] for f in os.listdir(d) if f.endswith(".md")), reverse=True)
@@ -1781,9 +1919,62 @@ def summary(data_dir) -> dict:
             total = new + refuted
             out["health"] = {"new": new, "refuted": refuted,
                              "refuted_pct": round(100.0 * refuted / total) if total else None}
+        # (xl) the policy's own number, parsed from the report the same way so the card
+        # can never disagree with it: how many of last night's findings were actionable
+        ma = re.search(r"^## Actionable — truth-class or HIGH \((\d+)\)", text, re.M)
+        out["actionable_last"] = int(ma.group(1)) if ma else (0 if text else None)
     except Exception:  # noqa: BLE001
         pass
     return out
+
+
+def ledger_markdown(data_dir, days=30, now=None) -> str:
+    """(xl) THE MONTHLY READ. Every confirmed finding the policy sent to the ledger
+    rather than the morning report, seen in the last `days` days, worst-recurring first,
+    WITH its quote and fix -- the detail the nightly report no longer prints for them.
+    Actionable rows are listed too, under their own heading, so the month's truth/HIGH
+    history is on the same page. Never raises: an unreadable ledger is an empty month."""
+    now = now or datetime.now(timezone.utc)
+    L = [f"# Night-watch ledger — the last {days} days — {now.strftime('%Y-%m-%d')}", "",
+         POLICY_LINE, ""]
+    try:
+        led = load_ledger(data_dir)
+    except Exception as exc:  # noqa: BLE001
+        return "\n".join(L + [f"_The ledger could not be read: {exc}_", ""])
+    cutoff = (now - timedelta(days=days)).strftime("%Y-%m-%d")
+    rows = [v for v in led.values() if str(v.get("last") or "") >= cutoff]
+    rows.sort(key=lambda v: (-int(v.get("seen", 1)), str(v.get("last") or "")))
+    def _bucket(v):
+        a = v.get("actionable")
+        if a is None:
+            # an older row, recorded before the policy: classify it now from what it kept
+            return "actionable" if is_actionable(v) else "ledger"
+        return "actionable" if a else "ledger"
+    ledgered = [v for v in rows if _bucket(v) == "ledger"]
+    action = [v for v in rows if _bucket(v) == "actionable"]
+    L += [f"**{len(rows)} finding(s) seen this period · {len(ledgered)} style/conduct on the "
+          f"ledger · {len(action)} actionable (truth-class or HIGH).**", ""]
+    def _rows(items):
+        out = []
+        for v in items:
+            sev = str(v.get("severity") or "unclassified").upper()
+            out += [f"### {sev} · {v.get('scenario')} ({v.get('course')})"
+                    + (f" · rule {v['rule']}" if v.get("rule") else "")
+                    + f" · seen {v.get('seen', 1)}× · first {v.get('first')} · last {v.get('last')}",
+                    "", f"**{v.get('what')}**", ""]
+            if v.get("quote"):
+                out += [f"> {v['quote']}", ""]
+            if v.get("fix"):
+                out += [f"Suggested fix: {v['fix']}", ""]
+            if v.get("shipped"):
+                out += [shipped_line(v["shipped"]), ""]
+        return out
+    L += [f"## On the ledger — style and conduct ({len(ledgered)})", ""]
+    L += _rows(ledgered) if ledgered else ["_Nothing on the ledger this period._", ""]
+    L += [f"## Actionable this period — truth-class or HIGH ({len(action)})", ""]
+    L += _rows(action) if action else ["_No actionable finding this period._", ""]
+    L += ["*I did no harm and this file is not truncated.*", ""]
+    return "\n".join(L)
 
 
 def read_report(data_dir, date_name: str) -> str:

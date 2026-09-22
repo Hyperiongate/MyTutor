@@ -2,6 +2,13 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xl -- PART 3ng, THE WATCH POLICY. Pins is_actionable's definition,
+#               the report's three shapes (mixed / ledger-only / empty), the email's
+#               silence, the ledger row and the monthly view, the route, the card, and
+#               the "done for the day" ruling in BOTH seats. Pins moved: 3lc's two test
+#               findings are HIGH now (the full print is for actionable findings); the
+#               RULED_ALLOWED count 7 -> 8 in 3kk and 3jt; the critic's "Six discipline
+#               checks" -> "Seven" in 3jq.
 #   2026-09-22  BUILD xk -- PART 3nf, THE PRAISE IS NOT THE WALK-BACK IN SHORT, plus the
 #               09-22 Pre-Algebra sweep's authored pile (29 findings: 1 class, 27 one-offs,
 #               1 refused). The class: a praise that teaches (8+ content words) followed by
@@ -11738,9 +11745,9 @@ def part3kk_one_name_per_function():
 
     # ---- the seventh ruling row (rule 48) -----------------------------------------------------
     rows = NW.RULED_ALLOWED
-    check("⭐ RULED_ALLOWED carries seven rows: Jim's 2026-09-08 ruling that a board equation built "
+    check("⭐ RULED_ALLOWED carries seven rows at uo (eight since xl): Jim's 2026-09-08 ruling that a board equation built "
           "from introduced symbols is not new notation (rule 48)",
-          len(rows) == 7 and sorted(r["rule"] for r in rows) == [14, 27, 27, 42, 48, 48, 52]
+          len(rows) == 8 and sorted(r["rule"] for r in rows) == [14, 27, 27, 29, 42, 48, 48, 52]   # (xl) row eight
           and any(r["rule"] == 48 and r["date"] == "2026-09-08" for r in rows), "")
     r48 = next((r for r in rows if r["rule"] == 48 and r["date"] == "2026-09-08"), {"boundary": "", "shape": "\0"})
     check("  ...its boundary keeps a symbol never introduced a real 14/48 and a new rule never "
@@ -15385,9 +15392,13 @@ def part3lc_every_finding_says_whether_the_referees_knew():
         # ---- 4. the report and the ledger ---------------------------------------------------------
         pt = NW.shipped_as(F('[[step eq="X^2 = 9"]]'), tr, ev)
         hole = NW.shipped_as(F('Want to see it once more?'), tr, ev)
+        # (xl) the watch policy prints a finding in FULL -- tally, quote, Shipped-as line --
+        # only when it is actionable (truth-class or HIGH); a MEDIUM rule-28 conduct finding
+        # now goes to the ledger as one line. These two are made HIGH so the full print,
+        # which is what this PART pins, is exercised.
         res = {"ok": True, "ran": 1,
-               "new": [dict(F('[[step eq="X^2 = 9"]]'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=pt),
-                       dict(F('Want to see it once more?'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=hole)],
+               "new": [dict(F('[[step eq="X^2 = 9"]]'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=pt, severity="high"),
+                       dict(F('Want to see it once more?'), scenario="t", course="algebra2", why="w", fix="f", verified="v", shipped=hole, severity="high")],
                "refuted_list": [{"scenario": "t", "rule": 28, "what": "w", "reviewer": "r", "shipped": pt}]}
         md = NW.report_markdown(res, build="vg-test")
         check("⭐ the report prints a 'Shipped as:' line under each finding, naming the kind and the referee",
@@ -15397,8 +15408,8 @@ def part3lc_every_finding_says_whether_the_referees_knew():
         check("  ...and a REFUTED finding a referee had caught is flagged as reviewer-vs-code disagreement",
               "but `varcase` objected to this very reply" in md, "")
         check("  a night without stamps prints no tally and no Shipped-as line (older results still render)",
-              "hole(s)" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v")]})
-              and "Shipped as" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v")]}), "")
+              "hole(s)" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v", severity="high")]})   # (xl) HIGH, so it is printed in full
+              and "Shipped as" not in NW.report_markdown({"ok": True, "ran": 1, "new": [dict(F("q"), scenario="t", course="c", why="w", fix="f", verified="v", severity="high")]}), "")
         out = {"new": [], "recurring": 0}
         ledger = {}
         NW._record(out, ledger, sc, F('[[step eq="X^2 = 9"]]'), verified_note="v", shipped=pt)
@@ -21742,6 +21753,156 @@ step by step his her their them they we i he she""".split())
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-22xk-' in notes("main.py") and "2026-09-22  BUILD xk" in notes("lessonscripts.py")
           and "2026-09-22  BUILD xk" in notes("ruletests.py"), "")
+
+def part3ng_the_watch_policy():
+    """PART 3ng (build xl, 2026-09-22) -- THE WATCH POLICY, IN CODE. Project 2 of the
+    09-14 deep dive, and the oldest unpaid item on every handoff since: the referee list
+    went 62 -> 100 in three weeks and the nightly finding count did not fall, on a lane a
+    child reaches only on a second consecutive miss. The 09-22 deep dive found the watch
+    still running at ten lessons a night with no report read since 09-15.
+
+    THE POLICY: truth-class and HIGH findings are ACTIONABLE -- they lead the report in
+    full and are the only thing the morning email is sent for. Everything else goes to
+    the LEDGER: one line each at the bottom of the nightly report, and a monthly view
+    (ledger_markdown, /api/admin/nightwatch/ledger, the card's third button) with the
+    quotes and fixes. A night with nothing actionable says so in ONE line and sends no
+    email. And a hole earns a new referee only when it is truth-class -- printed on
+    every report so the reader holds to it too.
+
+    TRUTH-CLASS is pinned to one definition so it cannot drift: a truth referee objected
+    (tutor.TRUTH_REFEREES), or the draft was floored, or the rule named is 13, 18, 61,
+    63 or 64 -- the rules whose breach IS a false thing shown or told (sj's own test).
+
+    THE CHARTER carries the 09-13 "done for the day" ruling in both seats at last: the
+    critic's seventh discipline check (lessonaudit.CRITIC_SYSTEM) and RULED_ALLOWED's
+    eighth row (rule 29) for the reviewer, with the boundary that stuck is not done."""
+    print("\nPART 3ng — the watch policy (build xl)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    import nightwatch as NW
+    import lessonaudit as LA
+    import tutor as T
+    import tempfile as _tf
+    F = lambda sev, rule=None, shipped=None: {"scenario": "s", "course": "algebra1", "severity": sev,
+                                             "rule": rule, "what": "w", "quote": "q", "why": "y",
+                                             "fix": "f", "shipped": shipped}
+
+    # ---- the definition -------------------------------------------------------------------
+    check("⭐⭐ ACTIONABLE means truth-class or HIGH, and nothing else: HIGH conduct yes; MEDIUM "
+          "rule 61 yes; LOW conduct no; a truth referee's pass-through yes; a conduct referee's "
+          "no; a floor yes; garbage no",
+          NW.is_actionable(F("high", 39)) and NW.is_actionable(F("medium", 61))
+          and not NW.is_actionable(F("low", 39))
+          and NW.is_actionable(F("low", 39, {"kind": "pass-through", "referee": "mathcheck"}))
+          and not NW.is_actionable(F("low", 39, {"kind": "pass-through", "referee": "peopleforms"}))
+          and NW.is_actionable(F("low", None, {"kind": "floor"}))
+          and not NW.is_actionable({"severity": None, "rule": "abc"}) and not NW.is_actionable({}), "")
+    check("  the truth rules are exactly the five whose breach is a false thing shown or told, "
+          "and every one of them is a rule the registry holds",
+          NW.TRUTH_RULES == frozenset({13, 18, 61, 63, 64})
+          and all(n in T.rule_titles() for n in NW.TRUTH_RULES)
+          and "mathcheck" in T.TRUTH_REFEREES, "")
+
+    # ---- the report -----------------------------------------------------------------------
+    mixed = {"ok": True, "ran": 10, "recurring": 2, "refuted": 3, "seconds": 100,
+             "new": [F("low", 39), F("medium", 61), F("high", 17)]}
+    md = NW.report_markdown(mixed, build="xl-test")
+    heads = [l for l in md.splitlines() if l.startswith("## ")]
+    check("⭐ a mixed night LEADS with the actionable findings, in full, and sends the rest to the "
+          "ledger as one line each -- the ledger section comes after, not before",
+          heads[0].startswith("## Actionable — truth-class or HIGH (2)")
+          and "## To the ledger — style and conduct (1)" in heads
+          and heads.index("## To the ledger — style and conduct (1)") > 0
+          and md.count("### ") == 2                        # only the two actionable get a full block
+          and "- LOW · **s** (algebra1) · rule 39 — w" in md
+          and NW.POLICY_LINE in md, str(heads[:3]))
+    quiet = {"ok": True, "ran": 10, "recurring": 0, "refuted": 1, "seconds": 50,
+             "new": [F("low", 39), F("medium", 42)]}
+    qmd = NW.report_markdown(quiet, build="xl-test")
+    check("⭐ a night of ledger-only findings says NOTHING ACTIONABLE in one line at the top, and "
+          "still lists them below -- confirmed findings are never thrown away",
+          [l for l in qmd.splitlines() if l.startswith("## ")][0]
+          == "## Nothing actionable tonight — 2 style/conduct finding(s) went to the ledger"
+          and "## To the ledger — style and conduct (2)" in qmd and "### " not in qmd, "")
+    empty = {"ok": True, "ran": 10, "recurring": 0, "refuted": 0, "seconds": 50, "new": []}
+    check("  an empty night says so too, and an older result dict with no 'new' key still renders",
+          "## Nothing actionable tonight — no new confirmed findings at all" in NW.report_markdown(empty)
+          and "Night watch" in NW.report_markdown({"ok": True, "ran": 1}), "")
+    check("  the closing statement survives the new sections (house rule)",
+          md.strip().endswith("truncated.*") and qmd.strip().endswith("truncated.*"), "")
+
+    # ---- the email ------------------------------------------------------------------------
+    check("⭐ THE EMAIL WAKES JIM FOR ACTIONABLE FINDINGS ONLY: a mixed night emails and names "
+          "them; a ledger-only night is silence; a preflight failure still emails",
+          NW.email_digest(mixed, "b") is not None
+          and NW.email_digest(mixed, "b")[0] == "2 actionable finding(s) — 1 HIGH, 1 truth-class"
+          and NW.email_digest(quiet, "b") is None
+          and NW.email_digest(dict(quiet, errors=["preflight failed: no key"]), "b") is not None, "")
+
+    # ---- the ledger -----------------------------------------------------------------------
+    with _tf.TemporaryDirectory() as d:
+        led, out = {}, {"new": [], "recurring": 0}
+        NW._record(out, led, {"id": "s9", "course": "basic"}, F("low", 39))
+        NW._record(out, led, {"id": "s9", "course": "basic"}, F("medium", 61))
+        NW._record(out, led, {"id": "s9", "course": "basic"}, F("low", 39))   # a repeat
+        NW.save_ledger(d, led)
+        rows = list(led.values())
+        check("⭐ every ledger row now carries its severity, its fix and whether it was actionable, "
+              "and a repeat still counts as one row seen twice",
+              sorted((r["severity"], r["actionable"], r["seen"]) for r in rows)
+              == [("low", False, 2), ("medium", True, 1)] and all(r.get("fix") == "f" for r in rows), "")
+        lm = NW.ledger_markdown(d, 30)
+        check("  the monthly view splits ledger from actionable, carries the quote and the fix the "
+              "nightly report no longer prints for ledgered rows, and reads worst-recurring first",
+              "## On the ledger — style and conduct (1)" in lm
+              and "## Actionable this period — truth-class or HIGH (1)" in lm
+              and "> q" in lm and "Suggested fix: f" in lm and "seen 2×" in lm
+              and lm.strip().endswith("truncated.*"), "")
+        check("  a row recorded BEFORE this build (no 'actionable' key) is classified on read, not guessed",
+              "## Actionable this period — truth-class or HIGH (1)" in NW.ledger_markdown(d, 30)
+              and (lambda: (led[next(iter(led))].pop("actionable", None), NW.save_ledger(d, led),
+                            "finding(s) seen this period" in NW.ledger_markdown(d, 30))[-1])(), "")
+        check("  an unreadable ledger is an empty month, never a crash",
+              "Night-watch ledger" in NW.ledger_markdown("/nonexistent/path/xl", 30), "")
+        NW.write_report(d, mixed, "t")
+        check("  the /admin card's number is parsed from the report it describes: 2 actionable last night; "
+              "0 on an empty night",
+              NW.summary(d)["actionable_last"] == 2
+              and (NW.write_report(d, empty, "t") and NW.summary(d)["actionable_last"] == 0), "")
+
+    # ---- the route and the card -------------------------------------------------------------
+    mp = rd("main.py"); ad = rd("static/admin.html")
+    check("  /api/admin/nightwatch/ledger exists, requires the admin key, and clamps days to 1..366",
+          '@app.get("/api/admin/nightwatch/ledger")' in mp
+          and "days = max(1, min(int(days or 30), 366))" in mp
+          and "_require_admin(x_admin_key or key)" in mp.split('nightwatch/ledger")')[1][:600], "")
+    check("  the card carries the third button, the policy in a sentence, and the actionable count first",
+          'id="nwLedger"' in ad and "/api/admin/nightwatch/ledger?days=30" in ad
+          and "nothing actionable last night" in ad and "The policy (2026-09-14, in code since xl)" in ad, "")
+
+    # ---- the charter: done for the day, in both seats -------------------------------------
+    r29 = [r for r in NW.RULED_ALLOWED if r["rule"] == 29]
+    check("⭐ RULED_ALLOWED row eight: rule 29, dated 2026-09-13, 'done for the day' is respected -- "
+          "the oldest unpaid ruling on the books, paid",
+          len(r29) == 1 and r29[0]["date"] == "2026-09-13" and "no persuading" in r29[0]["ruling"], "")
+    check("  ...with sh's boundary: STUCK is not DONE -- 'I don't get it' is a rule-21 request for a "
+          "smaller step, and persuading after being asked to stop is still judged",
+          "STOPPING IS NOT THE SAME AS BEING STUCK" in r29[0]["boundary"]
+          and "rule 21" in r29[0]["boundary"] and "persuades after all" in r29[0]["boundary"], "")
+    check("  the reviewer's rendered system prompt carries the row",
+          "RULE 29 · RULED ALLOWED 2026-09-13" in NW.render_verify_system(), "")
+    check("  and the CRITIC's charter carries it as the seventh discipline check, so it can no longer "
+          "argue both sides of the same turn",
+          '7. "DONE FOR THE DAY" IS RESPECTED' in LA.CRITIC_SYSTEM
+          and "you may not argue both sides of the same turn" in LA.CRITIC_SYSTEM
+          and "closing on it\n   is a real rule-21 defect" in LA.CRITIC_SYSTEM, "")
+    check("  every ruling row still carries a boundary (sh's law), eight rows in all",
+          len(NW.RULED_ALLOWED) == 8 and all((r.get("boundary") or "").strip() for r in NW.RULED_ALLOWED), "")
+
+    # ---- Jim's rule 8 ---------------------------------------------------------------------
+    check("  the dated notes are in",
+          "2026-09-22  BUILD xl" in notes("nightwatch.py") and "2026-09-22  BUILD xl" in notes("lessonaudit.py")
+          and 'APP_BUILD -> "2026-09-22xl-' in notes("main.py") and "2026-09-22  BUILD xl" in notes("ruletests.py"), "")
 
 def _reads_in_words(nums, spoken, L):
     """True when every number on the board is spoken in WORDS (Entry and Basic do) -- the
@@ -36836,8 +36997,8 @@ def part3jq_the_caption_the_sequence_and_the_definition():
           "three watches reported as a defect",
           "THE BOARD LANDS WHOLE" in _LA.CRITIC_SYSTEM
           and "never read\n   ANYWHERE in the reply" in _LA.CRITIC_SYSTEM, "")
-    check("  ...and the list no longer miscounts itself as three",
-          "Six discipline checks" in _LA.CRITIC_SYSTEM
+    check("  ...and the list no longer miscounts itself as three (six at tu; seven since xl)",
+          "Seven discipline checks" in _LA.CRITIC_SYSTEM   # (xl) check 7: done for the day
           and "Three discipline checks" not in _LA.CRITIC_SYSTEM, "")
 
     # ---- Jim's rule 8 -------------------------------------------------------------
@@ -37228,8 +37389,8 @@ def part3jt_the_words_and_the_picture_are_the_same_thing():
     # ---- N10: the ruling row ----------------------------------------------------------
     check("⭐ RULED_ALLOWED carries six rows at tx (seven since uo): Jim's 2026-09-07 ruling that the money "
           "model for decimals is teaching, not a units defect",
-          len(_NW.RULED_ALLOWED) == 7
-          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 27, 42, 48, 48, 52], "")
+          len(_NW.RULED_ALLOWED) == 8   # (xl) row eight: rule 29, done for the day
+          and sorted(r["rule"] for r in _NW.RULED_ALLOWED) == [14, 27, 27, 29, 42, 48, 48, 52], "")
     check("  ...every row still carries a boundary (sh's law)",
           all((r.get("boundary") or "").strip() for r in _NW.RULED_ALLOWED), "")
     check("  ...and the new row's boundary keeps a unit that CHANGES the quantity real",
@@ -48677,6 +48838,7 @@ def main():
     part3nd_the_second_calculus_sweep()
     part3ne_the_spoken_beat_is_short_everywhere()
     part3nf_the_praise_is_not_the_walk_back()
+    part3ng_the_watch_policy()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  APP_BUILD -> "2026-09-22xl-the-watch-policy". Project 2 of the 09-14 deep
+#               dive: the night watch's report leads with truth-class and HIGH, ledgers
+#               the rest, emails for actionable only. NEW GET /api/admin/nightwatch/ledger
+#               (days, clamped 1..366) -- the monthly read; the /admin card gains the
+#               button and the actionable count. nightwatch.py, lessonaudit.py (the
+#               critic's seventh check: done for the day), static/admin.html. PART 3ng.
 #   2026-09-22  APP_BUILD -> "2026-09-22xk-the-praise-is-not-the-walk-back". The third
 #               round's first reading (Pre-Algebra, 29 findings, 18 lessons clean -- 58 and
 #               9 at xa). Eight generator praises that taught, and were then taught again by
@@ -4824,6 +4830,20 @@ def admin_nightwatch_report(date: str = "", key: str = "",
     return {"ok": True, "date": date, "markdown": text}
 
 
+@app.get("/api/admin/nightwatch/ledger")
+def admin_nightwatch_ledger(days: int = 30, key: str = "",
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(xl) THE MONTHLY READ. The watch policy (2026-09-14, in code since xl) sends every
+    style/conduct finding to the ledger instead of the morning report; this is the one
+    place they are read, with their quotes and fixes, worst-recurring first. `days` is
+    clamped to 1..366 so the view can never be asked for a negative or absurd window."""
+    _require_admin(x_admin_key or key)
+    if nightwatch is None:
+        raise HTTPException(status_code=404, detail="nightwatch.py is not deployed")
+    days = max(1, min(int(days or 30), 366))
+    return {"ok": True, "days": days, "markdown": nightwatch.ledger_markdown(DATA_DIR, days)}
+
+
 # =============================================================================
 # THE COURSE SWEEP (2026-09-15, build wa) -- PROJECT 1 OF THE 09-14 DEEP DIVE
 # -----------------------------------------------------------------------------
@@ -9070,7 +9090,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xk-the-praise-is-not-the-walk-back"
+APP_BUILD = "2026-09-22xl-the-watch-policy"
 
 
 @app.get("/health")
