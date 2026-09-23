@@ -2,6 +2,17 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xs -- THE THIRD DIFFEQ SWEEP, the generator side (4 ops). conc: the
+#               ask opens "For the outflow of a mixing problem, the key number is the
+#               concentration" (was "the first number a mixing problem needs"), and the
+#               walk-back's last sentence says what the pipe carries PER LITRE. estp: the
+#               worked board's first line is "main error scales with the step" -- the
+#               ∝ sign was never taught or spoken. rk4: the ask says Euler's main error
+#               ABOUT halves and RK4's divides by ABOUT 16, then "in this lesson we scale
+#               by exactly that" (the walk-back already said 2 to the power 4). sysx: the
+#               walk-back ends on "a field of arrows, each with an across part and an up
+#               part" -- a planar system is not "a slope field with two directions". Every
+#               line replaced one for one: the course list stays 40,495. PART 3nn.
 #   2026-09-23  BUILD xr -- THE PENCIL IN THE SCRIPTED LANE. The engine names its own
 #               beats so the page can ring the pencil on them: "intro" on the lesson's
 #               introduction, "praise" and "walk-back" in _correct_beats, "second-look",
@@ -7055,7 +7066,7 @@ def _conc_worked(p):
     return (f"Here it is, step by step: share the salt out over the water — {a} grams divided by "
             f"{b} litres equals {a // b} grams in each litre. Not {a - b}: grams and litres are "
             f"different things, and they share, never take away. That share is the concentration — "
-            f"what the outflow pipe carries away.",
+            f"how many grams of salt ride in each litre the outflow pipe carries away.",
             f'[[step eq="{a} ÷ {b} = {a // b}"]][[step eq="{a // b} grams in each litre"]]'
             f'[[step eq="{a} − {b} = {a - b} ✗ different units never take away"]]')
 
@@ -7120,7 +7131,7 @@ def _estp_worked(p):
             f"The main error scales the same way: {a} becomes {a * c // b}. "
             f"Not {a // 2}: it halves only if the step halved. That is the deal a first-order method "
             f"offers — the main error shrinks in step with the step itself.",
-            f'[[step eq="error ∝ step"]][[step eq="{a} × {c} ÷ {b} = {a * c // b}"]]'
+            f'[[step eq="main error scales with the step"]][[step eq="{a} × {c} ÷ {b} = {a * c // b}"]]'
             f'[[step eq="{a // 2} ✗ the step did not halve"]]')
 
 
@@ -7270,7 +7281,8 @@ def _sysx_worked(p):
     return (f"Here it is, step by step: x prime equals {a} x take away y. Feed the point in: "
             f"{a} times {b} is {a * b}, then take away the y — {a * b} take away {c} equals {a * b - c}. "
             f"Not {a * b + c}: the y pulls back. That is the x part of the arrow at that point; the y rule "
-            f"gives the other part the same way. A slope field with two directions instead of one.",
+            f"gives the other part the same way. A field of arrows, each with an across part and an "
+            f"up part, where Unit 1's dashes had one slope.",
             f'[[step eq="x′ = {a}x − y"]][[step eq="{a} × {b} = {a * b}"]]'
             f'[[step eq="{a * b} − {c} = {a * b - c}"]][[step eq="{a * b} + {c} = {a * b + c} ✗ the y pulls back"]]')
 
@@ -14731,8 +14743,8 @@ OP_EXT = {
     },
     "conc": {  # the number every mixing problem is really about
         "ans": lambda p: p["a"] // p["b"],
-        "spoken": lambda p: (f"The first number a mixing problem needs is "
-                             f"the concentration. "
+        "spoken": lambda p: (f"For the outflow of a mixing problem, the key "
+                             f"number is the concentration. "
                              f"{p['a']} grams of salt are stirred evenly "
                              f"into {p['b']} litres of water. How many "
                              f"grams sit in each single litre?"),
@@ -14933,9 +14945,10 @@ OP_EXT = {
     "rk4": {  # fourth order, and what that is worth
         "ans": lambda p: p["a"] // 16,
         "spoken": lambda p: (f"Fourth-order Runge-Kutta is a very common "
-                             f"method. Halve the step and Euler's error "
-                             f"halves — but this one's error divides by "
-                             f"16. Starting from an error of {p['a']}, "
+                             f"method. Halve the step and Euler's main error "
+                             f"about halves — this one's main error divides "
+                             f"by about 16. In this lesson we scale by "
+                             f"exactly that. Starting from an error of {p['a']}, "
                              f"what is left after halving the step once?"),
         "board": lambda p: (f'[[step eq="RK4 error {p["a"]} · halve the '
                             f'step"]]'

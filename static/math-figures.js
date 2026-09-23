@@ -2,6 +2,16 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-23  BUILD xs -- THE FIELD THE WORDS DRAW. [[graph field="x+y"]] draws a SLOPE
+                 FIELD: a short dash at each of a 12 x 12 grid of points across the window,
+                 leaning at the value of the expression there (x and y both allowed; a bare
+                 number is a constant field). Diffeq Unit 1's joining-the-dashes lesson said
+                 "here is the easiest field there is -- every dash leans at 3 -- with a walk
+                 drawn on it" over a board that drew only the line (the third Diffeq sweep,
+                 a HIGH); now the field is under the walk. The dashes are drawn first, faint,
+                 clipped to the frame, so curves, points and labels sit on top. compile()
+                 takes an optional second argument (withY) for this; every one-argument
+                 caller is byte-for-byte as before. Graphs without field= are untouched.
      2026-09-17  BUILD wq -- THE LINE THE WORDS DRAW. [[dotplot]] takes mark="8": a dashed
                  vertical mark at that value, labelled, drawn before the dots (a dot ON
                  the line sits on top of it). The Prob/Stat count-past-the-line lesson
@@ -273,7 +283,7 @@
     log10: "logten", log2: "logtwo", sign: "Math.sign", floor: "Math.floor", ceil: "Math.ceil",
     round: "Math.round"
   };
-  function compile(expr) {
+  function compile(expr, withY) {
     var raw = String(expr == null ? "" : expr).trim().replace(/^y\s*=\s*/i, "");
     if (!raw) return null;
     // map identifiers: x stays x; pi/e -> literal constants; a known function name -> its Math.*
@@ -281,6 +291,7 @@
     var e = raw.replace(/[A-Za-z_]+[0-9]*/g, function (word) {
       var w = word.toLowerCase();
       if (w === "x") return "x";
+      if (withY && w === "y") return "y";   // (xs) a slope field's expression is in x AND y
       if (w === "pi") return "Math.PI";
       if (w === "e") return "Math.E";
       if (FN.hasOwnProperty(w)) return FN[w];
@@ -289,7 +300,7 @@
     // implicit multiplication: a value-ender ( ) x digit ) immediately before a value-starter
     // ( "(" , x , "Math." , a log-helper ). Function names are already full Math.* / logten words
     // whose own "(" is a CALL, so no "*" is wrongly inserted inside sin(x), exp(x), logten(x).
-    e = e.replace(/([)x0-9])\s*(?=[(x]|Math\.|log)/g, "$1*");
+    e = e.replace(withY ? /([)xy0-9])\s*(?=[(xy]|Math\.|log)/g : /([)x0-9])\s*(?=[(x]|Math\.|log)/g, "$1*");
     // exponent: a^b -> Math.pow(a,b). (Using ** breaks on "-x**2", which JS rejects; Math.pow is
     // safe with a unary minus and with function bases like sin(x)^2.)
     var atom = "(?:Math\\.[A-Za-z]+\\([^()]*\\)|logten\\([^()]*\\)|logtwo\\([^()]*\\)|\\([^()]*\\)|[A-Za-z0-9_.]+)";
@@ -297,11 +308,11 @@
     for (var k = 0; k < 8 && e.indexOf("^") >= 0 && powRe.test(e); k++) e = e.replace(powRe, "Math.pow($1,$2)");
     var fn;
     try {
-      fn = new Function("x",
+      fn = new Function("x", "y",
         "var logten=function(v){return Math.log(v)/Math.LN10;};" +
         "var logtwo=function(v){return Math.log(v)/Math.LN2;};" +
         "return (" + e + ");");
-      var t = fn(1);
+      var t = fn(1, 1);
       if (typeof t !== "number") return null;
     } catch (err) { return null; }
     return fn;
@@ -468,6 +479,26 @@
     svg += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
 
     svg += '<g clip-path="url(#gclip)">';
+    // (xs, 2026-09-23) field="expr": THE SLOPE FIELD, Diffeq Unit 1's picture. A short
+    // dash at each point of a 12 x 12 grid across the window, leaning at the expression's
+    // value there (in x and y; a bare number is a constant field). Drawn first and faint,
+    // so a solution curve, its points and every label sit on top of the field they walk.
+    var fieldFn = compile(a.field, true);
+    if (fieldFn) {
+      var FN_ = 12, sxPx = plot / (xmax - xmin), syPx = plot / (ymax - ymin), half = 8;
+      for (var fi = 0; fi < FN_; fi++) {
+        for (var fj = 0; fj < FN_; fj++) {
+          var fx = xmin + (xmax - xmin) * (fi + 0.5) / FN_, fy = ymin + (ymax - ymin) * (fj + 0.5) / FN_, fm;
+          try { fm = fieldFn(fx, fy); } catch (e) { fm = NaN; }
+          if (!isFinite(fm)) continue;
+          var ddx = sxPx, ddy = -fm * syPx, dl = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          ddx = ddx / dl * half; ddy = ddy / dl * half;
+          var cxp = mapX(fx), cyp = mapY(fy);
+          svg += '<line x1="' + trimnum(cxp - ddx) + '" y1="' + trimnum(cyp - ddy) + '" x2="' + trimnum(cxp + ddx) + '" y2="' + trimnum(cyp + ddy) +
+                 '" stroke="var(--bd-5b5bd6)" stroke-width="1.6" stroke-opacity="0.45" stroke-linecap="round"/>';
+        }
+      }
+    }
     // (ub, 2026-09-07) shade="lo..hi": THE AREA UNDER A CURVE, Calculus Units 7-9's
     // picture. The region between the first sampled curve (a func= curve, else the first
     // sloped line) and the x-axis over lo..hi is filled in the curve's own colour, faintly,

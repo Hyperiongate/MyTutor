@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xs-the-third-diffeq-sweep". The third Diffeq
+#               reading (39 findings, 13 clean -- the first that saw the miss path). The
+#               class, measured canon-wide: the board skips the arithmetic the words say
+#               (35 Diffeq beats, all drawn now); the goal board's given line unsaid in
+#               its beat (8, all said). lessons/diffeq.py (70 edits), lessonscripts.py
+#               (conc, estp, rk4, sysx), static/math-figures.js ([[graph field=]] draws
+#               the slope field), tools/pinscan.py (the pre-flight, in the repo now).
+#               No change in this file beyond the stamp; ~110 lines to prewarm. PART 3nn.
 #   2026-09-23  APP_BUILD -> "2026-09-23xr-the-pencil-in-the-scripted-lane". Project 5 of
 #               the 09-14 deep dive, the fourth gate build. lessonscripts.py names the
 #               engine's beats; static/session.html rings beat.<name> for every scripted
@@ -9257,7 +9265,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xr-the-pencil-in-the-scripted-lane"
+APP_BUILD = "2026-09-23xs-the-third-diffeq-sweep"
 
 
 @app.get("/health")

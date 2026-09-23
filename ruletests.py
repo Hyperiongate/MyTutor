@@ -2,6 +2,17 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xs -- PART 3nn, THE THIRD DIFFEQ SWEEP (39 findings, 13 clean; the
+#               first reading of this course's miss path). Pins the class measured canon-
+#               wide -- a teach or worked beat whose words say a 2+digit number its board
+#               does not carry: Diffeq at zero, the other nine a falling ratchet -- and
+#               the goal-board given line said in its own beat (Diffeq zero, ratchet
+#               elsewhere); [[graph field=]] and the board contract listing it; the four
+#               generator fixes (conc, estp, rk4, sysx); the six HIGHs and the scoped
+#               laws by text; the drawn arithmetic by board; no dot between equations;
+#               counts, tools/pinscan.py, notes. Seven pins moved with the text (3mk's
+#               particular solution, settling transforms, s plus 6; 3mn's conc opener,
+#               the highest-derivative sentence, the two damping boards).
 #   2026-09-23  BUILD xr -- PART 3nm, THE PENCIL IN THE SCRIPTED LANE (project 5 of the
 #               09-14 deep dive; the fourth gate build). Pins the engine's beat names
 #               reaching the page, cadBeat and its order before the ask's door, the
@@ -19782,7 +19793,7 @@ def part3mk_the_first_diffeq_sweep():
           and '[[step eq="r² + 6r + 5 = 0"]]' in boards(E("diffeq-u5-one-number-decides"))
           and "A hair below 225 and the door crawls shut; a hair above and it bounces past the frame" in spoken(E("diffeq-u5-the-knife-edge"))
           and "Many objects have natural frequencies like this" in spoken(E("diffeq-u5-the-spring-that-never-stops"))
-          and "Guess that one particular solution is steady" in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and "A particular solution is one single solution that fits the pushed equation. Guess that one is steady" in spoken(E("diffeq-u6-somebody-is-pushing"))   # (xs) the term defined first
           and "for these steady pushes the method is the same every time" in spoken(E("diffeq-u6-somebody-is-pushing"))
           and "A pushed spring with damping does two things at once" in spoken(E("diffeq-u6-the-part-that-fades"))
           and "In these damped, settling problems, wait long enough" in spoken(E("diffeq-u6-the-part-that-fades"))
@@ -19791,7 +19802,7 @@ def part3mk_the_first_diffeq_sweep():
           and "it has turned into a multiplication by s, with the starting height taken off" in spoken(E("diffeq-u7-derivatives-become-timesing"))
           and "differentiating becomes s times Y, then take off the starting height" in spoken(E("diffeq-u7-derivatives-become-timesing"))
           and "Then read the board as: L of y prime equals s Y, minus y of zero" in spoken(E("diffeq-u7-derivatives-become-timesing"))  # (ws) Y is defined first
-          and "for settling transforms like these ones" in spoken(E("diffeq-u7-reading-the-ending"))
+          and "for a transform that settles, like these ones. For those, where a thing ends up" in spoken(E("diffeq-u7-reading-the-ending"))   # (xs) the theorem keeps its condition
           and "for the single real poles in this lesson. A pole to the right of zero" in spoken(E("diffeq-u7-the-shift-rule"))  # (ws) the sentence split
           and "one number that does a lot of the classifying" in spoken(E("diffeq-u8-the-number-in-the-corner"))
           and "Both below, and every path moves in toward the origin" in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
@@ -19827,7 +19838,7 @@ def part3mk_the_first_diffeq_sweep():
           and "A force of 150, damping 5, frequency 3." in E("diffeq-u6-what-saves-the-bridge")["teach"][0][0]
           and "one that takes, say, 60 months to go round" in spoken(E("diffeq-u9-round-and-round"))
           and "88 takes the 8 away rather than sharing" in spoken(E("diffeq-u7-reading-the-ending"))
-          and "the transform leaves s plus 6" in spoken(E("diffeq-u7-and-now-it-is-just-algebra"))
+          and "Here it left s plus 6, all times Y, equals 96" in spoken(E("diffeq-u7-and-now-it-is-just-algebra"))   # (xs) said in the goal beat
           and "Y is 180 over a lone s times the quantity s plus 12" in spoken(E("diffeq-u7-reading-the-ending")), "")  # (ws) "the quantity"
     check("  every Diffeq lesson validates; the course list is 39,999 (no beat added)",
           all(ok for les in L.LESSONS if les["course"] == "diffeq" for ok, _l, _d in L.validate(les))
@@ -20174,8 +20185,8 @@ def part3mn_the_second_diffeq_sweep():
           and "everybody actually uses" not in S({"a": 80, "b": 0, "op": "rk4"})
           and "One more halving divides what is left by 16 again. That is why a few halvings buy an accuracy Euler needs vastly more steps to reach." in W({"a": 80, "b": 0, "op": "rk4"})[0]   # (xo) split at 27 words
           and "thousand" not in W({"a": 80, "b": 0, "op": "rk4"})[0], "")
-    check("  conc: the concentration is the FIRST number a mixing problem needs; cycl nudges THIS model off the balance point and speaks of this tidy cycle",
-          S({"a": 120, "b": 6, "op": "conc"}).startswith("The first number a mixing problem needs is the concentration.")
+    check("  conc: the concentration is the key number for the OUTFLOW of a mixing problem (xs); cycl nudges THIS model off the balance point and speaks of this tidy cycle",
+          S({"a": 120, "b": 6, "op": "conc"}).startswith("For the outflow of a mixing problem, the key number is the concentration.")   # (xs) scoped to the outflow
           and "always turns on one number" not in S({"a": 120, "b": 6, "op": "conc"})
           and S({"a": 60, "b": 0, "op": "cycl"}).startswith("Nudge this model off the balance point and rabbits and foxes never settle — they go round and round. In this tidy cycle the foxes peak a quarter of a cycle after the rabbits.")   # (xj) split after the first stop
           and "always peak" not in S({"a": 60, "b": 0, "op": "cycl"}), "")
@@ -20196,7 +20207,7 @@ def part3mn_the_second_diffeq_sweep():
 
     # ---- the authored pile, by class ---------------------------------------------
     check("⭐ laws with their condition (U1-U4): classified by its HIGHEST derivative, said plainly; for this comparison; three calculations; the share, not the rate; a ceiling of 60; a WEIGHTED average; this lesson's cost measure",
-          "classified by its highest derivative. An equation with d y d x is first order, and one with d squared y over d x squared is second order" in spoken(E("diffeq-u1-a-dash-at-every-point"))   # (xf) split
+          "classified by its highest derivative. If the highest derivative in it is d y d x, it is first order. If the highest is d squared y over d x squared, it is second order" in spoken(E("diffeq-u1-a-dash-at-every-point"))   # (xs) the HIGHEST, not any
           and "deepest derivative" not in spoken(E("diffeq-u1-a-dash-at-every-point"))
           and "For this comparison, keep the same plane and the same points." in spoken(E("diffeq-u1-change-the-law-change-the-field"))
           and "Same point, three different calculations, and only one of them matches the equation" in spoken(E("diffeq-u1-change-the-law-change-the-field"))
@@ -20232,8 +20243,8 @@ def part3mn_the_second_diffeq_sweep():
           and "This field has an x part and a y part" in spoken(E("diffeq-u8-two-things-at-once"))
           and '[[step eq="88 − 60 = 28"]][[step eq="28 × 3 = 84"]]' in boards(E("diffeq-u3-the-one-that-pushes-away"))
           and '[[step eq="58 − 20 = 38"]]' in boards(E("diffeq-u3-the-one-that-pushes-away"))
-          and '[[step eq="4×221 − 10² = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
-          and '[[step eq="4×205 − 6² = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
+          and '[[step eq="4×221 − 10² = 884 − 100 = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))   # (xs) the spoken 884 and 100 drawn
+          and '[[step eq="4×205 − 6² = 820 − 36 = 784"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
           and '[[step eq="y″ + 4y = 52"]]' in boards(E("diffeq-u6-somebody-is-pushing"))
           and '[[step eq="y″ + 2y = 34"]]' in boards(E("diffeq-u6-somebody-is-pushing"))
           and '[[step eq="9 − 3 = 6"]]' in boards(E("diffeq-u6-why-soldiers-break-step"))
@@ -22818,6 +22829,187 @@ def _reads_in_words(nums, spoken, L):
         if w in lo or w.replace("-", " ") in lo:
             return True
     return False
+
+
+def part3nn_the_third_diffeq_sweep():
+    """PART 3nn (build xs, 2026-09-23) -- THE THIRD DIFFEQ SWEEP. The first reading that
+    saw this course's miss path (xo gave all 36 lessons a scripted walk-back): 39 findings
+    (5 generator, 34 authored), 13 of 36 lessons clean -- the count FELL from 62 / 8 even
+    with 216 new walk-backs in view. By kind: words-board 22, false 15, untaught-term 2.
+
+    THE CLASS, measured canon-wide before it was fixed: THE BOARD SKIPS THE ARITHMETIC THE
+    WORDS SAY. A worked line said "884 take away 100 is 784, whose root is 28, halved to
+    14" over one compressed board line, 4x221 - 10^2 = 784. Measured as a teach or
+    worked-example beat whose words say a number of two or more digits that its board
+    does not carry: 150 beats canon-wide, 35 of them in Diffeq -- every one now draws the
+    number (a chained equals, or a step line of its own; never " . " between two
+    equations). Diffeq is pinned at zero; the other nine are a falling ratchet. A second,
+    smaller class went the same way: THE GOAL BOARD'S GIVEN LINE IS NOT SAID IN ITS OWN
+    BEAT (step 10 -> error 90 on the goal card, read aloud only in the next turn) -- 40
+    canon-wide, 8 in Diffeq, each now said in the beat that shows it; Diffeq zero, the
+    rest a ratchet.
+
+    THE HIGHs: first order is the HIGHEST derivative being dy/dx, not dy/dx appearing;
+    "every dash leans at 3 -- with a walk drawn on it" over a board with no dashes --
+    [[graph field="3"]] draws the slope field now (math-figures.js, compile takes y);
+    smaller damping means a bigger swing FOR THE SAME FORCE AND FREQUENCY; the final-value
+    theorem is for a transform that settles; "Adding gives 74" names the wrong path (14
+    added to the trace); "Where an arrow goes flat" over x' = 0, which is the arrow going
+    straight up or down -> "Where an arrow stops going across". Generators: conc's ask is
+    scoped to the outflow and its walk-back says what the pipe carries per litre; estp's
+    board writes "main error scales with the step" instead of an untaught symbol; rk4's
+    ask says "about" twice and "in this lesson we scale by exactly that"; sysx's walk-back
+    is "a field of arrows", not "a slope field with two directions". Declined: the closing
+    card carrying the advance line's rule (the done card is title and score everywhere)."""
+    print("\nPART 3nn — the third Diffeq sweep (build xs)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for _s, b in les["teach"]] + [pr["worked"][1] for pr in les["pairs"]])
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    W = lambda p: L._worked_for(p) or ("", "")
+    ALL = ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat")
+    SUP = str.maketrans({"²": "^2", "³": "^3", "⁴": "^4", "⁵": "^5"})
+    bnums = lambda b: set(re.findall(r"\d+(?:\.\d+)?", (b or "").translate(SUP).replace(",", "")))
+    snums = lambda t: {n.replace(",", "") for n in re.findall(r"(?<![\w.])\d[\d,]*(?:\.\d+)?(?!\w|\.\d)", t or "")}
+
+    # ---- the class, measured: a spoken 2+digit number the beat's board does not carry ----
+    skip_ = {}
+    for c in ALL:
+        n = 0
+        for les in C.lessons_for(c, L):
+            items = [(t[0], t[1] if len(t) > 1 else "") for t in (les.get("teach") or [])]
+            items += [(pr["worked"][0], pr["worked"][1] if len(pr["worked"]) > 1 else "") for pr in (les.get("pairs") or []) if pr.get("worked")]
+            for sp, bd in items:
+                if {x for x in snums(sp) if len(x) >= 2} - bnums(bd):
+                    n += 1
+        skip_[c] = n
+    check("⭐⭐ THE BOARD DRAWS THE ARITHMETIC THE WORDS SAY, DIFFEQ: no teach or worked-example beat says a number of two or more digits that its board does not carry (35 did before xs)",
+          skip_["diffeq"] == 0, str(skip_))
+    RATCHET = {"entry": 7, "basic": 26, "prealgebra": 5, "algebra1": 10, "geometry": 18, "algebra2": 14, "precalc": 13, "calculus": 10, "probstat": 22}
+    check("⭐ ...and the other nine courses only fall (the ratchet: %s)" % RATCHET,
+          all(skip_[c] <= RATCHET[c] for c in RATCHET), str(skip_))
+    # ---- the second class: the goal board's given line is said in its own beat ----
+    goal = {}
+    for c in ALL:
+        n = 0
+        for les in C.lessons_for(c, L):
+            t = (les.get("teach") or [None])[0]
+            if not t or len(t) < 2:
+                continue
+            steps = re.findall(r'\[\[step eq="([^"]*)"', t[1])
+            bn = set().union(*[bnums(x) for x in steps]) if steps else set()
+            if {x for x in bn if len(x) >= 2 and x not in snums(t[0])}:
+                n += 1
+        goal[c] = n
+    check("⭐ THE GOAL BOARD'S GIVEN LINE IS SAID IN ITS OWN BEAT, DIFFEQ: no first teach beat shows a [[step]] number of two or more digits its words never say (8 did before xs)",
+          goal["diffeq"] == 0, str(goal))
+    GOAL_R = {"entry": 9, "basic": 3, "prealgebra": 12, "algebra1": 2, "geometry": 0, "algebra2": 1, "precalc": 2, "calculus": 2, "probstat": 1}
+    check("  ...and the other nine only fall (the ratchet: %s)" % GOAL_R,
+          all(goal[c] <= GOAL_R[c] for c in GOAL_R), str(goal))
+    check("  the goal lines, said: the tank's 45 g in 3 L; the peak's ceiling 40; Euler's step 10 -> error 90; the cost's bill; the push's 40; the algebra's 96; the trace 60; the rabbits' 20",
+          "Here: 45 grams of salt in 3 litres of water." in spoken(E("diffeq-u2-the-tank-of-brine"))
+          and "Here: a ceiling of 40, a constant of 4." in spoken(E("diffeq-u3-how-big-the-peak-is"))
+          and "Here: a step of 10 left an error of 90." in spoken(E("diffeq-u4-the-deal-euler-offers"))
+          and "A step of 10 left an error of 90. Go to a step of 4" not in spoken(E("diffeq-u4-the-deal-euler-offers"))
+          and "Here the bill: Euler at 100 steps of 1, Runge-Kutta at 9 steps of 4." in spoken(E("diffeq-u4-what-accuracy-costs"))
+          and "Here: y double-prime plus 5 y equals 40." in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and "Here it left s plus 6, all times Y, equals 96." in spoken(E("diffeq-u7-and-now-it-is-just-algebra"))
+          and "Here the trace is 60." in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "Here: 20 rabbits, 3 born to each, 5 eaten by every fox." in spoken(E("diffeq-u9-rabbits-and-foxes"))
+          and "The new law: d y d x equals x squared, take away y." in spoken(E("diffeq-u1-change-the-law-change-the-field")), "")
+
+    # ---- the slope field is drawn ----
+    here = os.path.dirname(os.path.abspath(__file__))
+    mf = open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read()
+    check("⭐ [[graph field=\"expr\"]] draws the slope field: math-figures.js reads a.field, compiles it with y allowed, and draws a 12 x 12 grid of dashes under the curves",
+          "var fieldFn = compile(a.field, true);" in code_only(mf)
+          and "function compile(expr, withY)" in mf
+          and 'if (withY && w === "y") return "y";' in mf
+          and 'var FN_ = 12' in mf and 'fn = new Function("x", "y",' in mf, "")
+    check("  every one-argument compile() caller is untouched: parseLinear, func= and parabola= still call compile with one argument; only the field passes true",
+          "var f = compile(expr); if (!f) return null;" in mf and mf.count("var f = compile(s);") == 2
+          and code_only(mf).count(", true)") == 1, "")
+    check("  joining-the-dashes draws the field its words describe: field=\"3\" under the walk y = 3x + 5",
+          '[[graph field="3" lines="y=3x+5" points="(0,5),(4,17)"' in boards(E("diffeq-u1-joining-the-dashes")), "")
+    _valid, _allowed, _why = _board_contract(here)
+    check("  the board contract lists field as an attribute of [[graph]] (read from the renderer, not declared)",
+          bool(_allowed) and "field" in _allowed[0].get("graph", set()), _why or str(sorted(_allowed[0].get("graph", set())) if _allowed else ""))
+
+    # ---- the generators ----
+    conc = {"a": 85, "b": 5, "op": "conc"}
+    check("⭐ conc: the ask is scoped to the outflow, and the walk-back says what the pipe carries PER LITRE",
+          S(conc).startswith("For the outflow of a mixing problem, the key number is the concentration. 85 grams")
+          and "The first number a mixing problem needs" not in S(conc)
+          and "That share is the concentration — how many grams of salt ride in each litre the outflow pipe carries away." in W(conc)[0], S(conc)[:80])
+    estp = {"a": 110, "b": 10, "c": 6, "op": "estp"}
+    check("⭐ estp: the worked board writes 'main error scales with the step' -- no untaught ∝ on any Diffeq board",
+          '[[step eq="main error scales with the step"]]' in W(estp)[1] and "∝" not in W(estp)[1]
+          and all("∝" not in boards(les) and "∝" not in " ".join(W(p)[1] for p in les["bank"]) for les in C.lessons_for("diffeq", L)), W(estp)[1])
+    rk4 = {"a": 272, "b": 0, "op": "rk4"}
+    check("⭐ rk4: the ask says ABOUT halves and ABOUT 16, then that this lesson scales by exactly that",
+          "Halve the step and Euler's main error about halves — this one's main error divides by about 16. In this lesson we scale by exactly that. Starting from an error of 272" in S(rk4)
+          and "but this one's error divides by 16" not in S(rk4), S(rk4))
+    sysx = {"a": 7, "b": 15, "c": 53, "op": "sysx"}
+    check("⭐ sysx: the walk-back ends on a field of ARROWS, each with an across part and an up part",
+          W(sysx)[0].endswith("A field of arrows, each with an across part and an up part, where Unit 1's dashes had one slope.")
+          and "two directions instead of one" not in W(sysx)[0], W(sysx)[0][-120:])
+
+    # ---- the authored HIGHs ----
+    check("⭐ U1: first order is the HIGHEST derivative being d y d x (two short sentences)",
+          "If the highest derivative in it is d y d x, it is first order. If the highest is d squared y over d x squared, it is second order." in spoken(E("diffeq-u1-a-dash-at-every-point"))
+          and "An equation with d y d x is first order" not in spoken(E("diffeq-u1-a-dash-at-every-point")), "")
+    check("⭐ U6: smaller damping means a bigger swing FOR THE SAME FORCE AND FREQUENCY",
+          "So damping is the only thing standing between resonance and ruin. For the same force and frequency, the smaller it gets the bigger that swing grows." in spoken(E("diffeq-u6-what-saves-the-bridge")), "")
+    check("⭐ U7: the final-value theorem is for a transform that settles",
+          "The theorem is worth its weight for a transform that settles, like these ones. For those, where a thing ends up is read straight off the transform, with no inverting at all." in spoken(E("diffeq-u7-reading-the-ending")), "")
+    check("⭐ U8: 74 is named as the wrong path -- 14 added to the trace instead of taken off",
+          "Adding 14 to the trace instead of taking it off gives 74, and 14 is the one you already had." in spoken(E("diffeq-u8-two-numbers-decide-the-picture"))
+          and "Say the work has already turned up one eigenvalue, 14." in spoken(E("diffeq-u8-two-numbers-decide-the-picture")), "")
+    check("⭐ U8: x' = 0 is where an arrow stops going ACROSS (the goal card no longer says flat)",
+          '[[goal text="Where an arrow stops going across"]]' in boards(E("diffeq-u8-where-an-arrow-goes-flat"))
+          and "goes flat" not in boards(E("diffeq-u8-where-an-arrow-goes-flat")), "")
+    # ---- the conditions and the terms ----
+    check("⭐ laws with their condition: 1 on the r squared; a POSITIVE number on the y, in the beat and the advance line; the equations in this unit; two equations in the square",
+          "With 1 on the r squared, the test has not changed: the middle number squared, take away 4 times the last." in spoken(E("diffeq-u5-one-number-decides"))
+          and "y double-prime plus a positive number times y equals zero — the rule is simple." in spoken(E("diffeq-u5-the-spring-that-never-stops"))
+          and E("diffeq-u5-the-spring-that-never-stops")["advance_line"].endswith("For y double-prime plus a number times y equals zero, the natural frequency is the square root of that number.")
+          and "Here is a completely different way to solve the equations in this unit: change each into something that is not a differential equation." in spoken(E("diffeq-u7-derivatives-become-timesing"))
+          and "A linear system of two equations has four numbers arranged in a square." in spoken(E("diffeq-u8-the-number-in-the-corner")), "")
+    check("  the terms taught where they are used: 'particular solution' defined before the guess; Y = L{y} on the board before the rule leans on it",
+          "A particular solution is one single solution that fits the pushed equation. Guess that one is steady — a flat height that never moves." in spoken(E("diffeq-u6-somebody-is-pushing"))
+          and '[[step eq="Y = L{y}"]][[step eq="L{y′} = sY − y(0)"]]' in boards(E("diffeq-u7-derivatives-become-timesing")), "")
+    check("  the smaller words-board fixes: the cup's 5 is 'the share, not the rate' on the board too; y²/2 = 3x + c before y² = 6x + C; 208 ÷ 16 = 13 on the RK4 board and 13 is 'the right one'; Euler's advance line adds the start; the arrow drawn on its own",
+          '[[step eq="30 ✗ the gap · 5 ✗ the share, not the rate"]]' in boards(E("diffeq-u2-the-cooling-cup"))
+          and '[[step eq="y²/2 = 3x + c"]][[step eq="y² = 6x + C"]]' in boards(E("diffeq-u2-when-the-y-is-underneath"))
+          and "Integrating gives y squared over 2 equals 3 x plus a constant. Double everything, and y squared equals 6 x plus C." in spoken(E("diffeq-u2-when-the-y-is-underneath"))
+          and '[[step eq="208 ÷ 16 = 13 ✓"]]' in boards(E("diffeq-u4-sixteen-instead-of-two"))
+          and "dividing by sixteen is fourth — 13, the right one." in spoken(E("diffeq-u4-sixteen-instead-of-two"))
+          and "The three wrong instincts" not in spoken(E("diffeq-u4-sixteen-instead-of-two"))
+          and E("diffeq-u4-walking-it-in-straight-steps")["advance_line"].endswith("then twice the step squared, added to the start.")
+          and "the board draws that arrow on its own, 31 across and 14 up." in spoken(E("diffeq-u8-two-things-at-once")), "")
+    check("  the arithmetic drawn, by board: damping's 100 − 64, √36 = 6, undamped √25 = 5; the cost's RK4: 6 × 4 = 24; the rabbits' 128 new; the forecast's 3³ = 27; the corner's 54 − 16",
+          '[[step eq="4×25 − 8² = 100 − 64 = 36"]][[step eq="√36 = 6"]][[step eq="6 ÷ 2 = 3"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
+          and '[[step eq="undamped: √25 = 5"]][[step eq="3 ✓"]]' in boards(E("diffeq-u5-damping-slows-the-rocking"))
+          and '[[step eq="RK4: 6 × 4 = 24"]][[step eq="184 − 24 = 160"]]' in boards(E("diffeq-u4-what-accuracy-costs"))
+          and '[[step eq="32 × 4 = 128 new"]][[step eq="128 ÷ 8 = 16 foxes"]]' in boards(E("diffeq-u9-rabbits-and-foxes"))
+          and '[[step eq="3³ = 27"]][[step eq="4 × 27 = 108"]]' in boards(E("diffeq-u9-a-perfectly-known-equation"))
+          and '[[step eq="9×6 − 4² = 54 − 16 = 38"]]' in boards(E("diffeq-u8-the-number-in-the-corner")), "")
+    check("  no Diffeq board puts ' · ' between two equations (a spoken number gets its own line, never a dot)",
+          not any(re.search(r"=[^\]]*· [^\]]*=", b) for les in C.lessons_for("diffeq", L) for b in re.findall(r'\[\[step eq="([^"]*)"', boards(les))), "")
+    # ---- counts, validation, notes ----
+    check("  every lesson validates; the course list is still 40,495 (every line replaced one for one); the speechmap is still 941",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40495
+          and len(__import__("speechmap").MAP) == 941, str(len(L.course_audio_lines())))
+    check("  tools/pinscan.py is in the repo (the xi pre-flight was lost with a scratchpad)",
+          os.path.exists(os.path.join(here, "tools", "pinscan.py"))
+          and "def build_corpus" in open(os.path.join(here, "tools", "pinscan.py"), encoding="utf-8").read(), "")
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-23xs-' in notes("main.py") and "2026-09-23  BUILD xs" in notes("ruletests.py")
+          and "2026-09-23  BUILD xs" in notes("lessons/diffeq.py") and "2026-09-23  BUILD xs" in notes("lessonscripts.py")
+          and "2026-09-23  BUILD xs" in notes("static/math-figures.js"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -49754,6 +49946,7 @@ def main():
     part3nk_the_sweep_survives_a_restart()
     part3nl_the_third_algebra1_sweep()
     part3nm_the_pencil_in_the_scripted_lane()
+    part3nn_the_third_diffeq_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
