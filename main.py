@@ -2,6 +2,18 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xt-the-voice-cache-reclaim-card". Project 9 of the
+#               09-14 deep dive, the fifth gate build. NEW POST /api/admin/tts-cache-reclaim
+#               (TtsCacheReclaimIn: dry_run default TRUE, keep_hours 24) and its helper
+#               _tts_cache_orphans(): every cached .mp3 the scripted closure does not name,
+#               older than keep_hours, is listed (free) and then deleted -- the class the
+#               ke evictor spends first, which never ran because the cache never went over
+#               its 10,000 MB cap (~812 MB dead on 09-14, more after every sweep build).
+#               Clips written in the last keep_hours are left alone (a live lesson may be
+#               mid-play); an EMPTY closure is a 409, never "everything is an orphan"; the
+#               course's own clips are never touched. static/admin.html: the "Voice cache
+#               reclaim" card, (1) count (free) / (2) reclaim, the second armed only after
+#               the first has shown the number. PART 3no.
 #   2026-09-23  APP_BUILD -> "2026-09-23xs-the-third-diffeq-sweep". The third Diffeq
 #               reading (39 findings, 13 clean -- the first that saw the miss path). The
 #               class, measured canon-wide: the board skips the arithmetic the words say
@@ -7507,6 +7519,112 @@ def admin_tts_cache_repair(body: TtsCacheRepairIn,
                      "script-prewarm afterwards to render them all at once.")}
 
 
+class TtsCacheReclaimIn(BaseModel):
+    key: str = ""
+    dry_run: bool = True       # default SAFE: count, report, delete nothing
+    keep_hours: int = 24       # a clip written this recently is left alone (a live lesson may be mid-play)
+
+
+def _tts_cache_orphans(keep_hours: int = 24) -> dict:
+    """BUILD xt -- WHAT THE CLOSURE NO LONGER NAMES. Walks the cache once and sorts every
+    .mp3 into three piles: IN the scripted closure (the course, protected); ORPHANED and
+    old enough to reclaim; ORPHANED but written in the last `keep_hours` (left alone --
+    a live lesson's generated clip may still be playing, and a just-rendered line is
+    worth its few cents for a day). Returns numbers and names only; the caller decides.
+    Raises RuntimeError if the closure is EMPTY -- with nothing protected, "everything
+    is an orphan", and that is the one answer this must never give."""
+    protected = _script_closure_paths()
+    if not protected:
+        raise RuntimeError("the scripted closure is empty -- lessonscripts could not be "
+                           "read, so nothing can be told from an orphan; not reclaiming")
+    now = time.time()
+    keep_s = max(0, int(keep_hours)) * 3600
+    kept, recent, reclaim = [], [], []
+    scanned = kept_bytes = 0
+    entries = sorted(_TTS_CACHE_DIR.iterdir()) if _TTS_CACHE_DIR.exists() else []
+    for f in entries:
+        if f.suffix != ".mp3":
+            continue
+        try:
+            st = f.stat()
+        except Exception:  # noqa: BLE001 -- vanished mid-scan
+            continue
+        scanned += 1
+        if f.name in protected:
+            kept_bytes += st.st_size
+            continue
+        age = max(0.0, now - st.st_mtime)
+        row = (f, st.st_size, age)
+        (recent if age < keep_s else reclaim).append(row)
+    reclaim.sort(key=lambda r: -r[2])            # oldest first
+    return {"scanned": scanned, "in_closure": scanned - len(recent) - len(reclaim),
+            "in_closure_bytes": kept_bytes, "closure_size": len(protected),
+            "recent": recent, "reclaim": reclaim}
+
+
+@app.post("/api/admin/tts-cache-reclaim")
+def admin_tts_cache_reclaim(body: TtsCacheReclaimIn,
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """BUILD xt -- THE VOICE-CACHE RECLAIM CARD (project 9 of the 09-14 deep dive).
+
+    Every build that changes authored text orphans the clips it replaces: the cache key
+    is the text, so the old line's mp3 stays on disk under a hash nothing will ever ask
+    for again. The evictor (ke) spends exactly that class first -- but only when the
+    cache goes OVER its cap, and with the cap at 10,000 MB it never does; ~812 MB were
+    dead on 09-14, and xj alone re-rendered ~1,900 lines after that. The repair pass
+    (ke) removes DAMAGED clips only. Nothing reclaimed the orphans until this.
+
+    This lists (dry_run, the default -- free, deletes nothing) and then deletes every
+    cached clip the scripted closure does not name and that was written more than
+    `keep_hours` ago. A deleted clip is never a loss: an orphaned COURSE line is one no
+    lesson can speak any more, and a generated-lane clip (the live tutor's own words)
+    re-renders on its next play at a few cents. Clips written in the last `keep_hours`
+    are left alone, so a live lesson is never yanked mid-play. Refuses (409) when the
+    closure is empty rather than treat the whole cache as orphans."""
+    _require_admin(x_admin_key or body.key)
+    try:
+        piles = _tts_cache_orphans(body.keep_hours)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Cannot read the cache: {exc}")
+    reclaim, recent = piles["reclaim"], piles["recent"]
+    reclaim_bytes = sum(r[1] for r in reclaim)
+    recent_bytes = sum(r[1] for r in recent)
+    used_before = piles["in_closure_bytes"] + reclaim_bytes + recent_bytes
+    deleted = freed = 0
+    if not body.dry_run:
+        for f, size, _age in reclaim:
+            try:
+                f.unlink(missing_ok=True)
+                deleted += 1
+                freed += size
+            except Exception as exc:  # noqa: BLE001
+                print(f"[reclaim] could not delete {f.name}: {exc}")
+        print(f"[reclaim] removed {deleted} orphaned clips, {freed} bytes")
+    mb = lambda b: round(b / 1048576.0, 1)
+    status = _closure_render_status()
+    return {"ok": True,
+            "dry_run": bool(body.dry_run),
+            "keep_hours": int(body.keep_hours),
+            "scanned": piles["scanned"],
+            "in_closure": piles["in_closure"], "in_closure_mb": mb(piles["in_closure_bytes"]),
+            "closure_total": status["total"], "closure_unrendered": status["unrendered"],
+            "orphaned": len(reclaim) + len(recent), "orphaned_mb": mb(reclaim_bytes + recent_bytes),
+            "recent_kept": len(recent), "recent_kept_mb": mb(recent_bytes),
+            "reclaimable": len(reclaim), "reclaimable_mb": mb(reclaim_bytes),
+            "deleted": deleted, "mb_freed": mb(freed),
+            "used_mb_before": mb(used_before), "used_mb_after": mb(used_before - freed),
+            "cap_mb": mb(_TTS_CACHE_MAX_BYTES),
+            "examples": [{"file": f.name, "mb": mb(size), "age_days": round(age / 86400.0, 1)}
+                         for f, size, age in reclaim[:20]],
+            "note": ("Nothing was deleted. POST again with dry_run=false to remove the "
+                     "reclaimable clips; the course's own clips are never touched."
+                     if body.dry_run else
+                     "Orphaned clips removed. The course's own clips were not touched; a "
+                     "generated-lane clip re-renders on its next play.")}
+
+
 @app.post("/api/admin/script-prewarm")
 def admin_script_prewarm(body: ScriptPrewarmIn,
                          x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -9265,7 +9383,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xs-the-third-diffeq-sweep"
+APP_BUILD = "2026-09-23xt-the-voice-cache-reclaim-card"
 
 
 @app.get("/health")

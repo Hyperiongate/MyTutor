@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (xt) 2026-09-23 -- THE VOICE CACHE RECLAIM CARD (project 9 of the 09-14 deep dive).
+    Every build that changes authored text orphans the clips it replaces -- the old
+    line's mp3 stays on disk under a hash nothing asks for again -- and the evictor
+    only runs when the cache goes over its cap, which at 10,000 MB it never does. New
+    card under "Voice cache repair": (1) Count them (free) lists what the closure no
+    longer names -- how many, how many MB, how old, and how many recent ones are left
+    alone; (2) Reclaim the space deletes them. (2) is disabled until (1) has run on this
+    page, and its label carries the number (1) found. POST /api/admin/tts-cache-reclaim,
+    dry_run true then false, keep_hours 24. The course's own clips are never touched.
+
     (xp) 2026-09-23 -- THE SWEEP SURVIVES A RESTART. Two Algebra I sweeps vanished on
     09-22: the sweep dies with the server on a deploy or a Render restart, and this card
     then said "no sweep has run in this process". The server now saves a checkpoint
@@ -716,6 +726,25 @@
       <button class="btn btn-primary" id="vrRun" type="button">&#9313; Remove the damaged ones</button>
     </div>
     <div class="msg" id="vrMsg"></div>
+  </div></section>
+
+  <!-- (xt) the voice cache reclaim -- see the header note -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#9851; Voice cache reclaim</h2>
+      <span class="note">Every build that changes a lesson's words leaves the OLD line's
+        clip on disk, where nothing will ever play it again. This finds every cached clip
+        the scripted course no longer names and removes it. The course's own clips are
+        never touched; a clip the live tutor made in the last day is left alone too, in
+        case a lesson is mid-play. Counting is free and deletes nothing; &#9313; unlocks
+        only after &#9312; has shown you the number.</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-ghost" id="vcCount" type="button">&#9312; Count them (free)</button>
+      <button class="btn btn-primary" id="vcRun" type="button" disabled>&#9313; Reclaim the space</button>
+    </div>
+    <div class="msg" id="vcMsg"></div>
+    <pre id="vcOut" style="display:none;white-space:pre-wrap;font-size:13px;line-height:1.5;
+         background:#f6f7fb;border-radius:10px;padding:12px;margin-top:10px;max-height:300px;
+         overflow:auto"></pre>
   </div></section>
 
   <!-- (kf) audit the RENDER, not the file -- see the header note -->
@@ -2413,6 +2442,59 @@
             + "to render them all at once.", "ok");
     } catch (e) { vrMsg(e.message); }
     b.disabled = false;
+  });
+  // ---- (xt) voice cache reclaim ---------------------------------------------
+  function vcMsg(t, k) { var el = $("vcMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }
+  function vcOut(t) { var el = $("vcOut"); el.style.display = t ? "block" : "none"; el.textContent = t || ""; }
+  function vcReport(d) {
+    var s = d.scanned + " clips on disk \u2014 " + d.in_closure + " belong to the course (" + d.in_closure_mb
+          + " MB), " + d.orphaned + " are orphans the course no longer names (" + d.orphaned_mb + " MB).";
+    if (d.recent_kept) s += " " + (d.recent_kept === 1 ? "1 of those was" : d.recent_kept + " of those were")
+          + " written in the last " + d.keep_hours + " hours and " + (d.recent_kept === 1 ? "is" : "are")
+          + " left alone (" + d.recent_kept_mb + " MB).";
+    s += " Cache " + d.used_mb_before + " of " + d.cap_mb + " MB.";
+    if (d.closure_unrendered > 0) s += " (" + d.closure_unrendered + " course lines are not rendered yet \u2014 the prewarm card above.)";
+    return s;
+  }
+  function vcExamples(d) {
+    if (!d.examples || !d.examples.length) return "";
+    return "Oldest orphans (" + Math.min(20, d.examples.length) + " of " + d.reclaimable + "):\n"
+      + d.examples.map(function (e) { return "  " + e.file.slice(0, 12) + "\u2026  " + e.mb + " MB  " + e.age_days + " days old"; }).join("\n");
+  }
+  var _vcCounted = null;
+  $("vcCount").addEventListener("click", async function () {
+    var b = $("vcCount"); b.disabled = true; _vcCounted = null;
+    $("vcRun").disabled = true; $("vcRun").innerHTML = "\u2461 Reclaim the space";
+    vcMsg("Counting every cached clip against the course\u2026", "ok");
+    try {
+      var d = await api("/api/admin/tts-cache-reclaim", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: true }) });
+      _vcCounted = d;
+      vcOut(vcExamples(d));
+      if (d.reclaimable) {
+        vcMsg(vcReport(d) + " Nothing deleted yet \u2014 press \u2461 to reclaim " + d.reclaimable_mb + " MB.", "err");
+        $("vcRun").innerHTML = "\u2461 Reclaim the space \u2014 " + d.reclaimable + " clips, " + d.reclaimable_mb + " MB";
+        $("vcRun").disabled = false;
+      } else {
+        vcMsg(vcReport(d) + " Nothing to reclaim.", "ok");
+      }
+    } catch (e) { vcMsg(e.message); }
+    b.disabled = false;
+  });
+  $("vcRun").addEventListener("click", async function () {
+    if (!_vcCounted) { vcMsg("Press \u2460 first \u2014 it shows what \u2461 would remove."); return; }
+    var b = $("vcRun"); b.disabled = true;
+    vcMsg("Removing " + _vcCounted.reclaimable + " orphaned clips\u2026", "ok");
+    try {
+      var d = await api("/api/admin/tts-cache-reclaim", { method: "POST",
+        body: JSON.stringify({ key: KEY, dry_run: false, keep_hours: _vcCounted.keep_hours }) });
+      vcOut("");
+      vcMsg("Removed " + d.deleted + " clips, " + d.mb_freed + " MB. Cache now " + d.used_mb_after + " of " + d.cap_mb
+            + " MB; " + d.in_closure + " course clips untouched"
+            + (d.recent_kept ? "; " + d.recent_kept + " recent clip" + (d.recent_kept === 1 ? "" : "s") + " left alone" : "") + ".", "ok");
+      b.innerHTML = "\u2461 Reclaim the space";
+      _vcCounted = null;
+    } catch (e) { vcMsg(e.message); b.disabled = false; }
   });
   // ---- (kf) course audio quality -------------------------------------------
   function caMsg(t, k) { var el = $("caMsg"); el.className = "msg" + (t ? " " + (k || "err") : ""); el.textContent = t || ""; }

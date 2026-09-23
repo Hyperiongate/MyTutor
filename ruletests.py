@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xt -- PART 3no, THE VOICE CACHE RECLAIM CARD (project 9 of the 09-14
+#               deep dive; the fifth gate build). Pins the endpoint (dry_run TRUE by
+#               default, keep_hours 24, admin key, the course's clips never candidates,
+#               an empty closure a 409), the card ((2) disabled until (1) has run, (1)
+#               dry_run true, (2) false, the count on the button), and runs the endpoint
+#               for real through the TestClient against a seeded temp cache: the dry-run
+#               counts, the reclaim deletes only the old orphans, keep_hours=0, the wrong
+#               key, the empty closure.
 #   2026-09-23  BUILD xs -- PART 3nn, THE THIRD DIFFEQ SWEEP (39 findings, 13 clean; the
 #               first reading of this course's miss path). Pins the class measured canon-
 #               wide -- a teach or worked beat whose words say a 2+digit number its board
@@ -23010,6 +23018,125 @@ def part3nn_the_third_diffeq_sweep():
           'APP_BUILD -> "2026-09-23xs-' in notes("main.py") and "2026-09-23  BUILD xs" in notes("ruletests.py")
           and "2026-09-23  BUILD xs" in notes("lessons/diffeq.py") and "2026-09-23  BUILD xs" in notes("lessonscripts.py")
           and "2026-09-23  BUILD xs" in notes("static/math-figures.js"), "")
+
+
+def part3no_the_voice_cache_reclaim_card():
+    """PART 3no (build xt, 2026-09-23) -- THE VOICE CACHE RECLAIM CARD. Project 9 of the
+    09-14 deep dive, the fifth gate build. The cache key is the text, so every build that
+    changes a line orphans the old line's clip: it stays on disk under a hash nothing
+    asks for again. The ke evictor spends exactly that class first -- but only when the
+    cache goes OVER its cap, and at 10,000 MB it never does; ~812 MB were dead on 09-14
+    and every sweep build since added more. The repair pass (ke) removes DAMAGED clips
+    only. Now: POST /api/admin/tts-cache-reclaim -- dry_run (default TRUE) counts every
+    cached clip the scripted closure does not name; dry_run=false deletes the ones older
+    than keep_hours (24). The course's own clips are never touched; a clip written in the
+    last day is left alone (a live lesson may be mid-play); an EMPTY closure is a 409,
+    never "everything is an orphan". The card: (1) Count them (free) / (2) Reclaim the
+    space, (2) disabled until (1) has run on this page and carrying its number."""
+    print("\nPART 3no — the voice cache reclaim card (build xt)")
+    import os as _os
+    import tempfile as _tf
+    import time as _time
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    mn, adm = rd("main.py"), rd("static/admin.html")
+    mcode = code_only("\n".join(ln for ln in mn.split("\n") if not ln.lstrip().startswith("#")))
+    check("⭐ main.py: the reclaim endpoint exists, its dry_run defaults to TRUE and keep_hours to 24",
+          '@app.post("/api/admin/tts-cache-reclaim")' in mn
+          and "class TtsCacheReclaimIn(BaseModel):" in mn
+          and re.search(r"class TtsCacheReclaimIn\(BaseModel\):\s*\n\s*key: str = \"\"\s*\n\s*dry_run: bool = True", mn)
+          and re.search(r"keep_hours: int = 24", mn), "")
+    check("  main.py: the course's own clips are never candidates, the closure is read once per call, and an EMPTY closure refuses",
+          "def _tts_cache_orphans(" in mcode
+          and "protected = _script_closure_paths()" in mcode.split("def _tts_cache_orphans(")[1][:1400]
+          and "if f.name in protected:" in mcode.split("def _tts_cache_orphans(")[1][:2200]
+          and 'raise RuntimeError("the scripted closure is empty' in mn
+          and "except RuntimeError as exc:\n        raise HTTPException(status_code=409, detail=str(exc))" in mn, "")
+    check("  main.py: the reclaim is behind the admin key, deletes only on dry_run=false, and reports before/after against the cap",
+          "_require_admin(x_admin_key or body.key)" in mn.split('@app.post("/api/admin/tts-cache-reclaim")')[1][:2500]
+          and "if not body.dry_run:\n        for f, size, _age in reclaim:" in mn
+          and '"used_mb_before": mb(used_before), "used_mb_after": mb(used_before - freed)' in mn
+          and '"cap_mb": mb(_TTS_CACHE_MAX_BYTES)' in mn, "")
+    check("  main.py: the oldest orphans are listed first and the recent ones are kept (keep_hours in seconds, age from mtime)",
+          "reclaim.sort(key=lambda r: -r[2])" in mn and "(recent if age < keep_s else reclaim).append(row)" in mn
+          and "keep_s = max(0, int(keep_hours)) * 3600" in mn, "")
+    check("⭐ admin.html: the reclaim card has its two buttons, (2) disabled until (1) has run, (1) dry_run true and (2) dry_run false",
+          'id="vcCount"' in adm and 'id="vcRun" type="button" disabled' in adm
+          and '"/api/admin/tts-cache-reclaim"' in adm
+          and "dry_run: true" in adm.split('$("vcCount").addEventListener')[1][:900]
+          and "dry_run: false" in adm.split('$("vcRun").addEventListener')[1][:900]
+          and 'if (!_vcCounted) { vcMsg("Press \\u2460 first' in adm
+          and '$("vcRun").disabled = false;' in adm.split('$("vcCount").addEventListener')[1][:1600], "")
+    check("  admin.html: (2)'s label carries the count (1) found, and the card says the course's own clips are never touched",
+          '"\\u2461 Reclaim the space \\u2014 " + d.reclaimable + " clips, " + d.reclaimable_mb + " MB"' in adm
+          and "The course's own clips are\n        never touched" in adm, "")
+
+    # ---- the endpoint, run for real against a seeded cache ----
+    try:
+        import main as M
+        import lessonscripts as L
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("the reclaim endpoint against a seeded cache", f"fastapi not importable here: {exc}")
+        return
+    _oldkey = _os.environ.get("FORUM_MOD_KEY")
+    _olddir = M._TTS_CACHE_DIR
+    _oldpaths, _oldmodel = M._SCRIPT_CLOSURE_PATHS, M._SCRIPT_CLOSURE_PATHS_MODEL
+    _os.environ["FORUM_MOD_KEY"] = "3no-key"
+    H = {"X-Admin-Key": "3no-key"}
+    try:
+        with _tf.TemporaryDirectory() as d:
+            from pathlib import Path as _P
+            M._TTS_CACHE_DIR = _P(d) / "tts_cache"
+            M._TTS_CACHE_DIR.mkdir()
+            B = M._TTS_LEAD_SILENCE
+            course = [M._spoken(x) for x in L.audio_lines(L.LESSONS[0])[:3]]
+            for x in course:
+                M._tts_cache_store(x, B, source="3no")
+            old = []
+            for i in range(4):
+                t = "3no orphaned line %d" % i
+                M._tts_cache_store(t, B, source="3no")
+                pth = M._tts_cache_path(t)
+                _os.utime(pth, (_time.time() - 3 * 86400, _time.time() - 3 * 86400))
+                old.append(pth)
+            M._tts_cache_store("3no a fresh generated line", B, source="3no")
+            fresh = M._tts_cache_path("3no a fresh generated line")
+            c = TestClient(M.app)
+            r = c.post("/api/admin/tts-cache-reclaim", json={"dry_run": True}, headers=H)
+            j = r.json() if r.status_code == 200 else {}
+            check("⭐ dry run: 8 clips scanned, 3 in the course, 5 orphans, 4 reclaimable, 1 recent kept, nothing deleted",
+                  r.status_code == 200 and j.get("scanned") == 8 and j.get("in_closure") == 3 and j.get("orphaned") == 5
+                  and j.get("reclaimable") == 4 and j.get("recent_kept") == 1 and j.get("deleted") == 0
+                  and all(p.exists() for p in old) and fresh.exists(), str(j)[:300])
+            check("  dry run: the examples are the oldest orphans with their age, and the note says nothing was deleted",
+                  len(j.get("examples", [])) == 4 and all(e["age_days"] >= 2.9 for e in j["examples"])
+                  and j.get("note", "").startswith("Nothing was deleted"), str(j.get("examples"))[:200])
+            r = c.post("/api/admin/tts-cache-reclaim", json={"dry_run": False}, headers=H)
+            j = r.json() if r.status_code == 200 else {}
+            check("⭐ reclaim: the 4 old orphans are gone, the course's 3 clips and the fresh clip are untouched",
+                  r.status_code == 200 and j.get("deleted") == 4 and not any(p.exists() for p in old)
+                  and fresh.exists() and all(M._tts_cache_path(x).exists() for x in course), str(j)[:300])
+            r = c.post("/api/admin/tts-cache-reclaim", json={"dry_run": False, "keep_hours": 0}, headers=H)
+            check("  keep_hours=0 reclaims the fresh clip too; the course still stands",
+                  r.status_code == 200 and r.json().get("deleted") == 1 and not fresh.exists()
+                  and all(M._tts_cache_path(x).exists() for x in course), r.text[:200])
+            r = c.post("/api/admin/tts-cache-reclaim", json={"dry_run": True}, headers={"X-Admin-Key": "wrong"})
+            check("  the wrong key is a 401", r.status_code == 401, r.text[:100])
+            M._SCRIPT_CLOSURE_PATHS, M._SCRIPT_CLOSURE_PATHS_MODEL = set(), M.SCRIPT_TTS_MODEL
+            r = c.post("/api/admin/tts-cache-reclaim", json={"dry_run": False}, headers=H)
+            check("⭐ an EMPTY closure is a 409 and deletes nothing -- never 'everything is an orphan'",
+                  r.status_code == 409 and all(M._tts_cache_path(x).exists() for x in course), r.text[:160])
+    finally:
+        M._TTS_CACHE_DIR = _olddir
+        M._SCRIPT_CLOSURE_PATHS, M._SCRIPT_CLOSURE_PATHS_MODEL = _oldpaths, _oldmodel
+        if _oldkey is None:
+            _os.environ.pop("FORUM_MOD_KEY", None)
+        else:
+            _os.environ["FORUM_MOD_KEY"] = _oldkey
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-23xt-' in notes("main.py") and "2026-09-23  BUILD xt" in notes("ruletests.py")
+          and "(xt) 2026-09-23" in notes("static/admin.html"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -49947,6 +50074,7 @@ def main():
     part3nl_the_third_algebra1_sweep()
     part3nm_the_pencil_in_the_scripted_lane()
     part3nn_the_third_diffeq_sweep()
+    part3no_the_voice_cache_reclaim_card()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
