@@ -2,6 +2,13 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xq -- THE THIRD ALGEBRA I SWEEP (23 findings, 23 clean -- 50 and 10 at
+#               xa). The class: a praise that was the walk-back in other words -- exadd
+#               (five findings on one op) and yint are credit lines now, and exadd's
+#               walk-back counts the two piles one at a time with "a + b = c" as a step.
+#               One-offs: outl's ask says the mean its board shows and that it is not the
+#               ask; slp's ask says x STEPS to the right (only y goes up); un3's walk-back
+#               draws the check it speaks. Counts unchanged. PART 3nl.
 #   2026-09-22  BUILD xo -- PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK (the third gate
 #               build of the alternating schedule, deep dive 09-22). Phase A (vz) guarded
 #               the scripted second explanation with `_worked_for(p) is not None`; 48
@@ -2748,7 +2755,8 @@ def _un3_worked(p):
             f"{a} x equals {m}. Then the share: {m} shared between {a} equals {q}. Check: "
             f"{a} times {q} is {a * q}, plus {b} is {c}. Level.",
             f'[[balance left="{a}x" right="{m}" caption="{b} off both sides"]]'
-            f'[[balance left="x" right="{q}" caption="shared between {a}: x = {q}"]]')
+            f'[[balance left="x" right="{q}" caption="shared between {a}: x = {q}"]]'
+            f'[[step eq="{a} × {q} + {b} = {c} ✓"]]')   # (xq) the spoken check, drawn
 
 
 def _ineq_board(p):
@@ -3009,11 +3017,16 @@ def _exadd_board(p):
 
 
 def _exadd_worked(p):
+    # (xq) the walk-back counts the two piles one at a time and writes the sum as a step;
+    # the praise is the credit line. The third Algebra I sweep read the old pair as one
+    # sentence said twice.
     a, b = p["a"], p["b"]
-    return (f"Here it is, step by step: {a} x's joined by {b} more x's — count them on the page, and "
-            f"there are {a + b}. Two piles joined, so the counts ADD: x to the power {a + b}.",
+    return (f"Here it is, step by step: count the first pile — {a} x's. Count the second pile — "
+            f"{b} more. Two piles joined, so the counts ADD: {a} plus {b} equals {a + b}, and "
+            f"{a + b} x's multiplied is x to the power {a + b}.",
             f'[[tape parts="{" | ".join(["x"] * (a + b))}" total="x{_sup(a + b)}" '
-            f'caption="{a} + {b} = {a + b} x\'s — x{_sup(a + b)}"]]')
+            f'caption="{a} + {b} = {a + b} x\'s — x{_sup(a + b)}"]]'
+            f'[[step eq="{a} + {b} = {a + b}"]]')
 
 
 def _exmul_board(p):
@@ -9409,8 +9422,8 @@ OP_EXT = {
         "ans": lambda p: p["a"],
         "spoken": lambda p: (f"A line passes through the point {p['b']} comma "
                              f"{p['c']}, and the point {p['b'] + 1} comma "
-                             f"{p['c'] + p['a']}. When x goes up by 1, how much "
-                             f"does y go up?"),
+                             f"{p['c'] + p['a']}. When x steps 1 to the right, how "
+                             f"much does y go up?"),   # (xq) x moves ACROSS; only y goes up
         "board": _slp_board,          # (tg) the two points, the climb asked
         "worked": _slp_worked,        # (tg) the line through them, the climb named
         "praise": lambda p: (f"x stepped once and y climbed from {p['c']} to "
@@ -9436,9 +9449,9 @@ OP_EXT = {
                              f"What is y when x is zero?"),
         "board": _yint_board,         # (tg) the line, the left wall asked
         "worked": _yint_worked,       # (tg) the start marked at x = 0
-        "praise": lambda p: (f"{p['a']} times zero is zero — the times part "
-                             f"vanishes, and y is just {p['b']}. That is where the "
-                             f"line starts."),
+        # (xq) a credit line -- the answer and its one reason; the steps are the walk-back's
+        "praise": lambda p: (f"y is {p['b']} — {p['a']} times zero is nothing, so only "
+                             f"the plus {p['b']} is left."),
         "key": lambda p: p["b"],
         # The error is tapping the SLOPE -- the other number in the rule -- or adding
         # the two as if x being zero changed nothing.
@@ -9589,9 +9602,9 @@ OP_EXT = {
                              f"how many x's are there?"),
         "board": _exadd_board,        # (tg) the x's written out as a bar, counted
         "worked": _exadd_worked,      # (tg) the bar with its count
-        "praise": lambda p: (f"{p['a']} x's joined by {p['b']} more x's — "
-                             f"{p['a'] + p['b']} x's multiplied, which is x to the "
-                             f"power {p['a'] + p['b']}. The powers ADD."),
+        # (xq) a credit line -- the answer and its one reason; the counting is the walk-back's
+        "praise": lambda p: (f"x to the power {p['a'] + p['b']} — {p['a']} plus {p['b']}: "
+                             f"the powers ADD."),
         "key": lambda p: p["a"] + p["b"],
         # THE exponent error: timesing the powers. x³ · x² read as x to the 6.
         "choices": lambda p: [p["a"] + p["b"], p["a"] * p["b"],
@@ -9909,9 +9922,11 @@ OP_EXT = {
     },
     "outl": {  # the mean MOVES when one value is huge -- the median does not
         "ans": lambda p: p["b"],
+        # (xq) the board shows the mean, so the words say it -- and say it is not the ask
         "spoken": lambda p: (f"Four children have {p['b']} pencils each. A fifth "
-                             f"child walks in with {p['c']}. What is the MEDIAN "
-                             f"number of pencils now?"),
+                             f"child walks in with {p['c']}. The mean is now "
+                             f"{(4 * p['b'] + p['c']) // 5} — but I am asking for the "
+                             f"MEDIAN. What is the median number of pencils now?"),
         "board": _outl_board,         # (th) the dots, the newcomer far out
         "worked": _outl_worked,       # (th) the median standing, the mean dragged
         "praise": lambda p: (f"The median is still {p['b']} — the middle child did "

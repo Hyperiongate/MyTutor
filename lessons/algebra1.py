@@ -2,6 +2,16 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xq -- THE THIRD ALGEBRA I SWEEP (23 findings, 23 clean). Thirteen
+#               authored lines: the law with its condition (the curve agrees at 2 AND at
+#               zero before "everywhere else it breaks"; one odd number drags the mean "in
+#               a group like this one"; "on our grids" a line has a start; "a lot of" the
+#               maths, not half; every point ON THIS LINE is an input under its output --
+#               the HIGH); the crossing HAS the one x, never IS one (teach and recap);
+#               "same letter, like x" for the untaught "base"; the pond's multiplier and
+#               the number in all told apart; the four-rooms recap says ONE pair, every
+#               pair like it the same; the climb's "which is 2"; "each right answer, 3 and
+#               5". Refused: "timesed" (the course's verb -- a charter line in coursesweep).
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 21 lessons; 
@@ -814,8 +824,7 @@ _ALGEBRA1_U3 = [
         "symbols": ("machine", "rule"),
         "advance_line": "Three in a row, and you can say why — you've got it! In goes a number, the rule runs, out comes the answer.",
         "why": [
-            ("Why a machine? Because half of the maths you will ever meet is a rule "
-             "that turns one number into another. A price into a price with tax, a "
+            ("Why a machine? Because a lot of the maths you will meet is a rule that turns one number into another. A price into a price with tax, a "
              "temperature into another scale, a time into a distance. A machine that eats numbers is the honest picture of that: one rule painted on its side. For every number it is allowed to eat, exactly one number comes out. That is all a function is.",
              '[[goal text="The number machine"]]'),
         ],
@@ -1134,7 +1143,7 @@ _ALGEBRA1_U4 = [
         "op": "lny", "max_value": 30,
         "levels": ("abstract",),
         "symbols": ("y", "line"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Every point is an input standing under its output.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Every point on this line is an input standing under its output.",
         "why": [
             ("Why a graph? Because last unit the machine answered one input at a "
              "time. A graph answers ALL of them at once. The rule y equals x plus 2 "
@@ -1187,7 +1196,7 @@ _ALGEBRA1_U4 = [
              "the input standing under its output, and the answer is the second "
              "number.",
              '[[graph lines="y=x+2" points="(5,7)" range="0..9" caption="x = 5 · climb · y = 7"]]'),
-            ("And that is every input answered at once, on one picture: y equals x plus 2, and at x equals 5, y is 7.",
+            ("And that is every input answered at once, by one rule: y equals x plus 2, and at x equals 5, y is 7.",
              '[[step eq="y = x + 2 at x = 5: y = 7"]]'),
         ],
         "bank": [
@@ -1265,7 +1274,7 @@ _ALGEBRA1_U4 = [
              "never a height, and it is the same between every pair of steps on the "
              "line.",
              '[[graph lines="y=2x-1" points="(2,3),(3,5)" range="0..5" caption="slope = 5 − 3 = 2"]]'),
-            ("And that is a line's personality in one number: the slope is 5 take away 3, 2.",
+            ("And that is a line's personality in one number: the slope is 5 take away 3, which is 2.",
              '[[step eq="slope = 5 − 3 = 2"]]'),
         ],
         "bank": [
@@ -1290,8 +1299,7 @@ _ALGEBRA1_U4 = [
         "symbols": ("y", "zero"),
         "advance_line": "Three in a row, and you can say why — you've got it! At x equals zero, the times part vanishes.",
         "why": [
-            ("Why the start? Because every line on our grid has a starting height: where it "
-             "stands when x is zero, right at the left wall of the grid. A rule like "
+            ("Why the start? Because on our grids, a line has a starting height: where it stands when x is zero, right at the left wall of the grid. A rule like "
              "y equals 2 x plus 3 tells you that height without any drawing — put "
              "zero in for x and watch what happens.",
              '[[goal text="Where the line starts"]]'),
@@ -1477,8 +1485,7 @@ _ALGEBRA1_U5 = [
              '[[graph lines="y=x+2; y=3x" range="0..4" caption="both rules on one grid — they cross at (1, 3)"]]'),
         ],
         "teach": [
-            ("That is the method. The crossing is the one x where both lines stand at "
-             "the same height. You can find it without the picture too. Both rules "
+            ("That is the method. The crossing has the one x where both lines stand at the same height. You can find it without the picture too. Both rules "
              "give the same y there, so x plus 2 EQUALS 3 x. That is an equation, and "
              "you know what to do with equations. It is true at x equals 1: both sides "
              "are 3, so 3 equals 3.",
@@ -1512,8 +1519,7 @@ _ALGEBRA1_U5 = [
             "board": '[[graph lines="y=x+2; y=3x" range="0..4" caption="they cross at (1, 3) — the x is 1"]]',
         },
         "recap": [
-            ("So, here it is again. Two straight-line rules that are not parallel cross once, and the crossing "
-             "is the x where both give the same y. Set the two rules equal and solve, "
+            ("So, here it is again. Two straight-line rules that are not parallel cross once, and the crossing has the x where both give the same y. Set the two rules equal and solve, "
              "or read the crossing — and answer with its x, not its height.",
              '[[graph lines="y=x+2; y=3x" range="0..4" caption="x + 2 = 3x at x = 1"]]'),
             ("And that is two stories agreeing at exactly one point.",
@@ -1790,7 +1796,7 @@ _ALGEBRA1_U6 = [
         "op": "exadd", "max_value": 20,
         "levels": ("abstract",),
         "symbols": ("power", "x"),
-        "advance_line": "Three in a row, and you can say why — you've got it! Multiplying powers of the same base ADDS the counts.",
+        "advance_line": "Three in a row, and you can say why — you've got it! Multiplying powers of the same letter, like x, ADDS the counts.",
         "why": [
             ("Why count copies? Because you know x to the power 3 means three x\'s "
              "multiplied. So what is x to the 3, times x to the 2? Do not guess — "
@@ -2058,8 +2064,7 @@ _ALGEBRA1_U6 = [
             "board": '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]]',
         },
         "recap": [
-            ("So, here it is again. Doubling doubles everything there is, so the "
-             "multiplier is a power of 2: the start, times 2 for every day. It is not walking "
+            ("So, here it is again. Doubling doubles everything there is, so the multiplier is a power of 2: times 2 for every day. The number in all is the start times that multiplier. It is not walking "
              "up by the same amount — it feeds on itself and pulls away.",
              '[[bars data="day 0:3 | day 1:6 | day 2:12 | day 3:24" caption="3 × 2³ = 24"]]'),
             ("And that is exponential growth, in a pond: 3 times 2 cubed is 24.",
@@ -2150,8 +2155,7 @@ _ALGEBRA1_U7 = [
         "recap": [
             ("So, here it is again. Two brackets, each x plus a number, make a rectangle with four rooms. x squared, two middle rooms that ADD to the x count, and a corner that TIMES the two numbers. Middles add, corner times.",
              '[[areamodel rows="x,2" cols="x,3" caption="(x + 2)(x + 3) = x² + 5x + 6"]]'),
-            ("And that is every pair of two-piece brackets like these, in one "
-             "line.",
+            ("And that is one pair of two-piece brackets in one line, and every pair like it opens the same way.",
              '[[step eq="(x + 2)(x + 3) = x² + 5x + 6"]]'),
         ],
         "bank": [
@@ -2430,7 +2434,7 @@ _ALGEBRA1_U8 = [
              "11.",
              '[[graph func="x^2+2" points="(3,11)" range="-4..4" caption="the point (3, 11)"]][[step eq="y = 3² + 2 = 9 + 2 = 11"]]'),
             ("The one error to burn away now: squared means TIMES ITSELF, not times "
-             "two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 times 2 and 2 plus 2 are both 4. That coincidence at 2 is exactly what plants the habit. Everywhere else it breaks.",
+             "two. 3 squared is 9, not 6. At x equals 2 the two happen to agree — 2 times 2 and 2 plus 2 are both 4 — and at zero too. That coincidence at 2 is exactly what plants the habit. Everywhere else it breaks.",
              '[[step eq="3² = 3 × 3 = 9 ✓"]][[step eq="3² = 6 ✗ — that is doubling"]]'),
         ],
         "pairs": [
@@ -2505,8 +2509,7 @@ _ALGEBRA1_U8 = [
              "5. So the equation has TWO answers, 3 and 5 — a bending curve can touch "
              "the ground twice.",
              '[[graph func="(x-3)*(x-5)" points="(3,0),(5,0)" range="0..7" caption="the ground at 3 and 5"]][[step eq="(x − 3)(x − 5) = 0"]][[step eq="x = 3 or x = 5"]]'),
-            ("Do not do arithmetic on the two numbers — they are not asking to be added or timesed. x equals 8 and x equals 15 are not answers. Each one "
-             "answers its own bracket. Check: at x equals 5, the second bracket is "
+            ("Do not do arithmetic on the two numbers — they are not asking to be added or timesed. x equals 8 and x equals 15 are not answers. Each right answer, 3 and 5, answers its own bracket. Check: at x equals 5, the second bracket is "
              "zero, and zero times anything wipes out the whole thing.",
              '[[step eq="x = 3, x = 5 ✓"]][[step eq="x = 8 ✗"]][[step eq="x = 15 ✗ — nobody asked for 3 + 5 or 3 × 5"]]'),
         ],
@@ -2978,7 +2981,7 @@ _ALGEBRA1_U9 = [
              "pencils. The median, though — line them up, walk in from both ends, "
              "and the middle child still has 5.",
              '[[dotplot values="5,5,5,5,45" caption="the middle dot is still at 5"]][[step eq="mean = 65 ÷ 5 = 13"]][[step eq="median = 5"]]'),
-            ("A single unusual number DRAGS the mean and leaves the median standing. "
+            ("In a group like this one, a single unusual number DRAGS the mean and leaves the median standing. "
              "That is why you should ask which middle someone is quoting you — "
              "averages that sound strange usually have one very odd number hiding "
              "behind them.",

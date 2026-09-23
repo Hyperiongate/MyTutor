@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xq-the-third-algebra1-sweep". lessonscripts.py (exadd,
+#               yint credit lines; exadd walk-back; outl, slp asks; un3 check drawn),
+#               lessons/algebra1.py (13 authored lines), coursesweep.py (one charter line:
+#               "timesed" is the course's verb). Prewarm: about 50 lines. PART 3nl.
 #   2026-09-23  APP_BUILD -> "2026-09-23xp-the-sweep-survives-a-restart". Jim ran the Algebra I
 #               sweep twice on 09-22 and both vanished: the sweep is a daemon thread in
 #               this process, its report was written only at the END, and a deploy or a
@@ -9246,7 +9250,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xp-the-sweep-survives-a-restart"
+APP_BUILD = "2026-09-23xq-the-third-algebra1-sweep"
 
 
 @app.get("/health")

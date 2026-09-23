@@ -3,6 +3,9 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xq -- ONE CHARTER LINE from the third Algebra I sweep: "times",
+#               "timesed" and "timesing" are the course's chosen verb for multiplying, in
+#               every course -- the reviewer called "timesed" nonstandard in a reason choice.
 #   2026-09-23  BUILD xp -- THE SWEEP SURVIVES A RESTART. Jim ran Algebra I twice on 09-22
 #               and both sweeps "just disappeared": the sweep is a thread inside the web
 #               server, and until now it wrote its report only at the END -- a deploy (a
@@ -417,7 +420,8 @@ range="0..5" grid IS visible; a walk-back's "not N" line (the second explanation
 COMMON wrong answer for that problem, by design -- it is scripted per problem and cannot know the
 number on the STUDENT line, so it is not a finding when the two differ; "square back" -- Geometry's
 chosen verb for finding the number whose square is a total (taught in the longest-side lesson and
-used from there on) -- is not an unclear phrase; a ✗ on a [[step]] line marks the WRONG
+used from there on) -- is not an unclear phrase; "times", "timesed" and "timesing" are the course's
+chosen verb for multiplying, in every course (Hundreds of lines use them) -- never nonstandard; a ✗ on a [[step]] line marks the WRONG
 PATH a child might take (its number and its short label, like "24 ✗ one day only"), never a false
 equation the tutor asserts; a bare "log" on a board in the Algebra II logarithm lessons is base 2
 unless the same board shows another base beside it (the lesson says so in its words); a topic word in the lesson's

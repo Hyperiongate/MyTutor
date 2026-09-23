@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xq -- PART 3nl, THE THIRD ALGEBRA I SWEEP. Pins the five generator
+#               fixes (exadd and yint credit lines, exadd's counted piles, outl's spoken
+#               mean, slp's step to the right, un3's drawn check) and the thirteen authored
+#               lines; two pins in 3mw and one in 3mf moved with the text, one in the
+#               Algebra I shape PART (un3's board gains the check line).
 #   2026-09-23  BUILD xp -- PART 3nk, THE SWEEP SURVIVES A RESTART. Two Algebra I sweeps
 #               vanished on 09-22 (a deploy or a Render restart under the sweep thread;
 #               the report was written only at the end). Pins: the checkpoint after every
@@ -19133,7 +19138,7 @@ def part3mf_the_first_algebra1_sweep():
           and 'parts="5 | 4" total="9"' in boards(E("alg1-u5-the-eraser-vanishes")), "")
     check("  laws with their condition: not-parallel lines, two-piece brackets (x3), a whole-number power, a plus in a less-than, all the x's",
           "Two straight-line rules that are not parallel cross once" in spoken(E("alg1-u5-where-two-rules-agree"))
-          and spoken(E("alg1-u7-the-four-rooms")).count("two-piece brackets like these") == 2
+          and spoken(E("alg1-u7-the-four-rooms")).count("two-piece brackets like these") == 1   # (xq) the recap says "one pair ... every pair like it"
           and "Two brackets, each x plus a number, make" in spoken(E("alg1-u7-the-four-rooms"))
           and "10 to a whole-number power is a 1" in spoken(E("alg1-u6-times-ten-again"))
           and "Undo a plus in a less-than exactly like an equation" in spoken(E("alg1-u2-the-biggest-x"))
@@ -20992,7 +20997,7 @@ def part3mw_the_second_algebra1_sweep():
           and "For the rising lines in this lesson, every time x steps one to the right" in spoken(E("alg1-u4-the-climb"))
           and "In these problems the buys differ by one pencil, so one pencil is left alone" in spoken(E("alg1-u5-the-eraser-vanishes"))
           and "This shopping system has two prices, and only one of them is yours" in spoken(E("alg1-u5-the-eraser-vanishes"))
-          and "Multiplying powers of the same base ADDS the counts." in E("alg1-u6-counting-the-copies")["advance_line"]
+          and "Multiplying powers of the same letter, like x, ADDS the counts." in E("alg1-u6-counting-the-copies")["advance_line"]   # (xq) "base" was untaught
           and "For whole-number powers like these, a power is just a count of copies" in spoken(E("alg1-u6-counting-the-copies"))
           and "A rule like y equals x squared plus a number bends into a bowl" in spoken(E("alg1-u8-the-curve")), "")
     check("⭐ words and board: f(3) MEANS; the boards read (x + 2y; x < 7; y at 4; x² = 25; the middle term); 'the whole of' for the common factor's bracket, twice; 12.5 said and drawn; 'in one line'; 5 pencils EACH",
@@ -21006,7 +21011,7 @@ def part3mw_the_second_algebra1_sweep():
           and "5 times the whole of 3 x plus 2" in spoken(E("alg1-u7-the-common-factor"))
           and "which would be 12 and a half" in spoken(E("alg1-u8-the-ball-comes-down"))
           and '[[step eq="x = 12.5 ✗ — half undoes DOUBLING, not squaring"]]' in boards(E("alg1-u8-the-ball-comes-down"))
-          and "two-piece brackets like these, in one line" in spoken(E("alg1-u7-the-four-rooms"))
+          and "one pair of two-piece brackets in one line, and every pair like it opens the same way" in spoken(E("alg1-u7-the-four-rooms"))   # (xq) the board shows one pair
           and "Four children have 5 pencils each, one has 45" in E("alg1-u9-the-odd-one-out")["explain"]["spoken"], "")
     check("  unclear, untaught and tone: the input defined first; the machines named; 'the number timesed by 3'; 'multiplies the 3'; 'a common mix-up'; 'multiply the climb by x'; 'the bigger answer'; the long sentences split (two-steps, biggest-x x2, undoing-a-plus, two-machines, where-two-rules-agree, two-answers)",
           "The input is the number that goes in. Its rule is painted on the box" in spoken(E("alg1-u3-the-number-machine"))
@@ -22569,6 +22574,99 @@ def part3nk_the_sweep_survives_a_restart():
     check("  the dated notes are in (Jim's rule 8): coursesweep.py, main.py, static/admin.html, ruletests.py",
           "2026-09-23  BUILD xp" in notes("coursesweep.py") and 'APP_BUILD -> "2026-09-23xp-' in notes("main.py")
           and "(xp) 2026-09-23 -- THE SWEEP SURVIVES A RESTART" in adm and "2026-09-23  BUILD xp" in notes("ruletests.py"), "")
+
+
+def part3nl_the_third_algebra1_sweep():
+    """PART 3nl (build xq, 2026-09-23) -- THE THIRD ALGEBRA I SWEEP. 23 findings, 23 clean
+    (50 and 10 at xa's reading; 72 and 8 at the first). The first sweep read on build xp,
+    the one that survives a restart -- the two before it were lost to deploys.
+
+    Graded per the 09-22 ruling. CLASS (generator, fixed once): exadd's praise was the
+    walk-back in other words (five findings on one op) and yint's likewise -- both are
+    credit lines now, and exadd's walk-back counts the two piles one at a time with the
+    sum as a step. ONE-OFFS: outl's ask board showed the mean unread (the words say it,
+    and say it is not the ask); slp said "x goes up" for a step to the RIGHT; un3 spoke
+    a check it did not draw. AUTHORED (13 lines): the law without its condition again
+    (the curve breaks "everywhere else" -- and at zero; one odd number drags the mean "in
+    a group like this one"; "on our grids" a line has a start; "a lot of" the maths, not
+    half; a point ON THIS LINE is an input under its output), the crossing HAS an x rather
+    than IS one (twice), "base" untaught, the pond's multiplier and total told apart, the
+    four-rooms recap says one pair, the climb's "which is 2", "each right answer, 3 and 5".
+    REFUSED: "timesed" is nonstandard -- it is the course's verb (charter line)."""
+    print("\nPART 3nl — the third Algebra I sweep (build xq)")
+    import lessonscripts as L
+    import tutor as T
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    W = lambda p: L._worked_for(p)
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    words = lambda s: len([w for w in s.split() if any(ch.isalnum() for ch in w)])
+
+    # ---- the generators ---------------------------------------------------------
+    ex = {"a": 3, "b": 7, "op": "exadd"}
+    check("⭐ exadd: the praise is a credit line and the walk-back counts the piles one at a time, with the sum as a step",
+          PR("exadd", ex) == "x to the power 10 — 3 plus 7: the powers ADD."
+          and W(ex)[0].startswith("Here it is, step by step: count the first pile — 3 x's. Count the second pile — 7 more.")
+          and "3 plus 7 equals 10, and 10 x's multiplied is x to the power 10" in W(ex)[0]
+          and W(ex)[1].endswith('[[step eq="3 + 7 = 10"]]') and 'total="x¹⁰"' in W(ex)[1]
+          and words(PR("exadd", ex)) <= 26, W(ex)[0])
+    yi = {"a": 4, "b": 3, "op": "yint"}
+    check("  yint: the praise is a credit line; the walk-back keeps the steps",
+          PR("yint", yi) == "y is 3 — 4 times zero is nothing, so only the plus 3 is left."
+          and "The whole times part vanishes, and all that is left is the plus 3" in W(yi)[0], PR("yint", yi))
+    ou = {"a": 1, "b": 4, "c": 34, "op": "outl"}
+    check("  outl: the ask says the mean its board shows, and says it is not the ask",
+          "The mean is now 10 — but I am asking for the MEDIAN. What is the median number of pencils now?" in S(ou)
+          and '[[step eq="mean = 10"]]' in B(ou), S(ou))
+    sl = {"a": 3, "b": 2, "c": 5, "op": "slp"}
+    check("  slp: x STEPS to the right; only y goes up",
+          S(sl).endswith("When x steps 1 to the right, how much does y go up?") and "x goes up" not in S(sl), S(sl))
+    u3 = {"a": 2, "b": 4, "c": 14, "op": "un3"}
+    check("  un3: the spoken check is drawn as the last step line",
+          "Check: 2 times 5 is 10, plus 4 is 14." in W(u3)[0] and W(u3)[1].endswith('[[step eq="2 × 5 + 4 = 14 ✓"]]'), W(u3)[1])
+    _ref = []
+    for p in (ex, yi, ou, sl, u3):
+        for txt in (S(p) + "\n" + B(p), W(p)[0] + "\n" + W(p)[1], PR(p["op"], p) + "\n" + W(p)[1]):
+            r = T.prose_board_conflict(txt, heard=txt, course="algebra1")
+            if r and not any(ph in r for ph in ("keep talking", "puts no pending line", "already answers")):
+                _ref.append((p["op"], r[:60]))
+    check("  the referees refuse none of the five", not _ref, str(_ref))
+
+    # ---- the authored lines -------------------------------------------------------
+    check("⭐ the law with its condition: the curve agrees at 2 AND at zero before 'everywhere else it breaks'; one odd number drags the mean 'in a group like this one'; 'on our grids' a line has a start; 'a lot of' the maths",
+          "2 times 2 and 2 plus 2 are both 4 — and at zero too. That coincidence at 2 is exactly what plants the habit. Everywhere else it breaks." in spoken(E("alg1-u8-the-curve"))
+          and "In a group like this one, a single unusual number DRAGS the mean and leaves the median standing." in spoken(E("alg1-u9-the-odd-one-out"))
+          and "Because on our grids, a line has a starting height: where it stands when x is zero" in spoken(E("alg1-u4-where-it-starts"))
+          and "Because a lot of the maths you will meet is a rule that turns one number into another." in spoken(E("alg1-u3-the-number-machine"))
+          and "half of the maths" not in spoken(E("alg1-u3-the-number-machine")), "")
+    check("⭐ HIGH: every point ON THIS LINE is an input under its output; the recap answers every input 'by one rule' (its board is the rule, not the picture)",
+          "Every point on this line is an input standing under its output." in E("alg1-u4-reading-the-line")["advance_line"]
+          and "And that is every input answered at once, by one rule: y equals x plus 2" in spoken(E("alg1-u4-reading-the-line"))
+          and "on one picture" not in spoken(E("alg1-u4-reading-the-line")), "")
+    check("  the crossing HAS the one x (teach and recap), never IS one",
+          "The crossing has the one x where both lines stand at the same height." in spoken(E("alg1-u5-where-two-rules-agree"))
+          and "and the crossing has the x where both give the same y." in spoken(E("alg1-u5-where-two-rules-agree"))
+          and "crossing is the one x" not in spoken(E("alg1-u5-where-two-rules-agree"))
+          and "crossing is the x where" not in spoken(E("alg1-u5-where-two-rules-agree")), "")
+    check("  'base' is not said untaught; the pond tells the multiplier from the number in all; the four-rooms recap says ONE pair; the climb says 'which is 2'; 'each right answer, 3 and 5'",
+          "Multiplying powers of the same letter, like x, ADDS the counts." in E("alg1-u6-counting-the-copies")["advance_line"]
+          and "same base" not in spoken(E("alg1-u6-counting-the-copies"))
+          and "the multiplier is a power of 2: times 2 for every day. The number in all is the start times that multiplier." in spoken(E("alg1-u6-the-doubling-pond"))
+          and "And that is one pair of two-piece brackets in one line, and every pair like it opens the same way." in spoken(E("alg1-u7-the-four-rooms"))
+          and "the slope is 5 take away 3, which is 2." in spoken(E("alg1-u4-the-climb"))
+          and "Each right answer, 3 and 5, answers its own bracket." in spoken(E("alg1-u8-two-answers")), "")
+    check("  refused: 'timesed' is the course's verb -- the charter says so, and the reason choice keeps it",
+          '"times", "timesed" and "timesing" are the course\'s' in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "coursesweep.py"), encoding="utf-8").read()
+          and "timesed by 3" in str((E("alg1-u3-two-machines").get("explain") or {}).get("choices", "")), "")
+    check("  every Algebra I lesson validates; the course list is still 40,495 (13 lines changed in place); the speechmap is unchanged at 941 of 40,801",
+          all(ok for les in L.LESSONS if les["course"] == "algebra1" for ok, _l, _d in L.validate(les))
+          and len(L.course_audio_lines()) == 40495, str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8): lessonscripts.py, lessons/algebra1.py, coursesweep.py, main.py, ruletests.py",
+          "2026-09-23  BUILD xq" in notes("lessonscripts.py") and "BUILD xq" in notes("lessons/algebra1.py")
+          and "2026-09-23  BUILD xq" in notes("coursesweep.py")
+          and 'APP_BUILD -> "2026-09-23xq-' in notes("main.py") and "2026-09-23  BUILD xq" in notes("ruletests.py"), "")
 
 
 def _reads_in_words(nums, spoken, L):
@@ -35743,7 +35841,7 @@ def part3jb_algebra_one_units_one_to_three_to_the_shape():
     un3 = {"a": 2, "b": 3, "c": 11, "op": "un3"}
     check("  two steps back: the balance after each undo, last on first off",
           'caption="the 3 went on last — it comes off first"' in L.board_for(un3, "abstract")
-          and '[[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]]' == _W(un3)[1], "")
+          and '[[balance left="2x" right="8" caption="3 off both sides"]][[balance left="x" right="4" caption="shared between 2: x = 4"]][[step eq="2 × 4 + 3 = 11 ✓"]]' == _W(un3)[1], "")   # (xq) the spoken check is drawn
     ineq = {"a": 3, "b": 10, "op": "ineq"}
     check("⭐ less than: the open circle and the shaded ray on the ask, the biggest whole number marked in the walk-back",
           'ineq="x<7"' in L.board_for(ineq, "abstract") and 'points=' not in L.board_for(ineq, "abstract")
@@ -49522,6 +49620,7 @@ def main():
     part3ni_the_miss_has_a_face()
     part3nj_the_forty_eight_get_their_walk_back()
     part3nk_the_sweep_survives_a_restart()
+    part3nl_the_third_algebra1_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
