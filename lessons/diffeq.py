@@ -2,6 +2,13 @@
 # lessons/diffeq.py  --  DIFFERENTIAL EQUATIONS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xo -- PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK. All 36 lessons
+#               have a scripted walk-back in lessonscripts.py now (their 38 ops, dwd through
+#               chao), so each carries "show_work_on_correct": True -- a right answer hears
+#               the credit line and then the step-by-step; a first miss is the engine's,
+#               with a fresh problem after. Marked (xo) on each lesson. No authored line
+#               changed; the course sweep can read this course's miss path for the first
+#               time. PART 3nj.
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) no closing recap board went unread here; 
@@ -112,6 +119,7 @@ _DIFFEQ_U1 = [
     {
         "id": "diffeq-u1-a-dash-at-every-point",
         "course": "diffeq", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Slope fields",
         "op": "slpf", "max_value": 110,
         "levels": ("abstract",),
@@ -141,6 +149,7 @@ _DIFFEQ_U1 = [
     {
         "id": "diffeq-u1-change-the-law-change-the-field",
         "course": "diffeq", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "A different law",
         "op": "slpq", "max_value": 230,
         "levels": ("abstract",),
@@ -170,6 +179,7 @@ _DIFFEQ_U1 = [
     {
         "id": "diffeq-u1-reading-the-field-backwards",
         "course": "diffeq", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Isoclines",
         "op": "isoc", "max_value": 80,
         "levels": ("abstract",),
@@ -199,6 +209,7 @@ _DIFFEQ_U1 = [
     {
         "id": "diffeq-u1-joining-the-dashes",
         "course": "diffeq", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Solution curves",
         "op": "fldc", "max_value": 170,
         "levels": ("abstract",),
@@ -241,6 +252,7 @@ _DIFFEQ_U2 = [
     {
         "id": "diffeq-u2-splitting-the-letters-apart",
         "course": "diffeq", "unit": 2,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Separable equations",
         "op": "sepv", "max_value": 190,
         "levels": ("abstract",),
@@ -270,6 +282,7 @@ _DIFFEQ_U2 = [
     {
         "id": "diffeq-u2-when-the-y-is-underneath",
         "course": "diffeq", "unit": 2,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Separating a harder one",
         "op": "sepr", "max_value": 230,
         "levels": ("abstract",),
@@ -300,6 +313,7 @@ _DIFFEQ_U2 = [
     {
         "id": "diffeq-u2-the-cooling-cup",
         "course": "diffeq", "unit": 2,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Newton's law of cooling",
         "op": "newt", "max_value": 100,
         "levels": ("abstract",),
@@ -330,6 +344,7 @@ _DIFFEQ_U2 = [
     {
         "id": "diffeq-u2-the-tank-of-brine",
         "course": "diffeq", "unit": 2,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Concentration",
         "op": "conc", "max_value": 190,
         "levels": ("abstract",),
@@ -372,6 +387,7 @@ _DIFFEQ_U3 = [
     {
         "id": "diffeq-u3-the-crowded-pond",
         "course": "diffeq", "unit": 3,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The logistic rate",
         "op": "logi", "max_value": 150,
         "levels": ("abstract",),
@@ -402,6 +418,7 @@ _DIFFEQ_U3 = [
     {
         "id": "diffeq-u3-where-growth-peaks",
         "course": "diffeq", "unit": 3,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Where growth peaks",
         "op": "carr", "max_value": 190,
         "levels": ("abstract",),
@@ -431,6 +448,7 @@ _DIFFEQ_U3 = [
     {
         "id": "diffeq-u3-how-big-the-peak-is",
         "course": "diffeq", "unit": 3,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The size of the peak",
         "op": "fast", "max_value": 300,
         "levels": ("abstract",),
@@ -460,6 +478,7 @@ _DIFFEQ_U3 = [
     {
         "id": "diffeq-u3-the-one-that-pushes-away",
         "course": "diffeq", "unit": 3,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Unstable equilibria",
         "op": "away", "max_value": 170,
         "levels": ("abstract",),
@@ -503,6 +522,7 @@ _DIFFEQ_U4 = [
     {
         "id": "diffeq-u4-walking-it-in-straight-steps",
         "course": "diffeq", "unit": 4,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Euler's method",
         "op": "eulr", "max_value": 180,
         "levels": ("abstract",),
@@ -532,6 +552,7 @@ _DIFFEQ_U4 = [
     {
         "id": "diffeq-u4-the-deal-euler-offers",
         "course": "diffeq", "unit": 4,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "First-order accuracy",
         "op": "estp", "max_value": 190,
         "levels": ("abstract",),
@@ -562,6 +583,7 @@ _DIFFEQ_U4 = [
     {
         "id": "diffeq-u4-sixteen-instead-of-two",
         "course": "diffeq", "unit": 4,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Runge-Kutta",
         "op": "rk4", "max_value": 330,
         "levels": ("abstract",),
@@ -590,6 +612,7 @@ _DIFFEQ_U4 = [
     {
         "id": "diffeq-u4-what-accuracy-costs",
         "course": "diffeq", "unit": 4,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Counting the cost",
         "op": "evls", "max_value": 190,
         "levels": ("abstract",),
@@ -631,6 +654,7 @@ _DIFFEQ_U5 = [
     {
         "id": "diffeq-u5-one-number-decides",
         "course": "diffeq", "unit": 5,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The characteristic equation",
         "op": "char", "max_value": 310,
         "levels": ("abstract",),
@@ -660,6 +684,7 @@ _DIFFEQ_U5 = [
     {
         "id": "diffeq-u5-the-knife-edge",
         "course": "diffeq", "unit": 5,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Critical damping",
         "op": "cdmp", "max_value": 800,
         "levels": ("abstract",),
@@ -688,6 +713,7 @@ _DIFFEQ_U5 = [
     {
         "id": "diffeq-u5-the-spring-that-never-stops",
         "course": "diffeq", "unit": 5,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Natural frequency",
         "op": "natf", "max_value": 230,
         "levels": ("abstract",),
@@ -716,6 +742,7 @@ _DIFFEQ_U5 = [
     {
         "id": "diffeq-u5-damping-slows-the-rocking",
         "course": "diffeq", "unit": 5,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Damped frequency",
         "op": "oscf", "max_value": 250,
         "levels": ("abstract",),
@@ -758,6 +785,7 @@ _DIFFEQ_U6 = [
     {
         "id": "diffeq-u6-somebody-is-pushing",
         "course": "diffeq", "unit": 6,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Particular solutions",
         "op": "part", "max_value": 240,
         "levels": ("abstract",),
@@ -787,6 +815,7 @@ _DIFFEQ_U6 = [
     {
         "id": "diffeq-u6-the-part-that-fades",
         "course": "diffeq", "unit": 6,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The transient",
         "op": "trns", "max_value": 250,
         "levels": ("abstract",),
@@ -816,6 +845,7 @@ _DIFFEQ_U6 = [
     {
         "id": "diffeq-u6-why-soldiers-break-step",
         "course": "diffeq", "unit": 6,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Resonance",
         "op": "reso", "max_value": 200,
         "levels": ("abstract",),
@@ -846,6 +876,7 @@ _DIFFEQ_U6 = [
     {
         "id": "diffeq-u6-what-saves-the-bridge",
         "course": "diffeq", "unit": 6,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Damped resonance",
         "op": "damp", "max_value": 190,
         "levels": ("abstract",),
@@ -888,6 +919,7 @@ _DIFFEQ_U7 = [
     {
         "id": "diffeq-u7-derivatives-become-timesing",
         "course": "diffeq", "unit": 7,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The derivative rule",
         "op": "lder", "max_value": 210,
         "levels": ("abstract",),
@@ -918,6 +950,7 @@ _DIFFEQ_U7 = [
     {
         "id": "diffeq-u7-and-now-it-is-just-algebra",
         "course": "diffeq", "unit": 7,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Solving in the s world",
         "op": "lalg", "max_value": 250,
         "levels": ("abstract",),
@@ -948,6 +981,7 @@ _DIFFEQ_U7 = [
     {
         "id": "diffeq-u7-the-shift-rule",
         "course": "diffeq", "unit": 7,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The shift rule",
         "op": "lshf", "max_value": 200,
         "levels": ("abstract",),
@@ -977,6 +1011,7 @@ _DIFFEQ_U7 = [
     {
         "id": "diffeq-u7-reading-the-ending",
         "course": "diffeq", "unit": 7,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The final-value theorem",
         "op": "lfin", "max_value": 200,
         "levels": ("abstract",),
@@ -1018,6 +1053,7 @@ _DIFFEQ_U8 = [
     {
         "id": "diffeq-u8-two-things-at-once",
         "course": "diffeq", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Systems in the plane",
         "op": "sysx", "max_value": 260,
         "levels": ("abstract",),
@@ -1048,6 +1084,7 @@ _DIFFEQ_U8 = [
     {
         "id": "diffeq-u8-where-an-arrow-goes-flat",
         "course": "diffeq", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Nullclines",
         "op": "nucl", "max_value": 190,
         "levels": ("abstract",),
@@ -1077,6 +1114,7 @@ _DIFFEQ_U8 = [
     {
         "id": "diffeq-u8-the-number-in-the-corner",
         "course": "diffeq", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The determinant",
         "op": "detm", "max_value": 290,
         "levels": ("abstract",),
@@ -1107,6 +1145,7 @@ _DIFFEQ_U8 = [
     {
         "id": "diffeq-u8-two-numbers-decide-the-picture",
         "course": "diffeq", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Eigenvalues",
         "op": "eign", "max_value": 240,
         "levels": ("abstract",),
@@ -1150,6 +1189,7 @@ _DIFFEQ_U9 = [
     {
         "id": "diffeq-u9-up-close-it-is-a-line",
         "course": "diffeq", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Linearization",
         "op": "lnrz", "max_value": 190,
         "levels": ("abstract",),
@@ -1180,6 +1220,7 @@ _DIFFEQ_U9 = [
     {
         "id": "diffeq-u9-rabbits-and-foxes",
         "course": "diffeq", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Predator and prey",
         "op": "prey", "max_value": 190,
         "levels": ("abstract",),
@@ -1210,6 +1251,7 @@ _DIFFEQ_U9 = [
     {
         "id": "diffeq-u9-round-and-round",
         "course": "diffeq", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "The cycle",
         "op": "cycl", "max_value": 190,
         "levels": ("abstract",),
@@ -1238,6 +1280,7 @@ _DIFFEQ_U9 = [
     {
         "id": "diffeq-u9-a-perfectly-known-equation",
         "course": "diffeq", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Sensitive dependence",
         "op": "chao", "max_value": 190,
         "levels": ("abstract",),

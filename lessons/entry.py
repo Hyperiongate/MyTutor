@@ -2,6 +2,12 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xo -- PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK. The 12 lessons
+#               of units 1, 8 and 9 (ops big c20 cnt aft bef sid cor pat grp eqs hrl min5
+#               min5q) have a scripted walk-back in lessonscripts.py now, so each carries
+#               "show_work_on_correct": True -- a right answer is walked back like every
+#               other lesson, and a first miss is the engine's, not the AI's. Marked (xo)
+#               on each lesson. No authored line changed. PART 3nj.
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 1 lessons; 
@@ -1174,6 +1180,7 @@ _ENTRY_MORE = [
         # picture (the count-on trick shown, not told), the rule, a recap. Ruling ⑤:
         # quick praise for counting; no reason question for pre-readers (open ruling).
         "id": "entry-u1-counting-past-ten", "course": "entry", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Counting past ten", "op": "c20", "max_value": 20,
         "levels": ("concrete",), "symbols": ("count",),
         "advance_line": "Three in a row — you've got it! You can count past ten.",
@@ -1238,6 +1245,7 @@ _ENTRY_MORE = [
         # trap line is kept. Ruling ⑤: quick praise for comparing; no reason question
         # for pre-readers (open ruling).
         "id": "entry-u1-which-is-bigger", "course": "entry", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Which number is bigger", "op": "big", "max_value": 20,
         "levels": ("abstract",), "symbols": ("bigger",),
         "advance_line": "Three in a row — you've got it! You can tell which number is bigger.",
@@ -1495,6 +1503,7 @@ _ENTRY_MORE = [
         # quick praise for counting, and a reason question's options are text a
         # student who is learning to count to ten cannot yet read (open ruling).
         "id": "entry-u1-counting-to-10", "course": "entry", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Counting to 10",
         "op": "cnt", "max_value": 10,
         "levels": ("concrete",),   # the picture IS the problem; there is no
@@ -1556,6 +1565,7 @@ _ENTRY_MORE = [
         # stay bare (a labelled line would read the answer off); ruling ⑤ keeps the
         # quick praise for a one-hop fact; no reason question (pre-readers, open ruling).
         "id": "entry-u1-numbers-before-and-after", "course": "entry", "unit": 1,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Numbers before and after",
         "op": "aft", "max_value": 20,
         "levels": ("abstract",),
@@ -1763,6 +1773,7 @@ _ENTRY_MORE = [
     # =========================================================================
     {
         "id": "entry-u8-later-on-the-clock", "course": "entry", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Later on the clock",
         "op": "hrl", "max_value": 12,
         "levels": ("abstract",),
@@ -1808,6 +1819,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u8-minutes-past-the-hour", "course": "entry", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Minutes past the hour",
         "op": "min5", "max_value": 55,
         "levels": ("abstract",),
@@ -1867,6 +1879,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u8-weeks-and-days", "course": "entry", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Weeks and days",
         "op": "dwd", "max_value": 34,
         "levels": ("abstract",),
@@ -1911,6 +1924,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u8-how-much-longer", "course": "entry", "unit": 8,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "How much longer",
         "op": "cube", "max_value": 20,
         "levels": ("abstract",),
@@ -1974,6 +1988,7 @@ _ENTRY_MORE = [
     # =========================================================================
     {
         "id": "entry-u9-sides-and-corners", "course": "entry", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Sides and corners",
         "op": "sid", "max_value": 10,
         "levels": ("abstract",),
@@ -2034,6 +2049,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u9-what-comes-next", "course": "entry", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "What comes next",
         "op": "pat", "max_value": 30,
         "levels": ("abstract",),
@@ -2086,6 +2102,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u9-equal-groups", "course": "entry", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Equal groups",
         "op": "grp", "max_value": 25,
         "levels": ("abstract",),
@@ -2131,6 +2148,7 @@ _ENTRY_MORE = [
     },
     {
         "id": "entry-u9-sharing-fairly", "course": "entry", "unit": 9,
+        "show_work_on_correct": True,   # (xo) Phase C: this op has a walk-back now
         "topic": "Sharing fairly",
         "op": "eqs", "max_value": 30,
         "levels": ("abstract",),

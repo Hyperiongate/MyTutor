@@ -2,6 +2,20 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  BUILD xo -- PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK (the third gate
+#               build of the alternating schedule, deep dive 09-22). Phase A (vz) guarded
+#               the scripted second explanation with `_worked_for(p) is not None`; 48
+#               lessons -- Entry units 1, 8, 9 and all of Diffeq -- sat behind it because
+#               their 51 ops had no worked generator, so their FIRST miss went to the AI
+#               and the course sweep could not read their miss path. Now: a block of 51
+#               `_<op>_worked(p)` generators before BASE_WORKED (the opener literal, short
+#               sentences, one thought per board line, no arrow after an equals sign, no
+#               unit after an equation's answer, "equals"/"take away", wrong paths crossed
+#               out), wired as `"worked"` in each OP_EXT entry. The 36 Diffeq praises are
+#               credit lines (xh/xk/xm's ruling); the teaching, with the condition phrases
+#               3mk/3mn pin, moved into the walk-back. No engine-path change: the guard
+#               stands for any future op without a picture. Course lines 39,915 -> 40,495.
+#               Transcripts carry 216 Diffeq + 216 Entry walk-backs. PART 3nj.
 #   2026-09-22  BUILD xm -- THE ANGLE CARRIES ITS UNIT (the third round's Pre-Calc
 #               reading: 28 findings, 24 clean -- 60 and 15 at wv; pyid and arsn, rebuilt
 #               in xk, came back CLEAN). The class: "the sine of 30" with no unit reads as
@@ -6786,6 +6800,533 @@ def _wor_worked(p):
             f'{10 * b}"]]')
 
 
+# =============================================================================
+# PHASE C (build xo, 2026-09-22) -- THE FORTY-EIGHT GET THEIR WALK-BACK
+# -----------------------------------------------------------------------------
+# Until this build, 36 Diffeq lessons and 12 Entry lessons had no worked generator, so a
+# first miss went straight to the AI (`intervene`) -- and the course sweep, which simulates
+# a miss only where a worked generator exists, never read that path at all. Every op below
+# now speaks its own second explanation: the opener, the arithmetic in steps, the wrong
+# path named, and (Diffeq) the idea the praise used to carry. The praise for each Diffeq op
+# became a credit line in the same build (the answer and its one reason), so the praise
+# and the walk-back are not the same beat twice (3nf). The Entry praises were credit lines
+# already. Sentences stay under 27 words (3nd/3ne); the board carries the numbers the
+# words say (3na).
+# =============================================================================
+def _cnt_worked(p):
+    a = p["a"]
+    counts = ", ".join(str(i) for i in range(1, a + 1))
+    return (f"Here it is, step by step: touch each star once and count — {counts}. "
+            f"The last number you say is how many: {_plural(a, 'star')}.",
+            f'[[objects emoji="⭐" groups="{a}" caption="count them one at a time: {counts}"]]'
+            f'[[step eq="{_plural(a, "star")}"]]')
+
+
+def _c20_worked(p):
+    a = p["a"]
+    on = ", ".join(str(i) for i in range(11, a + 1))
+    return (f"Here it is, step by step: count the first ten — 1 up to 10 — and hold that. "
+            f"Then count on from ten: {on}. That is {_plural(a, 'star')}.",
+            f'[[objects emoji="⭐" groups="{a}" caption="ten first, then count on: {on}"]]'
+            f'[[step eq="10 + {a - 10} = {a} stars"]]')
+
+
+def _aft_worked(p):
+    a = p["a"]
+    return (f"Here it is, step by step: say {a}, then say the very next counting number — "
+            f"{a}, {a + 1}. Right after {a} comes {a + 1}. Not {a - 1}: that comes before.",
+            f'[[numberline min="{max(0, a - 3)}" max="{a + 3}" points="{a},{a + 1}" caption="{a}, then one more: {a + 1}"]]'
+            f'[[step eq="{a}, {a + 1}"]]')
+
+
+def _bef_worked(p):
+    a = p["a"]
+    return (f"Here it is, step by step: say {a}, then count one back — {a}, {a - 1}. "
+            f"Right before {a} comes {a - 1}. Not {a + 1}: that comes after.",
+            f'[[numberline min="{max(0, a - 3)}" max="{a + 3}" points="{a - 1},{a}" caption="one back from {a}: {a - 1}"]]'
+            f'[[step eq="{a - 1}, {a}"]]')
+
+
+def _big_worked(p):
+    lo, hi = min(p["a"], p["b"]), max(p["a"], p["b"])
+    top = 10 if hi <= 10 else 20
+    return (f"Here it is, step by step: count up from 1 and watch which number you reach first. "
+            f"You reach {lo} first, and {hi} later — so {hi} is bigger. "
+            f"Not {lo + hi}: adding them is a different question.",
+            f'[[numberline min="1" max="{top}" points="{lo},{hi}" caption="{lo} comes first, {hi} comes later — {hi} is bigger"]]'
+            f'[[step eq="{hi} > {lo}"]]')
+
+
+def _hrl_worked(p):
+    a, b = p["a"], p["b"]
+    steps = ", ".join(str(a + i) for i in range(1, b + 1))
+    return (f"Here it is, step by step: start with the hour hand at {a}. "
+            f"Count {_plural(b, 'hour')} on, one number at a time — {steps}. "
+            f"It will be {a + b} o'clock.",
+            f'[[clock time="{a + b}:00" caption="from {a}, count {_plural(b, "hour")} on: {steps}"]]'
+            f'[[step eq="{a} + {b} = {a + b} o\'clock"]]')
+
+
+def _min5q_worked(p):
+    a = p["a"]
+    n = a // 5
+    fives = ", ".join(str(5 * i) for i in range(1, n + 1))
+    return (f"Here it is, step by step: every clock number is worth five minutes. "
+            f"Count by fives until you reach {a} — {fives}. That took {_plural(n, 'count')}, "
+            f"so the minute hand points to the {n}.",
+            f'[[clock time="12:{a:02d}" caption="count by fives to {a}: {fives}"]]'
+            f'[[step eq="{a} ÷ 5 = {n}"]][[step eq="the minute hand points to {n}"]]')
+
+
+def _min5_worked(p):
+    a = p["a"]
+    fives = ", ".join(str(5 * i) for i in range(1, a + 1))
+    return (f"Here it is, step by step: the minute hand points to {a}, and every number past 12 "
+            f"is worth five minutes. Count by fives {a} times — {fives}. That is {5 * a} minutes past.",
+            f'[[clock time="12:{5 * a:02d}" caption="{a} numbers past 12, five minutes each"]]'
+            f'[[step eq="{a} × 5 = {5 * a} minutes"]]')
+
+
+def _dwd_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: a week is 7 days, so {_plural(a, 'week')} is "
+            f"{' plus '.join(['7'] * a)} — {7 * a} days. Then the {_plural(b, 'loose day')}: "
+            f"{7 * a} plus {b} equals {7 * a + b} days.",
+            f'[[step eq="{_plural(a, "week")} = {7 * a} days"]]'
+            f'[[step eq="{7 * a} + {b} = {7 * a + b} days"]]')
+
+
+def _cube_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: line the two up at the same end. The crayon reaches "
+            f"{b}, the pencil reaches {a}. The cubes the pencil has past the crayon's end: "
+            f"{a} take away {b} equals {a - b}. The pencil is {_plural(a - b, 'cube')} longer.",
+            f'[[bars data="pencil:{a} | crayon:{b}" caption="the pencil sticks out {a - b} past the crayon"]]'
+            f'[[step eq="{a} − {b} = {a - b} cubes"]]')
+
+
+def _sid_worked(p):
+    a = p["a"]
+    name = _SHAPE[a]
+    return (f"Here it is, step by step: put a finger on one side and count round the {name}. "
+            f"{', '.join(str(i) for i in range(1, a + 1))}. Stop when you are back at the start. "
+            f"A {name} has {a} sides.",
+            f'[[polygon sides="{a}" name="{name}" caption="count round the {name}: {a} sides"]]'
+            f'[[step eq="{name} → {a} sides"]]')
+
+
+def _cor_worked(p):
+    a = p["a"]
+    name = _SHAPE[a]
+    return (f"Here it is, step by step: a corner is where two sides meet. Count them round the "
+            f"{name} — {', '.join(str(i) for i in range(1, a + 1))}. A {name} has {a} corners, "
+            f"the same as its sides: every side ends in a corner.",
+            f'[[polygon sides="{a}" name="{name}" caption="count the corners: {a} — the same as the sides"]]'
+            f'[[step eq="{name} → {a} corners"]]')
+
+
+def _pat_worked(p):
+    a, b = p["a"], p["b"]
+    seq = [a + i * b for i in range(4)]
+    return (f"Here it is, step by step: find the jump. From {seq[0]} to {seq[1]} is {b}, "
+            f"and from {seq[1]} to {seq[2]} is {b} again — the pattern goes up by {b}. "
+            f"So add {b} once more: {seq[3]} plus {b} equals {a + 4 * b}.",
+            f'[[step eq="+{b} each time"]]'
+            f'[[step eq="{seq[3]} + {b} = {a + 4 * b}"]]')
+
+
+def _grp_worked(p):
+    a, b = p["a"], p["b"]
+    chain = " plus ".join([str(b)] * a)
+    return (f"Here it is, step by step: {a} groups, {b} in each. Count by {b}s, one group at a time: "
+            f"{chain} equals {a * b}. That is {a * b} stars in all.",
+            f'[[array rows="{a}" cols="{b}" view="groups" caption="{a} groups of {b} — count by {b}"]]'
+            f'[[step eq="{chain.replace(" plus ", " + ")} = {a * b}"]]')
+
+
+def _eqs_worked(p):
+    a, b = p["a"], p["b"]
+    each = a // b
+    return (f"Here it is, step by step: deal the {a} stars out one at a time, one to each group. "
+            f"Go round and round the {b} groups until none are left. Every group ends with {each}. "
+            f"{a} shared into {b} equal groups is {each} each.",
+            f'[[array total="{a}" rows="{b}" caption="{a} dealt into {b} equal groups — {each} in each"]]'
+            f'[[step eq="{a} ÷ {b} = {each} each"]]')
+
+
+# ---- Diffeq ---------------------------------------------------------------------------
+def _slpf_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: the equation says d y d x equals x plus y, so feed the point "
+            f"straight in. x is {a} and y is {b}: {a} plus {b} equals {a + b}. "
+            f"Not {a - b}: the law adds. And not {a} alone: both coordinates go in. "
+            f"Do that at every point and the whole field appears — the field is the equation, drawn.",
+            f'[[step eq="dy/dx = x + y"]][[step eq="at ({a}, {b}): {a} + {b} = {a + b}"]]'
+            f'[[step eq="{a} − {b} = {a - b} ✗ the law adds"]]')
+
+
+def _slpq_worked(p):
+    a, b = p["a"], p["b"]
+    sq = a * a
+    return (f"Here it is, step by step: the law is x squared, take away y. Square first: {a} squared "
+            f"is {sq}. Then take away the y: {sq} take away {b} equals {sq - b}. "
+            f"Not {sq + b}: the y comes off. Same plane, same points — a different law, a different field.",
+            f'[[step eq="dy/dx = x² − y"]][[step eq="{a}² = {sq}"]][[step eq="{sq} − {b} = {sq - b}"]]'
+            f'[[step eq="{sq} + {b} = {sq + b} ✗ the y comes off"]]')
+
+
+def _isoc_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: every dash with slope {a} sits where x plus y equals {a}. "
+            f"x is already {b}, so y must supply the rest: {a} take away {b} equals {a - b}. "
+            f"Not {a + b}: the two ADD to the slope. That line is called an isocline. Every dash along it "
+            f"leans exactly the same way. Drawing whole lines at a time is how a field gets built by hand.",
+            f'[[step eq="x + y = {a}"]][[step eq="{b} + y = {a}"]][[step eq="y = {a} − {b} = {a - b}"]]'
+            f'[[step eq="{a} + {b} = {a + b} ✗ they add to the slope"]]')
+
+
+def _fldc_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: a slope of {b} climbs {b} for every 1 across. "
+            f"Across {c}, the climb is {b} times {c} — {b * c}. Add that to the start: "
+            f"{a} plus {b * c} equals {a + b * c}. Not {b * c} on its own: you started at {a}. "
+            f"Joining the dashes IS the solution.",
+            f'[[step eq="start y = {a}"]][[step eq="climb = {b} × {c} = {b * c}"]]'
+            f'[[step eq="{a} + {b * c} = {a + b * c}"]][[step eq="{b * c} ✗ forgot the start"]]')
+
+
+def _sepv_worked(p):
+    a, b = p["a"], p["b"]
+    h = a // 2
+    return (f"Here it is, step by step: integrating {a} x gives half of {a}, times x squared — "
+            f"{h} x squared, plus C. The start pins C at {b}. At x equals 3: {h} times 9 is {9 * h}, "
+            f"plus {b} equals {9 * h + b}. Not {9 * h}: the C rides on top. "
+            f"Separate, integrate, then let the point fix the C.",
+            f'[[step eq="y = {h}x² + C"]][[step eq="C = {b}"]][[step eq="{h} × 9 = {9 * h}"]]'
+            f'[[step eq="{9 * h} + {b} = {9 * h + b}"]][[step eq="{9 * h} ✗ the C dropped"]]')
+
+
+def _sepr_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    inside = 2 * a * c + b * b
+    r = _isqrt(inside)
+    return (f"Here it is, step by step: y squared equals 2 times {a} times x, plus C, and C is "
+            f"{b} squared — {b * b}. At x equals {c}: 2 times {a} times {c} is {2 * a * c}, "
+            f"plus {b * b} equals {inside}. That is y SQUARED, so root it: {r}. "
+            f"Not {inside}: the question asked for y. And it did not climb in a straight line.",
+            f'[[step eq="y² = 2·{a}·{c} + {b * b} = {inside}"]][[step eq="y = √{inside} = {r}"]]'
+            f'[[step eq="{inside} ✗ that is y squared"]]')
+
+
+def _newt_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    gap = a - b
+    return (f"Here it is, step by step: the gap is coffee take away room — {a} take away {b} equals "
+            f"{gap} degrees. Every {c} degrees of gap is worth 1 degree a minute, so share the gap "
+            f"into {c}s: {gap} divided by {c} equals {gap // c} a minute. Not {gap}: that is the gap, "
+            f"not the rate. The gap shrinks as it cools, so the cooling slows — in the model, the coffee "
+            f"creeps closer and closer to the room.",
+            f'[[step eq="gap = {a} − {b} = {gap}°"]][[step eq="{gap} ÷ {c} = {gap // c}°/min"]]'
+            f'[[step eq="{gap} ✗ the gap, not the rate"]]')
+
+
+def _conc_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: share the salt out over the water — {a} grams divided by "
+            f"{b} litres equals {a // b} grams in each litre. Not {a - b}: grams and litres are "
+            f"different things, and they share, never take away. That share is the concentration — "
+            f"what the outflow pipe carries away.",
+            f'[[step eq="{a} ÷ {b} = {a // b}"]][[step eq="{a // b} grams in each litre"]]'
+            f'[[step eq="{a} − {b} = {a - b} ✗ different units never take away"]]')
+
+
+def _logi_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    room = a - b
+    return (f"Here it is, step by step: the room still left is the ceiling take away the fish — "
+            f"{a} take away {b} equals {room}. The rate is fish times room, shared by {c}: "
+            f"{b} times {room} is {b * room}, and {b * room} divided by {c} equals {b * room // c}. "
+            f"Not {room}: that is room, not rate. Almost no fish and almost no room BOTH give almost no growth.",
+            f'[[step eq="room = {a} − {b} = {room}"]][[step eq="{b} × {room} = {b * room}"]]'
+            f'[[step eq="{b * room} ÷ {c} = {b * room // c}"]][[step eq="{room} ✗ the room, not the rate"]]')
+
+
+def _carr_worked(p):
+    a, b = p["a"], p["b"]
+    half = a // 2
+    return (f"Here it is, step by step: growth peaks at HALF the ceiling, so find half of {a} — {half}. "
+            f"The pond holds {b} now, so the distance to the peak is {half} take away {b} equals "
+            f"{half - b}. Not {a - b}: that is the distance to the top, and the top is where growth stops.",
+            f'[[step eq="half of {a} = {half}"]][[step eq="{half} − {b} = {half - b} more"]]'
+            f'[[step eq="{a} − {b} = {a - b} ✗ the distance to the top"]]')
+
+
+def _fast_worked(p):
+    a, b = p["a"], p["b"]
+    prod = a * b
+    return (f"Here it is, step by step: ceiling times constant — {a} times {b} equals {prod}. "
+            f"Then a quarter of that: {prod} divided by 4 equals {prod // 4}. Not {prod // 2}: "
+            f"the halving happens twice, half the fish AND half the room, at the same moment.",
+            f'[[step eq="{a} × {b} = {prod}"]][[step eq="{prod} ÷ 4 = {prod // 4}"]]'
+            f'[[step eq="{prod // 2} ✗ halved only once"]]')
+
+
+def _away_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    d = b - a
+    return (f"Here it is, step by step: the distance above the balance point is {b} take away {a} — "
+            f"{d}. It moves at {c} for each of those: {c} times {d} equals {c * d}. Not {d}: "
+            f"that is the distance, not the speed. In this model the further it goes, the faster it moves away. "
+            f"Moving away from the balance point is what UNSTABLE means.",
+            f'[[step eq="distance = {b} − {a} = {d}"]][[step eq="{c} × {d} = {c * d}"]]'
+            f'[[step eq="{d} ✗ the distance, not the rate"]]')
+
+
+def _eulr_worked(p):
+    a, b = p["a"], p["b"]
+    climb = 2 * b * b
+    return (f"Here it is, step by step: the first step starts at x equals 0, where the slope 2 x is 0, "
+            f"so it climbs nothing. The second starts at x equals {b}, slope {2 * b}, held across {b}: "
+            f"a climb of {climb}. Land: {a} plus {climb} equals {a + climb}. "
+            f"Not {a + 2 * climb}: that is the true curve, which Euler never reaches — it kept an old slope.",
+            f'[[step eq="step 1: slope 0 · climb 0"]][[step eq="step 2: slope {2 * b} × {b} = {climb}"]]'
+            f'[[step eq="{a} + {climb} = {a + climb}"]][[step eq="{a + 2 * climb} ✗ the true curve"]]')
+
+
+def _estp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: the main error scales with the step. The step went from {b} "
+            f"to {c}. So the error goes the same way: {a} times {c}, divided by {b}, equals {a * c // b}. "
+            f"The main error scales the same way: {a} becomes {a * c // b}. "
+            f"Not {a // 2}: it halves only if the step halved. That is the deal a first-order method "
+            f"offers — the main error shrinks in step with the step itself.",
+            f'[[step eq="error ∝ step"]][[step eq="{a} × {c} ÷ {b} = {a * c // b}"]]'
+            f'[[step eq="{a // 2} ✗ the step did not halve"]]')
+
+
+def _rk4_worked(p):
+    a = p["a"]
+    return (f"Here it is, step by step: for fourth-order Runge-Kutta, halving the step divides the "
+            f"error by 2 to the power 4, which is 16. So {a} divided by 16 equals {a // 16}. "
+            f"Not {a // 2}: that is Euler's deal. One more halving divides what is left by 16 again. "
+            f"That is why a few halvings buy an accuracy Euler needs vastly more steps to reach.",
+            f'[[step eq="halve the step → ÷ 2⁴ = ÷ 16"]][[step eq="{a} ÷ 16 = {a // 16}"]]'
+            f'[[step eq="{a} ÷ 2 = {a // 2} ✗ that is Euler"]]')
+
+
+def _evls_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: at 1 evaluation a step, Euler pays {a} in all. Runge-Kutta pays "
+            f"4 a step: 4 times {b} equals {4 * b}. The saving is {a} take away {4 * b} — {a - 4 * b}. "
+            f"Not {a - b}: a step does not cost the same in both. Four times the price and it still wins.",
+            f'[[step eq="Euler: {a} × 1 = {a}"]][[step eq="RK4: {b} × 4 = {4 * b}"]]'
+            f'[[step eq="{a} − {4 * b} = {a - 4 * b}"]][[step eq="{a} − {b} = {a - b} ✗ steps priced the same"]]')
+
+
+def _char_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: {a} squared is {a * a}. Four times {b} is {4 * b}. "
+            f"Take away: {a * a} take away {4 * b} equals {a * a - 4 * b}. Not {a * a - b}: the 4 is part "
+            f"of the rule. Above zero means two real roots and no wobble — the door closes slowly and stops. "
+            f"That one number decides whether this spring wobbles.",
+            f'[[step eq="{a}² = {a * a}"]][[step eq="4 × {b} = {4 * b}"]]'
+            f'[[step eq="{a * a} − {4 * b} = {a * a - 4 * b}"]][[step eq="{a * a} − {b} = {a * a - b} ✗ the 4 forgotten"]]')
+
+
+def _cdmp_worked(p):
+    a = p["a"]
+    return (f"Here it is, step by step: the test number is {a} squared take away 4 c, and it must be zero. "
+            f"{a} squared is {a * a}, so 4 c equals {a * a}, and c is a quarter of that: {a * a // 4}. "
+            f"Not {a * a // 2}: a quarter, not a half. A hair less on that term and the door crawls; a hair more and it bounces.",
+            f'[[step eq="{a}² − 4c = 0"]][[step eq="4c = {a * a}"]][[step eq="c = {a * a} ÷ 4 = {a * a // 4}"]]'
+            f'[[step eq="{a * a // 2} ✗ halved, not quartered"]]')
+
+
+def _natf_worked(p):
+    a = p["a"]
+    r = _isqrt(a)
+    return (f"Here it is, step by step: with no damping, y double-prime plus {a} y equals zero rocks "
+            f"at the square root of {a}. Ask which number times itself gives {a}: {r} times {r} is {a}, "
+            f"so the natural frequency is {r} radians a second. Not {a}: the root, not the number. "
+            f"Many objects have natural frequencies like this, and the next unit is about what happens "
+            f"when something else drives one of them.",
+            f'[[step eq="y″ + {a}y = 0"]][[step eq="{r} × {r} = {a}"]][[step eq="√{a} = {r}"]]'
+            f'[[step eq="{a} ✗ un-rooted"]]')
+
+
+def _oscf_worked(p):
+    a, b = p["a"], p["b"]
+    inside = 4 * b - a * a
+    r = _isqrt(inside)
+    return (f"Here it is, step by step: the inside is 4 times {b} take away {a} squared — {inside}. "
+            f"Root it: {r}. Then halve it: {r // 2}. Not {r}: the halving is part of the rule. "
+            f"Damping does not only shrink the swing — it slows the rocking down too.",
+            f'[[step eq="4×{b} − {a}² = {inside}"]][[step eq="√{inside} = {r}"]][[step eq="{r} ÷ 2 = {r // 2}"]]'
+            f'[[step eq="{r} ✗ not halved"]]')
+
+
+def _part_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: a steady height has no curvature, so y double-prime is 0 and "
+            f"the equation shrinks to {a} y equals {b}. Share: {b} divided by {a} equals {b // a}. "
+            f"Not {a * b}: the force is shared, not timesed. Guess the SHAPE of the push, then let the "
+            f"equation fix the size.",
+            f'[[step eq="steady: y″ = 0"]][[step eq="{a}y = {b}"]][[step eq="y = {b} ÷ {a} = {b // a}"]]'
+            f'[[step eq="{a} × {b} = {a * b} ✗ shared, not timesed"]]')
+
+
+def _trns_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: the start is the steady part plus the transient. "
+            f"So the transient is start take away steady: {a} take away {b} equals {a - b}. "
+            f"Not {a + b}: the steady part is already inside the start. Wait a while and that "
+            f"{a - b} fades, leaving only {b} — a spring forgets how it was let go.",
+            f'[[step eq="start = steady + transient"]][[step eq="{a} − {b} = {a - b}"]]'
+            f'[[step eq="{a} + {b} = {a + b} ✗ the steady part counted twice"]]')
+
+
+def _reso_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    gap = a - b
+    return (f"Here it is, step by step: the gap between the two frequencies squared is {a} take away "
+            f"{b} — {gap}. The swing is the force shared by that gap: {c} divided by {gap} equals "
+            f"{c // gap}. Not {c // b}: divide by the GAP, not the driver. Close the gap and there is "
+            f"nothing to divide by — the swing just grows. That is resonance.",
+            f'[[step eq="gap = {a} − {b} = {gap}"]][[step eq="{c} ÷ {gap} = {c // gap}"]]'
+            f'[[step eq="{c} ÷ {b} = {c // b} ✗ divided by the driver"]]')
+
+
+def _damp_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: damping times frequency first — {b} times {c} equals {b * c}. "
+            f"Then share the force over that: {a} divided by {b * c} equals {a // (b * c)}. "
+            f"Not {a // b}: both divisions, not one. The smaller the damping, the bigger that swing.",
+            f'[[step eq="{b} × {c} = {b * c}"]][[step eq="{a} ÷ {b * c} = {a // (b * c)}"]]'
+            f'[[step eq="{a} ÷ {b} = {a // b} ✗ only one division"]]')
+
+
+def _lder_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: y prime becomes s times Y, take away the start. "
+            f"s times Y is {b} times {c} — {b * c}. Take away the start: {b * c} take away {a} equals "
+            f"{b * c - a}. Not {b * c + a}: the start comes OFF. For the equations in this unit, that rule "
+            f"turns differentiating into timesing by s, so the differential equation becomes ordinary algebra.",
+            f'[[step eq="L{{y′}} = sY − y(0)"]][[step eq="{b} × {c} = {b * c}"]]'
+            f'[[step eq="{b * c} − {a} = {b * c - a}"]][[step eq="{b * c} + {a} = {b * c + a} ✗ the start comes off"]]')
+
+
+def _lalg_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: the transform Y is {b} over s plus {a}. Put s equals {c} in the bottom: "
+            f"{c} plus {a} equals {c + a}. Then share: {b} divided by {c + a} equals {b // (a + c)}. "
+            f"Not {b}: the top is shared, not handed back. No calculus was done at all — "
+            f"the derivative left when we transformed.",
+            f'[[step eq="Y = {b}/(s + {a})"]][[step eq="s = {c}: {c} + {a} = {c + a}"]]'
+            f'[[step eq="{b} ÷ {c + a} = {b // (a + c)}"]][[step eq="{b} ✗ the top, undivided"]]')
+
+
+def _lshf_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: multiplying by e to the {b} t turns every s into s take away {b}. "
+            f"That slides the whole picture {b} to the RIGHT. The pole was at {a}: "
+            f"{a} plus {b} equals {a + b}. Not {a - b}: take-away inside means a slide right. "
+            f"A pole right of zero means the answer grows; left of zero, it dies away.",
+            f'[[step eq="s → s − {b} · slide right {b}"]][[step eq="{a} + {b} = {a + b}"]]'
+            f'[[step eq="{a} − {b} = {a - b} ✗ slid the wrong way"]]')
+
+
+def _lfin_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: multiply by s and the lone s underneath cancels, leaving "
+            f"{b} over s plus {a}. Let s fall to zero: {b} over {a}, which is {b // a}. "
+            f"Not {b - a}: the two share, never take away. That is the final-value theorem — "
+            f"where the solution settles, read straight off the transform.",
+            f'[[step eq="s·Y = {b}/(s + {a})"]][[step eq="s → 0: {b} ÷ {a} = {b // a}"]]'
+            f'[[step eq="{b} − {a} = {b - a} ✗ shared, not taken away"]]')
+
+
+def _sysx_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: x prime equals {a} x take away y. Feed the point in: "
+            f"{a} times {b} is {a * b}, then take away the y — {a * b} take away {c} equals {a * b - c}. "
+            f"Not {a * b + c}: the y pulls back. That is the x part of the arrow at that point; the y rule "
+            f"gives the other part the same way. A slope field with two directions instead of one.",
+            f'[[step eq="x′ = {a}x − y"]][[step eq="{a} × {b} = {a * b}"]]'
+            f'[[step eq="{a * b} − {c} = {a * b - c}"]][[step eq="{a * b} + {c} = {a * b + c} ✗ the y pulls back"]]')
+
+
+def _nucl_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: on the x-nullcline, y equals {a} x. Put x equals {b} in: "
+            f"{a} times {b} equals {a * b}. Not {a + b}: the rule times, it does not add. "
+            f"Along that line the arrows point straight up or down, and where the two nullclines "
+            f"cross nothing moves — that crossing is an equilibrium.",
+            f'[[step eq="y = {a}x"]][[step eq="x = {b}: {a} × {b} = {a * b}"]]'
+            f'[[step eq="{a} + {b} = {a + b} ✗ times, not plus"]]')
+
+
+def _detm_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: down the diagonal, {a} times {c} is {a * c}. In the corners, "
+            f"{b} squared is {b * b}. The determinant is the first take away the second: "
+            f"{a * c} take away {b * b} equals {a * c - b * b}. Not {a * c + b * b}: the corners come off. "
+            f"It is the two eigenvalues multiplied — below zero, one is positive, and that is a saddle.",
+            f'[[step eq="{a} × {c} = {a * c}"]][[step eq="{b}² = {b * b}"]]'
+            f'[[step eq="{a * c} − {b * b} = {a * c - b * b}"]][[step eq="{a * c} + {b * b} = {a * c + b * b} ✗ the corners come off"]]')
+
+
+def _eign_worked(p):
+    a, b = p["a"], p["b"]
+    return (f"Here it is, step by step: the two eigenvalues add up to the trace, {a}. One of them is "
+            f"{b}, so the other is what is left: {a} take away {b} equals {a - b}. Not {a + b}: "
+            f"they ADD to the trace. Both above zero and every path heads away from the origin; "
+            f"both below and everything moves in toward the origin; one of each is a saddle.",
+            f'[[step eq="λ₁ + λ₂ = {a}"]][[step eq="{a} − {b} = {a - b}"]]'
+            f'[[step eq="{a} + {b} = {a + b} ✗ they add to the trace"]]')
+
+
+def _lnrz_worked(p):
+    b, c = p["b"], p["c"]
+    return (f"Here it is, step by step: the slope of {p['a']} take away P squared is negative 2 P. "
+            f"At P equals {b} that is a pull-back of 2 times {b}, which is {2 * b}, for every 1 of distance. "
+            f"You are {c} away, so the straight-line estimate is {2 * b} times {c} — {2 * b * c}. "
+            f"Not {b * c}: the doubling is part of the slope. That is linearisation: close to a smooth "
+            f"equilibrium, a curved law behaves very nearly like a straight one.",
+            f'[[step eq="slope at P = {b}: −2 × {b} = −{2 * b}"]][[step eq="{2 * b} × {c} = {2 * b * c}"]]'
+            f'[[step eq="{b} × {c} = {b * c} ✗ the doubling forgotten"]]')
+
+
+def _prey_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    return (f"Here it is, step by step: births first — {c} rabbits at {a} each is {a * c} new rabbits a year. "
+            f"Each fox eats {b}, so share the births among foxes: {a * c} divided by {b} equals "
+            f"{a * c // b} foxes. Not {a * c}: that is births with nothing eating them. "
+            f"The rabbit number is not steady on its own — it is held level by that many foxes.",
+            f'[[step eq="{c} × {a} = {a * c} born"]][[step eq="{a * c} ÷ {b} = {a * c // b} foxes"]]'
+            f'[[step eq="{a * c} ✗ births, nothing eating them"]]')
+
+
+def _cycl_worked(p):
+    a = p["a"]
+    return (f"Here it is, step by step: the foxes peak a quarter of a cycle after the rabbits. "
+            f"A quarter of {a} months is {a} divided by 4 — {a // 4} months. Not {a // 2}: "
+            f"a quarter, not a half. That lag is what keeps the loop turning, each one chasing the other round.",
+            f'[[step eq="cycle {a} months · lag = ¼"]][[step eq="{a} ÷ 4 = {a // 4} months"]]'
+            f'[[step eq="{a} ÷ 2 = {a // 2} ✗ a half, not a quarter"]]')
+
+
+def _chao_worked(p):
+    a, b, c = p["a"], p["b"], p["c"]
+    pw = b ** c
+    chain = " × ".join([str(b)] * c)
+    return (f"Here it is, step by step: the gap multiplies by {b} every day. After {c} days that is "
+            f"{b} to the power {c}: {chain.replace(' × ', ' times ')}, which is {pw}. "
+            f"Then {a} of those: {a} times {pw} equals {a * pw}. Not {a * b * c}: multiplying each day "
+            f"is a power, not a times. Nothing was random and nothing was unknown — the gap just multiplied "
+            f"its way out of sight. A perfectly known equation, and a tiny starting gap still wrecks a far-ahead forecast.",
+            f'[[step eq="{chain} = {pw}"]][[step eq="{a} × {pw} = {a * pw}"]]'
+            f'[[step eq="{a} × {b} × {c} = {a * b * c} ✗ a times, not a power"]]')
+
 BASE_WORKED = {
     "+": lambda p: _col_add(p["a"], p["b"], _story_noun(p)),
     "-": lambda p: _col_sub(p["a"], p["b"], _story_noun(p)),
@@ -6958,6 +7499,7 @@ OP_EXT = {
         "board": lambda p: (f'[[numberline min="1" max="{10 if max(p["a"], p["b"]) <= 10 else 20}" '
                             f'points="{min(p["a"], p["b"])},{max(p["a"], p["b"])}" '
                             f'caption="{p["a"]} or {p["b"]} — which do you reach later?"]]'),
+        "worked": _big_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{max(p['a'], p['b'])} is bigger than "
                              f"{min(p['a'], p['b'])}."),
         "key": lambda p: 100 * p["a"] + p["b"],
@@ -6974,6 +7516,7 @@ OP_EXT = {
         "spoken": lambda p: "Count the stars. How many stars are there?",
         "board": lambda p: (f'[[objects emoji="⭐" groups="{p["a"]}" '
                             f'caption="ten first, then count on"]]'),
+        "worked": _c20_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: f"{_plural(p['a'], 'star')} — you counted past ten.",
         "key": lambda p: p["a"],
         "check": lambda p: (11 <= p["a"] <= 20,
@@ -7398,6 +7941,7 @@ OP_EXT = {
         "spoken": lambda p: "Count the stars. How many stars are there?",
         "board": lambda p: (f'[[objects emoji="⭐" groups="{p["a"]}" '
                             f'caption="count them one at a time"]]'),
+        "worked": _cnt_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: f"{_plural(p['a'], 'star')} — you counted every one.",
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] <= 10, "countable on one screen"),
@@ -7409,6 +7953,7 @@ OP_EXT = {
         "ans": lambda p: p["a"] + 1,
         "spoken": lambda p: f"What number comes right after {p['a']}?",
         "board": lambda p: f'[[step eq="{p["a"]}, ?"]]',
+        "worked": _aft_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: f"{p['a'] + 1} comes right after {p['a']}.",
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] <= 19, "stays in the counting range"),
@@ -7419,6 +7964,7 @@ OP_EXT = {
         "ans": lambda p: p["a"] - 1,
         "spoken": lambda p: f"What number comes right before {p['a']}?",
         "board": lambda p: f'[[step eq="?, {p["a"]}"]]',
+        "worked": _bef_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: f"{p['a'] - 1} comes right before {p['a']}.",
         "key": lambda p: p["a"],
         "check": lambda p: (2 <= p["a"] <= 20, "the answer must stay at least 1"),
@@ -7451,6 +7997,7 @@ OP_EXT = {
         "board": lambda p: (f'[[polygon sides="{p["a"]}" name="{_SHAPE[p["a"]]}" '
                             f'caption="a {_SHAPE[p["a"]]} — count its sides"]]'
                             f'[[step eq="{_SHAPE[p["a"]]} → ? sides"]]'),
+        "worked": _sid_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: f"A {_SHAPE[p['a']]} has {p['a']} sides.",
         "key": lambda p: p["a"],
         "check": lambda p: (p["a"] in _SHAPE and p.get("b", 0) == 0,
@@ -7467,6 +8014,7 @@ OP_EXT = {
         "board": lambda p: (f'[[polygon sides="{p["a"]}" name="{_SHAPE[p["a"]]}" '
                             f'caption="a {_SHAPE[p["a"]]} — count its corners"]]'
                             f'[[step eq="{_SHAPE[p["a"]]} → ? corners"]]'),
+        "worked": _cor_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"A {_SHAPE[p['a']]} has {p['a']} corners — the same "
                              f"as its sides."),
         "key": lambda p: p["a"],
@@ -7481,6 +8029,7 @@ OP_EXT = {
                              f"What comes next?"),
         "board": lambda p: (f'[[step eq="{p["a"]}, {p["a"] + p["b"]}, '
                             f'{p["a"] + 2 * p["b"]}, {p["a"] + 3 * p["b"]}, ?"]]'),
+        "worked": _pat_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{p['a'] + 4 * p['b']} — the pattern goes up by "
                              f"{p['b']} every time."),
         "key": lambda p: p["b"],
@@ -7498,6 +8047,7 @@ OP_EXT = {
         "board": lambda p: (f'[[array rows="{p["a"]}" cols="{p["b"]}" view="groups" ask="1" '
                             f'eq="? in all" caption="{p["a"]} groups of {p["b"]} — count by {p["b"]}"]]'
                             f'[[step eq="{p["a"]} groups of {p["b"]} = ?"]]'),
+        "worked": _grp_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{p['a']} groups of {p['b']} is {p['a'] * p['b']} "
                              f"stars in all."),
         "key": lambda p: p["a"] * p["b"],
@@ -7514,6 +8064,7 @@ OP_EXT = {
                             f'caption="{p["a"]} stars to share into {p["b"]} equal groups"]]'
                             f'[[step eq="{p["a"]} shared into {p["b"]} equal '
                             f'groups = ? each"]]'),
+        "worked": _eqs_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{p['a']} shared into {p['b']} equal groups is "
                              f"{p['a'] // p['b']} in each group."),
         "key": lambda p: p["a"],
@@ -7541,6 +8092,7 @@ OP_EXT = {
         "board": lambda p: (f'[[clock time="{p["a"]}:00" '
                             f'caption="the short hand — the hour hand — is at {p["a"]}; count {_plural(p["b"], "hour")} on"]]'
                             f'[[step eq="{p["a"]} o\'clock, {_plural(p["b"], "hour")} later = ?"]]'),
+        "worked": _hrl_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{_plural(p['b'], 'hour')} after {p['a']} o'clock "
                              f"is {p['a'] + p['b']} o'clock."),
         "key": lambda p: p["a"] + p["b"],
@@ -7562,6 +8114,7 @@ OP_EXT = {
                             f'caption="the long hand — the minute hand — points to {p["a"]}"]]'
                             f'[[step eq="{p["a"]} numbers past 12, five minutes '
                             f'each = ? minutes"]]'),
+        "worked": _min5_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{p['a']} times five equals {5 * p['a']} minutes."),
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] <= 11 and p.get("b", 0) == 0,
@@ -7589,6 +8142,7 @@ OP_EXT = {
                              f"Which clock number is the minute hand pointing to?"),
         "board": lambda p: (f'[[step eq="{p["a"]} minutes, five minutes each '
                             f'= ? on the clock"]]'),
+        "worked": _min5q_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{p['a']} minutes past — the minute hand points to the "
                              f"{p['a'] // 5}, five minutes for each number."),
         "key": lambda p: p["a"] // 5,
@@ -7605,6 +8159,7 @@ OP_EXT = {
                              f"{p['b']} {'day' if p['b'] == 1 else 'days'}?"),
         "board": lambda p: (f'[[step eq="{_plural(p["a"], "week")} and {_plural(p["b"], "day")} '
                             f'= ? days"]]'),
+        "worked": _dwd_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{_plural(p['a'], 'week')} and "
                              f"{_plural(p['b'], 'day')} equals "
                              f"{7 * p['a'] + p['b']} days."),
@@ -7622,6 +8177,7 @@ OP_EXT = {
         "board": lambda p: (f'[[bars data="pencil:{p["a"]} | crayon:{p["b"]}" '
                             f'caption="two bars side by side — how much longer is the pencil?"]]'
                             f'[[step eq="{_plural(p["a"], "cube")} − {_plural(p["b"], "cube")} = ? cubes"]]'),
+        "worked": _cube_worked,   # (xo) Phase C: the scripted second explanation
         "praise": lambda p: (f"{_plural(p['a'], 'cube')} take away "
                              f"{_plural(p['b'], 'cube')} — the pencil is "
                              f"{_plural(p['a'] - p['b'], 'cube')} longer."),
@@ -13965,12 +14521,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="dy/dx = x + y"]]'
                             f'[[step eq="at ({p["a"]}, {p["b"]}) · slope = '
                             f'?"]]'),
-        "praise": lambda p: (f"Feed the point straight into the equation: "
-                             f"{p['a']} plus {p['b']} is "
-                             f"{p['a'] + p['b']}, so the dash there leans at "
-                             f"a slope of {p['a'] + p['b']}. Do that at "
-                             f"every point and the whole field appears — "
-                             f"and the field is the equation, drawn."),
+        "worked": _slpf_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] + p['b']} — feed the point into x plus y, and that is the dash's slope."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: the two taken away instead of added, and only the x
         # read -- half the point used, half ignored. (Timesing was the first
@@ -13992,11 +14545,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="dy/dx = x² − y"]]'
                             f'[[step eq="at ({p["a"]}, {p["b"]}): slope = '
                             f'?"]]'),
-        "praise": lambda p: (f"Square the x first: {p['a']} squared is "
-                             f"{p['a'] * p['a']}, and taking away the "
-                             f"{p['b']} leaves {p['a'] * p['a'] - p['b']}. "
-                             f"Same plane, same points, a completely "
-                             f"different field — the law is what shapes it."),
+        "worked": _slpq_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['a'] - p['b']} — x squared first, then the y comes off."),
         "key": lambda p: p["a"] * p["a"] - p["b"],
         # The errors: the y added instead of taken away, and the y left off
         # the end so only the bare square comes back.
@@ -14019,12 +14570,9 @@ OP_EXT = {
                              f"{p['b']}, what is y?"),
         "board": lambda p: (f'[[step eq="dy/dx = x + y = {p["a"]}"]]'
                             f'[[step eq="at x = {p["b"]}: y = ?"]]'),
-        "praise": lambda p: (f"x plus y has to come to {p['a']}, and x is "
-                             f"already {p['b']}, so y is "
-                             f"{p['a'] - p['b']}. That line is called an "
-                             f"isocline. Every dash along it leans exactly "
-                             f"the same way. Drawing whole lines at a time "
-                             f"is how a field gets built by hand."),
+        "worked": _isoc_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] - p['b']} — x plus y must come to {p['a']}, and x is already {p['b']}."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the two added, and the x handed back as the y.
         "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
@@ -14045,12 +14593,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="start at y = {p["a"]}"]]'
                             f'[[step eq="slope {p["b"]} · for {p["c"]} '
                             f'across · y = ?"]]'),
-        "praise": lambda p: (f"A slope of {p['b']} climbs {p['b']} for "
-                             f"every 1 across, so {p['c']} across is "
-                             f"{p['b'] * p['c']} of climb — landing at "
-                             f"{p['a'] + p['b'] * p['c']}. The dashes were "
-                             f"never a picture of the answer; joining them "
-                             f"IS the answer."),
+        "worked": _fldc_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] + p['b'] * p['c']} — the climb is {p['b'] * p['c']}, and it starts from {p['a']}."),
         "key": lambda p: p["a"] + p["b"] * p["c"],
         # The errors: the climb handed back with no starting height, and a
         # single step's worth of it.
@@ -14077,13 +14622,9 @@ OP_EXT = {
                             f'[[step eq="y = {p["a"] // 2}x² + C"]]'
                             f'[[step eq="C = {p["b"]}"]]'
                             f'[[step eq="at x = 3: y = ?"]]'),
-        "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and 3 "
-                             f"squared is 9, so the x part is "
-                             f"{9 * (p['a'] // 2)} — then the C of "
-                             f"{p['b']} lands on top: "
-                             f"{9 * (p['a'] // 2) + p['b']}. Separating and "
-                             f"integrating is the whole method; the point "
-                             f"is only there to pin the C."),
+        "worked": _sepv_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{9 * (p['a'] // 2) + p['b']} — the x part is {9 * (p['a'] // 2)}, and the C of {p['b']} rides on top."),
         "key": lambda p: 9 * (p["a"] // 2) + p["b"],
         # The errors: the C dropped, and the halving skipped.
         "choices": lambda p: [9 * (p["a"] // 2) + p["b"], 9 * (p["a"] // 2),
@@ -14108,13 +14649,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="y² = 2·{p["a"]}x + C"]]'
                             f'[[step eq="C = {p["b"] * p["b"]}"]]'
                             f'[[step eq="at x = {p["c"]}: y = ?"]]'),
-        "praise": lambda p: (f"y squared climbs to "
-                             f"{2 * p['a'] * p['c'] + p['b'] * p['b']}, and "
-                             f"the height is the square root of that — "
-                             f"{_isqrt(2 * p['a'] * p['c'] + p['b'] * p['b'])}. "
-                             f"Notice it did NOT climb in a straight line: "
-                             f"separating tells you the truth about a curve "
-                             f"that guessing cannot."),
+        "worked": _sepr_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{_isqrt(2 * p['a'] * p['c'] + p['b'] * p['b'])} — y squared is {2 * p['a'] * p['c'] + p['b'] * p['b']}, and the height is its root."),
         "key": lambda p: _isqrt(2 * p["a"] * p["c"] + p["b"] * p["b"]),
         # The errors: y squared answered instead of y, and a straight-line
         # guess -- the very guess the lesson exists to break.
@@ -14150,12 +14687,9 @@ OP_EXT = {
                             f'{p["b"]}°"]]'
                             f'[[step eq="1°/min per {p["c"]}° of gap · '
                             f'rate = ?"]]'),
-        "praise": lambda p: (f"The gap is {p['a'] - p['b']} degrees, and "
-                             f"every {p['c']} of those is worth 1 degree a "
-                             f"minute — so {(p['a'] - p['b']) // p['c']} a "
-                             f"minute. The gap shrinks as it cools, so the "
-                             f"cooling slows — in the model, the coffee "
-                             f"creeps closer and closer to the room."),
+        "worked": _newt_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{(p['a'] - p['b']) // p['c']} a minute — a gap of {p['a'] - p['b']}, shared into {p['c']}s."),
         "key": lambda p: (p["a"] - p["b"]) // p["c"],
         # The errors: the gap handed back as though it were a rate, and the
         # cooling constant answered on its own.
@@ -14182,12 +14716,9 @@ OP_EXT = {
                              f"grams sit in each single litre?"),
         "board": lambda p: (f'[[step eq="{p["a"]} g in {p["b"]} L"]]'
                             f'[[step eq="grams per litre = ?"]]'),
-        "praise": lambda p: (f"Share the {p['a']} grams out over {p['b']} "
-                             f"litres and each one carries "
-                             f"{p['a'] // p['b']}. That is the "
-                             f"concentration — what the outflow pipe takes "
-                             f"away, and why a mixing equation has the salt "
-                             f"divided by the volume inside it."),
+        "worked": _conc_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] // p['b']} grams a litre — the salt shared over the water. That is the concentration."),
         "key": lambda p: p["a"] // p["b"],
         # The errors: the litres taken off the grams, muddling the units,
         # and the litres handed back as the concentration.
@@ -14211,12 +14742,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="ceiling {p["a"]} · now '
                             f'{p["b"]}"]]'
                             f'[[step eq="fish × room ÷ {p["c"]} = ?"]]'),
-        "praise": lambda p: (f"The room still left is {p['a']} take away "
-                             f"{p['b']}, which is {p['a'] - p['b']}, so the "
-                             f"rate is {p['b']} times that over {p['c']} — "
-                             f"{p['b'] * (p['a'] - p['b']) // p['c']}. "
-                             f"Notice both ends: almost no fish and almost "
-                             f"no room BOTH give almost no growth."),
+        "worked": _logi_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['b'] * (p['a'] - p['b']) // p['c']} — fish times the room left, {p['a'] - p['b']}, shared by {p['c']}."),
         "key": lambda p: p["b"] * (p["a"] - p["b"]) // p["c"],
         # The errors: the room left handed back as a rate, and the whole
         # ceiling used where only the room left belongs.
@@ -14247,12 +14775,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="ceiling {p["a"]} · fastest at '
                             f'half"]]'
                             f'[[step eq="{p["a"]} ÷ 2 − {p["b"]} = ?"]]'),
-        "praise": lambda p: (f"Half of {p['a']} is {p['a'] // 2}, and it is "
-                             f"already at {p['b']}, so {p['a'] // 2 - p['b']} "
-                             f"more fish reach the fastest-growing size. "
-                             f"Past that point the pond keeps filling but "
-                             f"the FILLING slows — the crowd starts getting "
-                             f"in its own way."),
+        "worked": _carr_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] // 2 - p['b']} more — the peak sits at half the ceiling, {p['a'] // 2}."),
         "key": lambda p: p["a"] // 2 - p["b"],
         # The errors: the distance to the CEILING rather than to the halfway
         # point -- the guess the lesson exists to break -- and the halfway
@@ -14279,11 +14804,9 @@ OP_EXT = {
                             f'{p["b"]}"]]'
                             f'[[step eq="peak rate = {p["a"]} × {p["b"]} ÷ '
                             f'4 = ?"]]'),
-        "praise": lambda p: (f"{p['a']} times {p['b']} is "
-                             f"{p['a'] * p['b']}, and a quarter of that is "
-                             f"{p['a'] * p['b'] // 4}. The quarter is where "
-                             f"the halving shows up twice — half the fish "
-                             f"and half the room, at the same moment."),
+        "worked": _fast_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['b'] // 4} — ceiling times constant, then a quarter, because the halving happens twice."),
         "key": lambda p: p["a"] * p["b"] // 4,
         # The errors: the quarter never taken, and halved once instead of
         # twice.
@@ -14310,12 +14833,9 @@ OP_EXT = {
                             f'{p["b"]}"]]'
                             f'[[step eq="{p["c"]} per 1 of distance"]]'
                             f'[[step eq="rate = ?"]]'),
-        "praise": lambda p: (f"It stands {p['b'] - p['a']} above the "
-                             f"equilibrium, and {p['c']} for each of those "
-                             f"is {p['c'] * (p['b'] - p['a'])}. In this "
-                             f"model the further it goes, the faster it "
-                             f"moves away. Moving away from the balance "
-                             f"point is what UNSTABLE means."),
+        "worked": _away_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['c'] * (p['b'] - p['a'])} — {p['b'] - p['a']} above the balance point, at {p['c']} for each."),
         "key": lambda p: p["c"] * (p["b"] - p["a"]),
         # The errors: the distance handed back as a rate, and the
         # population itself answered as though it were the speed.
@@ -14341,13 +14861,9 @@ OP_EXT = {
                             f'steps of {p["b"]}"]]'
                             f'[[step eq="0 climb, then 2×{p["b"]}×{p["b"]} '
                             f'· lands?"]]'),
-        "praise": lambda p: (f"The first step starts where the slope is "
-                             f"nothing, so it climbs nothing. The second "
-                             f"starts at {p['b']}, slope {2 * p['b']}, held "
-                             f"across {p['b']} — a climb of "
-                             f"{2 * p['b'] * p['b']}, landing at "
-                             f"{p['a'] + 2 * p['b'] * p['b']}. Euler lands "
-                             f"low: it committed to an old slope."),
+        "worked": _eulr_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] + 2 * p['b'] * p['b']} — the first step climbs nothing, the second climbs {2 * p['b'] * p['b']}."),
         "key": lambda p: p["a"] + 2 * p["b"] * p["b"],
         # The errors: the TRUE value, which Euler does not reach -- the
         # whole point of the unit -- and the climb with no starting height.
@@ -14374,12 +14890,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="step {p["b"]} → error '
                             f'{p["a"]}"]]'
                             f'[[step eq="step {p["c"]} → error ?"]]'),
-        "praise": lambda p: (f"The step shrank from {p['b']} to {p['c']}, "
-                             f"and the main error scales the same way: "
-                             f"{p['a']} becomes "
-                             f"{p['a'] * p['c'] // p['b']}. That is the "
-                             f"deal a first-order method offers — the main "
-                             f"error shrinks in step with the step itself."),
+        "worked": _estp_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['c'] // p['b']} — the error shrinks by the same factor the step did."),
         "key": lambda p: p["a"] * p["c"] // p["b"],
         # The errors: the error left unchanged, and the error halved out of
         # habit no matter what the step actually did.
@@ -14405,11 +14918,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="RK4 error {p["a"]} · halve the '
                             f'step"]]'
                             f'[[step eq="÷ 16 = ?"]]'),
-        "praise": lambda p: (f"{p['a']} divided by 16 is {p['a'] // 16}. "
-                             f"One more halving divides what is left by "
-                             f"16 again — which is why a few "
-                             f"halvings buy an accuracy Euler needs vastly "
-                             f"more steps to reach."),
+        "worked": _rk4_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] // 16} — halve the step, and a fourth-order error divides by 16."),
         "key": lambda p: p["a"] // 16,
         # The errors: halving like Euler, and quartering like a second-order
         # method -- the three taps are the three convergence orders.
@@ -14435,12 +14946,9 @@ OP_EXT = {
                              f"Runge-Kutta save?"),
         "board": lambda p: (f'[[step eq="Euler {p["a"]} × 1"]]'
                             f'[[step eq="RK4 {p["b"]} × 4 · saving = ?"]]'),
-        "praise": lambda p: (f"Runge-Kutta spends 4 times {p['b']}, which "
-                             f"is {4 * p['b']}, against Euler's {p['a']} — "
-                             f"a saving of {p['a'] - 4 * p['b']}. Four "
-                             f"times the cost per step and it still wins "
-                             f"easily, because it needs so very many fewer "
-                             f"of them."),
+        "worked": _evls_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] - 4 * p['b']} saved — Runge-Kutta's bill is {4 * p['b']} against Euler's {p['a']}."),
         "key": lambda p: p["a"] - 4 * p["b"],
         # The errors: the step counts compared as though a step cost the
         # same in both, and RK4's bill answered as the saving.
@@ -14464,12 +14972,9 @@ OP_EXT = {
                              f"away 4 times {p['b']}?"),
         "board": lambda p: (f'[[step eq="r² + {p["a"]}r + {p["b"]} = 0"]]'
                             f'[[step eq="{p["a"]}² − 4×{p["b"]} = ?"]]'),
-        "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and 4 "
-                             f"times {p['b']} is {4 * p['b']}, leaving "
-                             f"{p['a'] * p['a'] - 4 * p['b']}. Above zero "
-                             f"means two real roots and no wobble at all — "
-                             f"the door closes slowly and stops. That one "
-                             f"number decides whether this spring wobbles."),
+        "worked": _char_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['a'] - 4 * p['b']} — {p['a']} squared take away 4 times {p['b']}, and above zero means no wobble."),
         "key": lambda p: p["a"] * p["a"] - 4 * p["b"],
         # The errors: the 4 forgotten, and the two added instead of taken
         # away.
@@ -14494,12 +14999,9 @@ OP_EXT = {
                              f"term be to land exactly there?"),
         "board": lambda p: (f'[[step eq="{p["a"]}² − 4c = 0"]]'
                             f'[[step eq="c = ?"]]'),
-        "praise": lambda p: (f"{p['a']} squared is {p['a'] * p['a']}, and a "
-                             f"quarter of that is "
-                             f"{p['a'] * p['a'] // 4} — set the plain term "
-                             f"there and the test number is exactly zero. A "
-                             f"hair less on that term and the door crawls; "
-                             f"a hair more and it bounces."),
+        "worked": _cdmp_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['a'] // 4} — a quarter of {p['a']} squared puts the test number at exactly zero."),
         "key": lambda p: p["a"] * p["a"] // 4,
         # The errors: the square itself, and halved rather than quartered.
         "choices": lambda p: [p["a"] * p["a"] // 4, p["a"] * p["a"],
@@ -14526,13 +15028,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="y″ + {p["a"]}y = 0"]]'
                             f'[[step eq="natural frequency = √{p["a"]} = '
                             f'?"]]'),
-        "praise": lambda p: (f"The square root of {p['a']} is "
-                             f"{_isqrt(p['a'])}, so it rocks at "
-                             f"{_isqrt(p['a'])} radians a second and keeps "
-                             f"rocking for ever. Many objects have natural "
-                             f"frequencies like this, and the next unit is "
-                             f"about what happens when something else "
-                             f"drives one of them."),
+        "worked": _natf_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{_isqrt(p['a'])} — the square root of {p['a']}, in radians a second, and it never stops."),
         "key": lambda p: _isqrt(p["a"]),
         # The errors: the number itself un-rooted, and the root doubled --
         # reaching for the other operation that undoes a square.
@@ -14562,14 +15060,9 @@ OP_EXT = {
                             f'{4 * p["b"] - p["a"] * p["a"]}"]]'
                             f'[[step eq="√{4 * p["b"] - p["a"] * p["a"]} '
                             f'÷ 2 = ?"]]'),
-        "praise": lambda p: (f"4 times {p['b']} take away {p['a']} squared "
-                             f"is {4 * p['b'] - p['a'] * p['a']}, whose "
-                             f"root is "
-                             f"{_isqrt(4 * p['b'] - p['a'] * p['a'])}, and "
-                             f"half of that is "
-                             f"{_isqrt(4 * p['b'] - p['a'] * p['a']) // 2}. "
-                             f"Damping does not only shrink the swing — it "
-                             f"slows the rocking down as well."),
+        "worked": _oscf_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{_isqrt(4 * p['b'] - p['a'] * p['a']) // 2} — root {4 * p['b'] - p['a'] * p['a']}, then halve it. Damping slows the rocking."),
         "key": lambda p: _isqrt(4 * p["b"] - p["a"] * p["a"]) // 2,
         # The errors: the halving skipped, and the DAMPING halved instead
         # of the root -- a over 2 is a real number in this solution, just
@@ -14602,12 +15095,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="y″ + {p["a"]}y = {p["b"]}"]]'
                             f'[[step eq="steady y: {p["a"]}y = {p["b"]}"]]'
                             f'[[step eq="y = ?"]]'),
-        "praise": lambda p: (f"A steady answer has no curvature, so the y "
-                             f"double-prime is nothing and {p['a']} y has "
-                             f"to equal {p['b']} on its own, so y is "
-                             f"{p['b'] // p['a']}. That is a particular "
-                             f"solution: guess the SHAPE of the push, then "
-                             f"let the equation fix the size."),
+        "worked": _part_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['b'] // p['a']} — a steady height has no curvature, so {p['a']} y alone must equal {p['b']}."),
         "key": lambda p: p["b"] // p["a"],
         # The errors: the force timesed instead of shared out, and the force
         # handed straight back as a height.
@@ -14630,12 +15120,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="starts at {p["a"]} · settles at '
                             f'{p["b"]}"]]'
                             f'[[step eq="transient = ?"]]'),
-        "praise": lambda p: (f"The transient is whatever the start is NOT "
-                             f"explained by the steady part: {p['a']} take "
-                             f"away {p['b']} is {p['a'] - p['b']}. Wait a "
-                             f"while and that piece is gone, leaving only "
-                             f"{p['b']} — which is why a spring forgets how "
-                             f"it was let go."),
+        "worked": _trns_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] - p['b']} — whatever the start is that the steady {p['b']} does not explain."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the two added, and the steady height answered as
         # though the transient were the whole story.
@@ -14657,12 +15144,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="natural² {p["a"]} · driver² '
                             f'{p["b"]}"]]'
                             f'[[step eq="{p["c"]} ÷ gap = ?"]]'),
-        "praise": lambda p: (f"The gap is {p['a'] - p['b']}, so the swing "
-                             f"is {p['c']} over that — "
-                             f"{p['c'] // (p['a'] - p['b'])}. Shrink the "
-                             f"gap and the swing grows; close it entirely "
-                             f"and there is nothing left to divide by — it "
-                             f"just grows. That is resonance."),
+        "worked": _reso_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['c'] // (p['a'] - p['b'])} — the force shared by the gap of {p['a'] - p['b']}. Shrink the gap and it grows."),
         "key": lambda p: p["c"] // (p["a"] - p["b"]),
         # The errors: divided by the DRIVER instead of by the gap, and the
         # force handed back undivided. (The gap itself was the first
@@ -14693,12 +15177,9 @@ OP_EXT = {
                             f'{p["b"]} · frequency {p["c"]}"]]'
                             f'[[step eq="{p["a"]} ÷ ({p["b"]}×{p["c"]}) = '
                             f'?"]]'),
-        "praise": lambda p: (f"{p['b']} times {p['c']} is "
-                             f"{p['b'] * p['c']}, and {p['a']} shared over "
-                             f"that is {p['a'] // (p['b'] * p['c'])}. So "
-                             f"damping is the only thing standing between "
-                             f"resonance and ruin — and the smaller it "
-                             f"gets, the bigger that swing grows."),
+        "worked": _damp_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] // (p['b'] * p['c'])} — the force shared over damping times frequency, {p['b'] * p['c']}."),
         "key": lambda p: p["a"] // (p["b"] * p["c"]),
         # The errors: only one of the two divisions done, and the force
         # answered undivided.
@@ -14727,13 +15208,9 @@ OP_EXT = {
                             f'[[step eq="s = {p["b"]}, Y = {p["c"]}, y(0) = '
                             f'{p["a"]}"]]'
                             f'[[step eq="{p["b"]} × {p["c"]} − {p["a"]} = ?"]]'),
-        "praise": lambda p: (f"{p['b']} times {p['c']} is "
-                             f"{p['b'] * p['c']}, take away the starting "
-                             f"{p['a']} — {p['b'] * p['c'] - p['a']}. For "
-                             f"the equations in this unit, that rule turns "
-                             f"differentiating into timesing by s, so the "
-                             f"differential equation becomes ordinary "
-                             f"algebra."),
+        "worked": _lder_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['b'] * p['c'] - p['a']} — s times Y is {p['b'] * p['c']}, and the start comes off."),
         "key": lambda p: p["b"] * p["c"] - p["a"],
         # The errors: the starting height added instead of taken away, and
         # the product handed back with the start ignored.
@@ -14759,12 +15236,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="(s + {p["a"]})Y = {p["b"]}"]]'
                             f'[[step eq="Y = {p["b"]}/(s + {p["a"]})"]]'
                             f'[[step eq="at s = {p["c"]}: Y = ?"]]'),
-        "praise": lambda p: (f"The bottom is {p['c']} plus {p['a']}, which "
-                             f"is {p['c'] + p['a']}, and {p['b']} over that "
-                             f"is {p['b'] // (p['a'] + p['c'])}. Notice "
-                             f"what just happened: no calculus was done at "
-                             f"all. The derivative left the problem the "
-                             f"moment we transformed it."),
+        "worked": _lalg_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['b'] // (p['a'] + p['c'])} — {p['b']} shared by the bottom, {p['c'] + p['a']}. No calculus at all."),
         "key": lambda p: p["b"] // (p["a"] + p["c"]),
         # The errors: the two bottom numbers taken away instead of added,
         # and the top handed back undivided.
@@ -14794,12 +15268,9 @@ OP_EXT = {
                              f"{p['b']}. Where is the pole now?"),
         "board": lambda p: (f'[[step eq="pole at s = {p["a"]}"]]'
                             f'[[step eq="× e^({p["b"]}t) · new pole = ?"]]'),
-        "praise": lambda p: (f"The whole picture slides {p['b']} to the "
-                             f"right, so the pole moves from {p['a']} to "
-                             f"{p['a'] + p['b']}. And the pole is not "
-                             f"bookkeeping: a pole to the right of zero "
-                             f"means the answer grows, one to the left "
-                             f"means it dies away."),
+        "worked": _lshf_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] + p['b']} — the whole picture slides {p['b']} to the right, pole and all."),
         "key": lambda p: p["a"] + p["b"],
         # The errors: shifted the wrong way, and the original pole left
         # where it was.
@@ -14820,12 +15291,9 @@ OP_EXT = {
                              f"value?"),
         "board": lambda p: (f'[[step eq="Y = {p["b"]}/(s(s + {p["a"]}))"]]'
                             f'[[step eq="s·Y as s → 0 · = ?"]]'),
-        "praise": lambda p: (f"Multiplying by s clears the lone s "
-                             f"underneath, and letting s fall to zero "
-                             f"leaves {p['b']} over {p['a']} — "
-                             f"{p['b'] // p['a']}. The final-value theorem: "
-                             f"where a thing settles, read straight off the "
-                             f"transform, with no inverting at all."),
+        "worked": _lfin_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['b'] // p['a']} — clear the lone s, let s fall to zero, and {p['b']} over {p['a']} is left."),
         "key": lambda p: p["b"] // p["a"],
         # The errors: the top handed back whole, and the two taken away
         # rather than shared.
@@ -14849,13 +15317,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="x′ = {p["a"]}x − y"]]'
                             f'[[step eq="at ({p["b"]}, {p["c"]}) · x′ = '
                             f'?"]]'),
-        "praise": lambda p: (f"{p['a']} times {p['b']} is "
-                             f"{p['a'] * p['b']}, and the {p['c']} of y "
-                             f"pulls it back to "
-                             f"{p['a'] * p['b'] - p['c']}. That is the x "
-                             f"part of the arrow at that point; the y rule "
-                             f"gives the other part the same way — a slope "
-                             f"field with two directions instead of one."),
+        "worked": _sysx_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['b'] - p['c']} — {p['a']} times {p['b']}, pulled back by the y."),
         "key": lambda p: p["a"] * p["b"] - p["c"],
         # The errors: the y added instead of taken away, and the x part
         # answered with the y ignored.
@@ -14879,13 +15343,9 @@ OP_EXT = {
                              f"{p['b']}, what is y on it?"),
         "board": lambda p: (f'[[step eq="x′ = 0 where y = {p["a"]}x"]]'
                             f'[[step eq="at x = {p["b"]}: y = ?"]]'),
-        "praise": lambda p: (f"{p['a']} times {p['b']} is "
-                             f"{p['a'] * p['b']}, so the nullcline passes "
-                             f"through there. Along that whole line the "
-                             f"arrows point straight up or straight down — "
-                             f"and where the two nullclines cross, nothing "
-                             f"moves at all. That crossing is an "
-                             f"equilibrium."),
+        "worked": _nucl_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['b']} — on the nullcline y is {p['a']} times x, and x is {p['b']}."),
         "key": lambda p: p["a"] * p["b"],
         # The errors: the two added -- the honest wrong operation, and
         # small here only because that is what addition IS next to a product
@@ -14911,14 +15371,9 @@ OP_EXT = {
                             f'{p["c"]}]"]]'
                             f'[[step eq="{p["a"]}×{p["c"]} − {p["b"]}² = '
                             f'?"]]'),
-        "praise": lambda p: (f"{p['a']} times {p['c']} is "
-                             f"{p['a'] * p['c']}, and {p['b']} squared is "
-                             f"{p['b'] * p['b']}, leaving "
-                             f"{p['a'] * p['c'] - p['b'] * p['b']}. The "
-                             f"determinant is the two eigenvalues "
-                             f"multiplied together — so if it ever falls "
-                             f"below zero, one of them is positive and you "
-                             f"have a saddle."),
+        "worked": _detm_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['c'] - p['b'] * p['b']} — the diagonal product take away the corner squared."),
         "key": lambda p: p["a"] * p["c"] - p["b"] * p["b"],
         # The errors: the corners added on instead of taken off, and the
         # squaring skipped.
@@ -14944,13 +15399,9 @@ OP_EXT = {
                              f"other?"),
         "board": lambda p: (f'[[step eq="trace {p["a"]} = λ₁ + λ₂"]]'
                             f'[[step eq="λ₁ = {p["b"]}"]][[step eq="λ₂ = ?"]]'),
-        "praise": lambda p: (f"They have to add to {p['a']}, and one is "
-                             f"{p['b']}, so the other is "
-                             f"{p['a'] - p['b']}. Both above zero and "
-                             f"every path heads away from the origin; both "
-                             f"below and everything moves in toward the "
-                             f"origin; one of each is a saddle. Two numbers "
-                             f"decide the picture."),
+        "worked": _eign_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] - p['b']} — the two must add to the trace, {p['a']}, and one is {p['b']}."),
         "key": lambda p: p["a"] - p["b"],
         # The errors: the two added, and the known eigenvalue handed back.
         "choices": lambda p: [p["a"] - p["b"], p["a"] + p["b"], p["b"]],
@@ -14976,12 +15427,9 @@ OP_EXT = {
                             f'[[step eq="equilibrium P = {p["b"]}, slope −2P"]]'
                             f'[[step eq="pull-back ≈ 2×{p["b"]} per 1, {p["c"]} away"]]'
                             f'[[step eq="estimate = ?"]]'),
-        "praise": lambda p: (f"The straight-line estimate is 2 times "
-                             f"{p['b']} times {p['c']} — "
-                             f"{2 * p['b'] * p['c']}. That is "
-                             f"linearisation: close to a smooth "
-                             f"equilibrium, a curved law behaves very "
-                             f"nearly like a straight one."),
+        "worked": _lnrz_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{2 * p['b'] * p['c']} — the straight-line estimate: a pull-back of {2 * p['b']} for every 1, and you are {p['c']} away."),
         "key": lambda p: 2 * p["b"] * p["c"],
         # The errors: the doubling forgotten, and the two numbers added.
         "choices": lambda p: [2 * p["b"] * p["c"], p["b"] * p["c"],
@@ -15010,13 +15458,9 @@ OP_EXT = {
                             f'each"]]'
                             f'[[step eq="÷ {p["b"]} eaten per fox · foxes = '
                             f'?"]]'),
-        "praise": lambda p: (f"{p['c']} rabbits breeding at {p['a']} each "
-                             f"is {p['a'] * p['c']} new rabbits a year, and "
-                             f"at {p['b']} eaten per fox that takes "
-                             f"{p['a'] * p['c'] // p['b']} foxes to hold "
-                             f"level. The rabbit number is not steady on "
-                             f"its own — it is held level by that many "
-                             f"foxes."),
+        "worked": _prey_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['c'] // p['b']} foxes — {p['a'] * p['c']} births a year, {p['b']} eaten by each fox."),
         "key": lambda p: p["a"] * p["c"] // p["b"],
         # The errors: the births counted with nothing eating them, and the
         # rabbits handed back as a fox count.
@@ -15043,10 +15487,9 @@ OP_EXT = {
                              f"foxes peak?"),
         "board": lambda p: (f'[[step eq="cycle {p["a"]} months"]]'
                             f'[[step eq="foxes lag ¼ of it · = ?"]]'),
-        "praise": lambda p: (f"A quarter of {p['a']} is "
-                             f"{p['a'] // 4} months. That lag is what keeps "
-                             f"the loop turning — each one chasing the "
-                             f"other round, for ever."),
+        "worked": _cycl_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] // 4} months — a quarter of the {p['a']}-month cycle."),
         "key": lambda p: p["a"] // 4,
         # The errors: halved rather than quartered, and the whole cycle
         # handed back as the lag.
@@ -15072,14 +15515,9 @@ OP_EXT = {
         "board": lambda p: (f'[[step eq="gap {p["a"]} · ×{p["b"]} each '
                             f'day"]]'
                             f'[[step eq="after {p["c"]} days: gap = ?"]]'),
-        "praise": lambda p: (f"{p['b']} to the power {p['c']} is "
-                             f"{p['b'] ** p['c']}, and {p['a']} of those is "
-                             f"{p['a'] * p['b'] ** p['c']}. Nothing was "
-                             f"random and nothing was unknown — the gap "
-                             f"just multiplied its way out of sight. A "
-                             f"perfectly known equation, and a tiny "
-                             f"starting gap still wrecks a far-ahead "
-                             f"forecast."),
+        "worked": _chao_worked,   # (xo) Phase C: the scripted second explanation
+        # (xo) a credit line -- the answer and its one reason; the teaching moved into the walk-back
+        "praise": lambda p: (f"{p['a'] * p['b'] ** p['c']} — {p['b']} to the power {p['c']} is {p['b'] ** p['c']}, and {p['a']} of those."),
         "key": lambda p: p["a"] * p["b"] ** p["c"],
         # The errors: the days timesed instead of powered -- the guess that
         # growth is a walk -- and the starting gap forgotten.

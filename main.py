@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-22  APP_BUILD -> "2026-09-22xo-the-forty-eight-get-their-walk-back". Phase C
+#               (the third gate build): lessonscripts.py gains 51 worked generators for the
+#               Entry unit 1/8/9 ops and every Diffeq op; the 36 Diffeq praises are credit
+#               lines; lessons/entry.py and lessons/diffeq.py flag the 48 lessons
+#               show_work_on_correct; speechmap.py regenerated (941 of 40,801). Prewarm:
+#               the new walk-back lines and the Diffeq praises (about 2,000 lines). PART 3nj.
 #   2026-09-22  APP_BUILD -> "2026-09-22xn-the-miss-has-a-face". Project 4 of the 09-14
 #               deep dive, page-only: static/session.html (the student's bubble shakes
 #               and is stamped on a miss, ticked on a right answer; the miss becomes the
@@ -9102,7 +9108,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xn-the-miss-has-a-face"
+APP_BUILD = "2026-09-22xo-the-forty-eight-get-their-walk-back"
 
 
 @app.get("/health")
