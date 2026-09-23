@@ -2,6 +2,13 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xr -- THE PENCIL IN THE SCRIPTED LANE. The engine names its own
+#               beats so the page can ring the pencil on them: "intro" on the lesson's
+#               introduction, "praise" and "walk-back" in _correct_beats, "second-look",
+#               "walk-back" and "fresh-one" on the first miss (main._script_clean keeps
+#               a `beat` a step already carries; beat_of names the authored kinds).
+#               Additive -- nothing here reads them; no spoken line or board changed,
+#               counts unchanged. PART 3nm.
 #   2026-09-23  BUILD xq -- THE THIRD ALGEBRA I SWEEP (23 findings, 23 clean -- 50 and 10 at
 #               xa). The class: a praise that was the walk-back in other words -- exadd
 #               (five findings on one op) and yint are credit lines now, and exadd's
@@ -16085,9 +16092,13 @@ def _correct_beats(lesson, p, idx, level=None):
     # and the walk-back that follows re-reads it, step by step, over the same picture.
     # A lesson with no walk-back keeps wc's answered line.
     praise_board = walk[1] if walk else (answered_board(p, level) if level else "")
-    out = [{"kind": "say", "spoken": praise_for(p, idx), "board": praise_board}]
+    # (xr) the beat names ride to the page (main._script_clean keeps a `beat` a step
+    # already carries), so the pencil can act on the engine's own steps: underline the
+    # answer on the praise, present the walk-back's board. Additive: nothing reads them
+    # here, and a step without one is unchanged.
+    out = [{"kind": "say", "spoken": praise_for(p, idx), "board": praise_board, "beat": "praise"}]
     if walk:
-        out.append({"kind": "say", "spoken": walk[0], "board": walk[1]})
+        out.append({"kind": "say", "spoken": walk[0], "board": walk[1], "beat": "walk-back"})
     return out
 
 
@@ -16305,7 +16316,7 @@ def step(lesson, state, event):
     if kind == "begin":
         # (ts) the lesson introduces itself -- course, unit, lesson, topic -- first
         _isp, _ibd = lesson_intro(lesson)
-        out.append({"kind": "say", "spoken": _isp, "board": _ibd})
+        out.append({"kind": "say", "spoken": _isp, "board": _ibd, "beat": "intro"})   # (xr) named for the pencil
         # (sp) the shape: WHY the skill exists, then the PICTURE, then the rule --
         # in that order, so the rule summarises what the picture already showed.
         # A lesson without the two new fields opens on its teach beats as before.
@@ -16502,12 +16513,12 @@ def step(lesson, state, event):
         fresh = _next_bank_problem(lesson, state)
         state["consec_miss"] = 1
         state["retest"] = None            # asked here and now, not through `resume`
-        out.append({"kind": "say", "spoken": _second_look_line(state), "board": ""})
-        out.append({"kind": "say", "spoken": w[0], "board": w[1]})
+        out.append({"kind": "say", "spoken": _second_look_line(state), "board": "", "beat": "second-look"})   # (xr)
+        out.append({"kind": "say", "spoken": w[0], "board": w[1], "beat": "walk-back"})                        # (xr)
         out.append({"kind": "say",
                     "spoken": _fresh_one_line(
                         state, same_shape=(fresh.get("op", "+") == p.get("op", "+"))),
-                    "board": ""})
+                    "board": "", "beat": "fresh-one"})                                                        # (xr)
         out.append(_ask(state, fresh))
         state["second_look_i"] = int(state.get("second_look_i", 0) or 0) + 1
         return (out, state)

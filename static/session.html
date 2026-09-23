@@ -206,6 +206,21 @@
   session.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-23  (xr) THE PENCIL IN THE SCRIPTED LANE (project 5 of the 09-14 deep dive;
+                the fourth gate build). Every scripted beat now rings the pencil with
+                its own name -- cadBeat(step) -> Cadabra.fire("beat.<name>") -- so the
+                menu can act on the engine's steps and no lesson is authored for him:
+                intro / why / picture / teach / worked / practice_intro / explain /
+                recap (main.py's beat_of), and the engine's own praise / walk-back /
+                second-look / fresh-one (lessonscripts, xr), plus "ask" and "say". A
+                right answer's own text rides the praise beat as data.answer, so the
+                menu can underline "= 10" on the praise board; the praise beat's ring
+                waits 1,400 ms so the answer.correct bounce is not cut short. A lesson
+                whose intro plays long after the last lesson.start (the seam's next
+                lesson) rings lesson.start again, so he waves hello at every lesson.
+                Rung BEFORE the ask's door opens (pd) and before problem.fresh. Nothing
+                else on this page changed; the menu (cadabra-script.json) says what he
+                does at each beat, and cadabra.js gained `present` and hold:"voice".
   - 2026-09-10  (ux) The check after a picture, teach or worked beat is now "With me
                 so far?" with a "Yes" button -- Jim: "Got it?!" "is suddenly
                 enthusiastic and loud." Both strings stay byte-identical to
@@ -2138,7 +2153,7 @@
       /* (rr) THE BOARD GREW THIS TURN. Rung after the loop, once, so the pencil's
          glance can notice the NEWEST thing; cadabra.js decides whether to look
          (only after the voice stops, never while the student is typing, and not often). */
-      if (feed.querySelectorAll("*").length > _cadBoardBefore) cadFire("board.written");
+      if (feed.querySelectorAll("*").length > _cadBoardBefore && !(typeof SCR !== "undefined" && SCR.on)) cadFire("board.written");   /* (xr) the scripted lane presents its beats itself; the glance is the live lane's */
       // build fy -- THE END-OF-PROBLEM SIGNAL WE CAN ACTUALLY TRUST.
       // [[clear]] is taught in the prompts but nothing enforces it, and a tutor turn that
       // forgets it left the finished problem on screen for ever. [[mark]] is different: it
@@ -2153,6 +2168,32 @@
     /* (rh) one guarded door to the Cadabra layer: safe when cadabra.js is absent,
        failed, or dark (its own methods are no-ops without the menu). */
     function cadFire(ev, opts) { try { if (window.Cadabra) Cadabra.fire(ev, opts); } catch (e) {} }
+    // (xr, 2026-09-23) THE PENCIL IN THE SCRIPTED LANE. Every scripted beat rings
+    // "beat.<name>" -- the beat the server named (main.py beat_of: why, picture, teach,
+    // worked, practice_intro, explain, recap; the engine's own praise, walk-back,
+    // second-look, fresh-one, intro), "ask" for a question, "say" for anything else --
+    // and the menu decides what he does there. The right answer's own text rides the
+    // praise beat (data.answer, numbers only) so he can underline it on the board. The
+    // praise ring waits out the answer.correct bounce; a beat that has moved on by then
+    // rings nothing. An intro that plays long after the last lesson.start (the seam's
+    // next lesson) rings lesson.start again: he waves hello at every lesson, not only
+    // the first. Never throws; dark without the menu like every other door.
+    var _cadLessonStartT = -1e9;
+    function cadBeat(step, isAsk) {
+      try {
+        var name = isAsk ? "ask" : (step.beat || "say");
+        var data = { board: step.board ? "1" : "" };
+        if (name === "intro" && (performance.now() - _cadLessonStartT) > 8000) { _cadLessonStartT = performance.now(); cadFire("lesson.start"); }
+        if (name === "praise") {
+          var ans = String(SCR.lastRight || "").trim();
+          if (/^-?\d[\d.,\/]*$/.test(ans)) data.answer = ans;
+          var at = SCR.beat;
+          setTimeout(function () { if (SCR.beat === at && SCR.on) cadFire("beat.praise", data); }, 1400);
+          return;
+        }
+        cadFire("beat." + name, data);
+      } catch (e) {}
+    }
     // (xn, 2026-09-22) THE MISS HAS A FACE. The newest student bubble is the answer that
     // was just graded -- typed, spoken or tapped, it is the one record all three doors
     // share. A miss shakes it and stamps a cross; a right answer stamps a tick. The
@@ -3074,7 +3115,7 @@
         scriptStart().then(started => { if (!started) kickoff(); });
       }
     }
-    el("welcomeGo").addEventListener("click", function () { cadFire("lesson.start"); begin(); });   /* (rh) rule 8: a lesson starting, not a page loading */
+    el("welcomeGo").addEventListener("click", function () { _cadLessonStartT = performance.now(); cadFire("lesson.start"); begin(); });   /* (rh) rule 8: a lesson starting, not a page loading */
     welcome.classList.add("show");
     try { el("welcomeGo").focus(); } catch (e) {}   // dz: keyboard + screen-reader users land on the action
     // (rh) mount the Cadabra layer. Dark without static/cadabra-script.json; a
@@ -3313,7 +3354,8 @@
                   beat: 0,     // (pd) which beat is on stage, so a late callback knows
                   aiFetch: null, lastAnswer: "",     // (ur) the re-teach in flight, and the answer that earned it
                   check: null, lastWorked: null,     // (us) the check on screen, and the last worked example (for "show me that again")
-                  afterMiss: false };                // (xn) the next ask is the fresh problem after a miss -- the pencil points at it
+                  afterMiss: false,                  // (xn) the next ask is the fresh problem after a miss -- the pencil points at it
+                  lastRight: "" };                   // (xr) the answer that was just graded right -- the pencil underlines it on the praise
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3619,6 +3661,7 @@
       // on the screen is asking, whatever its kind says.
       SCR.pending = isAsk || boardTaps;
       statusEl.textContent = tutorName + " is talking…";
+      cadBeat(step, isAsk);   /* (xr) the pencil acts on the engine's own beat -- rung before the ask's door opens (pd) */
       if (isAsk) {
         // ⭐ AN ASK BEAT NEVER LOCKS THE STUDENT OUT. Build nb settled this and wrote
         // the rule down: "a student who can hear the question must never be locked out
@@ -3868,8 +3911,8 @@
              Rung BEFORE the chips re-render so the comparison sees the previous count. */
           const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;
           if (_prev !== null) {
-            if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }
-            else { markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }   /* a graded tap either bumps or resets; a reset from 0 is still a miss */
+            if (_now > _prev) { SCR.lastRight = txt; markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }   /* (xr) the right answer's text, for the praise underline */
+            else { SCR.lastRight = ""; markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }   /* a graded tap either bumps or resets; a reset from 0 is still a miss */
             /* (xn) the bubble is marked BEFORE the pencil is rung, so his comfort move finds its `miss` target */
           }
           renderStreakChips({ streak_days: j.streak.streak_days, today_streak: j.streak.today_streak });

@@ -4,6 +4,33 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-23  (xr) THE PENCIL IN THE SCRIPTED LANE (project 5 of the 09-14 deep dive;
+                 the fourth gate build). Until now the scripted lane rang him only for
+                 answers, misses and the lesson's ends: every teach, picture and
+                 walk-back played with him floating at the window's edge. Four additive
+                 doors, all driven by the engine's own beats (session.html rings
+                 beat.<name> for every scripted beat; no lesson is authored for him):
+                 ① PRESENT -- a new behaviour: he comes to the NEWEST board block with
+                    his tip on its lower corner in the write pose (the same lean draw()
+                    uses), as if he had just drawn it, and holds there while the line is
+                    spoken. hold:"voice" -- new on `present` and `point` -- keeps the pose
+                    until the voice falls silent (mt:silent, or the watchdogs), with a
+                    floor (ms) and a ceiling (maxMs), instead of a fixed time. Rule 19
+                    stands: a corner that lands on a control tries the block's other
+                    corner, then gives up.
+                 ② THE MOMENT CARRIES DATA. fire(moment, data): a step's string field
+                    written as "$name" is filled from data.name -- "text": "= $answer"
+                    underlines the answer the student just gave, on the praise board. A
+                    step whose $name has no value is skipped, never drawn blank.
+                 ③ THE DOCK. Menu `dock: "board"`: on a desktop his home is the board's
+                    top-right corner, inside its own margin, and the roaming drift is off
+                    (the rj float stays -- breathing, not wandering). No dock in the menu
+                    = the old home and the old drift, byte for byte. The phone's corner
+                    home (ug) is untouched.
+                 ④ BIGGER. The menu's height 146 -> 200 and handSize 26 -> 36 (the size
+                    is the menu's, as rj left it); the phone size is unchanged.
+                 VERSION 2026-09-23xr. Nothing existing changes shape: point's fixed-ms
+                 form, glance, comfort, party and the tour behave as before.
      2026-09-02  (rt) HIS LIPS STOPPED MID-SENTENCE. Jim, in the demo: "every now and
                  then his lips stop moving, and it seems to be after he makes an
                  expression... stars go off around him, then his lips stop while the
@@ -192,7 +219,7 @@
 (function () {
   "use strict";
 
-  var VERSION    = "2026-09-02rt";
+  var VERSION    = "2026-09-23xr";
   var SCRIPT_URL = "/static/cadabra-script.json";
   var MODE_KEY   = "mt_cadabra_mode";        /* full | quiet | off  (rule 27) */
 
@@ -751,8 +778,22 @@
     return window.innerWidth <= (p.maxWidth || 640) ||
            (p.maxHeight ? window.innerHeight <= p.maxHeight : false);
   }
+  /* (xr) THE DOCK: the menu says dock:"board" and he lives at the board's top-right
+     corner, inside its margin, instead of floating at the window's edge. Desktop only
+     (the phone has its own corner, ug); a page with no board falls back to the old home. */
+  function docked() { return !!(M.script && M.script.dock === "board") && !isPhone(); }
   function homeSpot() {
     var vw = window.innerWidth, vh = window.innerHeight;
+    if (docked()) {
+      var db = document.querySelector('[data-cad="board"]');
+      if (db) {
+        var dr = db.getBoundingClientRect(), hp2 = heightPx();
+        if (dr.width > 200 && dr.height > 120) {
+          return { x: Math.min(vw - 40, Math.max(80, dr.right - hp2 * 0.22)),
+                   y: Math.max(hp2 * 0.95, Math.min(vh - 60, dr.top + hp2 + 16)) };
+        }
+      }
+    }
     if (isPhone()) {
       var board = document.querySelector('[data-cad="board"]') || document.getElementById("board")
                || document.querySelector("[data-cad-home]");
@@ -892,7 +933,7 @@
     S.ang += (S.tang - S.ang) * (1 - Math.pow(0.004, dt / 1000));
 
     /* RULE 5 + 6: no drift while parked, and none while he is talking. */
-    var bob = 0, dx = 0, drift = isPhone() ? 0 : effective().drift;   /* (ug) rule 33: no wander on a phone */
+    var bob = 0, dx = 0, drift = (isPhone() || docked()) ? 0 : effective().drift;   /* (ug) rule 33: no wander on a phone; (xr) none when docked */
     if (!M.reduced && drift > 0 && S.mode !== "park" && !S.driven && !S.speaking) {
       bob = Math.sin(t * 1.55) * 7 * drift;
       dx  = Math.sin(t * 0.62 + 1.1) * 10 * drift;
@@ -1020,6 +1061,23 @@
       guard++;
       if (guard > 420 || Math.hypot(S.tx - S.x, S.ty - S.y) < (tol || 8)) { fn(); return; }
       requestAnimationFrame(check);
+    })();
+  }
+  /* (xr) HOLD FOR THE VOICE. A pose that should last as long as the tutor's line:
+     hold:"voice" ends when the voice has been silent for a beat (S.speaking, fed by
+     mt:speaking/mt:silent and the rt watchdogs), never before `ms` (the floor) and
+     never after `maxMs` (the ceiling). Without hold it is the old fixed `ms`. */
+  function holdFor(o, id, fn, each) {
+    var floor = o.ms || 1200, ceil = o.maxMs || 14000;
+    if (o.hold !== "voice") { after(floor, id, fn); return; }
+    var t0 = performance.now(), quiet = 0;
+    (function tick() {
+      if (!alive(id)) return;
+      var el = performance.now() - t0;
+      quiet = S.speaking ? 0 : quiet + 120;
+      if ((el >= floor && quiet >= 360) || el >= ceil) { fn(); return; }
+      if (each) { try { if (each() === "stop") return; } catch (e) {} }   /* (xr) present re-reads a board that scrolls; "stop" hands over */
+      after(120, id, tick);
     })();
   }
   function flyTo(x, y, ang) {
@@ -1289,7 +1347,7 @@
       var minY = heightPx() + 132;
       var wantY = r.top + r.height / 2 + heightPx() * 0.40;
       var below = false;
-      if (wantY < minY) { wantY = r.bottom + heightPx() * 0.85; below = true; }
+      if (wantY < minY) { wantY = r.bottom + heightPx() * 1.0; below = true; }   /* (xr) 0.85 -> 1.0: at 200px his hat brushed the bubble beside a high block */
       var stand = {
         x: standRight ? Math.min(W - 64, r.right + 86) : Math.max(64, r.left - 86),
         y: Math.min(H - 30, Math.max(minY, wantY))
@@ -1311,7 +1369,64 @@
         if (standRight) { S.aimL = aim; S.aimR = null; }
         else            { S.aimR = aim; S.aimL = null; }
         if (o.text) BEHAVIOURS.say({ text: o.text, ms: o.ms || 2800 }, function () {}, id);
-        after(o.ms || 2800, id, function () { S.aimL = S.aimR = null; done(); });
+        holdFor({ hold: o.hold, ms: o.ms || 2800, maxMs: o.maxMs }, id, function () { S.aimL = S.aimR = null; done(); });   /* (xr) hold:"voice" lasts the line */
+      });
+    },
+
+    /* --- (xr) PRESENT: he comes to the newest board block as if he had just drawn it --- */
+    /* The write pose from draw() -- tip on the block's lower corner, the lean -- held
+       for the length of the spoken line (hold:"voice"). Rule 19: a corner over a control
+       tries the other corner, then gives up. Rule 29: transform only, like every move. */
+    present: function (o, done, id) {
+      /* the feed scrolls a new tutor turn to the top of the board a frame after it
+         lands (board.js scrollFeed, Jim's ir ruling), so the block is measured after
+         that scroll has had its moment, not where it first appeared */
+      if (!o._settled) {
+        after(340, id, function () { BEHAVIOURS.present({ target: o.target, hold: o.hold, ms: o.ms, maxMs: o.maxMs, _settled: true }, done, id); });
+        return;
+      }
+      var T = target(o.target || "board.latest");
+      if (!T) { done(); return; }
+      var inset = Math.max(10, heightPx() * 0.07), side = 0;
+      /* his body stands ABOVE the tip. A block whose lower corner sits higher than his
+         own height would put his body over the page's top bar (caught in the xr
+         proof: he covered the Switch-course button), so such a block is POINTED at
+         instead -- point() already approaches a high target from below -- for the
+         same held length of the line. */
+      if (T.r.bottom - 4 < heightPx() * 1.02) {
+        BEHAVIOURS.point({ target: T, hold: o.hold || "voice", ms: o.ms || 1400, maxMs: o.maxMs }, done, id);
+        return;
+      }
+      function corner(r, which) {
+        var ty = Math.max(heightPx() * 0.9, r.bottom - 4);
+        return which ? { x: r.left + inset, y: ty, ang: 35 } : { x: r.right - inset, y: ty, ang: -35 };
+      }
+      var spot = null, i, c;
+      for (i = 0; i < 2 && !spot; i++) {
+        c = corner(T.r, i);
+        if (c.y > H - 8 || blocked(c.x, c.y)) continue;
+        spot = c; side = i;
+      }
+      if (!spot) { done(); return; }
+      S.mode = "write"; S.driven = false; S.expr = "teaching"; S.chin = false; S.aimL = S.aimR = null; S.bubBelow = false;
+      flyTo(spot.x, spot.y, spot.ang);
+      settle(id, 12, function () {
+        /* the feed scrolls its newest block into view after it lands: the tip follows
+           the block's corner while he holds (transform only, like the ink's anchors) */
+        holdFor({ hold: o.hold || "voice", ms: o.ms || 1400, maxMs: o.maxMs }, id, function () {
+          S.tang = 0; done();
+        }, function () {
+          if (!T.el || !T.el.isConnected) return;
+          var r2 = T.el.getBoundingClientRect();
+          if (!r2.width || !r2.height) return;
+          if (r2.bottom - 4 < heightPx() * 1.02) {
+            /* the board scrolled the block up under his body: hand over to point */
+            BEHAVIOURS.point({ target: { el: T.el, r: r2 }, hold: o.hold || "voice", ms: 900, maxMs: o.maxMs }, done, id);
+            return "stop";
+          }
+          var c2 = corner(r2, side);
+          if (c2.y <= H - 8) flyTo(c2.x, c2.y);
+        });
       });
     },
 
@@ -1702,6 +1817,8 @@
     if (moment === "problem.cleared") { clearInk(data.target); }
     var steps = stepsFor(moment);
     if (!steps) return false;
+    steps = fillSteps(steps, data);          /* (xr) "$answer" and friends, from the page */
+    if (!steps.length) return false;
     /* (rr) LIGHT steps -- a face, the chin, hushing the bubble -- never cancel what he
        is in the middle of. mic.off rings on every phase change; a celebration must
        not be cut short by it. Anything that moves him still runs as a sequence. */
@@ -1717,6 +1834,26 @@
     return true;
   }
   var LIGHT = { expression: true, think: true, hush: true };
+  /* (xr) a step may name a value the page rang the moment with: "text": "= $answer".
+     Filled per fire; a step naming a value the page did not give is left out. */
+  function fillSteps(steps, data) {
+    var out = [], i, k, st, ok, v;
+    for (i = 0; i < steps.length; i++) {
+      st = {}; ok = true;
+      for (k in steps[i]) {
+        v = steps[i][k];
+        if (typeof v === "string" && v.indexOf("$") >= 0) {
+          v = v.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, function (_m, name) {
+            if (data[name] === undefined || data[name] === null || data[name] === "") { ok = false; return ""; }
+            return String(data[name]);
+          });
+        }
+        st[k] = v;
+      }
+      if (ok) out.push(st);
+    }
+    return out;
+  }
   var LOW = { "board.written": true };
 
   function direct(name) {
@@ -1731,7 +1868,8 @@
       run([{ "do": name, text: o.text, ms: o.ms, target: o.target, tier: o.tier,
              to: o.to, asked: true, forced: o.forced,
              kind: o.kind, circle: o.circle, underline: o.underline, bang: o.bang, from: o.from,
-             on: o.on, center: o.center, chance: o.chance, every: o.every, scope: o.scope }]);
+             on: o.on, center: o.center, chance: o.chance, every: o.every, scope: o.scope,
+             hold: o.hold, maxMs: o.maxMs }]);   /* (xr) */
       return true;
     };
   }
@@ -1760,6 +1898,7 @@
     party:       direct("party"),
     think:       direct("think"),
     glance:      direct("glance"),
+    present:     direct("present"),      /* (xr) */
     find:        function (text, scope) { if (!DOM) return null; var T = findText(text, scope); return T ? { left: T.r.left, top: T.r.top, width: T.r.width, height: T.r.height, lines: T.rects.length, kind: T.kind } : null; },
     expressions: function () { return Object.keys(EXPR); },
     joke:        direct("joke"),

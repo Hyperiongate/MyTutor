@@ -2,6 +2,16 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xr -- PART 3nm, THE PENCIL IN THE SCRIPTED LANE (project 5 of the
+#               09-14 deep dive; the fourth gate build). Pins the engine's beat names
+#               reaching the page, cadBeat and its order before the ask's door, the
+#               praise's answer and its wait, the seam's lesson.start, the live lane's
+#               glance kept, cadabra.js's present / hold:"voice" / fillSteps / dock, the
+#               menu's beat moments (both copies, version xr, height 200), and that no
+#               scheduled beat is a dead moment. Four pins moved with the text (the size
+#               in 3hk, the graded line in 3hd and 3ni, the menu version in 3ni, and
+#               3kc's phone pins: the dock branch above the phone branch, height 200;
+#               3ko's "the engine's walk carries no beat" -> it names the intro).
 #   2026-09-23  BUILD xq -- PART 3nl, THE THIRD ALGEBRA I SWEEP. Pins the five generator
 #               fixes (exadd and yint credit lines, exadd's counted piles, outl's spoken
 #               mean, slp's step to the right, un3's drawn check) and the thirteen authored
@@ -10537,11 +10547,11 @@ def part3kc_the_phone_classroom():
     # ---- the pencil: rule 33 -------------------------------------------------------------
     check("⭐ cadabra.js: rule 33 -- on a phone he is the menu's phone height, rests in the board's top-right corner, and does not wander",
           "function isPhone() {" in cad and "function phoneMenu() {" in cad
-          and "if (isPhone()) {" in cad[cad.find("function homeSpot() {"):cad.find("function homeSpot() {") + 900]
+          and "if (isPhone()) {" in cad[cad.find("function homeSpot() {"):cad.find("function homeSpot() {") + 1400]   # (xr) the dock branch sits above it
           and 'document.querySelector(\'[data-cad="board"]\') || document.getElementById("board")' in cad
           and "function applyMenuHeight() {" in cad
           and "applyMenuHeight();                       // (ug) a rotation or a resize re-reads the size" in cad
-          and "drift = isPhone() ? 0 : effective().drift;" in cad, "")
+          and "drift = (isPhone() || docked()) ? 0 : effective().drift;" in cad, "")   # (xr) ...and none when docked
     check("  cadabra.js: a phone lets him sit in the corner (flyTo's edge) and parks him at home, not in the dock",
           "var edge = isPhone() ? 26 : 60;" in cad
           and "if (isPhone()) return h;" in cad[cad.find("function parkSpot() {"):cad.find("function parkSpot() {") + 300], "")
@@ -10551,7 +10561,7 @@ def part3kc_the_phone_classroom():
     _m = _json.loads(menu)
     check("⭐ the menu carries the phone block, in both copies, identical, version ug or later",
           menu == menu_ex and _m.get("phone", {}).get("maxWidth") == 640 and _m.get("phone", {}).get("height") == 92
-          and str(_m.get("version", "")) >= "2026-09-08ug" and _m.get("height") == 146, str(_m.get("phone")))
+          and str(_m.get("version", "")) >= "2026-09-08ug" and _m.get("height") == 200, str(_m.get("phone")))   # (xr) 146 -> 200; the phone's 92 stands
 
     # ---- the live render ------------------------------------------------------------------
     NAME = "⭐ LIVE at 390x844: the board bounded and tall, the dock short, the nav one row, the pencil clear of the words, no sideways scroll"
@@ -12444,9 +12454,10 @@ def part3ko_orient_then_one_idea_per_beat_with_a_check():
           and LS.beat_of(gs, gs["practice_intro"]) == "practice_intro" and LS.beat_of(gs, gs["explain"]["spoken"]) == "explain"
           and LS.beat_of(gs, gs["recap"][0][0]) == "recap" and LS.beat_of(gs, "Nice work! 7.") == "" and LS.beat_of(gs, "") == "", "")
     _walk = LS.step(gs, LS.start(gs, seed=1), ("begin",))[0]
-    check("  the ENGINE's walk is unchanged (the shape lives in main.py and the page)",
+    check("  the ENGINE's walk is unchanged in shape (the beat names of the authored kinds live in main.py; since xr the engine names only its OWN steps -- here, the intro)",
           [s["kind"] for s in _walk] == ["say"] * (1 + len(gs["why"]) + len(gs["picture"]) + len(gs["teach"]) + 1) + ["ask"]
-          and not any("beat" in s for s in _walk), str([s["kind"] for s in _walk]))
+          and [s.get("beat") for s in _walk] == ["intro"] + [None] * (len(gs["why"]) + len(gs["picture"]) + len(gs["teach"]) + 1) + [None],   # (xr)
+          str([s["kind"] for s in _walk]))
 
     # ---- the lane: the orientation step and the beat names ------------------------------------------
     try:
@@ -22139,9 +22150,9 @@ def part3ni_the_miss_has_a_face():
           and "prefers-reduced-motion: reduce" in sess, "")
     check("⭐ THE SCRIPTED GRADE MARKS THE BUBBLE BEFORE IT RINGS THE PENCIL, so his comfort finds its target; "
           "a miss arms the fresh-problem point",
-          'if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess
-          and 'else { markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }' in sess
-          and "afterMiss: false };" in sess, "")
+          'if (_now > _prev) { SCR.lastRight = txt; markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess   # (xr)
+          and 'else { SCR.lastRight = ""; markLastAnswer("wrong"); SCR.afterMiss = true; cadFire("answer.wrong"); cadSlip("wrong"); }' in sess   # (xr)
+          and "afterMiss: false," in sess and 'lastRight: "" };' in sess, "")
     check("  the live lane's three doorbells mark it too: [[mark]], [[miss]], [[nice]]",
           'markLastAnswer(_c > 0 ? "right" : "wrong"); if (_c > 0) cadFire("answer.correct", { hard: true });' in sess
           and 'markLastAnswer("wrong"); cadFire("answer.wrong"); cadSlip("wrong"); }   /* (xn)' in sess
@@ -22158,7 +22169,7 @@ def part3ni_the_miss_has_a_face():
     # ---- the pencil ------------------------------------------------------------------------
     pg = _m.get("pages", {}).get("session", {})
     check("⭐ the menu: answer.wrong is a COMFORT at the miss, saying a nudge there; problem.fresh hushes and points at the latest board; both copies identical; version xn",
-          menu == menu_ex and _m.get("version") == "2026-09-22xn"
+          menu == menu_ex and _m.get("version") >= "2026-09-22xn"   # (xr) bumped again
           and pg.get("answer.wrong") == [{"do": "expression", "to": "thinking"}, {"do": "comfort", "target": "miss", "from": "nudges", "ms": 3200}]
           and pg.get("problem.fresh") == [{"do": "hush"}, {"do": "point", "target": "board.latest", "ms": 1800}]
           and (_m.get("lines") or {}).get("nudges"), "")
@@ -22667,6 +22678,127 @@ def part3nl_the_third_algebra1_sweep():
           "2026-09-23  BUILD xq" in notes("lessonscripts.py") and "BUILD xq" in notes("lessons/algebra1.py")
           and "2026-09-23  BUILD xq" in notes("coursesweep.py")
           and 'APP_BUILD -> "2026-09-23xq-' in notes("main.py") and "2026-09-23  BUILD xq" in notes("ruletests.py"), "")
+
+
+def part3nm_the_pencil_in_the_scripted_lane():
+    """PART 3nm (build xr, 2026-09-23) -- THE PENCIL IN THE SCRIPTED LANE. Project 5 of
+    the 09-14 deep dive, the fourth gate build of the alternating schedule. The 09-22
+    deep dive: the pencil's moves "still have zero callers in any of the 360 authored
+    lessons" -- every teach, picture and walk-back played with him floating at the
+    window's edge; the scripted lane rang him only for answers, misses and the ends.
+
+    THE DESIGN. Driven by the engine's own steps, no authoring per lesson: the engine
+    names its beats (praise, walk-back, second-look, fresh-one, intro -- the authored
+    kinds were already named by beat_of), main._script_clean carries the name to the
+    page, session.html rings "beat.<name>" for every scripted beat, and the MENU says
+    what he does there. Present (new): he comes to the newest board block in the write
+    pose and holds while the line is spoken (hold "voice", new on point too); a block
+    too high for his body -- every tutor turn starts at the top of the board (ir) -- is
+    pointed at from below instead, for the same held length. The praise beat carries
+    the right answer as data, and "= $answer" is underlined on the praise board (fire
+    fills "$name" from data; a missing value skips the step). The ask releases him. He
+    is DOCKED at the board's top-right corner (menu dock:"board"), the roaming drift is
+    off there, and he is bigger (height 200, hands 36). A seam-started lesson's intro
+    rings lesson.start again, so he waves hello at every lesson. The live lane's glance
+    stays the live lane's: board.written is not rung while the scripted lane runs.
+
+    PROVEN headless before the battery (scratch prove_xr.py): version xr, size 200, the
+    dock at the board's corner, present -> the point pose from below on a top-of-board
+    block, held through mt:speaking and released on mt:silent, one ink stroke on the
+    praise, release on the ask, a seam intro ringing lesson.start once, no page errors."""
+    print("\nPART 3nm — the pencil in the scripted lane (build xr)")
+    import json as _j
+    import lessonscripts as L
+    import main as M
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    sess, cad = rd("static/session.html"), rd("static/cadabra.js")
+    menu, menu_ex = rd("static/cadabra-script.json"), rd("static/cadabra-script.example.json")
+    _m = _j.loads(menu); pg = _m["pages"]["session"]
+
+    # ---- the engine names its beats ---------------------------------------------------
+    les = L.LESSON_BY_ID["alg1-u6-counting-the-copies"]
+    st = L.start(les, seed=3)
+    o, st = L.step(les, st, ("begin",))
+    c = M._script_clean(o, les["id"])
+    p = (st.get("pending") or {})["problem"]
+    o2, st = L.step(les, st, ("answer", L.ans(p)))
+    c2 = M._script_clean(o2, les["id"])
+    p2 = (st.get("pending") or {})["problem"]
+    o3, st = L.step(les, st, ("answer", (L.ans(p2) or 0) + 777))
+    c3 = M._script_clean(o3, les["id"])
+    check("⭐⭐ THE ENGINE NAMES ITS BEATS, and the names reach the page: intro, why, picture, teach, worked; praise, walk-back; second-look, walk-back, fresh-one",
+          [x.get("beat") for x in c][:6] == ["intro", "why", "picture", "teach", "teach", "worked"]
+          and [x.get("beat") for x in c2][:2] == ["praise", "walk-back"]
+          and [x.get("beat") for x in c3][:3] == ["second-look", "walk-back", "fresh-one"]
+          and all(x["kind"] == "ask" and "beat" not in x for x in c + c2 + c3 if x["kind"] == "ask"), str([x.get("beat") for x in c + c2 + c3]))
+    check("  the names are additive: the spoken lines and boards of every step are what they were (the closure and the counts did not move)",
+          all(set(x) >= {"kind", "spoken", "board"} for x in o + o2 + o3)
+          and len(L.course_audio_lines()) == 40495, str(len(L.course_audio_lines())))
+
+    # ---- the page rings them ------------------------------------------------------------
+    check("⭐ session.html: cadBeat rings beat.<name> for every scripted beat -- the server's name, 'ask' for a question, 'say' for the rest -- BEFORE the ask's door opens (pd)",
+          "function cadBeat(step, isAsk) {" in sess
+          and 'var name = isAsk ? "ask" : (step.beat || "say");' in sess
+          and 'cadFire("beat." + name, data);' in sess
+          and 'cadBeat(step, isAsk);   /* (xr)' in sess
+          and sess.find("cadBeat(step, isAsk);   /* (xr)") < sess.find('if (SCR.afterMiss) { SCR.afterMiss = false; cadFire("problem.fresh"); }'), "")
+    check("  the praise carries the right answer (numbers only) and waits out the answer.correct bounce; a beat that moved on rings nothing",
+          'if (/^-?\\d[\\d.,\\/]*$/.test(ans)) data.answer = ans;' in sess
+          and 'setTimeout(function () { if (SCR.beat === at && SCR.on) cadFire("beat.praise", data); }, 1400);' in sess
+          and 'SCR.lastRight = txt; markLastAnswer("right");' in sess and 'SCR.lastRight = ""; markLastAnswer("wrong");' in sess, "")
+    check("  a seam-started lesson's intro rings lesson.start again (he waves hello at every lesson); the welcome button stamps the time too",
+          'if (name === "intro" && (performance.now() - _cadLessonStartT) > 8000) { _cadLessonStartT = performance.now(); cadFire("lesson.start"); }' in sess
+          and '_cadLessonStartT = performance.now(); cadFire("lesson.start"); begin();' in sess, "")
+    check("  the live lane keeps its glance; the scripted lane presents its own beats (board.written is not rung while SCR.on)",
+          '&& !(typeof SCR !== "undefined" && SCR.on)) cadFire("board.written");' in sess, "")
+
+    # ---- cadabra.js: present, hold, data, dock --------------------------------------------
+    check("⭐ cadabra.js: PRESENT is a behaviour -- the write pose on the newest block's corner, held for the voice; a block too high for his body is pointed at from below",
+          "present: function (o, done, id) {" in cad and 'S.mode = "write"; S.driven = false; S.expr = "teaching"; S.chin = false; S.aimL = S.aimR = null; S.bubBelow = false;' in cad
+          and "if (T.r.bottom - 4 < heightPx() * 1.02) {" in cad
+          and 'BEHAVIOURS.point({ target: T, hold: o.hold || "voice", ms: o.ms || 1400, maxMs: o.maxMs }, done, id);' in cad
+          and "present:     direct(\"present\")," in cad, "")
+    check("  hold:\"voice\" -- a floor, a ceiling, and the voice's silence (S.speaking) in between; point takes it too; present re-reads a block that scrolls and hands over to point if it rises",
+          "function holdFor(o, id, fn, each) {" in cad and 'if (o.hold !== "voice") { after(floor, id, fn); return; }' in cad
+          and "if ((el >= floor && quiet >= 360) || el >= ceil) { fn(); return; }" in cad
+          and 'holdFor({ hold: o.hold, ms: o.ms || 2800, maxMs: o.maxMs }, id, function () { S.aimL = S.aimR = null; done(); });' in cad
+          and 'return "stop";' in cad and 'if (each() === "stop") return;' in cad, "")
+    check("  fire(moment, data) fills \"$name\" from data, and a step naming a value the page did not give is left out",
+          "function fillSteps(steps, data) {" in cad and "steps = fillSteps(steps, data);" in cad
+          and 'if (data[name] === undefined || data[name] === null || data[name] === "") { ok = false; return ""; }' in cad, "")
+    check("  the dock: menu dock:\"board\" puts his home at the board's top-right corner on a desktop, and the drift is off there; the phone corner (ug) and the old home are untouched",
+          'function docked() { return !!(M.script && M.script.dock === "board") && !isPhone(); }' in cad
+          and "if (docked()) {" in cad and "return { x: Math.min(vw - 40, Math.max(80, dr.right - hp2 * 0.22))," in cad
+          and "drift = (isPhone() || docked()) ? 0 : effective().drift;" in cad
+          and "if (isPhone()) {" in cad and 'var main = document.querySelector("[data-cad-home]")' in cad, "")
+    check("  pointing up at a high block he stands a little lower (his hat brushed the bubble at 200px); the version is xr",
+          "wantY = r.bottom + heightPx() * 1.0; below = true;" in cad and 'var VERSION    = "2026-09-23xr";' in cad, "")
+
+    # ---- the menu --------------------------------------------------------------------------
+    present = {"do": "present", "target": "board.latest", "hold": "voice", "ms": 1400, "maxMs": 14000}
+    check("⭐ the menu: picture, teach, worked, practice_intro, recap and walk-back PRESENT the newest block; praise underlines '= $answer'; why teaches from home; second-look listens; the ask releases him; both copies identical; version xr; dock; height 200",
+          menu == menu_ex and _m.get("version") == "2026-09-23xr" and _m.get("dock") == "board"
+          and _m.get("height") == 200 and _m.get("handSize") == 36 and (_m.get("phone") or {}).get("height") == 92
+          and all(pg.get("beat." + b) == [present] for b in ("picture", "teach", "worked", "practice_intro", "recap", "walk-back"))
+          and pg.get("beat.praise") == [{"do": "expression", "to": "pleased"}, {"do": "underline", "text": "= $answer", "scope": "board", "forced": True}]
+          and pg.get("beat.why") == [{"do": "expression", "to": "teaching"}]
+          and pg.get("beat.second-look") == [{"do": "expression", "to": "listening"}]
+          and pg.get("beat.ask") == [{"do": "release"}]
+          and "beat.intro" not in pg and "beat.fresh-one" not in pg and "beat.say" not in pg, "")
+    check("  the older moments are untouched: lesson.start enters and waves, answer.wrong comforts at the miss, problem.fresh points, board.written still glances (the live lane's)",
+          pg.get("lesson.start") == [{"do": "enter"}, {"do": "wave"}]
+          and pg.get("answer.wrong") == [{"do": "expression", "to": "thinking"}, {"do": "comfort", "target": "miss", "from": "nudges", "ms": 3200}]
+          and pg.get("problem.fresh") == [{"do": "hush"}, {"do": "point", "target": "board.latest", "ms": 1800}]
+          and pg.get("board.written") == [{"do": "glance", "chance": 0.5, "every": 45000}], "")
+    check("  every beat name the engine or beat_of can produce that the menu schedules is one the page can ring (no dead moment)",
+          {b.split(".", 1)[1] for b in pg if b.startswith("beat.")} <= {"intro", "why", "picture", "teach", "worked", "practice_intro", "explain", "recap",
+                                                                          "praise", "walk-back", "second-look", "fresh-one", "ask", "say", "award", "orientation"}, "")
+    check("  the dated notes are in (Jim's rule 8): cadabra.js, session.html, the menu's notes, lessonscripts.py, main.py, ruletests.py",
+          "2026-09-23  (xr) THE PENCIL IN THE SCRIPTED LANE" in cad and "2026-09-23  (xr) THE PENCIL IN THE SCRIPTED LANE" in sess
+          and any("2026-09-23 (xr): THE PENCIL IN THE SCRIPTED LANE" in n for n in _m.get("_CHANGE_NOTES", []))
+          and "2026-09-23  BUILD xr" in notes("lessonscripts.py")
+          and 'APP_BUILD -> "2026-09-23xr-' in notes("main.py") and "2026-09-23  BUILD xr" in notes("ruletests.py"), "")
 
 
 def _reads_in_words(nums, spoken, L):
@@ -23447,11 +23579,11 @@ def part3hk_the_orb_retires_and_the_seam_is_announced():
     # (rq, 2026-09-01) was == "2026-09-01rj"; rq re-merged the roster after a two-chat
     # clobber and bumped the version. Repaired to INTENT, the way rj repaired ri's pin:
     # the size ruling must hold under any menu versioned AT rj or later.
-    check("⭐ the pencil is 30% larger, in the menu where size lives",
-          menu.get("height") == 146 and menu.get("handSize") == 26
+    check("⭐ the pencil is larger, in the menu where size lives (rj: 112 -> 146; xr: 146 -> 200, hands in proportion)",
+          menu.get("height") == 200 and menu.get("handSize") == 36   # (xr) Jim's "bigger pencil" -- project 5
           and str(menu.get("version", "")) >= "2026-09-01rj" and ex == menu,
           f"height={menu.get('height')} handSize={menu.get('handSize')} -- 112+30% "
-          "is 146 (145.6 rounded), hands scaled in proportion")
+          "is 146 (145.6 rounded), hands scaled in proportion; xr's dock size is 200")
     # (rq, 2026-09-01) THE ROSTER. rk's demo build overwrote this file with a demo-only
     # menu, and for a working day the pencil was silently OFF in every real lesson.
     # Rule 18 makes the pages block the whole roster, so the roster is pinned.
@@ -41258,7 +41390,7 @@ def part3hq_the_pencil_has_feelings_about_your_work():
           and 'queueMoment("goodbye"); cadFire("lesson.end");' in sess, "")
     check("  session: the SCRIPTED lane finally rings answer.correct / answer.wrong, off the server's streak",
           "const _prev = _LAST_TODAY_STREAK, _now = parseInt(j.streak.today_streak, 10) || 0;" in sess
-          and 'if (_now > _prev) { markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess,   # (xn) the bubble is marked first
+          and 'if (_now > _prev) { SCR.lastRight = txt; markLastAnswer("right"); cadFire("answer.correct", { hard: true }); cadSlip("right"); }' in sess,   # (xn) the bubble is marked first; (xr) the answer is kept for the praise underline
           "a scripted problem celebrated nothing before rr")
 
     # ---- 6. the grammar and the prompt -----------------------------------------
@@ -49621,6 +49753,7 @@ def main():
     part3nj_the_forty_eight_get_their_walk_back()
     part3nk_the_sweep_survives_a_restart()
     part3nl_the_third_algebra1_sweep()
+    part3nm_the_pencil_in_the_scripted_lane()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

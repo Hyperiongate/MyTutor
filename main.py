@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xr-the-pencil-in-the-scripted-lane". Project 5 of
+#               the 09-14 deep dive, the fourth gate build. lessonscripts.py names the
+#               engine's beats; static/session.html rings beat.<name> for every scripted
+#               beat (cadBeat); static/cadabra.js gains `present`, hold:"voice", data-
+#               filled steps and the board dock; static/cadabra-script.json + .example
+#               schedule him on the beats (height 200). No change in this file beyond
+#               the stamp; nothing to prewarm. PART 3nm.
 #   2026-09-23  APP_BUILD -> "2026-09-23xq-the-third-algebra1-sweep". lessonscripts.py (exadd,
 #               yint credit lines; exadd walk-back; outl, slp asks; un3 check drawn),
 #               lessons/algebra1.py (13 authored lines), coursesweep.py (one charter line:
@@ -9250,7 +9257,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xq-the-third-algebra1-sweep"
+APP_BUILD = "2026-09-23xr-the-pencil-in-the-scripted-lane"
 
 
 @app.get("/health")
