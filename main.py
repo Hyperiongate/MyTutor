@@ -2,6 +2,23 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xp-the-sweep-survives-a-restart". Jim ran the Algebra I
+#               sweep twice on 09-22 and both vanished: the sweep is a daemon thread in
+#               this process, its report was written only at the END, and a deploy or a
+#               Render restart in the 30-40 minutes it runs killed it with nothing on the
+#               disk -- the card then said "no sweep has run in this process". Every lesson
+#               read was paid for and lost, twice. Now: (1) the job dict is mirrored to
+#               data/coursesweep/_job.json on every change (_sweep_save_job); (2) on
+#               startup _sweep_recover reads it and, if a sweep was "running", marks it
+#               INTERRUPTED with the time and the reason, so the card says exactly what
+#               happened; (3) the worker hands coursesweep.run_sweep a checkpoint that
+#               writes <course>_partial.json after every lesson; (4) POST .../start with
+#               resume=true reads only the lessons the checkpoint lacks and writes the
+#               normal report (which says it was resumed); a fresh run of a course that
+#               has a checkpoint is refused (409) unless discard=true; (5) the status
+#               endpoint carries `partials` for the card's Resume. static/admin.html: the
+#               interrupted line, the Resume flow, and the rule on the card -- do not push
+#               while a sweep runs. PART 3nk.
 #   2026-09-22  APP_BUILD -> "2026-09-22xo-the-forty-eight-get-their-walk-back". Phase C
 #               (the third gate build): lessonscripts.py gains 51 worked generators for the
 #               Entry unit 1/8/9 ops and every Diffeq op; the 36 Diffeq praises are credit
@@ -4877,6 +4894,59 @@ _SWEEP_LOCK = threading.Lock()
 _SWEEP_JOB: dict = {}
 
 
+def _sweep_job_path():
+    """(xp) the job dict's mirror on the disk, so a restart cannot erase what was
+    running. Read DATA_DIR at call time (the battery points it at a temp folder)."""
+    return Path(DATA_DIR) / "coursesweep" / "_job.json"
+
+
+def _sweep_save_job() -> None:
+    """(xp) Mirror _SWEEP_JOB to the disk. Called INSIDE the lock by every writer. A
+    failed write never touches the sweep -- the checkpoint is the money's safety, this
+    file is the card's memory."""
+    try:
+        path = _sweep_job_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(_SWEEP_JOB, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(tmp, path)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[coursesweep] could not save the job file: {exc}")
+
+
+def _sweep_recover() -> None:
+    """(xp) AT STARTUP: read the mirrored job. A job that was "running" when this
+    process last stopped was killed by the restart (a deploy, or Render) -- mark it
+    INTERRUPTED with the time and the checkpoint's count, so the card says so instead
+    of "no sweep has run in this process". Any other state is kept as the card's last
+    line. Never raises."""
+    try:
+        path = _sweep_job_path()
+        if not path.exists():
+            return
+        j = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(j, dict) or not j:
+            return
+        j.pop("id", None)   # no thread of this process owns a recovered job
+        if j.get("state") == "running":
+            part = coursesweep.read_partial(DATA_DIR, j.get("course", "")) if coursesweep else None
+            saved = len((part or {}).get("rows") or [])
+            j.update(state="interrupted", done=saved,
+                     interrupted_at=time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
+                     saved=saved,
+                     reason=("the server restarted while the sweep was running -- a deploy "
+                             "(a push to GitHub) or a restart on Render"))
+        with _SWEEP_LOCK:
+            _SWEEP_JOB.clear()
+            _SWEEP_JOB.update(j)
+            _sweep_save_job()
+        if j.get("state") == "interrupted":
+            print(f"[coursesweep] the sweep of {j.get('course')} was interrupted by a restart: "
+                  f"{j.get('saved', 0)} of {j.get('total', '?')} lessons are saved; the card offers Resume")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[coursesweep] could not recover the job file: {exc}")
+
+
 def _sweep_snapshot() -> dict:
     with _SWEEP_LOCK:
         return dict(_SWEEP_JOB) if _SWEEP_JOB else {"state": "idle",
@@ -4926,16 +4996,43 @@ def _sweep_judge(messages, max_tokens=2000, want_json=False):
         return None, f"judge unavailable: {exc}"
 
 
-def _sweep_worker(job_id: str, course: str, limit) -> None:
+def _sweep_worker(job_id: str, course: str, limit, resume=None) -> None:
+    started = ""
+    with _SWEEP_LOCK:
+        started = str(_SWEEP_JOB.get("started") or "")
+
     def progress(i, n, lid):
         with _SWEEP_LOCK:
             if _SWEEP_JOB.get("id") == job_id:
                 _SWEEP_JOB.update(done=i, total=n, current=lid)
+                _sweep_save_job()
+
+    def mine():
+        with _SWEEP_LOCK:
+            return _SWEEP_JOB.get("id") == job_id
+
+    def checkpoint(partial):
+        # (xp) after EVERY lesson: the rows read so far, on the disk, so a restart
+        # costs at most the lesson in flight. Only the job the card is following may
+        # write -- a thread the job has moved on from writes nothing.
+        if not mine():
+            return
+        coursesweep.write_partial(DATA_DIR, course, partial, build=APP_BUILD,
+                                  started=(resume or {}).get("started") or started)
+        with _SWEEP_LOCK:
+            if _SWEEP_JOB.get("id") == job_id:
+                _SWEEP_JOB.update(saved=len(partial.get("rows") or []))
+                _sweep_save_job()
+
     try:
         result = coursesweep.run_sweep(DATA_DIR, course, _sweep_judge, limit=limit,
-                                       progress=progress)
+                                       progress=progress, checkpoint=checkpoint, resume=resume)
+        if not mine():
+            print(f"[coursesweep] a sweep of {course} finished after the job had moved on; its result is dropped")
+            return
         result["seat"] = f"{_sweep_seat()} · {_sweep_model()}"
         name = coursesweep.write_report(DATA_DIR, result, APP_BUILD)
+        coursesweep.clear_partial(DATA_DIR, course)   # (xp) the report is the record now
         with _SWEEP_LOCK:
             if _SWEEP_JOB.get("id") == job_id:
                 _SWEEP_JOB.update(state="done", done=result.get("asked", 0),
@@ -4946,22 +5043,32 @@ def _sweep_worker(job_id: str, course: str, limit) -> None:
                                   # (wv) why lessons went unread, for the card's line
                                   stopped=result.get("stopped") or None,
                                   first_error=((result.get("errors") or [{}])[0].get("error") or "")[:200],
-                                  seconds=result.get("seconds", 0))
+                                  seconds=result.get("seconds", 0),
+                                  resumed=result.get("resumed") or None)
+                _sweep_save_job()
         store.record_event("ops_pass", "coursesweep",
                            f"{course}: {result.get('ran', 0)} lessons, "
                            f"{len(result.get('findings') or [])} findings, "
-                           f"{result.get('seconds', 0)}s -> {name}")
+                           f"{result.get('seconds', 0)}s -> {name}"
+                           + (f" (resumed: {result['resumed'].get('before', 0)} read before the restart)"
+                              if result.get("resumed") else ""))
     except Exception as exc:  # noqa: BLE001
         print(f"[coursesweep] job failed: {exc}")
         with _SWEEP_LOCK:
             if _SWEEP_JOB.get("id") == job_id:
                 _SWEEP_JOB.update(state="failed", error=str(exc)[:300])
+                _sweep_save_job()
+
+
+_sweep_recover()   # (xp) at import: a sweep the last process was running is INTERRUPTED, not gone
 
 
 class CourseSweepIn(BaseModel):
     course: str = ""
     limit: int | None = None
     dry_run: bool = True
+    resume: bool = False     # (xp) continue the course's saved checkpoint
+    discard: bool = False    # (xp) start over even though a checkpoint exists
 
 
 @app.post("/api/admin/coursesweep/start")
@@ -4984,25 +5091,55 @@ def admin_coursesweep_start(body: CourseSweepIn, key: str = "",
     keyname = "ANTHROPIC_API_KEY" if seat == "anthropic" else "OPENAI_API_KEY"
     have_key = bool(os.environ.get(keyname, "").strip())
     if body.dry_run:
+        _p = coursesweep.read_partial(DATA_DIR, course)   # (xp) price the resume too
+        _saved = len((_p or {}).get("rows") or [])
+        _left = max(0, int((_p or {}).get("asked") or est["lessons"]) - _saved) if _p else None
         return {"ok": True, "dry_run": True, **est,
                 "seat": seat, "model": _sweep_model(), "have_key": have_key,
                 "have_anthropic_key": have_key,     # (wa) the card's old field name
+                "partial": ({"saved": _saved, "left": _left,
+                             "resume_usd": round((_left or 0) * coursesweep.EST_USD_PER_LESSON, 2),
+                             "started": _p.get("started")} if _p else None),
                 "note": "Nothing was spent. POST again with dry_run=false to run."}
     if not have_key:
         raise HTTPException(status_code=503, detail=f"{keyname} is not set on this deploy.")
+    # (xp) a checkpoint is money already spent: resume it, or say so before starting over
+    partial = coursesweep.read_partial(DATA_DIR, course)
+    resume = None
+    if body.resume:
+        if not partial:
+            raise HTTPException(status_code=404, detail=(
+                f"there is no interrupted sweep of {course} to resume"))
+        resume = partial
+        left = max(0, int(partial.get("asked") or est["lessons"]) - len(partial.get("rows") or []))
+        est["lessons"] = left
+        est["estimated_usd"] = round(left * coursesweep.EST_USD_PER_LESSON, 2)
+    elif partial and not body.discard:
+        raise HTTPException(status_code=409, detail=(
+            f"an interrupted sweep of {course} has {len(partial.get('rows') or [])} of "
+            f"{partial.get('asked', '?')} lessons saved (started {partial.get('started') or '?'}). "
+            f"Resume it (resume=true) or start over (discard=true)."))
     with _SWEEP_LOCK:
         if _SWEEP_JOB.get("state") == "running":
             raise HTTPException(status_code=409, detail=(
                 f"a sweep of {_SWEEP_JOB.get('course')} is already running "
                 f"({_SWEEP_JOB.get('done', 0)} of {_SWEEP_JOB.get('total', '?')})"))
+        if partial and body.discard and not body.resume:
+            coursesweep.clear_partial(DATA_DIR, course)
         job_id = uuid.uuid4().hex[:12]
         _SWEEP_JOB.clear()
-        _SWEEP_JOB.update(id=job_id, state="running", course=course, done=0,
-                          total=est["lessons"], current="",
-                          started=time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()))
-    threading.Thread(target=_sweep_worker, args=(job_id, course, limit),
+        _SWEEP_JOB.update(id=job_id, state="running", course=course,
+                          done=len((resume or {}).get("rows") or []),
+                          saved=len((resume or {}).get("rows") or []),
+                          total=(int((resume or {}).get("asked") or 0) or est["lessons"]), current="",
+                          resumed=bool(resume),
+                          started=(resume or {}).get("started")
+                                  or time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()))
+        _sweep_save_job()
+    threading.Thread(target=_sweep_worker, args=(job_id, course, limit, resume),
                      name="coursesweep", daemon=True).start()
     return {"ok": True, "started": True, "job_id": job_id, "course": course,
+            "resumed": bool(resume),
             "lessons": est["lessons"], "estimated_usd": est["estimated_usd"]}
 
 
@@ -5015,7 +5152,8 @@ def admin_coursesweep_status(key: str = "",
                 "note": "coursesweep.py is not deployed on this build"}
     return {"ok": True, "enabled": True, "job": _sweep_snapshot(),
             "courses": sorted({les.get("course") for les in lessonscripts.LESSONS}),
-            "reports": coursesweep.list_reports(DATA_DIR)}
+            "reports": coursesweep.list_reports(DATA_DIR),
+            "partials": coursesweep.list_partials(DATA_DIR)}   # (xp) the card's Resume
 
 
 @app.get("/api/admin/coursesweep/report")
@@ -9108,7 +9246,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-22xo-the-forty-eight-get-their-walk-back"
+APP_BUILD = "2026-09-23xp-the-sweep-survives-a-restart"
 
 
 @app.get("/health")

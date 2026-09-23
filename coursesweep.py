@@ -3,6 +3,20 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xp -- THE SWEEP SURVIVES A RESTART. Jim ran Algebra I twice on 09-22
+#               and both sweeps "just disappeared": the sweep is a thread inside the web
+#               server, and until now it wrote its report only at the END -- a deploy (a
+#               push to GitHub) or a Render restart in the 30-40 minutes it runs killed
+#               the thread, nothing reached the disk, and the card went back to "no sweep
+#               has run in this process". Every lesson already read was paid for and lost.
+#               Now: run_sweep keeps one ROW per lesson read and calls `checkpoint(partial)`
+#               after each -- main.py writes it to data/coursesweep/<course>_partial.json
+#               (write_partial / read_partial / clear_partial / list_partials; the name has
+#               no date, so list_reports never lists it). A sweep started with `resume=`
+#               that partial skips the lessons it holds, reads only the rest, and the
+#               final report carries a "Resumed after a restart" line with both builds
+#               and both times. A restart now costs at most the one lesson in flight.
+#               The wv stop rule counts the NEW run's streak only. Nothing else changed.
 #   2026-09-18  BUILD wz -- THE TABLE LESSON'S PROBLEM SPACE IS THE PASS. The second Basic
 #               sweep read "PROBLEM SPACE: 12 problems" on the times-table lesson and called
 #               the intro's "all 81 facts" false (HIGH). The line was wrong, not the intro:
@@ -527,18 +541,84 @@ def estimate(course, L=None):
                               "EST_USD_PER_LESSON.")}
 
 
-def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=None):
+def _row_for(les, placed=None, clean=False, error=None, unplaced=0):
+    """(xp) ONE LESSON'S RESULT, the unit a checkpoint keeps. A row is either read
+    (findings placed, clean or not, unplaced count) or an error (the reader's words)."""
+    return {"lesson": les["id"], "findings": list(placed or []), "clean": bool(clean),
+            "error": error, "unplaced": int(unplaced)}
+
+
+def _assemble(course, picked, rows, stopped, t0, now=None, resumed=None):
+    """(xp) THE RESULT FROM ITS ROWS, in the course's lesson order. write_report and the
+    card read this shape; a resumed sweep and a fresh one assemble the same way."""
+    by = {r["lesson"]: r for r in rows}
+    findings, errors, clean, unplaced_total = [], [], [], 0
+    for les in picked:
+        r = by.get(les["id"])
+        if r is None:
+            continue
+        if r.get("error"):
+            errors.append({"lesson": r["lesson"], "error": r["error"]})
+            continue
+        findings.extend(r.get("findings") or [])
+        unplaced_total += int(r.get("unplaced") or 0)
+        if r.get("clean"):
+            clean.append(r["lesson"])
+    out = {"course": course, "ran": len(picked) - len(errors), "asked": len(picked),
+           "findings": findings, "errors": errors, "clean": clean, "stopped": stopped,
+           "unplaced": unplaced_total, "seconds": round(time.monotonic() - t0, 1),
+           "when": (now or _dt.datetime.now(_dt.timezone.utc)).strftime("%Y-%m-%d %H:%M UTC"),
+           "not_covered": [
+               "the topic quiz's sentences (quizsets.py) -- a separate instrument",
+               "the AI's own words on a second miss -- that is the night watch's lane",
+               "the rendered SCREEN (screencheck.py judges that in the battery)",
+               f"a times-table pass beyond its first {TABLE_FACTS_SHOWN} facts"]}
+    if resumed:
+        out["resumed"] = resumed
+    return out
+
+
+def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=None,
+              checkpoint=None, resume=None):
     """Sweep one course. Never raises; a lesson the reviewer could not read is recorded
-    as such and the sweep goes on. Returns the result dict that write_report consumes."""
+    as such and the sweep goes on. Returns the result dict that write_report consumes.
+
+    (xp) `checkpoint(partial)` is called after EVERY lesson with the rows read so far
+    (the shape write_partial keeps); `resume=` is such a partial from an interrupted
+    run -- its lessons are skipped, its rows kept, and the result says it was resumed.
+    A checkpoint that raises never stops the sweep."""
     if L is None:
         import lessonscripts as L  # noqa: N812
     t0 = time.monotonic()
     picked = lessons_for(course, L)
+    if resume and (resume.get("course") == course) and not limit and resume.get("asked"):
+        limit = int(resume["asked"])      # (xp) a resumed sweep keeps the first run's size
     if limit:
         picked = picked[:int(limit)]
-    findings, errors, clean, unplaced_total = [], [], [], 0
-    streak, stopped = [], None          # (wv) consecutive identical hard failures
+    rows = []
+    resumed = None
+    if resume and (resume.get("course") == course):
+        rows = [dict(r) for r in (resume.get("rows") or []) if r.get("lesson")]
+        # the prior run's "not attempted" rows are read now, not carried
+        rows = [r for r in rows if not str(r.get("error") or "").startswith("not attempted")]
+        resumed = {"before": len(rows), "after": 0, "prior_when": resume.get("when"),
+                   "prior_build": resume.get("build"), "prior_started": resume.get("started")}
+    done_ids = {r["lesson"] for r in rows}
+    stopped = None
+    streak = []                          # (wv) consecutive identical hard failures
+
+    def _save():
+        if checkpoint:
+            try:
+                checkpoint({"course": course, "asked": len(picked), "rows": [dict(r) for r in rows],
+                            "done": len(rows), "resumed": resumed,
+                            "when": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")})
+            except Exception:  # noqa: BLE001
+                pass
+
     for i, les in enumerate(picked):
+        if les["id"] in done_ids:
+            continue
         if progress:
             try:
                 progress(i, len(picked), les["id"])
@@ -547,11 +627,12 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
         try:
             turns = transcript_for(les, L)
         except Exception as exc:  # noqa: BLE001
-            errors.append({"lesson": les["id"], "error": f"walk failed: {exc}"})
+            rows.append(_row_for(les, error=f"walk failed: {exc}"))
+            _save()
             continue
         data, err = review_lesson(les, turns, judge)
         if err:
-            errors.append({"lesson": les["id"], "error": err})
+            rows.append(_row_for(les, error=err))
             # (wv) the same hard error, lesson after lesson, will not change: stop
             sig = str(err)[:200]
             if _HARD_ERROR_RE.search(sig) and (not streak or streak[-1] == sig):
@@ -561,26 +642,22 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
             if len(streak) >= HARD_STOP_AFTER:
                 stopped = {"after": i + 1, "error": sig}
                 for rest in picked[i + 1:]:
-                    errors.append({"lesson": rest["id"],
-                                   "error": f"not attempted -- the sweep stopped after "
-                                            f"{i + 1} lessons in a row failed the same way: {sig}"})
+                    if rest["id"] in done_ids:
+                        continue
+                    rows.append(_row_for(rest, error=f"not attempted -- the sweep stopped after "
+                                                     f"{i + 1} lessons in a row failed the same way: {sig}"))
+                _save()
                 break
+            _save()
             continue
         streak = []
         placed, unplaced = place_findings(les, turns, data)
-        unplaced_total += unplaced
-        if not placed and (data or {}).get("clean", not placed):
-            clean.append(les["id"])
-        findings.extend(placed)
-    return {"course": course, "ran": len(picked) - len(errors), "asked": len(picked),
-            "findings": findings, "errors": errors, "clean": clean, "stopped": stopped,
-            "unplaced": unplaced_total, "seconds": round(time.monotonic() - t0, 1),
-            "when": (now or _dt.datetime.now(_dt.timezone.utc)).strftime("%Y-%m-%d %H:%M UTC"),
-            "not_covered": [
-                "the topic quiz's sentences (quizsets.py) -- a separate instrument",
-                "the AI's own words on a second miss -- that is the night watch's lane",
-                "the rendered SCREEN (screencheck.py judges that in the battery)",
-                f"a times-table pass beyond its first {TABLE_FACTS_SHOWN} facts"]}
+        rows.append(_row_for(les, placed=placed, unplaced=unplaced,
+                             clean=(not placed and (data or {}).get("clean", not placed))))
+        if resumed:
+            resumed["after"] += 1
+        _save()
+    return _assemble(course, picked, rows, stopped, t0, now=now, resumed=resumed)
 
 
 # =============================================================================
@@ -613,6 +690,11 @@ def report_markdown(result, build="") -> str:
              f"{HARD_STOP_AFTER} in a row failed the same way and the rest were not attempted: "
              f"{result['stopped'].get('error', '')[:200]}. Nothing here is a reading of the "
              f"course; fix the seat and run it again.", ""]) if result.get("stopped") else []),
+         *(([f"_Resumed after a restart: {result['resumed'].get('before', 0)} lesson(s) were read "
+             f"before it (started {result['resumed'].get('prior_started') or '?'}"
+             + (f", build {result['resumed'].get('prior_build')}" if result['resumed'].get('prior_build') else "")
+             + f"), {result['resumed'].get('after', 0)} read now._", ""])
+           if result.get("resumed") else []),
          *(([f"⚠️ **NOT READ** -- every lesson failed: "
              f"{(result.get('errors') or [{}])[0].get('error', '')[:200]}. Nothing here is a "
              f"reading of the course; fix the seat and run it again.", ""])
@@ -694,6 +776,70 @@ def write_report(data_dir, result, build="", now=None) -> str:
     with open(os.path.join(d, name + ".md"), "w", encoding="utf-8") as fh:
         fh.write(report_markdown(result, build))
     return name
+
+
+_PARTIAL_RE = re.compile(r"^([a-z0-9]+)_partial\.json$")
+
+
+def partial_path(data_dir, course) -> str:
+    """(xp) data/coursesweep/<course>_partial.json -- no date in the name, so
+    list_reports (which lists .md files) never shows it as a report."""
+    return os.path.join(_dir(data_dir), f"{re.sub(r'[^a-z0-9]', '', str(course).lower())}_partial.json")
+
+
+def write_partial(data_dir, course, partial: dict, build="", started="") -> str:
+    """(xp) The checkpoint after every lesson: the rows read so far plus the build and
+    the start time, written whole then renamed so a restart mid-write leaves the last
+    good copy. Returns the path."""
+    os.makedirs(_dir(data_dir), exist_ok=True)
+    path = partial_path(data_dir, course)
+    body = dict(partial or {})
+    body.update({"course": course, "build": build or body.get("build") or "",
+                 "started": started or body.get("started") or ""})
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(body, fh, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)
+    return path
+
+
+def read_partial(data_dir, course):
+    """(xp) The saved checkpoint for a course, or None."""
+    try:
+        with open(partial_path(data_dir, course), encoding="utf-8") as fh:
+            j = json.load(fh)
+        return j if isinstance(j, dict) and j.get("rows") else None
+    except (OSError, ValueError):
+        return None
+
+
+def clear_partial(data_dir, course) -> bool:
+    """(xp) Remove a course's checkpoint (the sweep finished and wrote its report)."""
+    try:
+        os.remove(partial_path(data_dir, course))
+        return True
+    except OSError:
+        return False
+
+
+def list_partials(data_dir) -> dict:
+    """(xp) {course: {done, asked, when, build, started}} for every saved checkpoint --
+    the card offers a Resume for each."""
+    out = {}
+    try:
+        names = os.listdir(_dir(data_dir))
+    except OSError:
+        return out
+    for n in names:
+        m = _PARTIAL_RE.match(n)
+        if not m:
+            continue
+        j = read_partial(data_dir, m.group(1))
+        if j:
+            out[m.group(1)] = {"done": len(j.get("rows") or []), "asked": j.get("asked"),
+                               "when": j.get("when"), "build": j.get("build"),
+                               "started": j.get("started")}
+    return out
 
 
 def list_reports(data_dir) -> list:

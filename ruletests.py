@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xp -- PART 3nk, THE SWEEP SURVIVES A RESTART. Two Algebra I sweeps
+#               vanished on 09-22 (a deploy or a Render restart under the sweep thread;
+#               the report was written only at the end). Pins: the checkpoint after every
+#               lesson, resume reads only what is left and keeps the first run's size,
+#               the report's "Resumed after a restart" line, the partial is never listed
+#               as a report, the wv stop rule still stands; through the TestClient: the
+#               job on the disk while running, a running job recovered as INTERRUPTED at
+#               startup, the dry run pricing the resume, a fresh run refused (409) over a
+#               checkpoint, resume to DONE with 5 of 5, discard=true; the card's copy.
 #   2026-09-22  BUILD xo -- PART 3nj, PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK. Pins
 #               the 51 (xo) generators, that NO lesson is behind the _worked_for guard
 #               (3lu's "48 without a generator, 48 without the flag" is 0 and 0), the shape
@@ -22331,6 +22340,235 @@ def part3nj_the_forty_eight_get_their_walk_back():
           "2026-09-22  BUILD xo" in notes("lessonscripts.py") and "BUILD xo" in notes("lessons/entry.py")
           and "BUILD xo" in notes("lessons/diffeq.py")
           and 'APP_BUILD -> "2026-09-22xo-' in notes("main.py") and "2026-09-22  BUILD xo" in notes("ruletests.py"), "")
+
+
+def part3nk_the_sweep_survives_a_restart():
+    """PART 3nk (build xp, 2026-09-23) -- THE SWEEP SURVIVES A RESTART. Jim, 09-22: "I have
+    run the algebra one twice and both times once it finished it just disappeared ... I'm
+    just throwing money away." The sweep is a daemon thread inside the web server and,
+    until xp, wrote its report only at the END: a deploy (a push to GitHub) or a Render
+    restart in the 30-40 minutes it runs killed the thread with nothing on the disk, and
+    the card fell back to "no sweep has run in this process". Twice in one day.
+
+    THE FIX, in three parts. (1) coursesweep.run_sweep keeps one row per lesson and calls
+    checkpoint(partial) after EVERY lesson; main.py writes it to <course>_partial.json
+    (no date in the name, so list_reports never lists it as a report). (2) main.py mirrors
+    the job dict to _job.json on every change, and _sweep_recover() at startup turns a
+    job that was "running" into INTERRUPTED -- time, reason, lessons saved -- so the card
+    says what happened. (3) POST .../start with resume=true reads only the lessons the
+    checkpoint lacks, keeps the first run's size, and writes the normal report with a
+    "Resumed after a restart" line; a fresh run of a course that has a checkpoint is a 409
+    unless discard=true; the dry run prices the resume; the status carries `partials`.
+    The card: the interrupted line, Run becomes Resume, the rule is printed -- do not push
+    while a sweep runs. A restart now costs at most the one lesson in flight."""
+    print("\nPART 3nk — the sweep survives a restart (build xp)")
+    import json as _json
+    import os as _os
+    import tempfile as _tf
+    import threading as _th
+    import time as _time
+    import coursesweep as C
+    import lessonscripts as L
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    cs, mn, adm = rd("coursesweep.py"), rd("main.py"), rd("static/admin.html")
+
+    # ---- coursesweep: rows, checkpoint, resume ---------------------------------------------
+    clean = lambda msgs, mt, wj: (_json.dumps({"findings": [], "clean": True}), None)
+    with _tf.TemporaryDirectory() as d:
+        seen = []
+        calls = {"n": 0}
+        class _Restart(Exception):
+            pass
+        def dying(msgs, mt, wj):
+            calls["n"] += 1
+            if calls["n"] == 4:
+                raise _Restart()          # the process dies under lesson 4
+            return clean(msgs, mt, wj)
+        cp = lambda p: (seen.append(len(p["rows"])), C.write_partial(d, "entry", p, build="b1", started="T1"))
+        try:
+            C.run_sweep(d, "entry", dying, limit=6, L=L, checkpoint=cp)
+        except _Restart:
+            pass
+        part = C.read_partial(d, "entry")
+        check("⭐⭐ THE CHECKPOINT IS WRITTEN AFTER EVERY LESSON: a sweep killed under its 4th lesson leaves 3 rows on the disk, with the build and the start time",
+              seen == [1, 2, 3] and part and len(part["rows"]) == 3 and part["asked"] == 6
+              and part["build"] == "b1" and part["started"] == "T1"
+              and all(r["lesson"] and r["error"] is None and r["clean"] for r in part["rows"]), str((seen, part and part.get("asked"))))
+        check("  the checkpoint is not a report: list_reports does not list it, list_partials does",
+              C.list_reports(d) == [] and C.list_partials(d) == {"entry": {"done": 3, "asked": 6, "when": part["when"],
+                                                                            "build": "b1", "started": "T1"}}, str(C.list_partials(d)))
+        calls2 = {"n": 0}
+        counting = lambda msgs, mt, wj: (calls2.__setitem__("n", calls2["n"] + 1), clean(msgs, mt, wj))[1]
+        res = C.run_sweep(d, "entry", counting, L=L, checkpoint=cp, resume=part)
+        check("⭐ RESUME READS ONLY THE LESSONS THE CHECKPOINT LACKS, keeps the first run's size (6, no limit passed), and the result says so",
+              calls2["n"] == 3 and res["asked"] == 6 and res["ran"] == 6 and len(res["clean"]) == 6
+              and res["resumed"] == {"before": 3, "after": 3, "prior_when": part["when"], "prior_build": "b1", "prior_started": "T1"},
+              str((calls2["n"], res.get("resumed"))))
+        ids6 = [x["id"] for x in C.lessons_for("entry", L)[:6]]
+        check("  the rows come back in the course's lesson order, the first three from the checkpoint",
+              res["clean"] == ids6, str(res["clean"][:3]))
+        md = C.report_markdown(res, "b2")
+        check("  the report carries the 'Resumed after a restart' line with both the count and the first run's build",
+              "_Resumed after a restart: 3 lesson(s) were read before it (started T1, build b1), 3 read now._" in md, "")
+        name = C.write_report(d, res, "b2")
+        check("  write_report, then clear_partial: the report is listed and the checkpoint is gone",
+              C.list_reports(d)[0]["name"] == name and C.clear_partial(d, "entry") and C.list_partials(d) == {}
+              and not C.clear_partial(d, "entry"), "")
+        check("  a checkpoint's 'not attempted' rows are not carried into the resume (they are read now)",
+              (lambda r: r["ran"] == 2 and not r["errors"])(
+                  C.run_sweep(d, "entry", clean, L=L, resume={"course": "entry", "asked": 2, "rows": [
+                      {"lesson": ids6[0], "findings": [], "clean": True, "error": None, "unplaced": 0},
+                      {"lesson": ids6[1], "findings": [], "clean": False,
+                       "error": "not attempted -- the sweep stopped after 3 lessons in a row failed the same way: 429", "unplaced": 0}]})), "")
+        check("  a resume for another course is ignored, a plain run has no 'resumed', and a checkpoint that raises never stops the sweep",
+              "resumed" not in C.run_sweep(d, "entry", clean, limit=1, L=L, resume={"course": "basic", "asked": 3, "rows": [{"lesson": "x"}]})
+              and "resumed" not in C.run_sweep(d, "entry", clean, limit=1, L=L)
+              and C.run_sweep(d, "entry", clean, limit=1, L=L, checkpoint=lambda p: 1 / 0)["ran"] == 1, "")
+        r2 = C.run_sweep(d, "entry", lambda m, t, w: (None, "OpenAI 429 no credits"), limit=5, L=L, checkpoint=cp)
+        check("  the wv stop rule still stands, and its 'not attempted' rows reach the checkpoint too",
+              r2["stopped"] and r2["stopped"]["after"] == 3 and len(r2["errors"]) == 5
+              and len(C.read_partial(d, "entry")["rows"]) == 5, str(r2.get("stopped")))
+        check("  write_partial writes whole then renames (no half file on a restart mid-write); read_partial is None for nothing or junk",
+              "os.replace(tmp, path)" in cs and C.read_partial(d, "nothing") is None
+              and (open(C.partial_path(d, "junk"), "w").write("{") or True) and C.read_partial(d, "junk") is None, "")
+        check("  the partial's name is the course only (a name that can never match a report's date pattern)",
+              C.partial_path(d, "algebra1").endswith("algebra1_partial.json")
+              and C.partial_path(d, "../x").endswith(_os.sep + "x_partial.json")
+              and not C._NAME_RE.match("algebra1_partial"), "")
+    check("  run_sweep's old return shape is _assemble's now: every field the card and write_report read is still there",
+          all(k in cs for k in ('"ran": len(picked) - len(errors)', '"stopped": stopped', '"unplaced": unplaced_total',
+                                '"not_covered": [', 'out["resumed"] = resumed'))
+          and "def _row_for(les, placed=None, clean=False, error=None, unplaced=0):" in cs, "")
+
+    # ---- main.py: the job on the disk, recovered at startup; resume through the endpoint ----
+    try:
+        import main as M
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("course-sweep restart endpoints", f"fastapi not importable here: {exc}")
+    else:
+        _oldkey = _os.environ.get("FORUM_MOD_KEY")
+        _oldanth = _os.environ.get("ANTHROPIC_API_KEY")
+        _oldoai = _os.environ.get("OPENAI_API_KEY")
+        _olddata = M.DATA_DIR
+        _oldjudge = M._sweep_judge
+        _os.environ["FORUM_MOD_KEY"] = "3nk-key"
+        _os.environ["ANTHROPIC_API_KEY"] = "3nk-fake"
+        _os.environ["OPENAI_API_KEY"] = "3nk-fake"
+        H = {"X-Admin-Key": "3nk-key"}
+        gate = _th.Event()
+        try:
+            with _tf.TemporaryDirectory() as d:
+                from pathlib import Path as _P
+                M.DATA_DIR = _P(d)
+                c = TestClient(M.app)
+                calls = {"n": 0}
+                def hanging(msgs, max_tokens=2000, want_json=False):
+                    calls["n"] += 1
+                    if calls["n"] == 3:
+                        gate.wait(90)     # the 3rd lesson never answers: the "restart" comes here
+                    return _json.dumps({"findings": [], "clean": True}), None
+                M._sweep_judge = hanging
+                r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "limit": 5, "dry_run": False}, headers=H)
+                st = {}
+                for _ in range(300):
+                    st = c.get("/api/admin/coursesweep/status", headers=H).json().get("job", {})
+                    if st.get("saved") == 2:
+                        break
+                    _time.sleep(0.1)
+                jobfile = _P(d) / "coursesweep" / "_job.json"
+                check("⭐ WHILE IT RUNS the job is on the disk (state running, 2 saved) and the checkpoint has 2 rows",
+                      r.status_code == 200 and st.get("state") == "running" and st.get("saved") == 2
+                      and jobfile.exists() and _json.loads(jobfile.read_text(encoding="utf-8"))["state"] == "running"
+                      and C.list_partials(d)["entry"]["done"] == 2 and C.list_partials(d)["entry"]["asked"] == 5, str(st)[:160])
+                # the restart: a new process finds only the disk
+                with M._SWEEP_LOCK:
+                    M._SWEEP_JOB.clear()
+                M._sweep_recover()
+                full = c.get("/api/admin/coursesweep/status", headers=H).json()
+                j = full["job"]
+                check("⭐⭐ AT STARTUP A RUNNING JOB BECOMES INTERRUPTED -- course, lessons saved, the time, the reason -- and the status carries the partial",
+                      j.get("state") == "interrupted" and j.get("course") == "entry" and j.get("saved") == 2
+                      and j.get("total") == 5 and j.get("interrupted_at") and "restarted" in j.get("reason", "")
+                      and full["partials"]["entry"]["done"] == 2, str(j)[:200])
+                pr = c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": True}, headers=H).json()
+                check("  the dry run prices the RESUME: 2 saved, 3 left, 3 x EST_USD_PER_LESSON",
+                      pr["partial"] == {"saved": 2, "left": 3, "resume_usd": round(3 * C.EST_USD_PER_LESSON, 2),
+                                        "started": full["partials"]["entry"]["started"]}, str(pr.get("partial")))
+                check("  a FRESH run of a course with a checkpoint is refused (409) -- the money already spent is named -- and a resume of a course without one is a 404",
+                      c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": False}, headers=H).status_code == 409
+                      and "2 of 5 lessons saved" in c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": False}, headers=H).json()["detail"]
+                      and c.post("/api/admin/coursesweep/start", json={"course": "algebra1", "resume": True, "dry_run": False}, headers=H).status_code == 404, "")
+                gate.set()   # the old thread may finish now; the job has moved on, so it writes nothing
+                _time.sleep(0.5)
+                check("  ...and the thread of the 'dead' process, if it did wake, wrote nothing: the checkpoint still has 2 rows and there is no report",
+                      len(C.read_partial(d, "entry")["rows"]) == 2 and C.list_reports(d) == [], str(C.list_partials(d)))
+                calls2 = {"n": 0}
+                def counting(msgs, max_tokens=2000, want_json=False):
+                    calls2["n"] += 1
+                    return _json.dumps({"findings": [], "clean": True}), None
+                M._sweep_judge = counting
+                part_before = C.read_partial(d, "entry")
+                r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "resume": True, "dry_run": False}, headers=H)
+                for _ in range(300):
+                    st = c.get("/api/admin/coursesweep/status", headers=H).json().get("job", {})
+                    if st.get("state") in ("done", "failed"):
+                        break
+                    _time.sleep(0.1)
+                left = 5 - len(part_before["rows"])
+                check("⭐ RESUME reads only the lessons left, answers at once with that count and price, and the job ends DONE with 5 of 5 and the resumed counts",
+                      r.status_code == 200 and r.json()["resumed"] and r.json()["lessons"] == left
+                      and st.get("state") == "done" and st.get("ran") == 5 and st.get("total") == 5
+                      and calls2["n"] == left and (st.get("resumed") or {}).get("before") == len(part_before["rows"]), str((r.json(), st))[:220])
+                md = c.get("/api/admin/coursesweep/report", params={"name": st.get("report", "")}, headers=H).json()["markdown"]
+                check("  the report says it was resumed, the checkpoint is cleared, and the job file says done",
+                      "_Resumed after a restart:" in md and C.list_partials(d) == {}
+                      and _json.loads(jobfile.read_text(encoding="utf-8"))["state"] == "done", "")
+                with M._SWEEP_LOCK:
+                    M._SWEEP_JOB.clear()
+                M._sweep_recover()
+                check("  a restart after a finished sweep keeps the card's last line (done, not interrupted); no job file at all recovers nothing",
+                      c.get("/api/admin/coursesweep/status", headers=H).json()["job"].get("state") == "done"
+                      and (jobfile.unlink() or True) and (M._SWEEP_JOB.clear() or True) and (M._sweep_recover() or True)
+                      and c.get("/api/admin/coursesweep/status", headers=H).json()["job"].get("state") == "idle", "")
+                check("  discard=true starts over and drops the checkpoint on purpose",
+                      (C.write_partial(d, "entry", {"asked": 2, "rows": [{"lesson": "entry-u1-counting-to-10", "findings": [], "clean": True, "error": None, "unplaced": 0}]}) or True)
+                      and c.post("/api/admin/coursesweep/start", json={"course": "entry", "limit": 1, "dry_run": False, "discard": True}, headers=H).status_code == 200
+                      and [_time.sleep(0.1) for _ in range(50) if c.get("/api/admin/coursesweep/status", headers=H).json()["job"].get("state") == "running"] is not None
+                      and c.get("/api/admin/coursesweep/status", headers=H).json()["job"].get("resumed") in (None, False), "")
+        finally:
+            gate.set()
+            M.DATA_DIR = _olddata
+            M._sweep_judge = _oldjudge
+            with M._SWEEP_LOCK:
+                M._SWEEP_JOB.clear()
+            for k, v in (("FORUM_MOD_KEY", _oldkey), ("ANTHROPIC_API_KEY", _oldanth), ("OPENAI_API_KEY", _oldoai)):
+                if v is None:
+                    _os.environ.pop(k, None)
+                else:
+                    _os.environ[k] = v
+    check("  main.py: the job file is read at call time from DATA_DIR, every writer saves inside the lock, recovery runs at import, the worker checkpoints and clears",
+          "def _sweep_job_path():" in mn and 'return Path(DATA_DIR) / "coursesweep" / "_job.json"' in mn
+          and mn.count("_sweep_save_job()") >= 7 and "_sweep_recover()   # (xp) at import" in mn
+          and 'j.pop("id", None)   # no thread of this process owns a recovered job' in mn
+          and "if not mine():\n            return\n        coursesweep.write_partial(" in mn
+          and "coursesweep.write_partial(DATA_DIR, course, partial, build=APP_BUILD," in mn
+          and "coursesweep.clear_partial(DATA_DIR, course)   # (xp) the report is the record now" in mn
+          and "resume: bool = False" in mn and "discard: bool = False" in mn
+          and '"partials": coursesweep.list_partials(DATA_DIR)}' in mn, "")
+
+    # ---- the card ------------------------------------------------------------------------------
+    check("⭐ the card: an INTERRUPTED sweep is said in full, Run becomes Resume for a course with a checkpoint, the resume is priced, and the rule is printed",
+          'if (j.state === "interrupted")' in adm and "press Resume to read the rest" in adm
+          and "function csRunLabel()" in adm and 'csPartials = d.partials || {};' in adm
+          and "resume: true };" in adm and "discard: true };" in adm
+          and "resuming reads the \" + d.partial.left + \" left, about $\" + d.partial.resume_usd" in adm
+          and "<b>Do not push to GitHub while a sweep runs</b>" in adm
+          and "Do not push to GitHub until it finishes." in adm, "")
+    check("  the dated notes are in (Jim's rule 8): coursesweep.py, main.py, static/admin.html, ruletests.py",
+          "2026-09-23  BUILD xp" in notes("coursesweep.py") and 'APP_BUILD -> "2026-09-23xp-' in notes("main.py")
+          and "(xp) 2026-09-23 -- THE SWEEP SURVIVES A RESTART" in adm and "2026-09-23  BUILD xp" in notes("ruletests.py"), "")
 
 
 def _reads_in_words(nums, spoken, L):
@@ -49283,6 +49521,7 @@ def main():
     part3nh_the_angle_carries_its_unit()
     part3ni_the_miss_has_a_face()
     part3nj_the_forty_eight_get_their_walk_back()
+    part3nk_the_sweep_survives_a_restart()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

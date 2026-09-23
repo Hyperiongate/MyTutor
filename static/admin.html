@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <!--
+    (xp) 2026-09-23 -- THE SWEEP SURVIVES A RESTART. Two Algebra I sweeps vanished on
+    09-22: the sweep dies with the server on a deploy or a Render restart, and this card
+    then said "no sweep has run in this process". The server now saves a checkpoint
+    after every lesson and remembers the job across restarts; this card shows an
+    INTERRUPTED sweep as such (course, lessons saved, when, why), the Run button becomes
+    "Resume" when the picked course has a checkpoint (and asks before starting over),
+    the price button prices the resume, and the rule is on the card: do not push to
+    GitHub while a sweep runs.
+
     (wv) 2026-09-17 -- THE SWEEP CARD SAYS WHY IT STOPPED. With the reader's credits at
     zero a sweep "finished" in 7.7 s and this card said "0 finding(s) in 36 lessons" --
     read as a hung sweep. The status line now says "36 of 36 lessons could not be read:
@@ -812,6 +821,9 @@
       <button class="btn" id="csEstimate" type="button">&#9312; Price it &mdash; FREE</button>
       <button class="btn btn-primary" id="csRun" type="button">&#9313; Run the sweep &mdash; SPENDS</button>
     </div>
+    <div class="note" style="margin-top:8px">&#9888;&#65039; <b>Do not push to GitHub while a sweep runs</b> &mdash; a
+      deploy restarts the server and stops the sweep. Since build xp every lesson read is saved as it is read; an
+      interrupted sweep shows here and can be <b>resumed</b> for only the lessons that are left.</div>
     <div class="msg" id="csMsg"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
       <select id="csPick" class="btn" style="max-width:260px"></select>
@@ -2032,14 +2044,21 @@
         });
       }
       var j = d.job || {};
+      csPartials = d.partials || {};
       var line;
       if (j.state === "running") {
         line = "sweeping " + j.course + " — " + (j.done || 0) + " of " + (j.total || "?") + " lessons"
-             + (j.current ? " · reading " + j.current : "");
+             + (j.current ? " · reading " + j.current : "")
+             + (j.saved ? " · " + j.saved + " saved" : "") + (j.resumed ? " (resumed)" : "");
         if (!csPoll) csPoll = setInterval(csStatus, 4000);
       } else {
         if (csPoll) { clearInterval(csPoll); csPoll = null; }
-        if (j.state === "done" && j.errors && !j.ran)
+        if (j.state === "interrupted")
+          /* (xp) the server restarted under the sweep; what was read is saved */
+          line = "⚠️ " + j.course + " — INTERRUPTED at " + (j.saved || 0) + " of " + (j.total || "?") + " lessons"
+               + (j.interrupted_at ? " (noticed " + j.interrupted_at + ")" : "") + ": " + (j.reason || "the server restarted")
+               + ". The " + (j.saved || 0) + " read are saved — pick " + j.course + " and press Resume to read the rest.";
+        else if (j.state === "done" && j.errors && !j.ran)
           /* (wv) every lesson failed -- say so, never "0 findings in 36 lessons" */
           line = "⚠️ " + j.course + " — " + j.errors + " of " + j.total + " lessons could not be read: "
                + (j.first_error || "the reader did not answer") + " → report " + j.report + " (not a reading of the course — fix the seat and run it again)";
@@ -2048,7 +2067,8 @@
                + (j.stopped.error || "") + " · " + j.findings + " finding(s) in the " + j.ran + " read → report " + j.report;
         else if (j.state === "done") line = "last sweep: " + j.course + " — " + j.findings + " finding(s) in "
                                        + j.ran + " of " + j.total + " lessons" + (j.errors ? " (" + j.errors + " unread)" : "")
-                                       + ", " + j.seconds + "s → report " + j.report;
+                                       + ", " + j.seconds + "s → report " + j.report
+                                       + (j.resumed ? " (resumed after a restart: " + (j.resumed.before || 0) + " read before it)" : "");
         else if (j.state === "failed") line = "⚠️ the last sweep failed: " + (j.error || "");
         else line = j.note || "no sweep has run in this process";
       }
@@ -2064,8 +2084,18 @@
       var none = !(d.reports || []).length;
       rp.disabled = none; $("csRead").disabled = none;
       $("csRun").disabled = (j.state === "running");
+      csRunLabel();
     } catch (e) { $("csLine").textContent = "could not read the course sweep: " + e.message; }
   }
+  var csPartials = {};
+  /* (xp) the Run button says Resume when the picked course has a saved checkpoint */
+  function csRunLabel() {
+    var p = csPartials[$("csCourse").value];
+    $("csRun").innerHTML = p
+      ? "\u2461 Resume " + $("csCourse").value + " \u2014 " + Math.max(0, (p.asked || 0) - (p.done || 0)) + " lesson(s) left \u2014 SPENDS"
+      : "\u2461 Run the sweep \u2014 SPENDS";
+  }
+  $("csCourse").addEventListener("change", csRunLabel);
   function csBody(dry) {
     var lim = parseInt($("csLimit").value, 10);
     return JSON.stringify({ course: $("csCourse").value, limit: (lim > 0 ? lim : null), dry_run: dry });
@@ -2076,15 +2106,34 @@
       var d = await api("/api/admin/coursesweep/start", { method: "POST", body: csBody(true) });
       csMsg("FREE — nothing spent. " + d.lessons + " lesson(s), " + d.chars.toLocaleString() + " characters to read, about $"
             + d.estimated_usd + " — read by " + d.seat + " (" + d.model + "). " + d.estimate_note
+            + (d.partial ? " An interrupted sweep has " + d.partial.saved + " lesson(s) saved (started " + (d.partial.started || "?")
+               + "); resuming reads the " + d.partial.left + " left, about $" + d.partial.resume_usd + "." : "")
             + (d.have_key ? "" : " ⚠️ the " + d.seat + " key is not set — the run would be refused."), "ok");
     } catch (e) { csMsg(e.message); }
   });
   $("csRun").addEventListener("click", async function () {
-    if (!confirm("Run the sweep on " + $("csCourse").value + "? This SPENDS model time (see the price button).")) return;
+    var course = $("csCourse").value, p = csPartials[course], body;
+    if (p) {
+      /* (xp) a checkpoint is money already spent: resume it, or start over on purpose */
+      var left = Math.max(0, (p.asked || 0) - (p.done || 0));
+      if (confirm("An interrupted sweep of " + course + " has " + p.done + " of " + p.asked + " lessons saved. "
+                  + "OK = RESUME it and read only the " + left + " left (SPENDS for those). "
+                  + "Cancel = choose whether to start over instead."))
+        body = { course: course, limit: null, dry_run: false, resume: true };
+      else if (confirm("Start " + course + " OVER from the first lesson and throw the " + p.done + " saved lessons away? "
+                       + "This SPENDS for all of them again. OK = start over. Cancel = do nothing."))
+        body = { course: course, limit: null, dry_run: false, discard: true };
+      else return;
+    } else {
+      if (!confirm("Run the sweep on " + course + "? This SPENDS model time (see the price button). "
+                   + "Do not push to GitHub until it finishes.")) return;
+      body = JSON.parse(csBody(false));
+    }
     csMsg("Starting…", "ok");
     try {
-      var d = await api("/api/admin/coursesweep/start", { method: "POST", body: csBody(false) });
-      csMsg("Started — " + d.lessons + " lesson(s), about $" + d.estimated_usd + ". This card follows it.", "ok");
+      var d = await api("/api/admin/coursesweep/start", { method: "POST", body: JSON.stringify(body) });
+      csMsg((d.resumed ? "Resumed — " : "Started — ") + d.lessons + " lesson(s), about $" + d.estimated_usd
+            + ". This card follows it. Do not push to GitHub until it finishes.", "ok");
       csStatus();
     } catch (e) { csMsg(e.message); }
   });
