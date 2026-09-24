@@ -3,6 +3,11 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xv -- ONE CHARTER LINE from the third Algebra II sweep: the [[choices]]
+#               on an ask or a reason question are tap buttons the child reads, never read
+#               aloud, by design. Four sweeps in a row (wx, xa, xb, this one) raised "the
+#               choices are never read aloud"; each was declined by hand. Now the reviewer is
+#               told.
 #   2026-09-23  BUILD xu -- A STOPPED SWEEP CAN BE RESUMED. Jim's Prob/Stat sweep of 09-23
 #               read 16 lessons ($2.40), then the reader's credits ran out: the wv rule
 #               stopped it, the report was written -- and main.py cleared the checkpoint,
@@ -433,7 +438,9 @@ used from there on) -- is not an unclear phrase; "times", "timesed" and "timesin
 chosen verb for multiplying, in every course (Hundreds of lines use them) -- never nonstandard; a ✗ on a [[step]] line marks the WRONG
 PATH a child might take (its number and its short label, like "24 ✗ one day only"), never a false
 equation the tutor asserts; a bare "log" on a board in the Algebra II logarithm lessons is base 2
-unless the same board shows another base beside it (the lesson says so in its words); a topic word in the lesson's
+unless the same board shows another base beside it (the lesson says so in its words); the
+[[choices]] on an ask or a reason question are TAP BUTTONS the child reads, never read aloud, by
+design -- "the choices are never read aloud" is not a finding; a topic word in the lesson's
 own title line; "over nine" for a sum of ten or more (the course's one chosen wording); a
 rule stated for the numbers this lesson uses, at this level, UNLESS the lesson itself later
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE

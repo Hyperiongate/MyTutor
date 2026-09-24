@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  APP_BUILD -> "2026-09-24xv-the-third-algebra2-sweep". The third Algebra II
+#               reading (28 findings, 19 clean; 43 and 14 at ww): lessons/algebra2.py (28
+#               edits), lessonscripts.py (imag's praise a credit line), coursesweep.py (one
+#               charter line: [[choices]] are tap buttons). No change in this file beyond the
+#               stamp; ~30 lines to prewarm. PART 3nq.
 #   2026-09-23  APP_BUILD -> "2026-09-23xu-the-third-probstat-sweep-part-one". The third
 #               Prob/Stat reading stopped after 16 of 36 (the reader's credits ran out):
 #               13 findings fixed (lessons/probstat.py, lessonscripts.py resd + sslp).
@@ -9396,7 +9401,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xu-the-third-probstat-sweep-part-one"
+APP_BUILD = "2026-09-24xv-the-third-algebra2-sweep"
 
 
 @app.get("/health")

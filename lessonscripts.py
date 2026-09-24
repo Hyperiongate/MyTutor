@@ -2,6 +2,12 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xv -- THE THIRD ALGEBRA II SWEEP, the generator side (1 op). imag's
+#               praise was the walk-back's check said first ("4 i times 4 i equals 16 times
+#               i squared -- negative 16. So x is 4 i") and the sweep called the walk-back a
+#               repeat; the xq ruling says read the PRAISE. It is a credit line now: "4 i --
+#               the i carries the minus, and 4 times 4 is 16." The walk-back keeps the check.
+#               One for one: the course list stays 40,495. PART 3nq.
 #   2026-09-23  BUILD xu -- THE THIRD PROB/STAT SWEEP, PART ONE, the generator side (2 ops).
 #               resd: the ask's caption said "the gap between the bars is the residual" --
 #               a residual is signed (actual take away predicted) and the gap is its SIZE,
@@ -11076,10 +11082,9 @@ OP_EXT = {
                              f"positive number?"),   # (wm) −4i squares to −16 too
         "board": _imag_board,         # (tl) the question, i's one job, and the blank on its own line (rule 44)
         "worked": _imag_worked,       # (tl) the square as an array, past 10 a rectangle (its side is the answer -- walk-back only)
-        "praise": lambda p: (f"The i carries the minus: {round(p['a'] ** 0.5)} "
-                             f"i times {round(p['a'] ** 0.5)} i equals "
-                             f"{p['a']} times i squared — negative {p['a']}. "
-                             f"So x is {round(p['a'] ** 0.5)} i."),
+        # (xv) a credit line: the answer and its one reason; the check is the walk-back's
+        "praise": lambda p: (f"{round(p['a'] ** 0.5)} i — the i carries the minus, and "
+                             f"{round(p['a'] ** 0.5)} times {round(p['a'] ** 0.5)} is {p['a']}."),
         "key": lambda p: round(p["a"] ** 0.5),
         # The errors: forgetting the ROOT entirely, and doubling instead of rooting
         # (wm; before it, the minus on the answer -- which is a real second root).

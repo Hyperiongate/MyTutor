@@ -2,6 +2,28 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xv -- THE THIRD ALGEBRA II SWEEP (28 findings on 36, 27 authored, 19 of
+#               36 clean; 43 and 14 at ww, 73 at wk). Three HIGHs in two lessons: "a real
+#               number times i, like 3 i, is called an imaginary number" (2 + 3i is not);
+#               "a real-number square can never be negative, so a new number was invented"
+#               (i is not an exception, it is not real); the discriminant's sign "says how
+#               the curve meets the x line: two crossings, one touch, or none". The condition
+#               class, ten: degrees add IN THAT TIMESING; factors OF THE FORM x take away a
+#               number; roots under one roof FOR NUMBERS THAT ARE NOT NEGATIVE; exponents add
+#               for powers OF THE SAME BASE; logs add for POSITIVE numbers in ONE LOG BASE;
+#               power questions turn around FOR THE POSITIVE BASES WE USE; slots times when
+#               every choice fits EVERY COMBINATION SO FAR (why and recap); the mirror is 360
+#               MINUS THE ANGLE, not one more turn; the wiggle count is a rule for now, its
+#               proof waits for calculus; the log of 18 nearness is an estimate, said so.
+#               Words and board (the xs class, here): 3 - 8 = -5, 4 - 9 = -5, 5 - 11 = -6 drawn
+#               before the bars drop the sign; the line x = 4 drawn on the forbidden-x graph;
+#               the test-number formula on its recap board; 20 x 20 = 400 drawn; x = ±3i on the
+#               recap caption; the bananas reason question reads its two trips; "the x sits
+#               after the divide sign"; "the vertex lesson's flip does not belong here";
+#               "squaring wipes a minus, so both give negative 9". Three sentences split for
+#               length. Declined: the reason choices are never read aloud (tap buttons by
+#               design; a charter line in coursesweep.py now). 28 edits; no beat added, the
+#               course list stays 40,495. PART 3nq.
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 24 lessons; 
@@ -139,7 +161,7 @@ _ALGEBRA2_U1 = [
              "and you get negative 5. Now ask the real question: how far apart are 3 "
              "and 8? Count the steps: 5 apart. The bars drop the negative sign and "
              "leave the 5.",
-             '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="3 and 8 — 5 steps apart"]][[step eq="|3 − 8| → 5 apart"]]'),
+             '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="3 and 8 — 5 steps apart"]][[step eq="3 − 8 = −5"]][[step eq="|3 − 8| → 5 apart"]]'),
             ("Here is where students go wrong. They do the take away, get negative 5, "
              "and stop there. But think about what we asked: how far apart are 3 and "
              "8? Two numbers cannot be negative 5 apart. A distance is always a plain "
@@ -150,11 +172,11 @@ _ALGEBRA2_U1 = [
             {"worked": ("Here is one more, done for you. Take 9 away from 4 and you get "
                         "negative 5. Keep the size, drop the sign. So 4 and 9 are 5 "
                         "apart.",
-                        '[[numberline min="2" max="11" points="4,9" hops="4,9" caption="4 and 9 — 5 steps apart"]][[step eq="|4 − 9| → 5"]]'),
+                        '[[numberline min="2" max="11" points="4,9" hops="4,9" caption="4 and 9 — 5 steps apart"]][[step eq="4 − 9 = −5"]][[step eq="|4 − 9| → 5"]]'),
              "ask": {'a': 2, 'b': 5, 'op': 'absv'}},
             {"worked": ("One more together. Take 11 away from 5 and you get negative 6. "
                         "Drop the sign: the absolute value is 6.",
-                        '[[numberline min="3" max="13" points="5,11" hops="5,11" caption="5 and 11 — 6 steps apart"]][[step eq="|5 − 11| → 6"]]'),
+                        '[[numberline min="3" max="13" points="5,11" hops="5,11" caption="5 and 11 — 6 steps apart"]][[step eq="5 − 11 = −6"]][[step eq="|5 − 11| → 6"]]'),
              "ask": {'a': 7, 'b': 18, 'op': 'absv'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -328,8 +350,7 @@ _ALGEBRA2_U1 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. Trips of 14 and 8 "
-                       "cents, and one apple costs 3. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. Three apples and two bananas cost 14 cents; one apple and the same two bananas cost 8. One apple costs 3. Tap the reason why."),
             "choices": ("because the bananas cancel, leaving 2 apples to share | because "
                         "the two trips are averaged | because the bananas cancel, and "
                         "6 is the apple"),
@@ -613,7 +634,7 @@ _ALGEBRA2_U2 = [
         "advance_line": "Three in a row, and you can say why — you've got it! The sign is the message: 2, 1 or 0.",
         "why": [
             ("Why a test number? Because you can count a curve\'s crossings without "
-             "drawing it. y equals x squared plus 2 x plus 7 hides a test number, called the discriminant. It is the x part squared, take away 4 times the plain number. Its SIGN — not its size — counts the crossings with the x line.",
+             "drawing it. y equals x squared plus 2 x plus 7 hides a test number, called the discriminant. Square the number in front of x, then take away 4 times the plain number. Its SIGN — not its size — says how the curve meets the x line: two crossings, one touch, or none.",
              '[[goal text="The test number"]][[step eq="x² + a·x + b → test: a² − 4b"]]'),
         ],
         "picture": [
@@ -657,10 +678,10 @@ _ALGEBRA2_U2 = [
             "board": '[[bars data="2²:4 | 4 · 7:28" caption="below zero — no crossing"]]',
         },
         "recap": [
-            ("So, here it is again. For today's curves — x squared, plus some x's, plus a plain number — the test number is this. The x part squared, take away 4 times the plain number. Only its sign matters: positive, two "
+            ("So, here it is again. For today's curves — x squared, plus some x's, plus a plain number — the test number is this. The number in front of x, squared, take away 4 times the plain number. Only its sign matters: positive, two "
              "crossings; zero, one touch; negative, none. Report the meetings with the x line, never "
              "the messenger.",
-             '[[graph func="x^2+2*x+7" range="-5..3" caption="a negative test — the curve never comes down"]]'),
+             '[[step eq="x² + a·x + b → test: a² − 4b"]][[graph func="x^2+2*x+7" range="-5..3" caption="a negative test — the curve never comes down"]]'),
             ("And that is a curve counted without being drawn: below zero, no crossings; zero, one; above zero, two.",
              '[[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'),
         ],
@@ -696,15 +717,13 @@ _ALGEBRA2_U2 = [
         "picture": [
             ("Here is 9 as a square: 3 rows of 3. That is the everyday half "
              "of the answer — 3 times 3 is 9. The minus is the other half, and it is "
-             "i\'s job: one answer is 3 times i, and the other is negative 3 times i. "
-             "Today we take the one with the positive number in front of i.",
+             "i\'s job: one answer is 3 times i, and the other is negative 3 times i. Squaring wipes a minus, so both give negative 9. Today we take the one with the positive number in front of i.",
              '[[array rows="3" cols="3" caption="3 × 3 = 9 — the number is 3; the i carries the minus"]]'),
         ],
         "teach": [
             ("That is the method. With i in hand, x equals 3 i solves it. Check: 3 i "
              "times 3 i is 9 times i squared — and i squared is negative 1 — so it "
-             "equals negative 9. Numbers built with i are called imaginary, though "
-             "they are as real to mathematics as any invention that works.",
+             "equals negative 9. A real number times i, like 3 i, is called an imaginary number, though it is as real to mathematics as any invention that works.",
              '[[array rows="3" cols="3" caption="(3i)² = 9 × i² = −9"]][[step eq="(3i)² = 9 × i²"]][[step eq="9 × (−1) = −9 ✓"]]'),
             ("Handle it with care. x squared equals negative 9 does not mean x is "
              "negative 3 — negative 3 squared is POSITIVE 9, the wrong sign entirely. "
@@ -735,10 +754,9 @@ _ALGEBRA2_U2 = [
             "board": '[[array rows="3" cols="3" caption="(3i)² = −9"]]',
         },
         "recap": [
-            ("So, here it is again. A real-number square can never be negative — until i, whose "
-             "one job is i squared equals negative 1. Then x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i. Today we report the one with the positive number in front. The i carries the minus; the number "
+            ("So, here it is again. A real-number square can never be negative, so a new number was invented: i, whose one job is i squared equals negative 1. Then x squared equals negative a, for a positive a, is solved by plus or minus the root of a, times i. Today we report the one with the positive number in front. The i carries the minus; the number "
              "carries the root.",
-             '[[array rows="3" cols="3" caption="x² = −9 → x = 3i"]]'),
+             '[[array rows="3" cols="3" caption="x² = −9 → x = ±3i — today, 3i"]]'),
             ("And that is the door the unit opens: i squared is negative 1, and x is 3 i.",
              '[[step eq="i² = −1"]][[step eq="x = 3i"]]'),
         ],
@@ -827,8 +845,7 @@ _ALGEBRA2_U3 = [
         "recap": [
             ("So, here it is again. A polynomial\'s degree is its highest power, and "
              "when two polynomials are timesed their top powers join — piles of x\'s "
-             "add their counts. Degrees add; they never times, and the bigger one "
-             "never simply survives.",
+             "add their counts. In that timesing the degrees add; they never times, and the bigger one never simply survives.",
              '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="degree 4 × degree 3 → degree 7"]]'),
             ("And that is Algebra One\'s power rule, grown up.",
              '[[step eq="x⁴ · x³ = x⁷"]]'),
@@ -868,9 +885,7 @@ _ALGEBRA2_U3 = [
              '[[graph func="x^4-4*x^2" range="-3..3" caption="a degree 4 curve — three turns, one fewer than its degree"]]'),
         ],
         "teach": [
-            ("That is the method. Why one fewer? Every turn spends a climb or a fall, "
-             "and the last stretch always runs off to the horizon without turning "
-             "back. So degree 4: at most 3 turns. Degree 6: at most 5. The wiggles can "
+            ("That is the method. Why one fewer? The full proof waits for calculus; for now the picture is the rule. Between two turns the curve must climb or fall, and the last stretch runs off to the horizon without turning back. So degree 4: at most 3 turns. Degree 6: at most 5. The wiggles can "
              "be fewer — they can flatten away — but never more.",
              '[[graph func="x^4-4*x^2" range="-3..3" caption="degree 4 → at most 3 turns"]][[step eq="degree 4 → at most 3 turns"]][[step eq="degree 6 → at most 5 turns"]]'),
             ("AT MOST is the promise\'s shape. A degree 4 curve MAY turn 3 times, or "
@@ -974,8 +989,7 @@ _ALGEBRA2_U3 = [
             "board": '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="1 + 3 + 5 = 9"]]',
         },
         "recap": [
-            ("So, here it is again. Every different factor donates one root, so three "
-             "different factors make three crossings. A question about the answers means all of them — "
+            ("So, here it is again. Every different factor of the form x take away a number donates one root, so three different ones make three crossings. A question about the answers means all of them — "
              "count the crossings, then add, and never hand back the product.",
              '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="three crossings, all counted"]]'),
             ("And that is a quadratic's trick, grown to a cubic: 1 plus 3 plus 5 is 9.",
@@ -1185,8 +1199,7 @@ _ALGEBRA2_U4 = [
              "because the x sits after the divide sign.",
              '[[machine input="4" rule="20 ÷ x" output="5" caption="x = 20 ÷ 5 = 4 — check: 20 ÷ 4 = 5"]][[step eq="x · 5 = 20"]][[step eq="x = 20 ÷ 5 = 4"]][[step eq="check: 20 ÷ 4 = 5 ✓"]]'),
             ("The trap is grabbing times: 20 times 5 is 100, far off. And 20 take away "
-             "5 is 15 — a different operation\'s answer entirely. The x sits UNDER the "
-             "20, and freeing it costs one more divide. Rebuild, then divide.",
+             "5 is 15 — a different operation\'s answer entirely. The x sits after the divide sign, and freeing it costs one more divide. Rebuild, then divide.",
              '[[step eq="x = 20 ÷ 5 = 4 ✓"]][[step eq="100 ✗ times is not this undo · 15 ✗"]]'),
         ],
         "pairs": [
@@ -1249,7 +1262,7 @@ _ALGEBRA2_U4 = [
             ("Here is the curve of 5 divided by x take away 4. Look at x equals 4: the "
              "curve flies off the top and comes back from the bottom, and never touches "
              "that line. There is no point there at all — the machine jams.",
-             '[[graph func="5/(x-4)" range="0..8" yrange="-12..12" caption="y = 5 ÷ (x − 4) — the curve flies off at x = 4 and never lands"]]'),
+             '[[graph func="5/(x-4)" lines="x=4" range="0..8" yrange="-12..12" caption="y = 5 ÷ (x − 4) — the curve flies off at the line x = 4 and never lands"]]'),
         ],
         "teach": [
             ("That is the method. Find it by asking when the bottom dies: x take away 4 "
@@ -1258,7 +1271,7 @@ _ALGEBRA2_U4 = [
              "negative 7 — and the function answers happily. One forbidden x on an "
              "endless road.",
              '[[machine input="4" rule="5 ÷ (x − 4)" output="jammed" caption="x = 4 turns the bottom to zero — forbidden"]][[step eq="x − 4 = 0"]][[step eq="x = 4 forbidden"]]'),
-            ("Two traps, both old friends. The minus begs for negative 4 — but feed negative 4 and the bottom is negative 8, alive and well. The vertex lesson taught you that flip. And zero is not automatically dangerous — feed x "
+            ("Two traps, both old friends. The minus begs for negative 4 — but feed negative 4 and the bottom is negative 8, alive and well. The vertex lesson's flip does not belong here. And zero is not automatically dangerous — feed x "
              "equals 0 and the bottom is negative 4, fine. The danger is where the "
              "BOTTOM is zero, not where x is.",
              '[[step eq="x = 4 forbidden ✓"]][[step eq="−4 ✗ the flip · 0 ✗ the bottom there is −4, alive"]]'),
@@ -1452,8 +1465,7 @@ _ALGEBRA2_U5 = [
             "board": '[[rectangle w="12" h="12" caption="√144 = 12"]]',
         },
         "recap": [
-            ("So, here it is again. Two square roots timesed go under one roof: the root "
-             "of the product. If that product is a perfect square, two ragged roots "
+            ("So, here it is again. For numbers that are not negative, two square roots timesed go under one roof: the root of the product. If that product is a perfect square, two ragged roots "
              "give one clean whole number — its side. Take the root at the end, and "
              "never add under the roofs.",
              '[[rectangle w="12" h="12" caption="√3 · √48 = √144 = 12"]]'),
@@ -1654,7 +1666,7 @@ _ALGEBRA2_U5 = [
              "far one here. Second, the oldest trap in the unit, halving. Half of 40 is "
              "20, and 20 times 20 is 400, absurdly far. The root of a number near 40 "
              "is small — squares grow FAST. Neighbours first, half never.",
-             '[[step eq="√40 → 6 ✓"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'),
+             '[[step eq="√40 → 6 ✓"]][[step eq="20 × 20 = 400"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. Root of 90: between 81 and 100, so "
@@ -1796,7 +1808,7 @@ _ALGEBRA2_U6 = [
         "symbols": ("logarithm", "power"),
         "advance_line": "Three in a row, and you can say why — you've got it! The logarithm is the hidden exponent.",
         "why": [
-            ("Why hidden? Because every power question can turn around. Forward: 3 to "
+            ("Why hidden? Because, for the positive bases we use, every power question can turn around. Forward: 3 to "
              "the power 4 is 81. Backwards: 3 raised to WHAT equals 81? Count the "
              "threes: 3 times 3 times 3 times 3 — four of them. That backwards question "
              "is one of the great tools of mathematics, and its answer has a name: the "
@@ -1873,9 +1885,7 @@ _ALGEBRA2_U6 = [
         "symbols": ("logarithm", "product"),
         "advance_line": "Three in a row, and you can say why — you've got it! When values times, their logs put together.",
         "why": [
-            ("Why do logs add? Because the logarithm has a great law, and you have met "
-             "its family twice: powers add when values times, and degrees add when "
-             "polynomials times. Now the logarithm — which IS a hidden exponent — obeys the same music. For numbers in the same base, the log of a product is the logs, put together.",
+            ("Why do logs add? Because the logarithm has a great law, and you have met its family twice. Exponents add when powers of the same base times, and degrees add when polynomials times. Now the logarithm — which IS a hidden exponent — obeys the same music. For positive numbers, in one log base, the log of a product is the logs, put together.",
              '[[goal text="Logs add"]][[step eq="log(a · b) = log a + log b"]]'),
         ],
         "picture": [
@@ -1961,9 +1971,7 @@ _ALGEBRA2_U6 = [
              '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="18 between the powers 16 and 32 — nearer 16"]]'),
         ],
         "teach": [
-            ("That is the method. Which is it closer to? 18 sits 2 past 16, and 14 "
-             "short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. "
-             "Same move as the squares: power the neighbours, then see who is nearer.",
+            ("That is the method. Which is it closer to? 18 sits 2 past 16, and 14 short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. That is an estimate, and a fair one: the exact log is a little past 4. Same move as the squares: power the neighbours, then see who is nearer.",
              '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="18 − 16 = 2 and 32 − 18 = 14 — nearer 16, so log 18 → 4"]][[step eq="18 − 16 = 2"]][[step eq="32 − 18 = 14"]][[step eq="log 18 → closest to 4"]]'),
             ("The traps repeat their old shapes: 5 is the far neighbour here. And "
              "halving — 18 divided by 2 is 9 — is not a logarithm; 2 to the 9 is 512, "
@@ -2547,7 +2555,7 @@ _ALGEBRA2_U8 = [
             "board": '[[unitcircle angle="405" values="0" caption="45° + 360° = 405°"]]',
         },
         "recap": [
-            ("So, here it is again. A full turn is 360 degrees, and adding it keeps the arrow in the same place. It lands where it began, with the same sine and the same cosine. A half turn lands opposite, and a mirror is not a spin.",
+            ("So, here it is again. A full turn is 360 degrees, and adding it keeps the arrow in the same place. It lands where it began, with the same sine and the same cosine. A half turn lands opposite, and 360 minus the angle is a mirror, not one more full turn.",
              '[[unitcircle angle="405" values="0" caption="same direction, same sine, same cosine"]]'),
             ("And that is why the wave repeats forever: 45 degrees plus 360 degrees is 405 degrees, the same arrow.",
              '[[step eq="45° + 360° = 405°"]]'),
@@ -2741,8 +2749,7 @@ _ALGEBRA2_U9 = [
         "why": [
             ("Why three slots? Geometry counted outfits from two choices: shirts times "
              "hats. Add pants and nothing changes but the length: every category is a "
-             "slot. The choices in each slot TIMES together when every choice in one slot can go with "
-             "every choice in the next. 2 shirts, 5 pants, 3 hats — for each shirt, "
+             "slot. The choices in each slot TIMES together when every choice in a slot can go with every combination made so far. 2 shirts, 5 pants, 3 hats — for each shirt, "
              "every pair of pants; for each of those, every hat.",
              '[[goal text="Three slots"]]'),
         ],
@@ -2786,8 +2793,7 @@ _ALGEBRA2_U9 = [
             "board": '[[array rows="2" cols="5" caption="2 × 5 × 3 = 30"]]',
         },
         "recap": [
-            ("So, here it is again. Every category is a slot, and the choices in each slot times together, "
-             "however many there are: shirts times pants times hats. Never add the "
+            ("So, here it is again. Every category is a slot. When every choice fits every combination so far, the slots times together, however many there are: shirts times pants times hats. Never add the "
              "closets, and never stop a slot early.",
              '[[array rows="2" cols="5" caption="times every slot, skip none"]]'),
             ("And that is the counting principle, one slot longer: 2 times 5 times 3 is 30.",
