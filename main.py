@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  APP_BUILD -> "2026-09-23xu-the-third-probstat-sweep-part-one". The third
+#               Prob/Stat reading stopped after 16 of 36 (the reader's credits ran out):
+#               13 findings fixed (lessons/probstat.py, lessonscripts.py resd + sslp).
+#               AND the sweep keeps its checkpoint when the seat cuts it short (here), so
+#               Jim can Resume the other 20 instead of paying for 36 again; coursesweep.py
+#               keeps only READ rows in the checkpoint. Nothing else in this file changed.
+#               PART 3np.
 #   2026-09-23  APP_BUILD -> "2026-09-23xt-the-voice-cache-reclaim-card". Project 9 of the
 #               09-14 deep dive, the fifth gate build. NEW POST /api/admin/tts-cache-reclaim
 #               (TtsCacheReclaimIn: dry_run default TRUE, keep_hours 24) and its helper
@@ -5063,7 +5070,13 @@ def _sweep_worker(job_id: str, course: str, limit, resume=None) -> None:
             return
         result["seat"] = f"{_sweep_seat()} · {_sweep_model()}"
         name = coursesweep.write_report(DATA_DIR, result, APP_BUILD)
-        coursesweep.clear_partial(DATA_DIR, course)   # (xp) the report is the record now
+        if result.get("stopped"):
+            # (xu) a sweep the seat cut short keeps its checkpoint: the lessons it read are
+            # paid for, and the card's Resume reads only the rest once the seat is back
+            print(f"[coursesweep] {course} stopped after {result['stopped'].get('after')} -- "
+                  f"checkpoint kept for a resume")
+        else:
+            coursesweep.clear_partial(DATA_DIR, course)   # (xp) the report is the record now
         with _SWEEP_LOCK:
             if _SWEEP_JOB.get("id") == job_id:
                 _SWEEP_JOB.update(state="done", done=result.get("asked", 0),
@@ -9383,7 +9396,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-23xt-the-voice-cache-reclaim-card"
+APP_BUILD = "2026-09-23xu-the-third-probstat-sweep-part-one"
 
 
 @app.get("/health")

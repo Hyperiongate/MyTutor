@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xu -- PART 3np, THE THIRD PROB/STAT SWEEP, PART ONE (16 of 36 read
+#               before the seat's credits ran out; 13 findings, 8 clean), AND A STOPPED
+#               SWEEP CAN BE RESUMED. Pins the two generator fixes (resd's caption says the
+#               SIZE of the residual; sslp's order), the eleven authored lines, the counts;
+#               and the engine: the checkpoint holds only READ rows, main.py keeps it when
+#               the sweep stopped, the banner says Resume -- run for real through the
+#               TestClient: a judge that dies after two lessons, the report + the 2-row
+#               checkpoint, the dry run pricing 6 left, the resume reading exactly those 6
+#               to DONE 8 of 8. One pin in 3mf moved (the box sentence gains "usually").
 #   2026-09-23  BUILD xt -- PART 3no, THE VOICE CACHE RECLAIM CARD (project 9 of the 09-14
 #               deep dive; the fifth gate build). Pins the endpoint (dry_run TRUE by
 #               default, keep_hours 24, admin key, the course's clips never candidates,
@@ -19926,7 +19935,7 @@ def part3ml_the_first_probstat_sweep():
           and E("ps-u1-under-the-tallest-stack")["advance_line"].endswith("The mode is the value under the tallest stack.")
           and "7 is the halfway point between them, with three numbers below and three above" in spoken(E("ps-u2-no-single-middle"))
           and "the only number" not in spoken(E("ps-u2-no-single-middle"))
-          and "A wild extreme moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))   # (xe) its own sentence
+          and "A wild extreme usually moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))   # (xe) its own sentence; (xu) usually
           and "its width is the right edge take away the left edge" in spoken(E("ps-u2-the-middle-half"))
           and "The box is 10 wide, and here are two ways to miss it" in spoken(E("ps-u2-the-middle-half"))
           and "Square the distances and average those squares instead" in spoken(E("ps-u2-how-far-from-the-middle"))
@@ -20456,7 +20465,7 @@ def part3mq_the_sweep_says_why_it_stopped():
     md = C.report_markdown(r, build="wv")
     check("  ...and the report says so under its header, before the findings that are not there",
           "⚠️ **STOPPED after 3 lesson(s)** -- 3 in a row failed the same way and the rest were not attempted: OpenAI 429" in md
-          and "Nothing here is a reading of the course; fix the seat and run it again." in md
+          and "fix the seat and press Resume on the card -- it reads just the rest." in md   # (xu) resumable
           and md.index("STOPPED after") < md.index("_A GENERATOR finding")
           and md.rstrip().endswith("I did no harm and this file is not truncated.*"), "")
     name = C.write_report(d, r, build="wv")
@@ -22461,9 +22470,9 @@ def part3nk_the_sweep_survives_a_restart():
               and "resumed" not in C.run_sweep(d, "entry", clean, limit=1, L=L)
               and C.run_sweep(d, "entry", clean, limit=1, L=L, checkpoint=lambda p: 1 / 0)["ran"] == 1, "")
         r2 = C.run_sweep(d, "entry", lambda m, t, w: (None, "OpenAI 429 no credits"), limit=5, L=L, checkpoint=cp)
-        check("  the wv stop rule still stands, and its 'not attempted' rows reach the checkpoint too",
+        check("  the wv stop rule still stands; (xu) a checkpoint holds only READ rows, so an all-failed run leaves nothing to resume",
               r2["stopped"] and r2["stopped"]["after"] == 3 and len(r2["errors"]) == 5
-              and len(C.read_partial(d, "entry")["rows"]) == 5, str(r2.get("stopped")))
+              and C.read_partial(d, "entry") is None, str(r2.get("stopped")))
         check("  write_partial writes whole then renames (no half file on a restart mid-write); read_partial is None for nothing or junk",
               "os.replace(tmp, path)" in cs and C.read_partial(d, "nothing") is None
               and (open(C.partial_path(d, "junk"), "w").write("{") or True) and C.read_partial(d, "junk") is None, "")
@@ -23137,6 +23146,154 @@ def part3no_the_voice_cache_reclaim_card():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-23xt-' in notes("main.py") and "2026-09-23  BUILD xt" in notes("ruletests.py")
           and "(xt) 2026-09-23" in notes("static/admin.html"), "")
+
+
+def part3np_the_third_probstat_sweep_part_one():
+    """PART 3np (build xu, 2026-09-23) -- THE THIRD PROB/STAT SWEEP, PART ONE, AND A STOPPED
+    SWEEP CAN BE RESUMED. The reading stopped after 16 of 36 lessons: the reader's credits
+    ran out, the wv rule cut it short, and the report carried 13 findings on the 16 (8
+    clean; the second reading was 60 on 36, 10 clean). Two generator fixes: resd's ask
+    caption calls the gap "the size of the residual" (a residual is signed; the gap is
+    its size -- a HIGH, twice); sslp's walk-back says "5 times 9" in the board's order.
+    Eleven authored: the residual defined as signed with the gap as its size; the second
+    example shows 14 - 44 = -30 and its size; the histogram recap scoped to these boards;
+    the percentile's direction ("when speeds are being ranked"; among 20 OTHERS); "one
+    way to measure spread"; "usually moves the box far less"; the slope recap scoped to
+    hours and points and "how the line predicts"; the biased survey's condition (the rest
+    given no chance); the four-times rule "with everything else about the poll the same".
+
+    THE ENGINE FIX: the 16 lessons read were paid for and could not be resumed -- main.py
+    cleared the checkpoint whenever a sweep finished, stopped or not. Now a stopped sweep
+    keeps it, the checkpoint holds only the rows actually READ (an error row is dropped at
+    save time so a resume reads that lesson), and the banner says to press Resume."""
+    print("\nPART 3np — the third Prob/Stat sweep, part one; a stopped sweep can be resumed (build xu)")
+    import json as _json
+    import os as _os
+    import tempfile as _tf
+    import time as _time
+    import coursesweep as C
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    S = lambda p, lv="abstract": L.spoken_for(p, lv)
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    W = lambda p: L._worked_for(p) or ("", "")
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    cs, mn = rd("coursesweep.py"), rd("main.py")
+
+    resd = {"a": 26, "b": 20, "op": "resd"}
+    check("⭐ resd: the ask's caption calls the gap the SIZE of the residual (a residual is signed)",
+          "the gap between the bars is the size of the residual" in B(resd)
+          and "is the residual\"" not in B(resd), B(resd)[:160])
+    sslp = {"a": 5, "b": 9, "op": "sslp"}
+    check("  sslp: the walk-back says the product in the board's order -- 5 times 9 over 5 × 9",
+          "so 9 hours brings 5 times 9, 45 points" in W(sslp)[0] and '[[step eq="5 × 9 = 45"]]' in W(sslp)[1], W(sslp)[0][:140])
+    check("⭐ U3 residuals: the residual is actual take away predicted and the gap is its SIZE; the second example shows 14 − 44 = −30 and its size",
+          "That is the method: the residual is actual take away predicted, and the gap is its size. If the line predicted 30" in spoken(E("ps-u3-how-far-off-the-line"))
+          and "14 take away 44 is minus 30, a residual of minus 30. Its size is 44 take away 14 — 30, so the line guessed 30 points high." in spoken(E("ps-u3-how-far-off-the-line"))
+          and '[[step eq="14 − 44 = −30"]][[step eq="size: 44 − 14 = 30"]]' in E("ps-u3-how-far-off-the-line")["pairs"][1]["worked"][1], "")
+    check("⭐ laws with their condition: the histogram's printed counts (these boards); the percentile's direction (speeds ranked; 20 OTHERS); one way to measure spread; usually moves the box; the slope's units (here); the survey's no-chance crowd; the poll otherwise the same",
+          "on these boards each group's count is printed on its bar" in spoken(E("ps-u1-add-the-bars"))
+          and "When speeds are being ranked, the 80th percentile means faster than 80 percent" in spoken(E("ps-u2-a-percent-not-a-person"))
+          and "among 20 others there are not 80 anybody" in spoken(E("ps-u2-a-percent-not-a-person"))
+          and "One way to measure spread is how far the numbers sit from the mean, on average. Measure each distance" in spoken(E("ps-u2-how-far-from-the-middle"))
+          and "A wild extreme usually moves the box far less than it moves the range" in spoken(E("ps-u2-the-middle-half"))
+          and "a rate — here, points per extra hour of practice. Times it by the hours" in spoken(E("ps-u3-the-slope-is-a-rate"))
+          and "And that is how the line predicts: 4 per hour, times 2 hours, 8 points." in spoken(E("ps-u3-the-slope-is-a-rate"))
+          and "with the rest given no chance to be picked, can never hear from them" in spoken(E("ps-u4-the-ones-you-never-asked"))
+          and "With everything else about the poll the same, halving it needs four times as many people" in spoken(E("ps-u4-the-price-of-accuracy")), "")
+    check("  every lesson validates; the course list is still 40,495; the speechmap is still 941",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40495
+          and len(__import__("speechmap").MAP) == 941, str(len(L.course_audio_lines())))
+
+    # ---- the engine: a stopped sweep keeps its checkpoint, and the checkpoint holds only what was read ----
+    check("⭐ coursesweep.py: the checkpoint keeps only READ rows, a resume drops any error row, and the banner says Resume",
+          'read_rows = [dict(r) for r in rows if not r.get("error")]' in cs
+          and 'rows = [r for r in rows if not r.get("error")]' in cs
+          and "fix the seat and press Resume on the" in cs, "")
+    check("⭐ main.py: a STOPPED sweep keeps its checkpoint; a finished one still clears it",
+          'if result.get("stopped"):' in mn.split("name = coursesweep.write_report(DATA_DIR, result, APP_BUILD)")[1][:600]
+          and "checkpoint kept for a resume" in mn
+          and "coursesweep.clear_partial(DATA_DIR, course)   # (xp) the report is the record now" in mn, "")
+    try:
+        import main as M
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("stop-then-resume through the endpoints", f"fastapi not importable here: {exc}")
+    else:
+        _oldkey = _os.environ.get("FORUM_MOD_KEY")
+        _oldoai = _os.environ.get("OPENAI_API_KEY")
+        _oldanth = _os.environ.get("ANTHROPIC_API_KEY")
+        _olddata, _oldjudge = M.DATA_DIR, M._sweep_judge
+        _os.environ["FORUM_MOD_KEY"] = "3np-key"
+        _os.environ["OPENAI_API_KEY"] = "3np-fake"
+        _os.environ["ANTHROPIC_API_KEY"] = "3np-fake"
+        H = {"X-Admin-Key": "3np-key"}
+        try:
+            with _tf.TemporaryDirectory() as d:
+                from pathlib import Path as _P
+                M.DATA_DIR = _P(d)
+                with M._SWEEP_LOCK:
+                    M._SWEEP_JOB.clear()
+                c = TestClient(M.app)
+                calls = {"n": 0}
+                def dying(msgs, max_tokens=2000, want_json=False):
+                    calls["n"] += 1
+                    if calls["n"] > 2:      # two lessons read, then the seat is dead
+                        return None, "OpenAI 429: You have no credits remaining."
+                    return _json.dumps({"findings": [], "clean": True}), None
+                M._sweep_judge = dying
+                r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "limit": 8, "dry_run": False}, headers=H)
+                st = {}
+                for _ in range(300):
+                    st = c.get("/api/admin/coursesweep/status", headers=H).json().get("job", {})
+                    if st.get("state") in ("done", "failed"):
+                        break
+                    _time.sleep(0.1)
+                part = C.read_partial(d, "entry")
+                check("⭐⭐ A SWEEP THE SEAT CUT SHORT KEEPS ITS CHECKPOINT: 2 read, stopped after 5 (2 + 3 identical 429s), the report written, the checkpoint holds exactly the 2 READ rows",
+                      r.status_code == 200 and st.get("state") == "done" and (st.get("stopped") or {}).get("after") == 5
+                      and st.get("report") and part is not None and len(part["rows"]) == 2
+                      and all(not row.get("error") for row in part["rows"]) and part.get("asked") == 8, str((st, part and len(part["rows"])))[:240])
+                md = c.get("/api/admin/coursesweep/report", params={"name": st.get("report", "")}, headers=H).json()["markdown"]
+                check("  the STOPPED banner says the lessons read are a reading of those lessons and to press Resume",
+                      "STOPPED after 5 lesson(s)" in md and "press Resume on the card" in md, md[:300])
+                pr = c.post("/api/admin/coursesweep/start", json={"course": "entry", "dry_run": True}, headers=H).json()
+                check("  the dry run prices the resume: 2 saved, 6 left",
+                      pr.get("partial") and pr["partial"]["saved"] == 2 and pr["partial"]["left"] == 6, str(pr.get("partial")))
+                calls2 = {"n": 0, "ids": []}
+                def alive(msgs, max_tokens=2000, want_json=False):
+                    calls2["n"] += 1
+                    return _json.dumps({"findings": [], "clean": True}), None
+                M._sweep_judge = alive
+                r = c.post("/api/admin/coursesweep/start", json={"course": "entry", "resume": True, "dry_run": False}, headers=H)
+                for _ in range(300):
+                    st = c.get("/api/admin/coursesweep/status", headers=H).json().get("job", {})
+                    if st.get("state") in ("done", "failed"):
+                        break
+                    _time.sleep(0.1)
+                check("⭐⭐ RESUME AFTER THE SEAT IS BACK reads exactly the 6 left -- the 3 that 429'd and the 3 not attempted -- and ends DONE with 8 of 8, checkpoint cleared",
+                      r.status_code == 200 and r.json().get("resumed") and r.json().get("lessons") == 6
+                      and st.get("state") == "done" and st.get("ran") == 8 and calls2["n"] == 6
+                      and not st.get("stopped") and C.list_partials(d) == {}, str((r.json(), st))[:240])
+                md2 = c.get("/api/admin/coursesweep/report", params={"name": st.get("report", "")}, headers=H).json()["markdown"]
+                check("  the resumed report carries no STOPPED banner and says it was resumed",
+                      "STOPPED" not in md2 and "_Resumed after a restart:" in md2 and "8 of 8 lessons read" in md2, md2[:300])
+        finally:
+            M.DATA_DIR = _olddata
+            M._sweep_judge = _oldjudge
+            with M._SWEEP_LOCK:
+                M._SWEEP_JOB.clear()
+            for k, v in (("FORUM_MOD_KEY", _oldkey), ("OPENAI_API_KEY", _oldoai), ("ANTHROPIC_API_KEY", _oldanth)):
+                if v is None:
+                    _os.environ.pop(k, None)
+                else:
+                    _os.environ[k] = v
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-23xu-' in notes("main.py") and "2026-09-23  BUILD xu" in notes("ruletests.py")
+          and "2026-09-23  BUILD xu" in notes("coursesweep.py") and "2026-09-23  BUILD xu" in notes("lessons/probstat.py")
+          and "2026-09-23  BUILD xu" in notes("lessonscripts.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -50075,6 +50232,7 @@ def main():
     part3nm_the_pencil_in_the_scripted_lane()
     part3nn_the_third_diffeq_sweep()
     part3no_the_voice_cache_reclaim_card()
+    part3np_the_third_probstat_sweep_part_one()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

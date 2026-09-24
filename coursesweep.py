@@ -3,6 +3,15 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xu -- A STOPPED SWEEP CAN BE RESUMED. Jim's Prob/Stat sweep of 09-23
+#               read 16 lessons ($2.40), then the reader's credits ran out: the wv rule
+#               stopped it, the report was written -- and main.py cleared the checkpoint,
+#               because "the report is the record now" (xp). The 16 were paid for and
+#               unresumable. Now the checkpoint keeps only the rows actually READ (an error
+#               row is dropped at save time, so a resume reads that lesson instead of
+#               skipping it), run_sweep drops any error row it is handed on resume, and the
+#               STOPPED banner says to press Resume. main.py keeps the checkpoint when the
+#               sweep stopped. A sweep that finishes clean still clears it.
 #   2026-09-23  BUILD xq -- ONE CHARTER LINE from the third Algebra I sweep: "times",
 #               "timesed" and "timesing" are the course's chosen verb for multiplying, in
 #               every course -- the reviewer called "timesed" nonstandard in a reason choice.
@@ -603,8 +612,9 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
     resumed = None
     if resume and (resume.get("course") == course):
         rows = [dict(r) for r in (resume.get("rows") or []) if r.get("lesson")]
-        # the prior run's "not attempted" rows are read now, not carried
-        rows = [r for r in rows if not str(r.get("error") or "").startswith("not attempted")]
+        # (xu) the prior run's error rows -- "not attempted", a dead seat, a walk failure
+        # -- are read now, not carried; a checkpoint written since xu holds none anyway
+        rows = [r for r in rows if not r.get("error")]
         resumed = {"before": len(rows), "after": 0, "prior_when": resume.get("when"),
                    "prior_build": resume.get("build"), "prior_started": resume.get("started")}
     done_ids = {r["lesson"] for r in rows}
@@ -612,10 +622,14 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
     streak = []                          # (wv) consecutive identical hard failures
 
     def _save():
+        # (xu) the checkpoint keeps only the lessons actually READ: a row with an error
+        # (a dead seat, a walk failure, "not attempted") was paid for by nobody, and a
+        # resume must read it, not skip it. The report still lists every error.
         if checkpoint:
             try:
-                checkpoint({"course": course, "asked": len(picked), "rows": [dict(r) for r in rows],
-                            "done": len(rows), "resumed": resumed,
+                read_rows = [dict(r) for r in rows if not r.get("error")]
+                checkpoint({"course": course, "asked": len(picked), "rows": read_rows,
+                            "done": len(read_rows), "resumed": resumed,
                             "when": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")})
             except Exception:  # noqa: BLE001
                 pass
@@ -692,8 +706,9 @@ def report_markdown(result, build="") -> str:
          "",
          *(([f"⚠️ **STOPPED after {result['stopped'].get('after')} lesson(s)** -- "
              f"{HARD_STOP_AFTER} in a row failed the same way and the rest were not attempted: "
-             f"{result['stopped'].get('error', '')[:200]}. Nothing here is a reading of the "
-             f"course; fix the seat and run it again.", ""]) if result.get("stopped") else []),
+             f"{result['stopped'].get('error', '')[:200]}. The lessons read so far are "
+             f"a reading of those lessons only; fix the seat and press Resume on the "
+             f"card -- it reads just the rest.", ""]) if result.get("stopped") else []),
          *(([f"_Resumed after a restart: {result['resumed'].get('before', 0)} lesson(s) were read "
              f"before it (started {result['resumed'].get('prior_started') or '?'}"
              + (f", build {result['resumed'].get('prior_build')}" if result['resumed'].get('prior_build') else "")

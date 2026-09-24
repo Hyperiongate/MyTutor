@@ -2,6 +2,20 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xu -- THE THIRD PROB/STAT SWEEP, PART ONE (16 of 36 lessons read before
+#               the reader's credits ran out: 13 findings, 11 authored, 8 of 16 clean; the
+#               second reading was 60 on 36). U1 the histogram recap: "on these boards each
+#               group's count is printed on its bar". U2 the percentile's direction ("when
+#               speeds are being ranked"), "among 20 OTHERS" (she raced 20 others); "one
+#               way to measure spread" (two sentences); the box "usually moves far less".
+#               U3 the residual is SIGNED and the gap is its size (HIGH): "the residual is
+#               actual take away predicted, and the gap is its size"; the second example
+#               shows 14 - 44 = -30 and "its size is 44 take away 14 -- 30"; the slope recap
+#               scoped ("here, points per extra hour of practice", two sentences) and "how
+#               the line predicts" over the 4 x 2 = 8 board. U4 the biased survey's
+#               condition ("with the rest given no chance to be picked"); the four-times
+#               rule "with everything else about the poll the same". No beat added: the
+#               course list stays 40,495. The other 20 lessons wait for the resume. PART 3np.
 #   2026-09-21  BUILD xg -- THE SECOND PROB/STAT SWEEP (60 findings on all 36, 10 clean;
 #               92 and 1 at wo, fixed in wq). 38 authored edits, no beat added. The truth
 #               ones: the outlier plot gets a single tallest stack (6,7,7,7,8,8,9,26) so
@@ -306,8 +320,7 @@ _PROBSTAT_U1 = [
             "board": '[[histogram values="5,5,5,15,15,15,15,25,25" caption="3 + 4 + 2 = 9"]]',
         },
         "recap": [
-            ("So, here it is again. A histogram sorts values into groups and prints "
-             "each group's count on its bar; how many in all is every bar added. The "
+            ("So, here it is again. A histogram sorts values into groups; on these boards each group's count is printed on its bar, so how many in all is every count added. The "
              "tallest bar is only the biggest group, and the number of bars is only the "
              "number of groups.",
              '[[histogram values="5,5,5,15,15,15,15,25,25" caption="add every bar"]]'),
@@ -508,7 +521,7 @@ _PROBSTAT_U2 = [
         "teach": [
             ("That is the method: two edges, one take-away. This box runs from 10 to "
              "20, so the middle half of the data lies between them: its width is 20 "
-             "take away 10 — 10. Statisticians lean on that width because the whisker tips play no part in it. A wild extreme moves the box far less than it moves the range.",
+             "take away 10 — 10. Statisticians lean on that width because the whisker tips play no part in it. A wild extreme usually moves the box far less than it moves the range.",
              '[[boxplot five="4,10,15,20,26" caption="the box runs 10 to 20 — 10 wide"]][[step eq="box: 10 to 20"]][[step eq="20 − 10 = 10"]]'),
             ("The box is 10 wide, and here are two ways to miss it. Do not measure the whiskers. Tip to tip is 4 out to 26, a stretch of 22: that is the whole range, which one strange value can blow wide open. And 20 alone is just the "
              "box\'s right edge. Two edges, one take-away.",
@@ -615,9 +628,7 @@ _PROBSTAT_U2 = [
             "board": '[[bars data="11:9 | 17:3 | 23:3 | 29:9" caption="24 ÷ 4 = 6"]]',
         },
         "recap": [
-            ("So, here it is again. Spread is how far the numbers sit from the mean, "
-             "on average: measure each distance without a sign, add them, then share "
-             "them out. When the distances differ, the answer sits between the nearest and the farthest, never one of those extremes.",
+            ("So, here it is again. One way to measure spread is how far the numbers sit from the mean, on average. Measure each distance without a sign, add them, then share them out. When the distances differ, the answer sits between the nearest and the farthest, never one of those extremes.",
              '[[dotplot values="11,17,23,29" caption="add the four distances, then share them out"]]'),
             ("And that is spread, in plain clothes: 9 plus 3 plus 3 plus 9, shared by 4, is 6.",
              '[[step eq="(9 + 3 + 3 + 9) ÷ 4 = 6"]]'),
@@ -646,9 +657,7 @@ _PROBSTAT_U2 = [
         "why": [
             ("Why a percent, not a person? A last way to place one value inside a "
              "distribution: say what percent of the others it beat. That is a "
-             "percentile. Finishing at the 80th percentile means faster than 80 "
-             "percent of the racers you were measured against — nothing more, "
-             "nothing less.",
+             "percentile. When speeds are being ranked, the 80th percentile means faster than 80 percent of the racers you were measured against — nothing more, nothing less.",
              '[[goal text="A percent, not a person"]][[step eq="80th percentile → faster than 80% of them"]]'),
         ],
         "picture": [
@@ -663,8 +672,7 @@ _PROBSTAT_U2 = [
              "group. A runner races 20 others and finishes at the 80th percentile. 80 percent of 20 is 16, so she beat 16 of them and 4 finished ahead. The "
              "percentile never changes, but the headcount depends on the group.",
              '[[bars data="beaten:16 | ahead of her:4" caption="80% of 20 = 16 beaten, 4 ahead"]][[step eq="80% of 20 = 16 beaten · 4 ahead"]]'),
-            ("Two mix-ups to dodge. The 80 is a percent, not 80 people — among 20 "
-             "racers there are not 80 anybody. And 4 answers the opposite question, "
+            ("Two mix-ups to dodge. The 80 is a percent, not 80 people — among 20 others there are not 80 anybody. And 4 answers the opposite question, "
              "how many finished ahead. Take the percent of the group, and read which "
              "side was asked for.",
              '[[step eq="16 ✓"]][[step eq="80 ✗ that is the percent · 4 ✗ the other side"]]'),
@@ -860,11 +868,10 @@ _PROBSTAT_U3 = [
             "board": '[[graph lines="y=4x" names="4 points per hour" points="(2,8)" range="0..12" yrange="0..50" caption="4 × 2 = 8"]]',
         },
         "recap": [
-            ("So, here it is again. The slope of a best-fit line is a rate — points "
-             "per extra hour — so times it by the hours to predict the extra points. "
+            ("So, here it is again. The slope of a best-fit line is a rate — here, points per extra hour of practice. Times it by the hours to predict the extra points. "
              "Never hand back one hour\'s worth, and never add the rate to the hours.",
              '[[scatter points="(2,11),(4,17),(6,26),(8,34),(10,41),(12,51)" fit="true" caption="the slope is a rate"]]'),
-            ("And that is a line that predicts: 4 per hour, times 2 hours, 8 points.",
+            ("And that is how the line predicts: 4 per hour, times 2 hours, 8 points.",
              '[[step eq="4 × 2 = 8"]]'),
         ],
         "bank": [
@@ -902,8 +909,7 @@ _PROBSTAT_U3 = [
              '[[bars data="predicted:30 | actual:36" caption="the line said 30, the student scored 36 — the gap between the bars"]]'),
         ],
         "teach": [
-            ("That is the method: the gap has a name, the residual — actual take away "
-             "predicted. If the line predicted 30 and the student scored 36, the "
+            ("That is the method: the residual is actual take away predicted, and the gap is its size. If the line predicted 30 and the student scored 36, the "
              "residual is 6 — the line was 6 points low. A dot above the line has a "
              "positive residual; a dot below has a negative one, and here we measure "
              "its size.",
@@ -919,9 +925,8 @@ _PROBSTAT_U3 = [
                         "was 27 points low.",
                         '[[numberline min="24" max="61" hops="29,56" caption="from 29 to 56 — a gap of 27"]][[step eq="56 − 29 = 27"]]'),
              "ask": {'a': 5, 'b': 47, 'op': 'resd'}},
-            {"worked": ("One more together. Predicted 44, actual 14: 44 take away 14 — the "
-                        "line guessed 30 points high.",
-                        '[[bars data="predicted:44 | actual:14" caption="the line said 44, the score was 14 — 30 high"]][[step eq="44 − 14 = 30"]]'),
+            {"worked": ("One more together. Predicted 44, actual 14: 14 take away 44 is minus 30, a residual of minus 30. Its size is 44 take away 14 — 30, so the line guessed 30 points high.",
+                        '[[bars data="predicted:44 | actual:14" caption="the line said 44, the score was 14 — 30 high"]][[step eq="14 − 44 = −30"]][[step eq="size: 44 − 14 = 30"]]'),
              "ask": {'a': 11, 'b': 47, 'op': 'resd'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -1258,7 +1263,7 @@ _PROBSTAT_U4 = [
             "board": '[[tape parts="120 asked|180 never asked" total="school of 300" caption="the blind spot"]]',
         },
         "recap": [
-            ("So, here it is again. A survey handed to one crowd can never hear from the rest. Take the ones asked away from the whole for the ones it could never reach. That sample is biased. Never hand back the crowd "
+            ("So, here it is again. A survey handed to one crowd, with the rest given no chance to be picked, can never hear from them. Take the ones asked away from the whole for the ones it could never reach. That sample is biased. Never hand back the crowd "
              "asked, and never everybody.",
              '[[tape parts="120 asked|180 never asked" total="school of 300" caption="the ones you never asked"]]'),
             ("And that is why everyone needs a chance: 300 take away 120 leaves 180 "
@@ -1301,8 +1306,7 @@ _PROBSTAT_U4 = [
              '[[machine input="60" rule="× 4" output="240" caption="halving the margin — 60 people in, four times as many out"]]'),
         ],
         "teach": [
-            ("That is the method: doubling the sample does NOT halve the margin. To "
-             "halve it you need four times as many people, so 60 becomes 240. Want "
+            ("That is the method: doubling the sample does NOT halve the margin. With everything else about the poll the same, halving it needs four times as many people, so 60 becomes 240. Want "
              "the margin halved again? Four times more still — 960 people to go from "
              "12 points to 3.",
              '[[bars data="sample:60 | halved once:240 | halved twice:960" caption="each halving of the margin needs four times the people"]][[step eq="60 × 4 = 240 halves it"]][[step eq="240 × 4 = 960 halves it again"]][[step eq="margin: 12 → 6 → 3 points"]]'),

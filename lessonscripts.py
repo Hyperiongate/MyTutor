@@ -2,6 +2,13 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-23  BUILD xu -- THE THIRD PROB/STAT SWEEP, PART ONE, the generator side (2 ops).
+#               resd: the ask's caption said "the gap between the bars is the residual" --
+#               a residual is signed (actual take away predicted) and the gap is its SIZE,
+#               which is what the lesson measures; the caption says "the size of the
+#               residual" now (a HIGH). sslp: the walk-back said "9 times 5" over a board
+#               that wrote 5 × 9; it says "5 times 9" -- the rate times the steps, in the
+#               board's order. One for one: the course list stays 40,495. PART 3np.
 #   2026-09-23  BUILD xs -- THE THIRD DIFFEQ SWEEP, the generator side (4 ops). conc: the
 #               ask opens "For the outflow of a mixing problem, the key number is the
 #               concentration" (was "the first number a mixing problem needs"), and the
@@ -5390,7 +5397,7 @@ def _sslp_board(p):
 def _sslp_worked(p):
     a, b = p["a"], p["b"]; t = a * b
     return (f"Here it is, step by step: the slope is a rate — {a} points EACH hour, so {b} hours "
-            f"brings {b} times {a}, {t} points. {a} alone is one hour's worth, and adding "
+            f"brings {a} times {b}, {t} points. {a} alone is one hour's worth, and adding "
             f"the two numbers treats a rate like a total.",
             f'[[graph lines="y={a}x" names="{a} points per hour" points="({b},{t})" range="0..{b + 2}" yrange="0..{t + 10}" caption="the line climbs {a} every hour — {b} hours up is {t} points"]]'
             f'[[step eq="{a} × {b} = {t}"]]')
@@ -5398,7 +5405,7 @@ def _sslp_worked(p):
 
 def _resd_board(p):
     a, b = p["a"], p["b"]
-    return (f'[[bars data="predicted:{a} | actual:{b}" caption="the line said {a}, the student scored {b} — the gap between the bars is the residual"]]'
+    return (f'[[bars data="predicted:{a} | actual:{b}" caption="the line said {a}, the student scored {b} — the gap between the bars is the size of the residual"]]'
             f'[[step eq="predicted {a} · actual {b}"]]'
             f'[[step eq="how far off = ?"]]')
 
