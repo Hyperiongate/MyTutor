@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (xy) 2026-09-24 -- "THE STUDENT SCROLLED AWAY" IS JUDGED AGAINST THE BOARD'S OWN TARGET.
+    The feed's scroll listener set stickBottom from the distance to the BOTTOM (ay); under
+    ir a tutor turn anchors at the TOP, so any scroll event that was not ours -- the browser
+    re-clamping scrollTop when an earlier block folded away -- latched it false and every
+    later scrollFeed did nothing: the question landed 700px below the fold (Jim's twice-
+    reported flag, found by screencheck's new scripted-lane capture). One line here now:
+    stickBottom = feedIsFollowing() -- board.js decides, against feedAnchorTarget(). Same
+    line on practice.html and topic.html. PART 3nt.
     (xx) 2026-09-24 -- THE CHILD-MODE SKIN (gate build #7 from the 09-14 list). For Entry
     and Basic (body.elem-mode) and nobody else: ① a WARM BOARD -- board-theme.css paints
     the feed cream on the light board (the dark board is untouched); ② BIGGER TAP
@@ -2896,7 +2904,7 @@
 
     feed.addEventListener("scroll", () => {
       if (autoScroll) { autoScroll = false; return; }
-      stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
+      stickBottom = feedIsFollowing();   /* (xy) measured against the board's own target, not the bottom -- see board.js */
     });
 
     // Belt-and-suspenders: re-pin after ANY later size change (a diagram finishing layout, a

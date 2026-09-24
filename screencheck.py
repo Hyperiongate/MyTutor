@@ -2,6 +2,38 @@
 # screencheck.py  --  THE SCREEN AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xy -- THE TWO FLAGS NOBODY COULD SCREENSHOT (project 6 of the 09-14
+#               deep dive). Jim's corrections queue said "a board line below the fold"
+#               (twice, no screenshot survived) and "the graphic is half as big as it should
+#               be ... generally small, and inconsistent" (09-11). Both were closed as
+#               unmeasurable. Now they are measured, here, in the battery:
+#                 S8  the last line is on the screen -- after a turn lands, its last board
+#                     line ends inside the board's visible area and the answer buttons are
+#                     inside the window (FOLD_JS, measured at capture time).
+#                 S9  figure widths agree -- a LESSON-level check (LESSON_CHECKS, run_all):
+#                     within one lesson, figures of the same kind are drawn within 12% of one
+#                     width; a figure the board shrank on purpose (pu) is LOW and named as
+#                     such, an unexplained disagreement is MEDIUM. board.js stamps every
+#                     figure with data-kind so the reader never guesses.
+#               And a THIRD way to capture: --script LESSON|COURSE|all drives an AUTHORED
+#               lesson through the real scripted player (capture_script): the engine's own
+#               walk (script_walk -- pairs right, one miss, right to the end; no model) is
+#               served from a stub, the page plays every beat for real, and Playwright's
+#               clock runs the reading floor through instantly, so a lesson captures in
+#               about 50 s. The live-tutor capture (--render) is unchanged.
+#               What the first survey found, and this build fixed in board.js:
+#                 - fitTurnToBoard summed svg.offsetHeight (undefined on an SVG): its factor
+#                   was NaN and every over-tall turn collapsed its figure to the 0.35 floor.
+#                   An 18px overage took an 1100px chart to 385px. That IS "half as big".
+#                 - the pages' scroll listeners judged "scrolled away" by distance from the
+#                   BOTTOM, which under ir's top-anchored turns is always far, so one scroll
+#                   event that was not ours (the fold re-clamping scrollTop) latched
+#                   stickBottom false and the next question landed 700px below the fold.
+#                   That IS "a board line below the fold" (geo-u1-when-lines-cross, 4 turns).
+#               Also: real_csp reads the literal with Python's parser, so a quoted phrase
+#               inside a comment no longer glues an invalid source into the served header
+#               (every harness run since vj logged one, and S7 reported it as the app's).
+#               _serve_static's socket is closed after a capture (several in one process).
 #   2026-08-17  BUILD hb -- THE AUDITOR STOPS WATCHING ONE PAGE IN FIVE. capture_render
 #               gained page_name= and a PAGE_PROFILES table (endpoint + how to get past
 #               the entry screen); it now drives session.html, topic.html AND
@@ -132,12 +164,16 @@ class Snapshot(object):
         self.overflow    = list(d.get("overflow") or [])    # [{el, scroll, client}] measured
         self.console     = list(d.get("console") or [])     # [{level, text}] captured
         self.png         = d.get("png", "")
+        # (xy, 2026-09-24) THE TWO FLAGS NOBODY COULD SCREENSHOT -- measured at capture time
+        self.fold        = dict(d.get("fold") or {})        # feed/turn geometry, see FOLD_JS
+        self.figures     = list(d.get("figures") or [])     # [{kind, width, height, shrunk, host}]
 
     def to_dict(self):
         return {"turn": self.turn, "name": self.name, "reply_raw": self.reply_raw,
                 "bubble_html": self.bubble_html, "board_html": self.board_html,
                 "rail": self.rail, "overflow": self.overflow,
-                "console": self.console, "png": self.png}
+                "console": self.console, "png": self.png,
+                "fold": self.fold, "figures": self.figures}
 
     @property
     def screen_html(self):
@@ -466,6 +502,99 @@ def check_s7_the_console_is_clean(snap):
     return out
 
 
+def check_s8_the_last_line_is_on_the_screen(snap):
+    """S8 -- THE FIRST FLAG NOBODY COULD SCREENSHOT (build xy, 2026-09-24). Jim's
+    corrections queue said "a board line below the fold" twice, no screenshot survived,
+    and the 09-14 handoff closed it with: the right answer is structural -- teach the
+    screen auditor to fail a board whose last line lands below the visible area.
+
+    Measured at capture time (FOLD_JS), after the turn has fully landed and the board
+    has done its own placing (ir: a turn starts at the top; ns: the view follows the
+    pen; pu: an over-tall turn's figure is shrunk to fit). The turn is everything the
+    tutor put on the board since the student last spoke. Two things must be true when
+    the student is asked to act:
+      - the turn's LAST line ends inside the board's visible area (turn_bottom <=
+        feed_bottom, 2px of grace), and
+      - the tap buttons, if any, are inside the window (choices_bottom <= window_h).
+    A line the child would have to scroll to is the defect, whatever put it there."""
+    out = []
+    f = snap.fold or {}
+    if not f:
+        return out
+    try:
+        turn_bottom, feed_bottom = float(f.get("turn_bottom", 0)), float(f.get("feed_bottom", 0))
+        feed_top = float(f.get("feed_top", 0))
+    except (TypeError, ValueError):
+        return out
+    if feed_bottom and turn_bottom > feed_bottom + 2:
+        out.append(Finding(
+            "S8 the last line is on the screen", SEV_HIGH, snap.turn,
+            "The turn's last board line ends %dpx below the visible board (turn %d-%d px, "
+            "board %d-%d px) -- the student has to scroll to see it." % (
+                round(turn_bottom - feed_bottom), round(float(f.get("turn_top", 0))),
+                round(turn_bottom), round(feed_top), round(feed_bottom)),
+            str(f.get("last_text", ""))[:220]))
+    try:
+        cb, wh = f.get("choices_bottom"), f.get("window_h")
+        if cb is not None and wh and float(cb) > float(wh) + 2:
+            out.append(Finding(
+                "S8 the last line is on the screen", SEV_HIGH, snap.turn,
+                "The answer buttons end %dpx below the window." % round(float(cb) - float(wh)),
+                str(f.get("choices_text", ""))[:220]))
+    except (TypeError, ValueError):
+        pass
+    return out
+
+
+FIG_WIDTH_TOLERANCE = 0.12    # S9: same kind, same lesson -> widths within 12% of each other
+
+
+def check_s9_figure_widths_agree(snaps):
+    """S9 -- THE SECOND FLAG (build xy). Jim, 09-11: the board's figures are "generally
+    small, and inconsistent" -- "the graphic is half as big as it should be" on the ask.
+    Build pc gave every kind one display rule and vk made the words fit; what nobody could
+    see was the SAME figure drawn at two sizes inside ONE lesson (a chart full-width on
+    the teach beat, then inside a step-card cell on the ask). This is a LESSON-level
+    check -- it reads every turn's figures together -- and it is by KIND: a number line
+    and a pie are meant to differ (their aspect ratios do); two number lines in one lesson
+    are not. Widths within FIG_WIDTH_TOLERANCE agree. A figure the board shrank on purpose
+    to keep the turn on the screen (pu, data-pu-maxw) is named as such in the evidence,
+    because that is the "half as big" the student sees, and its cause."""
+    out = []
+    by_kind = {}
+    for s in snaps:
+        for fig in (s.figures or []):
+            kind = str((fig or {}).get("kind") or "")
+            try:
+                w = float(fig.get("width") or 0)
+            except (TypeError, ValueError):
+                continue
+            if not kind or w <= 0:
+                continue
+            by_kind.setdefault(kind, []).append((s.turn, w, bool(fig.get("shrunk")), str(fig.get("host") or "")))
+    for kind, rows in sorted(by_kind.items()):
+        ws = [w for _t, w, _sh, _h in rows]
+        lo, hi = min(ws), max(ws)
+        if hi <= 0 or (hi - lo) / hi <= FIG_WIDTH_TOLERANCE:
+            continue
+        small = min(rows, key=lambda r: r[1])
+        big = max(rows, key=lambda r: r[1])
+        # A figure the board shrank ON PURPOSE (pu: the turn would not fit the board
+        # otherwise) is a known cause with a known floor: LOW, and the evidence says so.
+        # A disagreement with NO shrink behind it is the unexplained kind -- a figure in
+        # a narrower host, a cap that differs by path -- and that is MEDIUM.
+        sev = SEV_LOW if small[2] else SEV_MED
+        out.append(Finding(
+            "S9 figure widths agree", sev, small[0],
+            "The %s is drawn %dpx wide on turn %d and %dpx wide on turn %d (%d%% apart) -- "
+            "one lesson, one size%s." % (kind, round(small[1]), small[0], round(big[1]), big[0],
+                                          round((hi - lo) / hi * 100),
+                                          " (the small one was shrunk to fit its turn)" if small[2] else ""),
+            "; ".join("turn %d: %dpx%s%s" % (t, round(w), " (shrunk to fit the turn)" if sh else "",
+                                              " in %s" % h if h else "") for t, w, sh, h in rows)[:220]))
+    return out
+
+
 CHECKS = [
     check_s1_mixed_variable_styling,
     check_s2_figure_names_what_the_words_name,
@@ -474,6 +603,11 @@ CHECKS = [
     check_s5_caption_does_not_answer,
     check_s6_nothing_is_clipped,
     check_s7_the_console_is_clean,
+    check_s8_the_last_line_is_on_the_screen,
+]
+# (xy) checks that read a whole LESSON -- every snapshot together -- not one turn
+LESSON_CHECKS = [
+    check_s9_figure_widths_agree,
 ]
 
 
@@ -504,6 +638,13 @@ def run_all(snaps):
                 continue
             seen.add(key)
             out.append(f)
+    # (xy) the lesson-level checks, reported once each, never fatal
+    for fn in LESSON_CHECKS:
+        try:
+            out.extend(fn(list(snaps)) or [])
+        except Exception as exc:  # noqa: BLE001
+            out.append(Finding(fn.__name__, SEV_LOW, 0,
+                               "check raised %s: %s" % (type(exc).__name__, exc), ""))
     return out
 
 
@@ -580,7 +721,20 @@ def real_csp(root=None):
         if not m:
             return ""
         # The literal is a run of adjacent quoted strings with comments between them.
-        return "".join(re.findall(r'"([^"]*)"', m.group(1)))
+        # (xy, 2026-09-24) Python's own parser reads it, so a quoted phrase INSIDE a
+        # comment ("media-src 'self' data:" in vj's note) is not glued into the header.
+        # The regex it replaces served every harness run since 09-11 a policy reading
+        # `media-src 'self' data:media-src 'self' data: blob:` -- an invalid source that
+        # Chromium logged on every turn, and S7 dutifully reported as the app's fault.
+        try:
+            import ast as _ast
+            val = _ast.literal_eval("(" + m.group(1) + "\n)")
+            if isinstance(val, str):
+                return val
+        except Exception:  # noqa: BLE001 -- fall back to the old reading
+            pass
+        body = re.sub(r"(?m)^\s*#.*$", "", m.group(1))
+        return "".join(re.findall(r'"([^"]*)"', body))
     except Exception:  # noqa: BLE001 -- no header is survivable; a crash here is not
         return ""
 
@@ -762,6 +916,270 @@ def capture_render(replies, course="geometry", static_dir=None, port=8731,
             browser.close()
     finally:
         srv.shutdown()
+        try:
+            srv.server_close()      # (xy) free the port: several captures in one process
+        except Exception:  # noqa: BLE001
+            pass
+    return snaps
+
+
+# =============================================================================
+# (xy, 2026-09-24) THE SCRIPTED LANE -- where the child's minutes are
+# =============================================================================
+# Every capture above pushes a KNOWN reply through the live-tutor door (/api/chat). The
+# two flags this build teaches the auditor -- a line below the fold, a figure drawn at
+# two sizes -- were raised on AUTHORED lessons, and the scripted player is a different
+# code path (scrPlay, beat by beat, its own scrolling). So the auditor now drives that
+# lane too: the engine itself (lessonscripts, no model, no network) walks the lesson the
+# way coursesweep's transcript does -- the pairs right, the first practice problem missed
+# once, then right to the streak, the reason, the end -- and each turn's steps are served
+# to the real page from a stub. The page plays them for real: board.js draws, ir/ns/pu
+# place, and FOLD_JS measures what the student would see.
+#
+# Playwright's clock is installed on the page so the reading floor (2.6 s a beat, 360 ms
+# a word) is run through instantly: a 30-beat lesson captures in seconds, not minutes,
+# and the measurement is unchanged because the placing is rAF/reflow, not time.
+FOLD_JS = """() => {
+  const feed = document.getElementById('feed');
+  if (!feed) return {};
+  const fr = feed.getBoundingClientRect();
+  const kids = Array.from(feed.children).filter(n => n.id !== 'feedPad');
+  // the turn: everything after the student's last bubble (or the whole board)
+  let start = 0;
+  for (let i = kids.length - 1; i >= 0; i--) {
+    if (kids[i].classList && kids[i].classList.contains('student')) { start = i + 1; break; }
+  }
+  const turn = kids.slice(start).filter(n => !(n.classList && n.classList.contains('choicerow')));
+  let top = null, bottom = null, lastText = '';
+  turn.forEach(n => {
+    const r = n.getBoundingClientRect();
+    if (!r.height) return;
+    if (top === null || r.top < top) top = r.top;
+    if (bottom === null || r.bottom > bottom) { bottom = r.bottom; }
+    const t = (n.innerText || '').replace(/\\s+/g, ' ').trim();
+    if (t) lastText = t.slice(-120);
+  });
+  const row = document.querySelector('.choicerow');
+  const rr = row ? row.getBoundingClientRect() : null;
+  return {
+    feed_top: fr.top, feed_bottom: fr.bottom, feed_h: feed.clientHeight,
+    scroll_top: feed.scrollTop, scroll_h: feed.scrollHeight,
+    turn_top: top, turn_bottom: bottom, turn_blocks: turn.length, last_text: lastText,
+    choices_bottom: rr ? rr.bottom : null, choices_text: row ? (row.innerText || '').slice(0, 120) : '',
+    window_h: window.innerHeight, window_w: window.innerWidth
+  };
+}"""
+
+FIGURES_JS = """() => {
+  const feed = document.getElementById('feed');
+  if (!feed) return [];
+  const kids = Array.from(feed.children).filter(n => n.id !== 'feedPad');
+  let start = 0;
+  for (let i = kids.length - 1; i >= 0; i--) {
+    if (kids[i].classList && kids[i].classList.contains('student')) { start = i + 1; break; }
+  }
+  const out = [];
+  kids.slice(start).forEach(n => {
+    (n.querySelectorAll ? n.querySelectorAll('.mfig') : []).forEach(m => {
+      const svg = m.querySelector('svg'); if (!svg) return;
+      const r = svg.getBoundingClientRect();
+      const host = m.closest('.stepcell, .stepcard, .worklist, .mblock');
+      out.push({ kind: m.getAttribute('data-kind') || '', width: Math.round(r.width), height: Math.round(r.height),
+                 shrunk: svg.hasAttribute('data-pu-maxw'), host: host ? host.className.split(' ')[0] : '' });
+    });
+  });
+  return out;
+}"""
+
+
+def script_walk(lesson, L=None):
+    """The engine's own walk of one lesson, as the page would receive it: a list of
+    turns, each (student_text_or_None, steps) where steps are the CLIENT shape main.py's
+    _script_clean sends (kind, spoken, board, beat / choices, tap_only, guided, reason /
+    mastered, graceful, next_id, next_topic, choice). Same path as coursesweep's
+    transcript: pairs right, the first practice problem missed ONCE (so the scripted
+    second explanation is rendered too -- never the AI), then right to the end. A table
+    lesson shows its first six facts. No model, no network, no main.py."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    st = L.start(lesson, seed=20260924)
+
+    def clean(steps):
+        out = []
+        for s in steps:
+            c = {"kind": s["kind"], "spoken": s.get("spoken", ""), "board": s.get("board", "")}
+            if s["kind"] == "say":
+                try:
+                    c["beat"] = s.get("beat") or L.beat_of(lesson, c["spoken"])
+                except Exception:  # noqa: BLE001
+                    c["beat"] = s.get("beat") or ""
+            if s["kind"] == "ask":
+                c["choices"] = s.get("choices", "")
+                c["tap_only"] = bool(s.get("tap_only"))
+                c["guided"] = bool(s.get("guided"))
+                c["reason"] = bool(s.get("reason"))
+            if s["kind"] == "end":
+                c["mastered"] = bool(s.get("mastered"))
+                c["graceful"] = bool(s.get("graceful"))
+                c["next_id"], c["next_topic"], c["choice"] = "", "", False
+            if s["kind"] == "intervene":
+                continue            # the walk never reaches the model; a resume follows
+            out.append(c)
+        return out
+
+    turns = []
+    out, st = L.step(lesson, st, ("begin",))
+    turns.append((None, clean(out)))
+    missed, facts = False, 0
+    for _ in range(200):
+        if st.get("finished"):
+            break
+        pend = st.get("pending") or {}
+        if pend.get("reason"):
+            reason = (lesson.get("explain") or {}).get("answer", "")
+            out, st = L.step(lesson, st, ("answer", reason))
+            turns.append((reason, clean(out)))
+            continue
+        p = pend.get("problem")
+        if p is None:
+            break
+        if st.get("phase") == "table":
+            facts += 1
+            if facts > 6:
+                break
+        right = L.ans(p)
+        if (st.get("phase") == "practice" and not missed and not pend.get("guided")
+                and L._worked_for(p) is not None):
+            missed = True
+            wrong = (right or 0) + 777
+            out, st = L.step(lesson, st, ("answer", wrong))
+            steps = list(out)
+            if any(x.get("kind") == "intervene" for x in out):
+                out2, st = L.step(lesson, st, ("resume",))
+                steps += list(out2)
+            turns.append((str(wrong), clean(steps)))
+            continue
+        out, st = L.step(lesson, st, ("answer", right))
+        turns.append((str(right), clean(out)))
+    return turns
+
+
+def capture_script(lesson_id, static_dir=None, port=8741, shots_dir=None,
+                   viewport=(1280, 900), max_turns=60, L=None):
+    """Drive ONE authored lesson through the real scripted player and snapshot every
+    turn as the student is asked to act. Requires Playwright. Returns [Snapshot]."""
+    from playwright.sync_api import sync_playwright
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    lesson = L.LESSON_BY_ID[lesson_id]
+    course = lesson["course"]
+    turns = script_walk(lesson, L)
+    static_dir = static_dir or os.path.join(HERE, "static")
+    root = os.path.dirname(os.path.abspath(static_dir))
+    state = dict(DEFAULT_SESSION_STATE)
+    state["history"] = []
+    srv = _serve_static(root, port, csp=real_csp(root))
+    snaps = []
+    cursor = {"i": 0}
+
+    def _json(route, obj, status=200):
+        route.fulfill(status=status, content_type="application/json", body=json.dumps(obj))
+
+    def on_start(route):
+        cursor["i"] = 1
+        _json(route, {"ok": True, "lesson": lesson["topic"], "id": lesson_id,
+                      "steps": turns[0][1], "practice": {"phase": "teach", "run": 0, "need": 3, "on": False}})
+
+    def on_answer(route):
+        i = cursor["i"]
+        if i < len(turns):
+            cursor["i"] = i + 1
+            _json(route, {"ok": True, "steps": turns[i][1]})
+        else:
+            _json(route, {"ok": True, "steps": [{"kind": "end", "spoken": "", "board": "", "mastered": True,
+                                                "graceful": True, "next_id": "", "next_topic": "", "choice": False}]})
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(args=["--no-sandbox"])
+            page = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+            console = []
+            page.on("console", lambda m: console.append({"level": m.type, "text": m.text}))
+            page.on("pageerror", lambda e: console.append({"level": "pageerror", "text": str(e)[:400]}))
+            page.route("**/api/session/**", lambda r: _json(r, state))
+            page.route("**/api/script/lessons**", lambda r: _json(r, {"ok": True, "lessons": [
+                {"id": lesson_id, "topic": lesson["topic"], "unit": lesson.get("unit", 1),
+                 "course": course, "course_title": course}]}))
+            page.route("**/api/script/start**", on_start)
+            page.route("**/api/script/answer**", on_answer)
+            page.route("**/api/script/warm**", lambda r: _json(r, {"ok": True, "lines": []}))
+            page.route("**/api/script/intervene**", lambda r: _json(r, {"ok": True, "steps": []}))
+            page.route("**/api/chat**", lambda r: _json(r, {"reply": ""}))
+            for stub in ("**/api/voice-status**", "**/api/transcribe**", "**/api/sprint/**",
+                         "**/api/tour-seen**", "**/api/client-error**", "**/api/streak**"):
+                page.route(stub, lambda r: _json(r, {}))
+            page.route("**/api/speak**", lambda r: r.fulfill(status=200, content_type="audio/mpeg", body=b""))
+            page.clock.install()
+            page.goto("http://127.0.0.1:%d/%s/session.html?code=SCREENCHECK&course=%s"
+                      % (port, os.path.basename(static_dir), course), wait_until="load")
+            STUB = "() => { window.speak = function(){ return Promise.resolve(); }; }"
+            page.evaluate(STUB); page.clock.run_for(800); page.evaluate(STUB)
+            page.evaluate("""() => { const g=document.getElementById('welcomeGo');
+              if (g && g.offsetParent!==null) g.click();
+              document.querySelectorAll('.welcome.show').forEach(w=>w.classList.remove('show')); }""")
+
+            def settle():
+                """Run the clock until the page waits for the student: an ask on screen
+                (SCR.pending, not busy), a check/ready gate (answered here with its first
+                label), a Next pacer (clicked), or the lesson over. Returns the reason."""
+                for _ in range(400):
+                    page.clock.run_for(350)
+                    st = page.evaluate("""() => { const S = (typeof SCR !== 'undefined') ? SCR : null;
+                        return { on: !!(S && S.on), pending: !!(S && S.pending),
+                        busy: (typeof busy !== 'undefined') ? !!busy : false, check: !!(S && S.check),
+                        next: Array.from(document.querySelectorAll('.choicerow button')).some(b => /Next/.test(b.textContent)),
+                        queue: (S && S.queue) ? S.queue.length : -1 }; }""")
+                    if st["check"]:
+                        page.evaluate("() => { const c = (typeof SCR !== 'undefined') ? SCR.check : null; if (c) c.done(c.labels[0]); }")
+                        continue
+                    if st["next"]:
+                        page.evaluate("""() => { const b = Array.from(document.querySelectorAll('.choicerow button')).find(x => /Next/.test(x.textContent)); if (b) b.click(); }""")
+                        continue
+                    if st["pending"] and not st["busy"]:
+                        return "ask"
+                    if not st["on"] and not st["busy"] and st["queue"] == 0:
+                        return "done"
+                return "stuck"
+
+            for i in range(max_turns):
+                why = settle()
+                page.clock.run_for(900)         # let the .pop animation and the rAF placing land
+                data = page.evaluate(SNAPSHOT_JS)
+                data["overflow"] = page.evaluate(OVERFLOW_JS)
+                data["fold"] = page.evaluate(FOLD_JS)
+                data["figures"] = page.evaluate(FIGURES_JS)
+                data["console"] = console[:]
+                del console[:]
+                data["turn"], data["name"] = i + 1, "%s · turn %d (%s)" % (lesson_id, i + 1, why)
+                data["reply_raw"] = " | ".join(x.get("spoken", "") for x in turns[min(i, len(turns) - 1)][1])
+                if shots_dir:
+                    os.makedirs(shots_dir, exist_ok=True)
+                    shot = os.path.join(shots_dir, "%s_turn%02d.png" % (lesson_id, i + 1))
+                    page.screenshot(path=shot)
+                    data["png"] = shot
+                snaps.append(Snapshot(data))
+                if why != "ask" or cursor["i"] >= len(turns):
+                    break
+                # the student answers: the walk decided what; the stub serves the next turn
+                answer = turns[cursor["i"]][0] or "ok"
+                page.evaluate("(a) => sendToTutor(a)", answer)
+            browser.close()
+    finally:
+        srv.shutdown()
+        try:
+            srv.server_close()      # (xy) free the port: several captures in one process
+        except Exception:  # noqa: BLE001
+            pass
     return snaps
 
 
@@ -932,6 +1350,36 @@ FIXTURES = [
                                "text": "0 of 9 units mastered"}]}),
     ("S6 silent when everything fits", None,
      {"turn": 1, "overflow": [{"el": "#courseBar", "scroll": 1180, "client": 1280}]}),
+    # ---- S8: fires / silent (xy; the numbers are geo-u1-when-lines-cross turn 3, as captured) ----
+    ("S8 fires when the turn's last line is below the board", "S8 the last line is on the screen",
+     {"turn": 3, "fold": {"feed_top": 104, "feed_bottom": 691, "turn_top": -1034, "turn_bottom": 1389,
+                          "last_text": "the two sit on one straight line 180° − 70° = ?",
+                          "choices_bottom": 771, "window_h": 900}}),
+    ("S8 fires when the answer buttons are below the window", "S8 the last line is on the screen",
+     {"turn": 2, "fold": {"feed_top": 104, "feed_bottom": 691, "turn_top": 110, "turn_bottom": 620,
+                          "choices_bottom": 960, "window_h": 900, "choices_text": "110 70 20"}}),
+    ("S8 silent when the last line and the buttons are on the screen", None,
+     {"turn": 4, "fold": {"feed_top": 104, "feed_bottom": 691, "turn_top": -542, "turn_bottom": 627,
+                          "choices_bottom": 771, "window_h": 900}}),
+    ("S8 silent on a snapshot with no fold measured (an older capture)", None,
+     {"turn": 1, "bubble_html": "Let's begin."}),
+]
+
+# (xy) LESSON-level fixtures: a list of turns, judged together.
+LESSON_FIXTURES = [
+    ("S9 fires when one kind is drawn at two sizes with no shrink behind it", "S9 figure widths agree",
+     [{"turn": 1, "figures": [{"kind": "numberline", "width": 1190, "height": 216, "shrunk": False, "host": "mblock"}]},
+      {"turn": 7, "figures": [{"kind": "numberline", "width": 978, "height": 178, "shrunk": False, "host": "stepcell"}]}]),
+    ("S9 fires (LOW) when the small one was shrunk to fit its turn", "S9 figure widths agree",
+     [{"turn": 3, "figures": [{"kind": "angle", "width": 588, "height": 418, "shrunk": False, "host": "mblock"}]},
+      {"turn": 5, "figures": [{"kind": "angle", "width": 336, "height": 239, "shrunk": True, "host": "mblock"}]}]),
+    ("S9 silent when the widths agree within tolerance", None,
+     [{"turn": 1, "figures": [{"kind": "placevalue", "width": 1100, "height": 357, "shrunk": False, "host": "mblock"}]},
+      {"turn": 2, "figures": [{"kind": "placevalue", "width": 1045, "height": 339, "shrunk": True, "host": "mblock"}]}]),
+    ("S9 silent across DIFFERENT kinds (a number line and a pie are meant to differ)", None,
+     [{"turn": 1, "figures": [{"kind": "numberline", "width": 1190, "height": 216, "shrunk": False, "host": "mblock"}]},
+      {"turn": 2, "figures": [{"kind": "pie", "width": 658, "height": 416, "shrunk": False, "host": "mblock"}]}]),
+    ("S9 silent with no figures at all", None, [{"turn": 1}, {"turn": 2}]),
 ]
 
 
@@ -943,10 +1391,22 @@ def fixture_results():
     return out
 
 
+def lesson_fixture_results():
+    """(xy) the same shape for the LESSON-level checks, each fixture a list of turns."""
+    out = []
+    for name, expected, turns in LESSON_FIXTURES:
+        snaps = [Snapshot(d) for d in turns]
+        found = []
+        for fn in LESSON_CHECKS:
+            found.extend(fn(snaps) or [])
+        out.append((name, expected, found))
+    return out
+
+
 def self_test():
     """Run every fixture in both directions. Returns (passed, failed, [detail])."""
     passed, failed, detail = 0, 0, []
-    for name, expected, found in fixture_results():
+    for name, expected, found in fixture_results() + lesson_fixture_results():
         names = {f.check for f in found}
         if expected is None:
             if names:
@@ -1012,6 +1472,10 @@ def main(argv=None):
                          "'all' drives every page this module can drive -- build hb)")
     ap.add_argument("--live", metavar="BASE_URL",
                     help="drive a real lesson on a running site (needs playwright + a code)")
+    ap.add_argument("--script", metavar="LESSON", action="append",
+                    help="(xy) drive an AUTHORED lesson through the scripted player and judge "
+                         "every turn -- a lesson id, a course name (every lesson of it), or "
+                         "'all'. Repeatable. Needs playwright; no key, no server, no cost.")
     ap.add_argument("--code", default="", help="student code for --live")
     ap.add_argument("--course", default="geometry")
     ap.add_argument("--static", default=None, help="path to static/ (default: ./static)")
@@ -1019,7 +1483,7 @@ def main(argv=None):
     ap.add_argument("--out", default=None, help="write the markdown report here")
     args = ap.parse_args(argv)
 
-    if args.self_test or not (args.render or args.live):
+    if args.self_test or not (args.render or args.live or args.script):
         passed, failed, detail = self_test()
         print("screencheck self-test: %d passed, %d failed" % (passed, failed))
         for d in detail:
@@ -1031,7 +1495,22 @@ def main(argv=None):
               "capturing a fresh screen needs it.  pip install playwright && playwright install chromium")
         return 2
 
-    if args.render:
+    if args.script:
+        import lessonscripts as L  # noqa: N812
+        ids = []
+        for want in args.script:
+            if want == "all":
+                ids += [les["id"] for les in L.LESSONS]
+            elif want in L.LESSON_BY_ID:
+                ids.append(want)
+            else:
+                ids += [les["id"] for les in L.LESSONS if les["course"] == want]
+        snaps = []
+        for n, lid in enumerate(ids):
+            got = capture_script(lid, static_dir=args.static, shots_dir=args.shots, port=8741 + (n % 50))
+            snaps += got
+            print("# %s: %d turns" % (lid, len(got)), file=sys.stderr)
+    elif args.render:
         corpus = _load_corpus(args.render)
         pages = CAPTURE_PAGES if args.page == "all" else (args.page,)
         snaps = []

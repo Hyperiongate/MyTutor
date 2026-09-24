@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  APP_BUILD -> "2026-09-24xy-the-two-flags-nobody-could-screenshot". Project 6 of
+#               the 09-14 list: screencheck.py learns S8 (the turn's last line is on the
+#               screen) and S9 (figure widths within one lesson agree, by kind) and gains a
+#               scripted-lane capture (--script). Its first survey found and this build fixed,
+#               in board.js: the NaN figure shrink (svg.offsetHeight) behind "the graphic is
+#               half as big as it should be", and the scroll listener that judged "scrolled
+#               away" by the bottom under top-anchored turns, behind "a board line below the
+#               fold". No change in this file beyond the stamp. PART 3nt.
 #   2026-09-24  APP_BUILD -> "2026-09-24xx-the-child-mode-skin". The gate build from the
 #               09-14 list (#7): Entry and Basic get a warmer board, bigger tap buttons,
 #               THREE-IN-A-ROW DOTS during practice, and the helper text leaves the child's
@@ -9477,7 +9485,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-24xx-the-child-mode-skin"
+APP_BUILD = "2026-09-24xy-the-two-flags-nobody-could-screenshot"
 
 
 @app.get("/health")

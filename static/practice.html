@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (xy) 2026-09-24 -- the feed's scroll listener sets stickBottom = feedIsFollowing()
+    (board.js), judged against the board's own anchored target instead of the distance
+    to the bottom -- the cause of "a board line below the fold" under ir's top-anchored
+    turns. Same one-line change as session.html. PART 3nt.
     2026-09-08  OLDER NOTES (before 2026-09-01) live in
                 changelog/practice.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 60 entries; 13 stay here. Keep adding new notes HERE, newest at top; roll
@@ -1207,7 +1211,7 @@
 
     feed.addEventListener("scroll", () => {
       if (autoScroll) { autoScroll = false; return; }
-      stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
+      stickBottom = feedIsFollowing();   /* (xy) measured against the board's own target, not the bottom -- see board.js */
     });
 
     new MutationObserver(() => scrollFeed()).observe(feed, { childList: true, subtree: true });

@@ -2,6 +2,14 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xy -- PART 3nt, THE TWO FLAGS NOBODY COULD SCREENSHOT (project 6 of the
+#               09-14 deep dive; the seventh gate build). screencheck.py gains S8 (the turn's
+#               last line is on the screen), S9 (figure widths within one lesson agree, by
+#               kind) and a scripted-lane capture (--script). Pins both checks and their
+#               fixtures, the capture, real_csp's parser, and the two board.js causes the
+#               first survey found: the NaN shrink (svg.offsetHeight) and the scroll listener
+#               that judged "scrolled away" by the bottom under top-anchored turns. Drives the
+#               two lessons that showed them in a real browser.
 #   2026-09-24  BUILD xx -- PART 3ns, THE CHILD-MODE SKIN (project 7 of the 09-14 deep dive;
 #               the sixth gate build). Pins the four parts for Entry/Basic only: the warm
 #               board (board-theme.css, light board only, no drawing token re-pointed), the
@@ -23635,6 +23643,133 @@ def part3ns_the_child_mode_skin():
             check(NAME, False, f"the drive did not run: {exc}")
 
 
+def part3nt_the_two_flags_nobody_could_screenshot():
+    """PART 3nt (build xy, 2026-09-24) -- SCREENCHECK LEARNS THE TWO FLAGS NOBODY COULD
+    SCREENSHOT. Project 6 of the 09-14 deep dive, the seventh gate build. Jim's
+    corrections queue said "a board line below the fold" (twice; closed on 09-14 as
+    unmeasurable) and "the graphic is half as big as it should be ... generally small,
+    and inconsistent" (09-11). screencheck.py now measures both: S8 (the turn's last
+    line ends inside the visible board and the answer buttons inside the window) and
+    S9 (within one lesson, figures of the same kind are drawn within 12% of one width;
+    a shrink the board made on purpose is LOW and named, an unexplained disagreement
+    MEDIUM). To measure them on the lane the child uses, screencheck gained a scripted-
+    lane capture (--script): the engine's own walk served to the real page from a stub,
+    Playwright's clock running the reading floor through. The first survey found both
+    flags and their causes, fixed here in board.js: fitTurnToBoard summed
+    svg.offsetHeight (undefined on an SVG -> NaN -> every over-tall turn straight to the
+    0.35 floor: an 18px overage took an 1100px chart to 385px); and the pages' scroll
+    listeners judged "scrolled away" by distance from the BOTTOM, which under ir's
+    top-anchored turns is always far, so a fold's re-clamp latched stickBottom false and
+    the next question landed 700px below the fold. Both are pinned in source, proved by
+    fixtures in both directions, and driven in a real browser on the two lessons that
+    showed them."""
+    print("\nPART 3nt — the two flags nobody could screenshot (build xy)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    sc, bjs = rd("screencheck.py"), rd("static/board.js")
+
+    # ---- the auditor ----------------------------------------------------------------------
+    check("⭐ screencheck: S8 and S9 exist, S8 among the per-turn checks and S9 among the lesson-level ones",
+          "def check_s8_the_last_line_is_on_the_screen(snap):" in sc
+          and "def check_s9_figure_widths_agree(snaps):" in sc
+          and "    check_s8_the_last_line_is_on_the_screen,\n]" in sc
+          and "LESSON_CHECKS = [\n    check_s9_figure_widths_agree,\n]" in sc
+          and "for fn in LESSON_CHECKS:" in sc.split("def run_all(snaps):")[1][:1600], "")
+    check("  screencheck: S8 measures the turn's last line against the board and the buttons against the window",
+          "if feed_bottom and turn_bottom > feed_bottom + 2:" in sc
+          and "float(cb) > float(wh) + 2" in sc and "FOLD_JS = " in sc
+          and "turn_top: top, turn_bottom: bottom" in sc and "choices_bottom: rr ? rr.bottom : null" in sc, "")
+    check("  screencheck: S9 is by kind, within FIG_WIDTH_TOLERANCE, LOW for a shrink the board made on purpose",
+          "FIG_WIDTH_TOLERANCE = 0.12" in sc and "sev = SEV_LOW if small[2] else SEV_MED" in sc
+          and "shrunk: svg.hasAttribute('data-pu-maxw')" in sc
+          and "kind: m.getAttribute('data-kind') || ''" in sc, "")
+    check("⭐ screencheck: the scripted-lane capture exists -- the engine's walk, a stub, the real player, the clock",
+          "def script_walk(lesson, L=None):" in sc and "def capture_script(lesson_id," in sc
+          and "page.clock.install()" in sc and "page.clock.run_for(" in sc
+          and 'page.route("**/api/script/start**", on_start)' in sc
+          and 'page.route("**/api/script/answer**", on_answer)' in sc
+          and 'ap.add_argument("--script", metavar="LESSON", action="append",' in sc, "")
+    check("  screencheck: the walk never reaches the model (intervene steps dropped, a resume follows) and takes the client shape",
+          'if s["kind"] == "intervene":\n                continue' in sc
+          and 'c["beat"] = s.get("beat") or L.beat_of(lesson, c["spoken"])' in sc
+          and 'c["choices"] = s.get("choices", "")' in sc, "")
+    check("  screencheck: real_csp reads the literal with Python's parser (a quoted phrase in a comment is not a source)",
+          'val = _ast.literal_eval("(" + m.group(1) + "\\n)")' in sc, "")
+    try:
+        import screencheck as SC
+        csp = SC.real_csp(here)
+        check("  ...and the header it serves has one media-src, naming data: and blob:",
+              csp.count("media-src") == 1 and "media-src 'self' data: blob:" in csp and "data:media-src" not in csp, csp[:160])
+        check("  screencheck: the static server closes its socket after a capture", "srv.server_close()" in sc, "")
+        for name, expected, found in SC.fixture_results():
+            if not name.startswith("S8"):
+                continue
+            names = {f.check for f in found}
+            check(f"  fixture: {name}", (not names) if expected is None else (expected in names), sorted(names))
+        for name, expected, found in SC.lesson_fixture_results():
+            names = {f.check for f in found}
+            sevs = {f.severity for f in found}
+            ok_ = (not names) if expected is None else (expected in names)
+            if "LOW" in name:
+                ok_ = ok_ and sevs == {"LOW"}
+            elif expected is not None:
+                ok_ = ok_ and "MEDIUM" in sevs
+            check(f"  lesson fixture: {name}", ok_, (sorted(names), sorted(sevs)))
+    except Exception as exc:  # noqa: BLE001
+        bad("screencheck imports for 3nt", f"{type(exc).__name__}: {exc}")
+        return
+
+    # ---- board.js: the two causes, fixed --------------------------------------------------
+    _fit = bjs.split("function fitTurnToBoard(turnTop) {")[1].split("\nfunction ")[0]
+    check("⭐ board.js: fitTurnToBoard measures a figure with getBoundingClientRect, never svg.offsetHeight (NaN -> the floor)",
+          "var figBox = function (el) { var r = el.getBoundingClientRect(); return r ? r.height : 0; };" in _fit
+          and "figH += figBox(svgs[k]);" in _fit and "figH += figBox(svgs[k2]);" in _fit
+          and "svgs[k].offsetHeight" not in _fit and "svgs[k2].offsetHeight" not in _fit
+          and "if (!(figH > 0)) return;" in _fit, "")
+    check("  board.js: the fitter's floor, restore and iteration are untouched (pu)",
+          "var FIG_FIT_MIN = 340;" in bjs and "svgs[j].style.maxWidth = o" in bjs and "pass < 3" in _fit
+          and "if (over <= 1) return;" in _fit, "")
+    check("⭐ board.js: the anchored target is computed in ONE place and the scroll listener asks the same question",
+          "function feedAnchorTarget() {" in bjs
+          and "return Math.max(0, turnTop - 6, natural - feed.clientHeight);" in bjs.split("function feedAnchorTarget() {")[1][:600]
+          and "const target = feedAnchorTarget();" in bjs.split("function scrollFeed() {")[1][:2600]
+          and "function feedIsFollowing() {" in bjs
+          and "return Math.abs(feed.scrollTop - t) < 48;" in bjs
+          and "return (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;" in bjs, "")
+    check("  board.js: a scroll event that lands while the board is placing the view is not the student scrolling away",
+          "let _feedPlacing = false;" in bjs and "_feedPlacing = true;\n  requestAnimationFrame(() => {\n    _feedPlacing = false;" in bjs
+          and "if (_feedPlacing) return true;" in bjs.split("function feedIsFollowing() {")[1][:200], "")
+    for page in ("session.html", "practice.html", "topic.html"):
+        src = rd("static/" + page)
+        check(f"  {page}: the scroll listener sets stickBottom from feedIsFollowing(), after ay's latch",
+              "if (autoScroll) { autoScroll = false; return; }\n      stickBottom = feedIsFollowing();" in src
+              and "stickBottom = (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;" not in src, "")
+    check("  board.js: every figure carries its kind (showFig and showGeo)",
+          bjs.count('wrap.setAttribute("data-kind", String(kind || ""));') == 2, "")
+
+    # ---- the two lessons that showed the flags, driven for real -------------------------------
+    NAME = "⭐ LIVE: geo-u1-when-lines-cross and basic-u1-place-value-to-1000 drive clean -- no line below the fold, no unexplained figure size, no chart at the floor"
+    if dep_gate(NAME, "playwright", "the scripted lane is driven in a real browser"):
+        try:
+            import screencheck as SC
+            probs, widths = [], []
+            for n, lid in enumerate(("geo-u1-when-lines-cross", "basic-u1-place-value-to-1000")):
+                snaps = SC.capture_script(lid, static_dir=_os.path.join(here, "static"), port=8791 + n)
+                if len(snaps) < 6:
+                    probs.append(f"{lid}: only {len(snaps)} turns captured")
+                for f in SC.run_all(snaps):
+                    if f.check.startswith("S8") or (f.check.startswith("S9") and f.severity != "LOW") or f.check.startswith("S7"):
+                        probs.append(f"{lid}: {f.check} -- {f.summary[:140]}")
+                if lid.startswith("basic"):
+                    widths = [fig["width"] for sn in snaps for fig in sn.figures if fig.get("kind") == "placevalue"]
+            check(NAME, not probs, probs[:4])
+            check("  ...and every place-value chart in that lesson is drawn wide (>= 1000px at 1280x900), none at the 340px floor",
+                  widths and min(widths) >= 1000, (min(widths) if widths else None, len(widths)))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -31041,7 +31176,7 @@ def part3fy_visible_without_moving_anything():
           and "fitTurnToBoard(turnTop);" in src,
           "anchoring can only choose WHICH half of an over-tall turn to hide")
     check("  ...and it runs BEFORE the anchor maths, not after",
-          src.index("fitTurnToBoard(turnTop);") < src.index("const target = Math.max("),
+          src.index("fitTurnToBoard(turnTop);") < src.index("const target = feedAnchorTarget();"),   # (xy) the target moved into feedAnchorTarget(); same order
           "shrinking after the scroll is set leaves the scroll wrong for one frame")
     check("⭐ the legibility floor is 340, not the 190 that crushed the number line",
           "FIG_FIT_MIN = 340" in src,
@@ -35171,7 +35306,7 @@ def part3im_basic_unit_one_to_the_shape():
     # ---- 6. dated notes -------------------------------------------------------------
     check("  the changed files carry dated sq notes",
           "2026-09-05  BUILD sq" in notes("lessonscripts.py")
-          and "BUILD sq" in notes("main.py") and "(build sq)" in bj[:3000]
+          and "BUILD sq" in notes("main.py") and "(build sq)" in notes("static/board.js")   # (xy) the header, not a 3,000-byte slice -- it slid past under xy's two notes
           and "2026-09-05  BUILD sq" in notes("static/math-figures.js") and "BUILD sq" in notes("tags.py")
           and "BUILD sq" in notes("tutor.py") and "2026-09-05 (sq)" in notes("static/script-board.js")
           and all("(sq) 2026-09-05" in notes(pg) for pg in ("static/session.html", "static/topic.html", "static/practice.html"))
@@ -50575,6 +50710,7 @@ def main():
     part3nq_the_third_algebra2_sweep()
     part3nr_the_third_probstat_sweep_part_two()
     part3ns_the_child_mode_skin()
+    part3nt_the_two_flags_nobody_could_screenshot()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

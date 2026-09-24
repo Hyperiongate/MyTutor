@@ -2,6 +2,26 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-24  BUILD xy -- THE BOARD LINE BELOW THE FOLD, FOUND AND FIXED. The pages'
+                 scroll listeners judged "the student scrolled away" by distance from the
+                 BOTTOM (ay), but since ir a turn anchors at the TOP -- so any scroll event
+                 that was not ours (the browser re-clamping when an earlier block folds
+                 away) latched stickBottom false and every later scrollFeed did nothing:
+                 the question landed 700px below the fold. feedAnchorTarget() is the one
+                 place the anchored target is computed (scrollFeed uses it too), and
+                 feedIsFollowing() -- within 48px of that target, or of the bottom in
+                 pin-bottom mode -- is what the three pages' listeners set stickBottom from.
+                 Found by screencheck's new scripted-lane capture (S8) on geo-u1-when-lines-
+                 cross, turns 3-7, the ones with a fold. Jim's twice-reported flag.
+     2026-09-24  BUILD xy -- THE FIGURE SAYS WHAT IT IS, AND THE SHRINK IS PROPORTIONAL AT
+                 LAST. (1) showFig and showGeo stamp the .mfig wrapper with data-kind="<kind>"
+                 so screencheck's S9 (figure widths within one lesson agree, by kind) can read
+                 a rendered board without guessing the kind from the SVG. (2) fitTurnToBoard
+                 (pu) summed svg.offsetHeight -- undefined on an SVG element -- so its factor
+                 was NaN and every over-tall turn, by 18px or 400px, collapsed its figure to
+                 the 0.35 floor: Jim's "half as big as it should be" and "inconsistent" sizes.
+                 It measures with getBoundingClientRect now and shrinks by exactly the
+                 overage. Found by the scripted-lane capture this build adds to screencheck.
      2026-09-24  BUILD xx -- THE CHILD-MODE SKIN'S TAP TARGETS. ensureChoicesCSS adds three
                  rules scoped to body.elem-mode (Entry and Basic, set by the pages): the
                  answer buttons grow to 72px tall / 26px type / a 14px gap. No other course
@@ -516,6 +536,7 @@ function spotlightBoard(id) {
 function showFig(kind, a) {
   const stage = feedBlock();
   const wrap = document.createElement("div"); wrap.className = "mfig pop";
+  wrap.setAttribute("data-kind", String(kind || ""));   // (xy) the figure says what it is -- screencheck S9 reads it
   wrap.innerHTML = (window.MathFigures ? window.MathFigures.svg(kind, a) : "");
   stage.appendChild(wrap);
   if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
@@ -524,6 +545,7 @@ function showFig(kind, a) {
 function showGeo(kind, a) {
   const stage = feedBlock();
   const wrap = document.createElement("div"); wrap.className = "mfig pop";
+  wrap.setAttribute("data-kind", String(kind || ""));   // (xy) the figure says what it is -- screencheck S9 reads it
   wrap.innerHTML = (window.GeoFigures ? window.GeoFigures.svg(kind, a) : "");
   stage.appendChild(wrap);
   if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
@@ -1512,9 +1534,18 @@ function fitTurnToBoard(turnTop) {
     var over = (natural - turnTop) - vh;
     if (over <= 1) return;                          // it fits: nothing to do
 
+    // (xy, 2026-09-24) ⚠️ AN <svg> HAS NO offsetHeight. That property belongs to
+    // HTMLElement; on an SVG element it is undefined, so every sum below was NaN, the
+    // `figH <= 0` guard let NaN through, the factor came out NaN, and `!(factor > 0)`
+    // sent EVERY over-tall turn -- 18px over or 400px over -- straight to the 0.35
+    // floor. That is Jim's "the graphic is half as big as it should be" (09-11) and the
+    // "inconsistent" sizes, root-caused by screencheck's scripted-lane capture: an 18px
+    // overage collapsed an 1100px place-value chart to 385px. getBoundingClientRect
+    // measures an SVG; the proportional shrink pu described now actually happens.
+    var figBox = function (el) { var r = el.getBoundingClientRect(); return r ? r.height : 0; };
     var figH = 0;
-    for (var k = 0; k < svgs.length; k++) figH += svgs[k].offsetHeight;
-    if (figH <= 0) return;                          // no picture to give: leave it alone
+    for (var k = 0; k < svgs.length; k++) figH += figBox(svgs[k]);
+    if (!(figH > 0)) return;                        // no picture to give: leave it alone
 
     // ⚠️ ONE PASS IS NOT ENOUGH, and the drive proved it: shrinking a figure reflows
     // everything under it, so the first factor is only an estimate (the first cut
@@ -1522,8 +1553,8 @@ function fitTurnToBoard(turnTop) {
     // us -- three passes is plenty and is bounded work.
     for (var pass = 0; pass < 3 && over > 1; pass++) {
       figH = 0;
-      for (var k2 = 0; k2 < svgs.length; k2++) figH += svgs[k2].offsetHeight;
-      if (figH <= 0) break;
+      for (var k2 = 0; k2 < svgs.length; k2++) figH += figBox(svgs[k2]);
+      if (!(figH > 0)) break;
       var factor = (figH - over) / figH;
       if (!(factor > 0)) factor = 0.35;             // take as much as the floor allows
       var moved = false;
@@ -1545,8 +1576,11 @@ function fitTurnToBoard(turnTop) {
   } catch (e) {}
 }
 
+let _feedPlacing = false;   // (xy) true between scrollFeed's call and its rAF: the board is about to place the view
 function scrollFeed() {
+  _feedPlacing = true;
   requestAnimationFrame(() => {
+    _feedPlacing = false;
     if (!stickBottom) return;
     if (lastTurnEl && lastTurnEl.isConnected) {
       // build ir (2026-08-19, Jim's ruling): a tutor turn ALWAYS starts at the top of
@@ -1570,7 +1604,9 @@ function scrollFeed() {
       // enough to keep the END of the content visible: top-anchored while the turn
       // fits, following the writing once it does not. The question lands last, so
       // the question is always on screen when it is asked.
-      const target = Math.max(0, turnTop - 6, natural - feed.clientHeight);
+      // (xy) the formula lives in feedAnchorTarget() now, so the scroll listener can
+      // ask the same question this code answers -- one place, never two.
+      const target = feedAnchorTarget();
       if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
       return;
     }
@@ -1579,6 +1615,54 @@ function scrollFeed() {
     const target = feed.scrollHeight;
     if (Math.abs(feed.scrollTop - target) > 1) { autoScroll = true; feed.scrollTop = target; }
   });
+}
+
+// (xy, 2026-09-24) WHERE THE BOARD ITSELF WOULD PUT THE VIEW -- the anchored target,
+// in ONE place: scrollFeed sets it, and feedIsFollowing() asks whether the view is
+// still there. Null when there is no anchored turn (pin-bottom mode).
+function feedAnchorTarget() {
+  if (!lastTurnEl || !lastTurnEl.isConnected) return null;
+  const pad = feedPadEl();
+  const turnTop = lastTurnEl.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop;
+  const natural = feed.scrollHeight - pad.offsetHeight;
+  return Math.max(0, turnTop - 6, natural - feed.clientHeight);
+}
+
+// (xy, 2026-09-24) ⭐ "THE STUDENT SCROLLED AWAY" IS MEASURED AGAINST THE BOARD'S OWN
+// TARGET, NOT AGAINST THE BOTTOM. The pages' scroll listeners used to set
+//     stickBottom = (scrollHeight - scrollTop - clientHeight) < 48
+// -- build ay's law for the pin-bottom board. Under ir a tutor turn anchors at the
+// TOP, with its board work and the blank pad below it, so the view is NEVER within
+// 48px of the bottom while a short turn is on screen. One scroll event that is not
+// ours -- the browser re-clamping scrollTop when an earlier block folds away
+// (supersedePrevious's "show the N earlier steps"), or its own scroll anchoring after
+// a reflow -- ran that line, read "far from the bottom", and latched stickBottom
+// false. From then on every scrollFeed returned early: the question the next beat
+// drew landed 700px below the fold, and the child saw three answer buttons under a
+// board with no question on it. screencheck's scripted-lane capture (S8) found it on
+// four turns of one Geometry lesson -- every turn with a fold. Jim reported it twice
+// in August ("a board line below the fold"), and nobody could screenshot it because
+// it needs a fold and a second scroll event in the same beat.
+// Now: following means "the view is where the board itself would put it" -- within
+// 48px of feedAnchorTarget() in anchored mode, within 48px of the bottom in
+// pin-bottom mode. A child who scrolls up to read is still left alone (they are far
+// from the target); a layout-caused scroll event that leaves the view at the target
+// is not a child scrolling away. ay's latch (autoScroll marks our own scrolls) is
+// untouched and still runs first.
+// ⚠️ AND THE PLACING WINDOW IS NOT THE CHILD'S. addBubble sets the new turn and
+// schedules scrollFeed's rAF; handleTags then folds the earlier blocks SYNCHRONOUSLY,
+// the browser re-clamps scrollTop and fires a scroll event BEFORE that rAF runs -- at
+// which moment the target is the new bubble's, far below a view that has not moved
+// yet. Judging that event would latch false and cancel the very move that was
+// coming (the geo-u1 drive showed exactly this on turns 4 and 6 after the first
+// fix). While a placing is pending, the view counts as following.
+function feedIsFollowing() {
+  if (_feedPlacing) return true;
+  try {
+    const t = feedAnchorTarget();
+    if (t !== null) return Math.abs(feed.scrollTop - t) < 48;
+  } catch (e) {}
+  return (feed.scrollHeight - feed.scrollTop - feed.clientHeight) < 48;
 }
 
 // build nr (2026-08-25): THE BOARD ANSWERS FOR ITS OWN SIZE. When the typed-answer
