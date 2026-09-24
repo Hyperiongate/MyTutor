@@ -1,5 +1,20 @@
 <!DOCTYPE html>
 <!--
+    (xx) 2026-09-24 -- THE CHILD-MODE SKIN (gate build #7 from the 09-14 list). For Entry
+    and Basic (body.elem-mode) and nobody else: ① a WARM BOARD -- board-theme.css paints
+    the feed cream on the light board (the dark board is untouched); ② BIGGER TAP
+    TARGETS -- board.js's ensureChoicesCSS grows .choicebtn to 72px under .elem-mode;
+    ③ THREE-IN-A-ROW DOTS -- #runDots in the chip row, rendered by renderRunDots() from
+    the server's `practice` field ({phase, run, need, on}) that now rides EVERY
+    /api/script/start and /api/script/answer response. Shown only while `on` (engine
+    phase "practice", lesson not finished): never in the pairs, the times-table pass or
+    the reason question, and never on the eight older courses. The count is the ENGINE'S
+    streak, read after the turn is graded -- never a page-side guess. ④ THE HELPER TEXT
+    LEAVES THE CHILD'S SCREEN: the "How to answer" line and the #hint sentence ("Your
+    turn -- tap the microphone...") are for the very first answer; sendToTutor() sets
+    body.elem-settled on the FIRST message of the visit, and CSS hides both from then
+    on. The tour, the welcome tip, the talk button's own label and the status line are
+    untouched -- and nothing here runs for Pre-Algebra and up. PART 3ns.
     2026-09-08  OLDER NOTES (before 2026-09-01) live in
                 changelog/session.html.md -- moved out on 2026-09-08 (build ui) VERBATIM,
                 125 entries; 17 stay here. Keep adding new notes HERE, newest at top; roll
@@ -708,6 +723,22 @@
     @keyframes chippulse { 0%, 100% { transform: scale(1); box-shadow: 0 3px 10px rgba(20,30,45,.07); }
       50% { transform: scale(1.07); box-shadow: 0 4px 16px rgba(91,91,214,.35); } }
     @media (max-width: 900px) { .chiprow { margin: 4px 12px 2px; } }
+    /* (xx) THREE-IN-A-ROW DOTS -- the elem-mode skin's run counter, in the chip row,
+       pushed to the right. Filled dots are the engine's streak; the label says what
+       they are for. Only ever shown for Entry/Basic during practice (renderRunDots). */
+    .rundots { display: inline-flex; align-items: center; gap: 7px; margin-left: auto;
+      padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--panel);
+      border: 1.5px solid var(--line); box-shadow: 0 3px 10px rgba(20,30,45,.07); }
+    .rundots[hidden] { display: none; }
+    .rundots .rd { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--accent);
+      background: transparent; transition: background .25s ease, transform .25s ease; }
+    .rundots .rd.on { background: var(--accent); transform: scale(1.12); }
+    .rundots .rd.on::after { content: "★"; display: block; color: var(--panel); font-size: 12px;
+      line-height: 15px; text-align: center; }
+    .rundots .rdlab { font-size: 13px; font-weight: 800; color: var(--ink); margin-left: 3px; }
+    .rundots.pulse { animation: chippulse .9s ease-in-out 2; }
+    /* (xx) THE HELPER TEXT LEAVES THE STUDENT'S SCREEN after the first answer of the visit. */
+    body.elem-mode.elem-settled .elem-hint, body.elem-mode.elem-settled #hint { display: none !important; }
 
     /* Today's goal banner (set once at the start of a lesson).
        build iq: needs BOTH .show (there is a goal) and .open (its chip was clicked). */
@@ -1269,6 +1300,11 @@
              student who never touches it. -->
         <button class="chip" id="boardChip" type="button" data-board-toggle aria-pressed="false">🟦 Dark board</button>
         <button class="chip" id="progChip" type="button" hidden aria-expanded="false">📊 Progress <span class="chipct" id="progChipCt"></span> <span class="chipcaret">▼</span></button>
+        <!-- (xx, 2026-09-24) the child-mode skin's three-in-a-row dots: Entry/Basic, practice only -->
+        <div class="rundots" id="runDots" hidden aria-live="polite" title="Three right answers in a row and the lesson is done">
+          <span class="rd" aria-hidden="true"></span><span class="rd" aria-hidden="true"></span><span class="rd" aria-hidden="true"></span>
+          <span class="rdlab" id="runDotsLab">3 in a row!</span>
+        </div>
       </div>
 
       <div class="goalbar" id="goalBar"><span class="gi">🎯</span><span class="gl">Today's goal</span><b id="goalText"></b></div>
@@ -1510,6 +1546,34 @@
       eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b> — or tap <b>Type my answer</b> and write it instead. The answer buttons work too!";
       composer.parentNode.insertBefore(eh, composer);
     }
+
+    // ===== (xx, 2026-09-24) THE ELEM-MODE SKIN (Entry/Basic): the run dots and the settled screen =====
+    // renderRunDots(pr) draws the server's `practice` field -- {phase, run, need, on} --
+    // and nothing else: the ENGINE's streak after the turn was graded. The dots are shown
+    // only for Entry/Basic (IS_ELEM) and only while `on`; every other case hides them, so
+    // a lesson that ends, a pass, a pair or a live-lane turn never leaves stale dots up.
+    // A newly filled dot pulses once, the way the progress chip does.
+    const runDots = el("runDots"), runDotsLab = el("runDotsLab");
+    let _runShown = -1;
+    function renderRunDots(pr) {
+      if (!runDots) return;
+      if (!IS_ELEM || !pr || !pr.on) { runDots.hidden = true; _runShown = -1; return; }
+      const need = Math.max(1, parseInt(pr.need, 10) || 3), run = Math.max(0, Math.min(need, parseInt(pr.run, 10) || 0));
+      const dots = runDots.querySelectorAll(".rd");
+      if (dots.length !== need) {
+        Array.prototype.forEach.call(dots, (d) => d.remove());
+        for (let i = 0; i < need; i++) { const d = document.createElement("span"); d.className = "rd"; d.setAttribute("aria-hidden", "true"); runDots.insertBefore(d, runDotsLab); }
+      }
+      Array.prototype.forEach.call(runDots.querySelectorAll(".rd"), (d, i) => d.classList.toggle("on", i < run));
+      if (runDotsLab) runDotsLab.textContent = run >= need ? (need + " in a row!") : (run + " of " + need + " in a row");
+      runDots.setAttribute("aria-label", run + " of " + need + " right in a row");
+      const was = _runShown; _runShown = run;
+      runDots.hidden = false;
+      if (was >= 0 && run > was) { runDots.classList.remove("pulse"); void runDots.offsetWidth; runDots.classList.add("pulse"); }
+    }
+    // elemSettle(): the first message of the visit has gone out -- the "How to answer"
+    // line and the #hint sentence have done their job and leave the student's screen.
+    function elemSettle() { if (IS_ELEM) document.body.classList.add("elem-settled"); }
 
     const planList = el("planList");
 
@@ -3850,6 +3914,7 @@
         if (!j.ok || !(j.steps || []).length) return false;
         SCR.on = true; SCR.id = j.id || les.id; SCR.lesson = j.lesson || les.topic;
         busy = true; setPhase("busy");
+        renderRunDots(j.practice);     /* (xx) off at a lesson's start; hides any dots a last lesson left */
         scrIngest(j.steps);
         return true;
       } catch (e) { return false; }
@@ -3905,7 +3970,8 @@
           busy = false; setPhase("ready"); setState("idle");   // the same question still stands
           return;
         }
-        if (!r.ok || !j.ok) { SCR.on = false; await runTutor(txt); return; }
+        if (!r.ok || !j.ok) { renderRunDots(null); SCR.on = false; await runTutor(txt); return; }
+        renderRunDots(j.practice);     /* (xx) the engine's run after THIS grade -- the three-in-a-row dots */
         if (j.streak) {
           /* (rr) the scripted lane's grade, read off the server's streak: up = right, reset = wrong.
              Rung BEFORE the chips re-render so the comparison sees the previous count. */
@@ -3925,7 +3991,7 @@
       } catch (e) {
         // The script could not be reached: the live tutor picks the turn up, so a
         // network hiccup costs a beat, never the lesson.
-        SCR.on = false; await runTutor(txt);
+        renderRunDots(null); SCR.on = false; await runTutor(txt);
       }
     }
 
@@ -3961,6 +4027,7 @@
       if (busy || paused) return;
       busy = true; setPhase("busy");
       addBubble("student", message);
+      elemSettle();                    /* (xx) the first answer has gone out: the helper text leaves the student's screen */
       // (pb) ONE DOOR, TWO GRADERS. While an authored lesson is running, the answer
       // is graded by CODE and the next beat is already written and recorded -- so
       // it arrives instantly. Everything else about this function is unchanged.

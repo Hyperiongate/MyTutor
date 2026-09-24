@@ -2,6 +2,10 @@
    board-theme.css  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-24  (build xx) THE WARM BOARD. A third block at the end: body.elem-mode (Entry
+                 and Basic) on the light board takes a cream feed and a warm border. The
+                 dark board and the eight other courses are untouched; no
+                 --bd-<hex> drawing token is re-pointed, so every figure paints as before.
      2026-09-01  (build rq) THE OTHER HALF OF THE DARK BOARD. rp tokenised the DRAWING files
                  but the pages' own <style> blocks still painted board content with literals
                  (tutor bubbles #f2f4ff, the folded-problem row, the balance tray, the
@@ -223,6 +227,20 @@
 .feed[data-board="dark"] .machine .mbox {
   --bd-e0392b: #e0392b; --bd-5b5bd6: #5b5bd6; --bd-0e9f6e: #0e9f6e;
   --ink: #26263a; --muted: #6b6f82;
+}
+
+/* ---- (xx, 2026-09-24) the WARM board: Entry and Basic, on the white board only ----
+   The child-mode skin. body.elem-mode is set by the lesson, practice and topic pages for
+   the two youngest courses; the feed there takes a warm cream instead of clinical white,
+   with a matching border. Scoped to the light board ONLY: a
+   child who picked the dark board keeps it exactly (the :not() guard), and every other
+   course is untouched because the class is never set for them. The drawing tokens are
+   NOT re-pointed -- figures, choices and cards paint exactly as on the white board, so
+   nothing a lesson draws changes; only the board under it does. */
+body.elem-mode .feed:not([data-board="dark"]) {
+  --bd-panel: #fff8e8;
+  --panel: #fff8e8; --line: #f1dfb6;
+  background: #fff8e8;
 }
 
 /* I did no harm and this file is not truncated. */

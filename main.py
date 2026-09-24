@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  APP_BUILD -> "2026-09-24xx-the-child-mode-skin". The gate build from the
+#               09-14 list (#7): Entry and Basic get a warmer board, bigger tap buttons,
+#               THREE-IN-A-ROW DOTS during practice, and the helper text leaves the child's
+#               screen after the first answer. Here: _script_practice(sess) reads the
+#               engine's own streak/phase and _with_practice attaches {"practice": {phase,
+#               run, need, on}} to EVERY /api/script/start and /api/script/answer response
+#               -- the two endpoints became thin wrappers (script_start ->
+#               _script_start_lesson, script_answer -> _script_answer_turn) so the field
+#               rides all nine returns from one line instead of nine. PART 3ns.
 #   2026-09-24  APP_BUILD -> "2026-09-24xw-the-third-probstat-sweep-part-two". The rest of
 #               the third Prob/Stat reading (26 findings on 36, 23 clean; the first sweep
 #               RESUMED in production under xu's rule). lessons/probstat.py (19 edits),
@@ -6063,6 +6072,13 @@ def _orientation_last(code: str, course: str, prev_id: str, last_at: str = ""):
 
 @app.post("/api/script/start")
 def script_start(body: ScriptStartIn):
+    """(xx) the endpoint is a wrapper: the lesson starts in _script_start_lesson
+    unchanged, and the practice dots (off, at a lesson's start) ride the response."""
+    resp = _script_start_lesson(body)
+    return _with_practice(resp, _SCRIPT_SESSIONS.get((body.code or "").strip()))
+
+
+def _script_start_lesson(body: ScriptStartIn):
     t0 = _time.monotonic()
     code = (body.code or "").strip()
     if not code:
@@ -6208,8 +6224,63 @@ def _script_streak(code: str, correct: bool):
         return None
 
 
+def _script_practice(sess):
+    """(xx, 2026-09-24) THE THREE-IN-A-ROW DOTS' ONE SOURCE. The child-mode skin shows
+    three dots during practice that fill as the run of right answers grows -- the
+    engine's own promise ("three right answers in a row and we're done", build ri)
+    made visible. This reads the engine's OWN counters after the turn is graded:
+      phase  the engine phase (teach / pair-0 / pair-1 / practice / table / explain)
+      run    state["streak"], the consecutive unaided right answers, capped at need
+      need   lessonscripts.ADVANCE_STREAK (3)
+      on     True while the streak gate is what the child is working toward --
+             phase "practice", lesson not finished -- and, once the run is FULL,
+             through the reason question and the mastered end, so the three lit
+             dots are on screen for the lesson's last words. Never for a
+             times-table lesson (the pass is a pass, not a streak -- sz), never in
+             the guided pairs, never on a still-learning end with a short run.
+    The session dict is the one the turn mutated in place, so it is read AFTER
+    grading even when _script_finish has already dropped it from the map.
+    Attached by the endpoint WRAPPERS below (script_start, script_answer), never
+    inside their bodies: script_answer leaves through nine returns, and a field
+    added to each is the drift script_warm's note warns about. Fail-open: any
+    error returns None and the page simply shows no dots."""
+    try:
+        state = (sess or {}).get("state") or {}
+        need = int(lessonscripts.ADVANCE_STREAK)
+        run = max(0, min(int(state.get("streak", 0) or 0), need))
+        phase = str(state.get("phase") or "")
+        table = ((sess or {}).get("lesson") or {}).get("mastery") == "table"
+        finished = bool(state.get("finished"))
+        on = (not table) and (
+            (phase == "practice" and (not finished or run >= need))
+            or (phase == "explain" and run >= need))
+        return {"phase": phase, "run": run, "need": need, "on": on}
+    except Exception as exc:  # noqa: BLE001 -- the dots must never cost a turn
+        print(f"[script] practice dots skipped (non-fatal): {exc}")
+        return None
+
+
+def _with_practice(resp, sess):
+    """(xx) attach the practice dots to a script response, in place. One line, one
+    place, every return path; a response that is not a dict is handed back as is."""
+    if isinstance(resp, dict):
+        pr = _script_practice(sess)
+        if pr is not None:
+            resp["practice"] = pr
+    return resp
+
+
 @app.post("/api/script/answer")
 def script_answer(body: ScriptAnswerIn):
+    """(xx) the endpoint is a wrapper: the graded turn runs in _script_answer_turn
+    unchanged, and the practice dots ride every one of its returns from here. The
+    session is taken BEFORE the turn: it is the dict the turn mutates, and it is
+    still readable after a finishing turn has dropped it from the map."""
+    sess = _SCRIPT_SESSIONS.get((body.code or "").strip())
+    return _with_practice(_script_answer_turn(body), sess)
+
+
+def _script_answer_turn(body: ScriptAnswerIn):
     t0 = _time.monotonic()
     code = (body.code or "").strip()
     sess = _script_session(code)
@@ -9406,7 +9477,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-24xw-the-third-probstat-sweep-part-two"
+APP_BUILD = "2026-09-24xx-the-child-mode-skin"
 
 
 @app.get("/health")

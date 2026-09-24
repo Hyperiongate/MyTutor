@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xx -- PART 3ns, THE CHILD-MODE SKIN (project 7 of the 09-14 deep dive;
+#               the sixth gate build). Pins the four parts for Entry/Basic only: the warm
+#               board (board-theme.css, light board only, no drawing token re-pointed), the
+#               72px tap targets (board.js, scoped to .elem-mode, base rule untouched), the
+#               three-in-a-row dots (main.py's _script_practice + the two endpoint wrappers;
+#               the page's renderRunDots for IS_ELEM while `on`), and the helper text that
+#               leaves after the first answer (elem-settled). Drives the engine through the
+#               TestClient (plain, reason, table, graceful) and the page in a real browser
+#               through tools/xxdrive.py.
 #   2026-09-24  BUILD xw -- PART 3nr, THE THIRD PROB/STAT SWEEP, PART TWO (26 findings on
 #               36, 23 clean; the first sweep resumed in production). Pins the three
 #               generator fixes (farv's ✗ distance line, bias's praise, ptre's 81), the
@@ -23458,6 +23467,172 @@ def part3nr_the_third_probstat_sweep_part_two():
     check("  the dated notes are in (Jim's rule 8)",
           'APP_BUILD -> "2026-09-24xw-' in notes("main.py") and "2026-09-24  BUILD xw" in notes("ruletests.py")
           and "2026-09-24  BUILD xw" in notes("lessons/probstat.py") and "2026-09-24  BUILD xw" in notes("lessonscripts.py"), "")
+
+
+def part3ns_the_child_mode_skin():
+    """PART 3ns (build xx, 2026-09-24) -- THE CHILD-MODE SKIN. Project 7 of the 09-14
+    deep dive, the sixth gate build. For Entry and Basic (body.elem-mode) and nobody
+    else: ① a WARM BOARD -- board-theme.css paints the feed cream on the light board,
+    the dark board untouched, no drawing token re-pointed; ② BIGGER TAP TARGETS --
+    board.js grows .choicebtn to 72px / 26px under .elem-mode, the base rule byte-for-
+    byte what it was; ③ THREE-IN-A-ROW DOTS -- main.py's _script_practice reads the
+    ENGINE's streak and phase after the turn is graded and _with_practice attaches
+    {"practice": {phase, run, need, on}} to EVERY /api/script/start and /answer response
+    from the two endpoint wrappers (never from inside the nine returns); the page's
+    renderRunDots shows them only for IS_ELEM and only while `on` -- practice, or a full
+    run through the reason question and the mastered end; never the pairs, never a
+    times-table pass, never a short run on a still-learning end; ④ THE HELPER TEXT
+    LEAVES -- sendToTutor sets body.elem-settled on the first message and CSS hides the
+    "How to answer" line and #hint from then on. Pinned in source, driven through the
+    TestClient (an Entry lesson to its end, a table lesson never on, a reason lesson
+    keeping the three lit dots), and rendered in a real browser (tools/xxdrive.py)."""
+    print("\nPART 3ns — the child-mode skin (build xx)")
+    import os as _os
+    import subprocess as _sp
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    mn, ses, bjs, bth = rd("main.py"), rd("static/session.html"), rd("static/board.js"), rd("static/board-theme.css")
+
+    # ---- ③ the server: one source, two wrappers ----------------------------------------
+    check("⭐ main.py: _script_practice reads the ENGINE's streak, phase, finished and the table flag",
+          "def _script_practice(sess):" in mn
+          and 'run = max(0, min(int(state.get("streak", 0) or 0), need))' in mn
+          and "need = int(lessonscripts.ADVANCE_STREAK)" in mn
+          and 'table = ((sess or {}).get("lesson") or {}).get("mastery") == "table"' in mn
+          and '(phase == "practice" and (not finished or run >= need))' in mn
+          and 'or (phase == "explain" and run >= need))' in mn
+          and 'return {"phase": phase, "run": run, "need": need, "on": on}' in mn, "")
+    check("⭐ main.py: the two endpoints are WRAPPERS that attach the field once, from the session taken before the turn",
+          '@app.post("/api/script/answer")\ndef script_answer(body: ScriptAnswerIn):' in mn
+          and 'sess = _SCRIPT_SESSIONS.get((body.code or "").strip())\n    return _with_practice(_script_answer_turn(body), sess)' in mn
+          and '@app.post("/api/script/start")\ndef script_start(body: ScriptStartIn):' in mn
+          and 'resp = _script_start_lesson(body)\n    return _with_practice(resp, _SCRIPT_SESSIONS.get((body.code or "").strip()))' in mn
+          and "def _script_answer_turn(body: ScriptAnswerIn):" in mn
+          and "def _script_start_lesson(body: ScriptStartIn):" in mn, "")
+    _turn = mn.split("def _script_answer_turn(body: ScriptAnswerIn):")[1].split("class ScriptWarmIn(BaseModel):")[0]
+    check("  main.py: no return inside the graded turn carries the field itself (one place, never nine)",
+          '"practice"' not in _turn and _turn.count("return") >= 8, _turn.count("return"))
+    check("  main.py: the field is fail-open (None on any error) and never attached to a non-dict",
+          "except Exception as exc:  # noqa: BLE001 -- the dots must never cost a turn" in mn
+          and "if isinstance(resp, dict):\n        pr = _script_practice(sess)\n        if pr is not None:\n            resp[\"practice\"] = pr" in mn, "")
+
+    # ---- ③ the page: the dots -------------------------------------------------------------
+    check("⭐ session.html: #runDots lives in the chip row, hidden, three dots and a label",
+          'id="runDots" hidden' in ses and ses.count('<span class="rd" aria-hidden="true"></span>') == 3
+          and 'id="runDotsLab">3 in a row!</span>' in ses
+          and ses.find('id="runDots"') > ses.find('id="progChip"') and ses.find('id="runDots"') < ses.find('id="goalBar"'), "")
+    check("⭐ session.html: renderRunDots draws the SERVER's field, for IS_ELEM only, only while on, capped at need",
+          "function renderRunDots(pr) {" in ses
+          and "if (!IS_ELEM || !pr || !pr.on) { runDots.hidden = true; _runShown = -1; return; }" in ses
+          and "run = Math.max(0, Math.min(need, parseInt(pr.run, 10) || 0))" in ses
+          and 'd.classList.toggle("on", i < run)' in ses
+          and 'run >= need ? (need + " in a row!") : (run + " of " + need + " in a row")' in ses, "")
+    check("  session.html: the dots are rendered from the start response and from EVERY graded answer, and hidden when the lane falls to the live tutor",
+          "renderRunDots(j.practice);     /* (xx) off at a lesson's start" in ses
+          and "renderRunDots(j.practice);     /* (xx) the engine's run after THIS grade" in ses
+          and ses.count("renderRunDots(null); SCR.on = false;") == 2, ses.count("renderRunDots("))
+    check("  session.html: the dots CSS is a chip-row rule, not a board rule, painting with the page's tokens",
+          ".rundots { display: inline-flex;" in ses and ".rundots .rd.on { background: var(--accent);" in ses
+          and ".rundots[hidden] { display: none; }" in ses, "")
+
+    # ---- ④ the helper text leaves ---------------------------------------------------------
+    check("⭐ session.html: sendToTutor settles the screen on the FIRST message; CSS hides the two helper lines from then on, elem-mode only",
+          'addBubble("student", message);\n      elemSettle();' in ses
+          and 'function elemSettle() { if (IS_ELEM) document.body.classList.add("elem-settled"); }' in ses
+          and "body.elem-mode.elem-settled .elem-hint, body.elem-mode.elem-settled #hint { display: none !important; }" in ses, "")
+    check("  session.html: DO NO HARM -- the 'How to answer' line, the ready hint and the elementary tour are all still there",
+          'eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b>' in ses
+          and '? "Your turn — tap the microphone to talk, or tap “Type my answer” below."' in ses
+          and "const tourSteps = () => (IS_ELEM ? TOUR_STEPS_ELEM : TOUR_STEPS);" in ses, "")
+
+    # ---- ① the warm board, ② the tap targets ------------------------------------------------
+    _wsel = 'body.elem-mode .feed:not([data-board="dark"]) {'
+    _warm = bth.split(_wsel)[1].split("}")[0] if _wsel in bth else ""
+    check("⭐ board-theme.css: the warm block is scoped to body.elem-mode on the LIGHT board and re-points no drawing token",
+          bool(_warm)
+          and "--bd-panel: #fff8e8;" in _warm and "--panel: #fff8e8; --line: #f1dfb6;" in _warm
+          and "background: #fff8e8;" in _warm
+          and not re.search(r"--bd-[0-9a-f]{3,6}:", _warm.replace("--bd-panel", "")), _warm[:200])
+    check("  board-theme.css: the white board's identity block and the dark board's are untouched, the warm block after both",
+          "--bd-panel: #ffffff;" in bth and "--bd-panel: #221f33;" in bth
+          and bth.find(_wsel) > bth.find('[data-board="dark"] .machine .mbox'), "")
+    check("⭐ board.js: the bigger tap targets are scoped to .elem-mode and the base rule is byte-for-byte what it was",
+          '".elem-mode .choicebtn{font-size:26px;padding:18px 30px;min-width:88px;min-height:72px;border-radius:22px;border-width:3px}"' in bjs
+          and '".elem-mode .choicerow{gap:14px;margin:12px 0 6px}"' in bjs
+          and '".elem-mode .choicebtn.notsure{font-size:18px}"' in bjs
+          and '".choicebtn{font-size:20px;font-weight:800;padding:14px 24px;min-width:64px;min-height:52px;border-radius:16px;"' in bjs, "")
+
+    # ---- the engine, run for real ------------------------------------------------------------
+    try:
+        import main as M
+        import lessonscripts as L
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        skip("the practice field through a lesson", f"fastapi not importable here: {exc}")
+        return
+    c = TestClient(M.app)
+    def _drive(les, code, wrong_at=()):
+        seen = []
+        r = c.post("/api/script/start", json={"code": code, "course": les["course"], "lesson": les["id"]}).json()
+        seen.append(("start", r.get("practice")))
+        for turn in range(40):
+            sess = M._SCRIPT_SESSIONS.get(code)
+            if not sess:
+                break
+            pend = (sess["state"] or {}).get("pending") or {}
+            if not pend:
+                break
+            if pend.get("reason"):
+                r = c.post("/api/script/answer", json={"code": code, "said": pend.get("expected") or "", "defer_ai": True}).json()
+                seen.append(("reason", r.get("practice"))); continue
+            v = L.ans(pend["problem"]) + (1 if turn in wrong_at else 0)
+            r = c.post("/api/script/answer", json={"code": code, "value": v, "defer_ai": True}).json()
+            seen.append(("W" if turn in wrong_at else "R", r.get("practice")))
+        return seen
+    plain = [l for l in L.LESSONS if l["course"] == "entry" and l.get("mastery") != "table" and not l.get("explain")]
+    reason = [l for l in L.LESSONS if l["course"] == "entry" and l.get("mastery") != "table" and l.get("explain")]
+    table = [l for l in L.LESSONS if l["course"] in ("entry", "basic") and l.get("mastery") == "table"]
+    check("  the canon has an Entry lesson of each shape to drive (plain, reason, table)", plain and reason and table,
+          (len(plain), len(reason), len(table)))
+    if plain:
+        a = _drive(plain[0], "3ns-plain", wrong_at=(3,))
+        pr = [p for _k, p in a]
+        check("⭐ every start and answer response carries practice {phase, run, need, on}",
+              all(isinstance(p, dict) and set(p) == {"phase", "run", "need", "on"} for p in pr), a[:3])
+        check("  a lesson starts OFF (pair-0, run 0) and the guided pairs stay off",
+              a[0][1]["on"] is False and a[0][1]["phase"] == "pair-0" and a[1][1]["on"] is False and a[1][1]["phase"] == "pair-1", a[:2])
+        check("  practice turns ON with run 0, a right answer counts 1, a wrong answer resets to 0",
+              a[2][1] == {"phase": "practice", "run": 0, "need": 3, "on": True}
+              and a[3][1]["run"] == 1 and a[3][1]["on"] and a[4][0] == "W" and a[4][1]["run"] == 0 and a[4][1]["on"], a[2:5])
+        check("⭐ the third right answer in a row ends the lesson with the three dots LIT (run 3, on, the end step)",
+              a[-1][1] == {"phase": "practice", "run": 3, "need": 3, "on": True}
+              and M._SCRIPT_SESSIONS.get("3ns-plain") is None, a[-2:])
+    if reason:
+        b = _drive(reason[0], "3ns-reason")
+        check("⭐ a reason lesson keeps the three lit dots through the reason question and the mastered end",
+              any(k == "R" and p == {"phase": "explain", "run": 3, "need": 3, "on": True} for k, p in b)
+              and b[-1][0] == "reason" and b[-1][1] == {"phase": "explain", "run": 3, "need": 3, "on": True}, b[-3:])
+    if table:
+        t = _drive(table[0], "3ns-table")
+        check("⭐ a times-table lesson is NEVER on -- the pass is a pass, not a streak (sz)",
+              t and all(p["on"] is False for _k, p in t) and any(p["phase"] == "table" and p["run"] >= 3 for _k, p in t), t[-2:])
+    if plain:
+        g = _drive(plain[0], "3ns-graceful", wrong_at=(2, 4, 6, 8, 10, 12))
+        check("  a still-learning end with a short run does NOT light the dots (on false at the end)",
+              g[-1][1]["on"] is False and g[-1][1]["run"] < 3 and M._SCRIPT_SESSIONS.get("3ns-graceful") is None, g[-2:])
+
+    # ---- the page, in a real browser (tools/xxdrive.py) ------------------------------------
+    NAME = "⭐ LIVE: Entry gets the cream board, 72px buttons, one lit dot after the first answer and no helper text; Pre-Algebra none of it"
+    if dep_gate(NAME, "playwright", "the skin is measured in a real browser"):
+        try:
+            r = _sp.run([sys.executable, _os.path.join(here, "tools", "xxdrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=240,
+                        env=dict(_os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout,
+                  (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -50399,6 +50574,7 @@ def main():
     part3np_the_third_probstat_sweep_part_one()
     part3nq_the_third_algebra2_sweep()
     part3nr_the_third_probstat_sweep_part_two()
+    part3ns_the_child_mode_skin()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

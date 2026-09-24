@@ -2,6 +2,10 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-24  BUILD xx -- THE CHILD-MODE SKIN'S TAP TARGETS. ensureChoicesCSS adds three
+                 rules scoped to body.elem-mode (Entry and Basic, set by the pages): the
+                 answer buttons grow to 72px tall / 26px type / a 14px gap. No other course
+                 is touched -- the base .choicebtn rule is byte-for-byte what it was.
      2026-09-11  BUILD vk -- fitRow MEASURES AGAINST THE BOARD, NOT AGAINST ITSELF. On a
                  420px phone the ask's line "1 hundreds + 4 tens + 3 ones = ?" rendered
                  462px wide in a 378px feed and read "undreds + 4 tens + 3 ones", and
@@ -535,7 +539,14 @@ function ensureChoicesCSS() {
     "transition:transform .1s ease;font-family:inherit}" +
     ".choicebtn:hover{transform:translateY(-2px);border-color:var(--bd-6d5ae6);color:var(--bd-6d5ae6)}" +
     ".choicebtn:disabled{opacity:.45;cursor:default;transform:none}" +
-    ".choicebtn.notsure{font-size:15px;border-style:dashed;color:var(--bd-5b6079)}";
+    ".choicebtn.notsure{font-size:15px;border-style:dashed;color:var(--bd-5b6079)}" +
+    // (xx, 2026-09-24) THE CHILD-MODE SKIN: bigger tap targets for Entry and Basic. The
+    // page sets body.elem-mode for the two youngest courses; every other course keeps
+    // the sizes above to the pixel. 72px tall, 26px type, a wider gap so a small thumb
+    // lands on one button, never two. Same tokens, same colours.
+    ".elem-mode .choicerow{gap:14px;margin:12px 0 6px}" +
+    ".elem-mode .choicebtn{font-size:26px;padding:18px 30px;min-width:88px;min-height:72px;border-radius:22px;border-width:3px}" +
+    ".elem-mode .choicebtn.notsure{font-size:18px}";
   document.head.appendChild(st);
 }
 
