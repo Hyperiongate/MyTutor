@@ -2,6 +2,21 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xw -- THE THIRD PROB/STAT SWEEP, PART TWO (the whole course: 26
+#               findings, 18 authored, 23 of 36 clean; 60 and 10 at xg). HIGH: the four-times
+#               rule's recap "with everything else about the poll the same" (its own
+#               sentence). Conditions: "adding the one-in numbers is a tempting wrong move"
+#               (not "the OR rule's move"); a chance CAN BE WRITTEN as a percent; "for a
+#               spinner spun twice" the outcomes branch; an experiment CAN BE DRAWN as a
+#               tree; "never average the prizes alone UNLESS they come up equally often";
+#               "by the 95 percent rule, about 5 percent"; "low end first is the safe
+#               order". Terms named where used: undercoverage (U4), a distribution (U7);
+#               "Counting gives a chance" (it said Geometry). Words and board: the goal
+#               cards "Count the ones past the line" and "What independence claims"; 30% ✓;
+#               the two reason boards carry their setups (40 plays pay 20 / 60 pay 5; 800 in
+#               the group); the second winning-paths recap draws the branches instead of
+#               repeating the first; the histogram recap in three short sentences. 19 edits;
+#               no beat added, the course list stays 40,495. PART 3nr.
 #   2026-09-23  BUILD xu -- THE THIRD PROB/STAT SWEEP, PART ONE (16 of 36 lessons read before
 #               the reader's credits ran out: 13 findings, 11 authored, 8 of 16 clean; the
 #               second reading was 60 on 36). U1 the histogram recap: "on these boards each
@@ -204,7 +219,7 @@ _PROBSTAT_U1 = [
         "why": [
             ("Why count part of a plot? A dot plot answers more than one question. "
              "Beyond what is most common, you can count how many values sit past some mark. How many players scored more than 8? How many days ran over an hour? Draw a line, then count one side of it.",
-             '[[goal text="Count the ones above"]]'),
+             '[[goal text="Count the ones past the line"]]'),
         ],
         "picture": [
             ("Here is a dot plot of goals, one dot per player, with a line drawn at 8. "
@@ -320,7 +335,7 @@ _PROBSTAT_U1 = [
             "board": '[[histogram values="5,5,5,15,15,15,15,25,25" caption="3 + 4 + 2 = 9"]]',
         },
         "recap": [
-            ("So, here it is again. A histogram sorts values into groups; on these boards each group's count is printed on its bar, so how many in all is every count added. The "
+            ("So, here it is again. A histogram sorts values into groups. On these boards each group\'s count is printed on its bar. To find how many in all, add every count. The "
              "tallest bar is only the biggest group, and the number of bars is only the "
              "number of groups.",
              '[[histogram values="5,5,5,15,15,15,15,25,25" caption="add every bar"]]'),
@@ -1230,8 +1245,7 @@ _PROBSTAT_U4 = [
         "teach": [
             ("That is the method: take the ones asked away from the whole school. 300 "
              "take away 120 leaves 180 who never had a chance of being handed the "
-             "survey. Not 180 who said no — 180 who were never asked at all. A sample "
-             "like that is called biased.",
+             "survey. Not 180 who said no — 180 who were never asked at all. That blind spot is called undercoverage, and a sample like that is called biased.",
              '[[tape parts="120 asked|180 never asked" total="school of 300" caption="300 − 120 = 180 never had a chance"]][[step eq="300 − 120 = 180"]]'),
             ("The cure is giving everyone a chance of being picked, usually at random. "
              "And notice which numbers do not answer the question: 120 is the crowd "
@@ -1339,9 +1353,7 @@ _PROBSTAT_U4 = [
             "board": '[[machine input="60" rule="× 4" output="240" caption="the price of half the margin — 60 people to 240"]]',
         },
         "recap": [
-            ("So, here it is again. A sample\'s margin of error shrinks slowly: "
-             "halving it costs four times the people, and halving it again costs four "
-             "times more. Never double and expect half, and never hand back the "
+            ("So, here it is again. A sample\'s margin of error shrinks slowly. With everything else about the poll the same, halving it costs four times the people, and halving it again costs four times more. Never double and expect half, and never hand back the "
              "margin as a headcount.",
              '[[machine input="60" rule="× 4" output="240" caption="the price of accuracy — 60 people to 240"]]'),
             ("And that is the price of accuracy: 60 times 4 is 240 people, for half "
@@ -1383,8 +1395,7 @@ _PROBSTAT_U5 = [
         "symbols": ("percent", "chance"),
         "advance_line": "Three in a row, and you can say why — you've got it! A chance is a percent of the whole.",
         "why": [
-            ("Why put chance on a scale? Geometry counted a chance: 3 red marbles out "
-             "of 10 is 3 out of 10. That is true, but two chances counted out of "
+            ("Why put chance on a scale? Counting gives a chance: 3 red marbles out of 10 is 3 out of 10. That is true, but two chances counted out of "
              "different wholes are hard to compare until they sit on the same scale. "
              "So probability puts every chance on ONE scale, from 0 to 100.",
              '[[goal text="Chance on a scale"]][[step eq="0 = never"]][[step eq="100 = always"]]'),
@@ -1404,7 +1415,7 @@ _PROBSTAT_U5 = [
             ("The two ends anchor the scale: 0 percent never happens, 100 percent always does, and the chances that sometimes happen live between. So do not hand back 3, "
              "the count of red marbles, or 7, the count that is not red. The question "
              "asks for the percent.",
-             '[[step eq="30 ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'),
+             '[[step eq="30% ✓"]][[step eq="3 ✗ a count · 7 ✗ the others"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. 9 red out of 12 marbles: 9 "
@@ -1429,8 +1440,7 @@ _PROBSTAT_U5 = [
             "board": '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]',
         },
         "recap": [
-            ("So, here it is again. A chance is a percent of the whole. The scale runs "
-             "from 0, never, to 100, always. Divide the count by the whole, then write "
+            ("So, here it is again. A chance can be written as a percent of the whole. The scale runs from 0, never, to 100, always. Divide the count by the whole, then write "
              "it out of a hundred. Never hand back the count of red, and never the "
              "count that is not.",
              '[[hundredgrid shaded="30" unit="percent" eq="3 of 10 → 30%" caption="chance on a scale"]]'),
@@ -1550,7 +1560,7 @@ _PROBSTAT_U5 = [
              "rainy AND late. Both together turn up one time in 15.",
              '[[array rows="3" cols="5" caption="5 kinds of day by 3 kinds of bus — 15 squares, one of them rainy AND late"]][[step eq="1 in 5 × 1 in 3 → 1 in 15"]]'),
             ("Notice the direction. For chances like these, with neither one certain, asking for both leaves it rarer. So the answer is a bigger one-in number than either you started with. "
-             "One in 8 — adding the two numbers — is a bigger one-in than either. But adding is the OR rule's move. The AND rule times, and one in 15 is the answer.",
+             "One in 8 — adding the two numbers — is a bigger one-in than either. But adding the one-in numbers is a tempting wrong move. The AND rule times, and one in 15 is the answer.",
              '[[step eq="1 in 15 ✓ rarer"]][[step eq="1 in 8 ✗ added · 1 in 5 ✗ the bus ignored"]]'),
         ],
         "pairs": [
@@ -1607,8 +1617,7 @@ _PROBSTAT_U5 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Winners on the first spin, times winners on the second.",
         "why": [
             ("Why draw the paths? Draw the two stages of an experiment as a picture "
-             "and you get a tree. Every first outcome branches into every second one, "
-             "and each finished branch is one path through the whole experiment. A "
+             "and you get a tree. For a spinner spun twice, every first outcome branches into every second one, and each finished branch is one path through the whole experiment. A "
              "spinner spun twice is exactly that kind of picture.",
              '[[goal text="Count the winning paths"]]'),
         ],
@@ -1654,10 +1663,10 @@ _PROBSTAT_U5 = [
             "board": '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="the winning paths"]]',
         },
         "recap": [
-            ("So, here it is again. A two-stage experiment is a tree. The paths that win both times are the winners of the first spin times the winners of the second: 3 times 3, 9. Never leave the second spin free, and never add the two "
+            ("So, here it is again. A two-stage experiment can be drawn as a tree. The paths that win both times are the winners of the first spin times the winners of the second: 3 times 3, 9. Never leave the second spin free, and never add the two "
              "spins.",
              '[[tree stage1="W:3,L:1" stage2="W:3,L:1" caption="winners of the first spin times winners of the second"]][[step eq="3 × 3 = 9"]]'),
-            ("And that is the AND rule, drawn: 3 times 3, nine winning paths.",
+            ("And that is the AND rule, drawn as branches: 3 winning branches, each with 3 winning branches of its own, make the 9.",
              '[[step eq="3 × 3 = 9"]]'),
         ],
         "bank": [
@@ -1850,7 +1859,7 @@ _PROBSTAT_U6 = [
              "one tells you nothing about the other. That is a claim you can TEST, "
              "because it carries a promise: the group\'s rate should match the "
              "overall rate, exactly.",
-             '[[goal text="What independent claims"]]'),
+             '[[goal text="What independence claims"]]'),
         ],
         "picture": [
             ("Here are two bars: the whole school, where 45 percent like maths, and "
@@ -2014,7 +2023,7 @@ _PROBSTAT_U7 = [
         "why": [
             ("Why should the chances add up to anything? Because something happens every "
              "single play. A prize machine gives small, medium or large, and there is no "
-             "fourth door. So the chances of the three together have to fill the whole hundred — that is one rule every distribution keeps.",
+             "fourth door. So the chances of the three together have to fill the whole hundred — that is one rule every such list of chances, a distribution, keeps.",
              '[[goal text="The chances fill the hundred"]]'),
         ],
         "picture": [
@@ -2127,13 +2136,13 @@ _PROBSTAT_U7 = [
                         "because the big prize is what a play is worth | "
                         "because a machine never pays its average"),
             "answer": "because the small prize comes up more and pulls the value down",
-            "board": '[[hundredgrid shaded="40" unit="percent" caption="why 11 and not 12 and a half?"]]',
+            "board": '[[step eq="40 plays pay 20 · 60 plays pay 5"]][[hundredgrid shaded="40" unit="percent" caption="why 11 and not 12 and a half?"]]',
         },
         "recap": [
             ("So, here it is again. What one play is worth is a weighted average: count the "
              "tokens over a hundred plays, then share them across the hundred. Each prize "
              "counts as often as it comes, so the one that comes up more pulls the value "
-             "its way. Never average the prizes alone, and never take the big one.",
+             "its way. Never average the prizes alone unless they come up equally often, and never take the big one.",
              '[[bars data="40 plays × 20:800 | 60 plays × 5:300" caption="weighed by how often each comes"]]'),
             ("And that is expected value: 1100 tokens shared over 100 plays is 11 a play.",
              '[[step eq="1100 ÷ 100 = 11"]]'),
@@ -2554,10 +2563,9 @@ _PROBSTAT_U8 = [
              '[[normal mean="100" sd="10" lo="120" hi="140" caption="the top end — the sliver beyond two deviations, about 2 or 3 of every 100"]]'),
         ],
         "teach": [
-            ("That is the method: take 5 percent of the group for both ends, then halve it "
-             "for one. In a group of 800, 5 percent is 40 out at the ends — so 20 sit above "
+            ("That is the method: by the 95 percent rule, take about 5 percent of the group for both ends, then halve it for one. In a group of 800, 5 percent is 40 out at the ends — so 20 sit above "
              "two deviations and 20 below. The bell is symmetric, so the split is even.",
-             '[[tape parts="20 bottom end|760 middle|20 top end" total="800 in all" caption="the two ends hold 40 between them — 20 at each"]][[step eq="5% of 800 = 40"]][[step eq="half at each end = 20"]]'),
+             '[[tape parts="20 bottom end|760 middle|20 top end" total="800 in all" caption="the two ends hold 40 between them — 20 at each"]][[step eq="95% inside → about 5% at the ends"]][[step eq="5% of 800 = 40"]][[step eq="half at each end = 20"]]'),
             ("Forgetting the split is the slip — 40 counts both ends when the question "
              "asked for one. And a bell never has half its people out at the edges; that is "
              "what the shape is telling you.",
@@ -2584,7 +2592,7 @@ _PROBSTAT_U8 = [
                         "because the top end is always exactly 20 people | "
                         "because 40 is more than 5 percent of the group"),
             "answer": "because the 5 percent outside is shared between two ends",
-            "board": '[[normal mean="100" sd="10" lo="120" hi="140" caption="why 20, and not 40?"]]',
+            "board": '[[step eq="800 in the group · 20 at the top, not 40"]][[normal mean="100" sd="10" lo="120" hi="140" caption="why 20, and not 40?"]]',
         },
         "recap": [
             ("So, here it is again. Beyond two deviations lives just 5 percent of a bell "
@@ -2855,7 +2863,7 @@ _PROBSTAT_U9 = [
              "people. The low end is 20 percent, and 20 percent of 400 is 80. The high end, "
              "40 percent, gives 160 — so somewhere between 80 and 160 walk.",
              '[[machine input="400" rule="× 20%" output="80" caption="the whole school of 400 goes in, the low end\'s 20 percent comes out — 80"]][[step eq="20% of 400 = 80"]][[step eq="40% of 400 = 160"]][[step eq="80 to 160 walk"]]'),
-            ("The order matters. Using 30 percent gives 120 and quietly drops the doubt. "
+            ("Low end first is the safe order. Using 30 percent gives 120 and quietly drops the doubt. "
              "And 160 is the high end, the other edge of the range.",
              '[[step eq="80 ✓"]][[step eq="120 ✗ the margin dropped · 160 ✗ the high end"]]'),
         ],

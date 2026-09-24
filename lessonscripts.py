@@ -2,6 +2,15 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xw -- THE THIRD PROB/STAT SWEEP, PART TWO, the generator side (3 ops).
+#               farv: the walk-back says "23 is only how far the stray sits from it" over a
+#               board that never drew 23 -- a ✗ line now, "23 ✗ the distance, not the stray"
+#               (six findings in one lesson, one fix). bias (HIGH): the praise said "a sample
+#               that cannot reach everyone is biased" -- a sample need not reach everyone, it
+#               must give everyone a chance; now "the ones the survey gave no chance of being
+#               picked -- and that is a biased sample". ptre: the ask says "81 different
+#               paths in all" and the board now writes "9 × 9 = 81 paths in all". One for
+#               one: the course list stays 40,495. PART 3nr.
 #   2026-09-24  BUILD xv -- THE THIRD ALGEBRA II SWEEP, the generator side (1 op). imag's
 #               praise was the walk-back's check said first ("4 i times 4 i equals 16 times
 #               i squared -- negative 16. So x is 4 i") and the sweep called the walk-back a
@@ -5312,7 +5321,7 @@ def _farv_worked(p):
             f"at {b} — that stray is the outlier. {a} is where the crowd is, and {b - a} is "
             f"only how far the stray sits from it.",
             f'[[dotplot values="{_farlist(p)}" caption="the crowd near {a}; the stray at {b} — the outlier is {b}"]]'
-            f'[[step eq="outlier = {b}"]]')
+            f'[[step eq="outlier = {b}"]][[step eq="{b - a} ✗ the distance, not the stray"]]')
 
 
 def _medv_board(p):
@@ -5576,6 +5585,7 @@ def _ptre_board(p):
     a, b = p["a"], p["b"]
     return (f'[[pie parts="{a}" shaded="{b}" caption="{a} equal parts, {b} of them winners — spun twice"]]'
             f'[[step eq="{b} winners of {a} parts · spun twice"]]'
+            f'[[step eq="{a} × {a} = {a * a} paths in all"]]'
             f'[[step eq="paths that win twice = ?"]]')
 
 
@@ -13158,9 +13168,9 @@ OP_EXT = {
                              f"had a chance to be asked?"),
         "board": _bias_board,         # (tt) the asked and the never-asked as a tape, the second part blank
         "worked": _bias_worked,       # (tt) both parts
-        "praise": lambda p: (f"{p['b'] - p['a']} — the ones the survey "
-                             f"could never reach, and a sample that cannot "
-                             f"reach everyone is biased."),
+        "praise": lambda p: (f"{p['b'] - p['a']} — the ones the survey gave "
+                             f"no chance of being picked — and that is a "
+                             f"biased sample."),
         "key": lambda p: p["b"] - p["a"],
         # The errors: the asked group, and the whole school.
         "choices": lambda p: [p["b"] - p["a"], p["a"], p["b"]],

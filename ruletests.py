@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xw -- PART 3nr, THE THIRD PROB/STAT SWEEP, PART TWO (26 findings on
+#               36, 23 clean; the first sweep resumed in production). Pins the three
+#               generator fixes (farv's ✗ distance line, bias's praise, ptre's 81), the
+#               HIGH recap condition, the scoped laws, the terms named where used, the goal
+#               cards and reason boards, the counts. Five pins moved with the text (3ma x2,
+#               3mm, 3nb, 3np).
 #   2026-09-24  BUILD xv -- PART 3nq, THE THIRD ALGEBRA II SWEEP (28 findings, 19 clean; 43
 #               and 14 at ww). Pins imag's credit line, the three HIGHs, the eleven scoped
 #               laws, the drawn intermediates and the x = 4 line, the recap formula, the
@@ -19958,7 +19964,7 @@ def part3ml_the_first_probstat_sweep():
     check("⭐ a rule of thumb with its condition (U5-U9): hard to compare until on one scale (HIGH); like 30 of 100; one in 8 is RARER (HIGH); one common way; the chance picture (HIGH); exactly one missing; what a play is WORTH (HIGH); on average level (HIGH); the POT (HIGH); the same cost; many paid machines; the average settles (HIGH); the bell's group (HIGH x2); the percent to take; the tail fact; compared with the spread; the estimate with a range (HIGH); does not support; for the group the claim names",
           "are hard to compare until they sit on the same scale" in spoken(E("ps-u5-chance-on-a-scale"))
           and "It is like 30 out of 100: in the long run, about 30 of every 100 picks come up red" in spoken(E("ps-u5-chance-on-a-scale"))   # (xe) split
-          and "is a bigger one-in than either. But adding is the OR rule's move. The AND rule times, and one in 15 is the answer" in spoken(E("ps-u5-both-at-once"))   # (xe) split
+          and "is a bigger one-in than either. But adding the one-in numbers is a tempting wrong move. The AND rule times, and one in 15 is the answer" in spoken(E("ps-u5-both-at-once"))   # (xe) split; (xw) not "the OR rule's move"
           and "more common than rain alone" not in spoken(E("ps-u5-both-at-once"))
           and "One common way to want two things is this" in spoken(E("ps-u5-either-one-wins"))
           and "Here is the hundred square as a picture of the chances. Small has a 25 percent chance, so 25 cells" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
@@ -20015,7 +20021,7 @@ def part3ml_the_first_probstat_sweep():
           and "20 percent of 400 is 80, 40 percent is 160" in spoken(E("ps-u9-the-range-in-real-people"))
           and '[[step eq="20% of 400 = 80"]][[step eq="40% of 400 = 160"]][[step eq="80 to 160 walk"]]' in boards(E("ps-u9-the-range-in-real-people"))
           and '[[step eq="45% − 5 points = 40%"]]' in boards(E("ps-u9-the-range-in-real-people"))
-          and "3 times 3, nine winning paths" in spoken(E("ps-u5-count-the-winning-paths"))
+          and "3 winning branches, each with 3 winning branches of its own, make the 9" in spoken(E("ps-u5-count-the-winning-paths"))   # (xw) drawn as branches
           and '[[step eq="25% ✓"]]' in boards(E("ps-u4-who-actually-answered"))
           and '12½ ✗ the prizes averaged' in boards(E("ps-u7-what-one-play-is-worth"))
           and '[[bars data="girls:45 | boys:40"' in boards(E("ps-u4-a-sample-that-matches"))
@@ -21237,7 +21243,7 @@ def part3mz_the_pre_sweep():
           and "answers WHEN: 8 t equals 40, so t is 5" in spoken(E("calc-u4-when-is-it-going-that-fast")), "")
     check("  the splits keep every number: the box plot's three parts; the AND rule's one in 15; the trapezium's 7 and 35",
           "A whisker reaches out left to 4. The box sits in the middle, from 10 to 20, with the median line inside it. A whisker reaches right to 26." in spoken(E("ps-u2-the-middle-half"))
-          and "But adding is the OR rule's move. The AND rule times, and one in 15 is the answer." in spoken(E("ps-u5-both-at-once"))
+          and "But adding the one-in numbers is a tempting wrong move. The AND rule times, and one in 15 is the answer." in spoken(E("ps-u5-both-at-once"))   # (xw)
           and "halfway between 4 and 10: that is 7. And 7 metres a second for 5 seconds is 35 metres." in spoken(E("calc-u8-a-speed-that-climbs")), "")
     check("  every lesson validates; the course list is 40,005 (no beat added); the referees refuse nothing new in the two courses",
           all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40495, str(len(L.course_audio_lines())))
@@ -21413,7 +21419,7 @@ def part3nb_the_second_probstat_sweep():
           and "For paths that win BOTH times: winners times winners." in spoken(E("ps-u5-count-the-winning-paths")), "")
     check("  and four more: the chances that SOMETIMES happen live between 0 and 100; a distribution KEEPS the rule; the reds shrink when the kept marble is red; the poll's size is a poll's margin",
           "the chances that sometimes happen live between" in spoken(E("ps-u5-chance-on-a-scale"))
-          and "that is one rule every distribution keeps" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
+          and "that is one rule every such list of chances, a distribution, keeps" in spoken(E("ps-u7-the-chances-fill-the-hundred"))   # (xw) the term named as it is used
           and "When the marble kept out is red, the reds left — the top of the chance — shrink too." in spoken(E("ps-u6-the-bag-remembers"))
           and "At that size such a poll reports a margin near 3 points" in spoken(E("ps-u4-the-price-of-accuracy")), "")
 
@@ -23199,7 +23205,7 @@ def part3np_the_third_probstat_sweep_part_one():
           and "14 take away 44 is minus 30, a residual of minus 30. Its size is 44 take away 14 — 30, so the line guessed 30 points high." in spoken(E("ps-u3-how-far-off-the-line"))
           and '[[step eq="14 − 44 = −30"]][[step eq="size: 44 − 14 = 30"]]' in E("ps-u3-how-far-off-the-line")["pairs"][1]["worked"][1], "")
     check("⭐ laws with their condition: the histogram's printed counts (these boards); the percentile's direction (speeds ranked; 20 OTHERS); one way to measure spread; usually moves the box; the slope's units (here); the survey's no-chance crowd; the poll otherwise the same",
-          "on these boards each group's count is printed on its bar" in spoken(E("ps-u1-add-the-bars"))
+          "On these boards each group's count is printed on its bar. To find how many in all, add every count." in spoken(E("ps-u1-add-the-bars"))   # (xw) three sentences
           and "When speeds are being ranked, the 80th percentile means faster than 80 percent" in spoken(E("ps-u2-a-percent-not-a-person"))
           and "among 20 others there are not 80 anybody" in spoken(E("ps-u2-a-percent-not-a-person"))
           and "One way to measure spread is how far the numbers sit from the mean, on average. Measure each distance" in spoken(E("ps-u2-how-far-from-the-middle"))
@@ -23378,6 +23384,80 @@ def part3nq_the_third_algebra2_sweep():
           'APP_BUILD -> "2026-09-24xv-' in notes("main.py") and "2026-09-24  BUILD xv" in notes("ruletests.py")
           and "2026-09-24  BUILD xv" in notes("lessons/algebra2.py") and "2026-09-24  BUILD xv" in notes("lessonscripts.py")
           and "2026-09-24  BUILD xv" in notes("coursesweep.py"), "")
+
+
+def part3nr_the_third_probstat_sweep_part_two():
+    """PART 3nr (build xw, 2026-09-24) -- THE THIRD PROB/STAT SWEEP, PART TWO. The whole
+    course this time, and the first sweep RESUMED in production (xu's checkpoint: 30 read
+    before, 6 after): 26 findings on 36 (8 generator, 18 authored), 23 lessons clean -- 60
+    and 10 at xg, 92 and 1 at wo. Three generators: farv's walk-back names the distance
+    (23) over a board that never draws it -- a ✗ line now, "23 ✗ the distance, not the
+    stray" (six findings, one fix); bias's praise said "a sample that cannot reach everyone
+    is biased" (a HIGH: a sample need not reach everyone, it must give everyone a chance)
+    -- "the ones the survey gave no chance of being picked -- and that is a biased
+    sample"; ptre's ask says "81 different paths in all" over a board without the 81 --
+    "9 × 9 = 81 paths in all" drawn. Authored: the four-times rule's recap gets its
+    condition (HIGH); "adding is the OR rule's move" is "a tempting wrong move"; a chance
+    CAN BE WRITTEN as a percent; "Geometry counted a chance" is "counting gives a chance";
+    30% ✓ on the board; "for a spinner spun twice" the outcomes branch; an experiment CAN BE
+    DRAWN as a tree, and the second recap draws it as branches instead of repeating; the
+    goal cards "count the ones past the line" and "what independence claims"; undercoverage
+    and distribution named where they are used; the reason boards carry their setups (the
+    two payouts; 800 in the group); "never average the prizes alone UNLESS they come up
+    equally often"; "about 5 percent, by the 95 percent rule"; "low end first is the safe
+    order". Nothing declined."""
+    print("\nPART 3nr — the third Prob/Stat sweep, part two (build xw)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for _s, b in les["teach"]] + [pr["worked"][1] for pr in les["pairs"]]
+                                  + [b for f in ("why", "picture", "recap") for _s, b in (les.get(f) or [])])
+    PR = lambda op, p: L.OP_EXT[op]["praise"](p)
+    B = lambda p, lv="abstract": L.board_for(p, lv)
+    W = lambda p: L._worked_for(p) or ("", "")
+    farv = {"a": 15, "b": 38, "op": "farv"}
+    check("⭐ farv: the walk-back's board draws the distance it names, crossed out (six findings, one fix)",
+          "and 23 is only how far the stray sits from it" in W(farv)[0]
+          and '[[step eq="outlier = 38"]][[step eq="23 ✗ the distance, not the stray"]]' in W(farv)[1], W(farv)[1][-120:])
+    bias = {"a": 120, "b": 320, "op": "bias"}
+    check("⭐ bias (HIGH): the praise says the sample gave some people NO CHANCE, never that it 'cannot reach everyone'",
+          PR("bias", bias) == "200 — the ones the survey gave no chance of being picked — and that is a biased sample."
+          and "cannot reach everyone" not in PR("bias", bias), PR("bias", bias))
+    ptre = {"a": 9, "b": 8, "op": "ptre"}
+    check("  ptre: the ask's board writes the 81 paths its words count",
+          '[[step eq="9 × 9 = 81 paths in all"]][[step eq="paths that win twice = ?"]]' in B(ptre), B(ptre))
+    check("⭐ HIGH: the four-times rule's recap carries its condition, in its own sentence",
+          "A sample's margin of error shrinks slowly. With everything else about the poll the same, halving it costs four times the people" in spoken(E("ps-u4-the-price-of-accuracy")), "")
+    check("⭐ laws with their condition: a tempting wrong move (not the OR rule); a chance CAN BE WRITTEN as a percent; for a spinner spun twice; CAN BE DRAWN as a tree; unless they come up equally often; ABOUT 5 percent by the 95 percent rule; low end first is the safe order",
+          "But adding the one-in numbers is a tempting wrong move." in spoken(E("ps-u5-both-at-once"))
+          and "A chance can be written as a percent of the whole." in spoken(E("ps-u5-chance-on-a-scale"))
+          and "For a spinner spun twice, every first outcome branches into every second one" in spoken(E("ps-u5-count-the-winning-paths"))
+          and "A two-stage experiment can be drawn as a tree." in spoken(E("ps-u5-count-the-winning-paths"))
+          and "Never average the prizes alone unless they come up equally often" in spoken(E("ps-u7-what-one-play-is-worth"))
+          and "by the 95 percent rule, take about 5 percent of the group for both ends" in spoken(E("ps-u8-almost-nobody-out-there"))
+          and "Low end first is the safe order." in spoken(E("ps-u9-the-range-in-real-people")), "")
+    check("  the terms named where they are used: undercoverage; a distribution; counting (not Geometry) gives a chance",
+          "That blind spot is called undercoverage, and a sample like that is called biased." in spoken(E("ps-u4-the-ones-you-never-asked"))
+          and "every such list of chances, a distribution, keeps" in spoken(E("ps-u7-the-chances-fill-the-hundred"))
+          and "Counting gives a chance: 3 red marbles out of 10" in spoken(E("ps-u5-chance-on-a-scale")), "")
+    check("  words and board: the goal cards (past the line; what independence claims); 30% ✓; the reason boards carry the payouts and the 800; the second recap draws the branches; the histogram recap in three sentences",
+          '[[goal text="Count the ones past the line"]]' in boards(E("ps-u1-count-the-ones-above"))
+          and '[[goal text="What independence claims"]]' in boards(E("ps-u6-what-independent-claims"))
+          and '[[step eq="30% ✓"]]' in boards(E("ps-u5-chance-on-a-scale"))
+          and '[[step eq="40 plays pay 20 · 60 plays pay 5"]]' in E("ps-u7-what-one-play-is-worth")["explain"]["board"]
+          and '[[step eq="800 in the group · 20 at the top, not 40"]]' in E("ps-u8-almost-nobody-out-there")["explain"]["board"]
+          and "3 winning branches, each with 3 winning branches of its own, make the 9" in spoken(E("ps-u5-count-the-winning-paths"))
+          and "On these boards each group's count is printed on its bar. To find how many in all, add every count." in spoken(E("ps-u1-add-the-bars")), "")
+    check("  every lesson validates; the course list is still 40,495; the speechmap is still 941; no Prob/Stat sentence runs long",
+          all(ok for les in L.LESSONS for ok, _l, _d in L.validate(les)) and len(L.course_audio_lines()) == 40495
+          and len(__import__("speechmap").MAP) == 941
+          and not [1 for les in C.lessons_for("probstat", L) for t in C.transcript_for(les, L)
+                   if t["kind"] in ("why", "picture", "teach", "recap", "worked-example")
+                   for sn in re.split(r"(?<=[.!?])\s+", t["spoken"]) if len(sn.split()) >= 27], str(len(L.course_audio_lines())))
+    check("  the dated notes are in (Jim's rule 8)",
+          'APP_BUILD -> "2026-09-24xw-' in notes("main.py") and "2026-09-24  BUILD xw" in notes("ruletests.py")
+          and "2026-09-24  BUILD xw" in notes("lessons/probstat.py") and "2026-09-24  BUILD xw" in notes("lessonscripts.py"), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -50318,6 +50398,7 @@ def main():
     part3no_the_voice_cache_reclaim_card()
     part3np_the_third_probstat_sweep_part_one()
     part3nq_the_third_algebra2_sweep()
+    part3nr_the_third_probstat_sweep_part_two()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
