@@ -4,10 +4,9 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-24xy-the-two-flags-nobody-could-screenshot`** (battery 13,061
-passed, 0 failed, 3 skipped) — the whole chain below is on his disk; `xy` is the one to push
-(`xx` before it if not yet pushed). Built while Jim ran the Basic sweep — **paste that report
-next; it is the next build.** `xd`, `xe` and `xf` were built on 09-19 while Jim was away from his
+On Jim's disk: **`2026-09-24xz-the-third-basic-sweep`** (battery 13,073 passed, 0
+failed, 3 skipped) — the whole chain below is on his disk; `xz` is the one to push (`xx` and
+`xy` before it if not yet pushed). `xd`, `xe` and `xf` were built on 09-19 while Jim was away from his
 computer for two days (phone only), on his word from his phone ("work on whatever you can
 work on"), and all three were written to D:\MyTutor in one commit on 09-21 — his `/health`
 had still read `xc` until then. `xg` (`2026-09-21xg-the-second-probstat-sweep`, 12,778) and `xh`
@@ -62,15 +61,18 @@ unchanged. **Built after it: `xy` (`2026-09-24xy-the-two-flags-nobody-could-scre
 13,061)** — project 6, the seventh gate build: screencheck learns S8 (the last line is on
 the screen) and S9 (figure widths agree, by kind) and drives the SCRIPTED lane; its first survey
 found and the build fixed both of Jim's unscreenshottable flags — the NaN figure shrink behind
-"half as big" and the scroll latch behind "a board line below the fold". See **Written to
-D:\MyTutor** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
+"half as big" and the scroll latch behind "a board line below the fold". **Built after it: `xz`
+(`2026-09-24xz-the-third-basic-sweep`, 13,073)** — the third Basic reading: 9 findings, 29
+clean (was 41 and 14), no generator finding at all; two of the nine were reviewer misreads
+turned into coursesweep fixes (the transcript note is not a TUTOR line; the PROBLEM SPACE lists
+its exact pairs). See **Written to D:\MyTutor** below. The 09-16 chain: `wh` (Basic sweep, 12,496) → `wi`
 (Pre-Algebra, 12,515) → `wj` (the 09-15 night watch, 12,527) → `wk` (Algebra I, 12,545) → `wl`
 (Geometry, 12,558) → `wm` (Algebra II, 12,576) → `wn` (Pre-Calc, 12,589) → `wo` (Calculus,
 half, 12,599) → `wp` (Diffeq, 12,612) → `wq` (Prob/Stat, 12,626, 09-17) → `wr` (Calculus
-whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19) → `xe` (the pre-sweep, 12,751, 09-19) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22) → `xk` (the praise is not the walk-back, 12,821, 09-22) → `xl` (the watch policy, 12,841, 09-22) → `xm` (the angle carries its unit, 12,855, 09-22) → `xn` (the miss has a face, 12,865, 09-22) → `xo` (Phase C, the forty-eight get their walk-back, 12,883, 09-22) → `xp` (the sweep survives a restart, 12,907, 09-23) → `xq` (the third Algebra I sweep, 12,920, 09-23) → `xr` (the pencil in the scripted lane, 12,935, 09-23) → `xs` (the third Diffeq sweep, 12,965, 09-23) → `xt` (the voice-cache reclaim card, 12,978, 09-23) → `xu` (the third Prob/Stat sweep, part one, 12,991, 09-23) → `xv` (the third Algebra II sweep, 12,999, 09-24) → `xw` (the third Prob/Stat sweep, part two, 13,008, 09-24) → `xx` (the child-mode skin, 13,030, 09-24) → `xy` (the two flags nobody could screenshot, 13,061, 09-24). Jim pushes and prewarms
+whole, 12,638, 09-17) → `ws` (Diffeq again, 12,649, 09-17) → `wt` (the referee pile, 12,658, 09-17) → `wu` (Pre-Calc again, 12,666, 09-17) → `wv` (the sweep says why it stopped, 12,674, 09-17) → `ww` (Pre-Calc, third reading, 12,685, 09-17) → `wx` (Algebra II again, 12,693, 09-18) → `wy` (Entry, fifth reading, 12,704, 09-18) → `wz` (Basic again, 12,714, 09-18) → `xa` (Pre-Algebra again, 12,724, 09-18) → `xb` (Algebra I again, 12,732, 09-19) → `xc` (Geometry again, 12,739, 09-19) → `xd` (the colon is not a ratio, 12,745, 09-19) → `xe` (the pre-sweep, 12,751, 09-19) → `xf` (the pre-sweep, the other eight, 12,759, 09-19) → `xg` (the second Prob/Stat sweep, 12,778, 09-21) → `xh` (the credit line everywhere, 12,785, 09-21) → `xi` (the second Calculus sweep, 12,801, 09-22) → `xj` (the spoken beat is short everywhere, 12,809, 09-22) → `xk` (the praise is not the walk-back, 12,821, 09-22) → `xl` (the watch policy, 12,841, 09-22) → `xm` (the angle carries its unit, 12,855, 09-22) → `xn` (the miss has a face, 12,865, 09-22) → `xo` (Phase C, the forty-eight get their walk-back, 12,883, 09-22) → `xp` (the sweep survives a restart, 12,907, 09-23) → `xq` (the third Algebra I sweep, 12,920, 09-23) → `xr` (the pencil in the scripted lane, 12,935, 09-23) → `xs` (the third Diffeq sweep, 12,965, 09-23) → `xt` (the voice-cache reclaim card, 12,978, 09-23) → `xu` (the third Prob/Stat sweep, part one, 12,991, 09-23) → `xv` (the third Algebra II sweep, 12,999, 09-24) → `xw` (the third Prob/Stat sweep, part two, 13,008, 09-24) → `xx` (the child-mode skin, 13,030, 09-24) → `xy` (the two flags nobody could screenshot, 13,061, 09-24) → `xz` (the third Basic sweep, 13,073, 09-24). Jim pushes and prewarms
 each; check `/health`. The first round is over: every lesson in every course has been read
 once. **The second round has begun, and the cycle converges: Diffeq went 119 → 62 findings,
-0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean. Third round: Pre-Algebra 58 → 29, 18 clean; Pre-Calc 60 → 28, 24 clean; Algebra I 50 → 23, 23 clean; Diffeq 62 → 39, 13 clean (its first reading WITH the miss path in view); Algebra II 43 → 28, 19 clean; Prob/Stat 60 → 26, 23 clean (13 on the first 16, then the whole course resumed).**
+0 → 8 clean, on one fix build; Pre-Calc 76 → 34 → (60 with wt's praise-board shape, fixed in the engine) 15 clean; Algebra II 73 → 43, 14 clean; Entry 14 → 19 (sixteen of them one engine consequence of ww, closed in wy) with 29 clean — the most any course has had; Basic 67 → 41, 7 → 14 clean; Pre-Algebra 69 → 58, 6 → 9 clean (ten of the 58 were the near-repeat praise class, closed across 25 ops in xa); Algebra I 72 → 50, 8 → 10 clean — the first reading after xa, and the praise class did not come up once; Geometry 63 → 36, 7 → 16 clean. Third round: Pre-Algebra 58 → 29, 18 clean; Pre-Calc 60 → 28, 24 clean; Algebra I 50 → 23, 23 clean; Diffeq 62 → 39, 13 clean (its first reading WITH the miss path in view); Algebra II 43 → 28, 19 clean; Prob/Stat 60 → 26, 23 clean (13 on the first 16, then the whole course resumed); Basic 41 → 9, 29 clean — the smallest pile yet.**
 
 **OpenAI credits were topped up on the evening of 09-17** (the cap is not the balance —
 an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes the card say
@@ -80,9 +82,25 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`.
 
-## Written to D:\MyTutor (xy, 2026-09-24) — Jim pushes
+## Written to D:\MyTutor (xz, 2026-09-24) — Jim pushes
+
+`xz`'s files, all on his disk:
+
+- `lessons/basic.py` (8 edits)
+- `coursesweep.py` (a `note` turn is labelled the transcript's own; the PROBLEM SPACE lists its exact (a, b) pairs; two charter lines)
+- `ruletests.py` (PART 3nu; two pins moved)
+- `speechmap.py` (regenerated; 941)
+- `main.py` (stamp `2026-09-24xz-the-third-basic-sweep`)
+- `changelog/Build_xz_The_Third_Basic_Sweep_2026-09-24.md`
+- `changelog/START_HERE_Handoff_2026-09-24.md` (this file)
+
+After the push: `/health` = `2026-09-24xz-the-third-basic-sweep`; **prewarm ~8 lines**. Then
+the next sweep (Geometry 36, Calculus 46, Entry 19, or Pre-Calc's fourth) or the next gate
+build (the over-tall beat, see xy).
+
+## Written to D:\MyTutor (xy, 2026-09-24) — pushed or pending
 
 `xy`'s files, all on his disk:
 
@@ -96,9 +114,7 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 
 After the push: `/health` = `2026-09-24xy-the-two-flags-nobody-could-screenshot`; **nothing to
 prewarm**. Play a Geometry lesson (unit 1, when lines cross) past the second pair question: the
-question must be on the board, not below it. **The NEXT build is the Basic sweep** (its report
-was running while xy was built). The gate build after that: the LOW S9 pile — a beat too tall
-for a 544px board (29 of 45 lessons surveyed) — i.e. `pu`'s "turn length", see the xy doc.
+question must be on the board, not below it. (The Basic sweep that followed is `xz`, above.)
 
 ## Written to D:\MyTutor (xx, 2026-09-24) — pushed or pending
 
@@ -248,7 +264,7 @@ That class has to be READ. The remaining rounds are the instrument, not a formal
 | course | sweeps so far | last result |
 |---|---|---|
 | Entry | wa (219) → wc (70) → wd (47) → we (15) → wf (14) → wg fixes → wx (19, all 36) → wy fixes → xf pre-sweep, unswept | 19 findings (16 of them ww's praise-board consequence), 29 clean |
-| Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes → xf pre-sweep, unswept | 41 findings, 14 clean |
+| Basic | wg (67) → wh fixes → wy (41, all 36) → wz fixes → xf pre-sweep → **xz's reading (9, all 36)** → xz fixes, unswept | 9 findings, 29 clean (was 41, 14) |
 | Pre-Algebra | wh (69) → wi fixes → wz (58, all 36) → xa fixes → xf pre-sweep → **xk's reading (29, all 36)** → xk fixes, unswept | 29 findings, 18 clean (was 58, 9) |
 | Algebra I | wi (72) → wk fixes → xa (50, all 36) → xb fixes → xf pre-sweep → **xp's reading (23, all 36)** → xq fixes, unswept | 23 findings, 23 clean (was 50, 10) |
 | Geometry | wk (63) → wl fixes → xb (36, all 36) → xc fixes → xf pre-sweep, unswept | 36 findings, 16 clean |
@@ -260,11 +276,11 @@ That class has to be READ. The remaining rounds are the instrument, not a formal
 
 ## What to do next
 
-1. The xy files are on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-24xy-the-two-flags-nobody-could-screenshot` (nothing to prewarm;
-   xw's ~60 lines if not yet done) and plays Geometry unit 1 past the pairs. **The NEXT build
-   is the Basic sweep** (Jim ran it during xy); after it Geometry 36, Calculus 46 (its third),
-   Entry 19, or Pre-Calc's fourth — whichever report he pastes. Before each sweep,
+1. The xz files are on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-24xz-the-third-basic-sweep`, prewarms ~8 lines (xw's ~60 if not yet
+   done) and plays Geometry unit 1 past the pairs (xy's fix). **The NEXT build**: a sweep —
+   Geometry 36, Calculus 46 (its third), Entry 19, or Pre-Calc's fourth, whichever report he
+   pastes — or the gate build the xy instrument named (the over-tall beat). Before each sweep,
    consider closing the `xs` class in that course first (PART 3nn's ratchet says how many
    beats: Basic 26, Prob/Stat 22, Geometry 18, Algebra II 14). Read the hits with the scan's
    `--show` (the scan is described in the xs build doc; its logic is PART 3nn's first two
@@ -333,6 +349,12 @@ That class has to be READ. The remaining rounds are the instrument, not a formal
 
 ## House decisions still open
 
+- **The transcript's note and the space's pairs (xz).** A `note` turn (the times-table pass
+  marker) reads "(transcript note -- never spoken, not the tutor's)" on the page, and the
+  PROBLEM SPACE line lists the exact (a, b) pairs when there are ≤ 12 problems — because the
+  Basic reviewer paired 48 with 3 out of the two value lists and raised two HIGHs on a problem
+  the lesson never asks. When a reviewer objects to a problem, check the pairs list before the
+  lesson. A reviewer misread that the tool invited is a TOOL fix, not a refusal.
 - **The screen is measured, not guessed (xy).** `python screencheck.py --script <lesson|course|all>`
   drives authored lessons through the real scripted player headlessly (~50 s a lesson, no key)
   and judges every turn: S8 (the last line on the screen — HIGH), S9 (same-kind figures within

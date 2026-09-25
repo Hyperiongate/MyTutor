@@ -3,6 +3,13 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xz -- THE TRANSCRIPT NOTE IS NOT A TUTOR LINE, AND THE SPACE LISTS ITS
+#               PAIRS. The third Basic sweep quoted the times-table pass marker as a spoken
+#               line (it was labelled TUTOR) and paired a=48 with b=3 out of the space's two
+#               value lists to call the tens-and-ones split false. render_transcript labels
+#               a note "(transcript note -- never spoken, not the tutor's)"; problem_space
+#               adds "the exact problems (a, b): ..." when the space is small enough to list;
+#               the charter says both. PART 3nu.
 #   2026-09-24  BUILD xv -- ONE CHARTER LINE from the third Algebra II sweep: the [[choices]]
 #               on an ask or a reason question are tap buttons the child reads, never read
 #               aloud, by design. Four sweeps in a row (wx, xa, xb, this one) raised "the
@@ -368,6 +375,13 @@ def problem_space(lesson, L=None) -> str:
                     rules.append(f"{op}: {r[1]}")
             except Exception:  # noqa: BLE001
                 pass
+    # (xz, 2026-09-24) THE PAIRS, NOT THE CROSS PRODUCT. "a is one of 22 ... 48; b is one of
+    # 2, 3, 4, 5" let the third Basic sweep pair 48 with 3 and call the tens-and-ones split
+    # false for 48 ÷ 3 -- a problem the lesson never asks (it asks 48 ÷ 4). When the space
+    # is small enough to list, the exact (a, b) pairs are on the line too.
+    if len(probs) <= PROBLEM_SPACE_LIST_MAX and all(isinstance(p.get("a"), int) and isinstance(p.get("b"), int) for p in probs):
+        pairs_ = sorted({(p["a"], p["b"]) for p in probs})
+        parts.append("the exact problems (a, b): " + ", ".join(f"({a}, {b})" for a, b in pairs_))
     line = (f"PROBLEM SPACE: {len(probs)} problems; " + "; ".join(parts)
             + f"; op {'/'.join(ops)}")
     if rules:
@@ -384,6 +398,11 @@ def render_transcript(lesson, turns) -> str:
     for t in turns:
         if t["kind"] == "student":
             lines.append(f"[{t['n']}] STUDENT {t['spoken']}")
+        elif t["kind"] == "note":
+            # (xz, 2026-09-24) the transcript's own aside -- the times-table pass marker --
+            # is NOT a tutor line: the third Basic sweep quoted it as one ("this is
+            # transcript metadata spoken as a tutor line"). It was labelled TUTOR.
+            lines.append(f"[{t['n']}] (transcript note -- never spoken, not the tutor's) {t['spoken']}")
         else:
             lines.append(f"[{t['n']}] ({t['kind']}) TUTOR: {t['spoken']}")
         if t["board"]:
@@ -446,7 +465,9 @@ rule stated for the numbers this lesson uses, at this level, UNLESS the lesson i
 contradicts it or a child could misapply it within the same unit -- and the PROBLEM SPACE
 line under the lesson's title is what "the numbers this lesson uses" means: a case outside it
 (two equal numbers where the space says they differ; a hundreds column where every number is
-two-digit; a zero where no digit is zero) is NOT a finding. A quote must be COPIED
+two-digit; a zero where no digit is zero) is NOT a finding, and a pair the exact-problems list
+does not contain is not one either; a line marked "(transcript note -- never spoken)" is the
+transcript's own aside, not a tutor line -- never a finding. A quote must be COPIED
 EXACTLY from a TUTOR line or a BOARD line. Give at most %d findings, the worst first, and if
 the lesson is clean say so with an empty list.
 

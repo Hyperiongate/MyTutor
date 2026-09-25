@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  APP_BUILD -> "2026-09-24xz-the-third-basic-sweep". The third Basic reading (9
+#               findings on 36, 29 clean; 41 and 14 at wy): lessons/basic.py (8 edits),
+#               coursesweep.py (the transcript note is not a tutor line; the problem space
+#               lists its exact pairs; the charter says both). No change in this file beyond
+#               the stamp; ~8 lines to prewarm. PART 3nu.
 #   2026-09-24  APP_BUILD -> "2026-09-24xy-the-two-flags-nobody-could-screenshot". Project 6 of
 #               the 09-14 list: screencheck.py learns S8 (the turn's last line is on the
 #               screen) and S9 (figure widths within one lesson agree, by kind) and gains a
@@ -9485,7 +9490,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-24xy-the-two-flags-nobody-could-screenshot"
+APP_BUILD = "2026-09-24xz-the-third-basic-sweep"
 
 
 @app.get("/health")

@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xz -- PART 3nu, THE THIRD BASIC SWEEP (9 findings on 36, 29 clean; 41
+#               and 14 at wy). Pins the two tool fixes (the transcript note is not a TUTOR
+#               line; the PROBLEM SPACE lists its exact pairs), the condition class (not a
+#               ten itself; the split works because each piece divides cleanly, teach and
+#               recap), the five one-offs, the counts. Two pins moved with the text (the
+#               rounding closure line; the simplest-form recap).
 #   2026-09-24  BUILD xy -- PART 3nt, THE TWO FLAGS NOBODY COULD SCREENSHOT (project 6 of the
 #               09-14 deep dive; the seventh gate build). screencheck.py gains S8 (the turn's
 #               last line is on the screen), S9 (figure widths within one lesson agree, by
@@ -17364,8 +17370,9 @@ def part3lq_the_voice_misses_get_faces():
 
     # ---- the head rule ------------------------------------------------------------------
     # (wh) the line moved with the course: "— and at halfway, hop up" rides the rule now
-    closure_line = ("Every number lives between two tens. Rounding just means: hop to the ten you are "
-                    "closer to — and at halfway, hop up. 47 is closer to 50, so 47 rounds to 50.")
+    # (xz) ...and again: "A number that is not a ten itself sits between two tens" (the condition)
+    closure_line = ("A number that is not a ten itself sits between two tens. Rounding just means: hop to "
+                    "the ten you are closer to — and at halfway, hop up. 47 is closer to 50, so 47 rounds to 50.")
     check("⭐ a closure line keeps 80 characters -- enough to name it",
           M._voice_miss_head(closure_line, "", True) == closure_line[:80], repr(M._voice_miss_head(closure_line, "", True)))
     check("⭐ a line outside the closure keeps six words -- enough to say which KIND of line it is, no more",
@@ -18881,7 +18888,7 @@ def part3mc_the_first_basic_sweep():
           and "Whatever you divide the top by, divide the bottom by too" in spoken(E("basic-u5-simplest-form")), "")
     check("  simplest form: the BIGGEST shared number or divide again; 'nothing but 1 divides 3 and 4'; 10/16 → 5/8 is not '÷ 2'",
           "Find the biggest number the top and the bottom share" in spoken(E("basic-u5-simplest-form"))
-          and "If they still share something, divide again" in spoken(E("basic-u5-simplest-form"))
+          and "If you used a smaller shared number, they may still share something — divide again" in spoken(E("basic-u5-simplest-form"))   # (xz) the second sentence follows from the first now
           and "Nothing but 1 divides 3 and 4" in spoken(E("basic-u5-simplest-form"))
           and "10/16 ÷ 2" not in boards(E("basic-u5-simplest-form")), "")
     check("  the halfway condition rides both rounding rules; 'the times tables you know'; four fourths is the point 1",
@@ -23768,6 +23775,76 @@ def part3nt_the_two_flags_nobody_could_screenshot():
                   widths and min(widths) >= 1000, (min(widths) if widths else None, len(widths)))
         except Exception as exc:  # noqa: BLE001
             check(NAME, False, f"the drive did not run: {exc}")
+
+
+def part3nu_the_third_basic_sweep():
+    """PART 3nu (build xz, 2026-09-24) -- THE THIRD BASIC SWEEP. 9 findings on 36 (0
+    generator, 9 authored), 29 clean -- 41 and 14 at wy, 67 and 7 at wg. Two of the nine
+    were reviewer misreadings and became tool fixes: the times-table pass marker was
+    labelled TUTOR in the transcript (it is the transcript's own note now, and the
+    charter says so); and "a is one of ... 48; b is one of 2, 3, 4, 5" let the reviewer
+    pair 48 with 3 and call the tens-and-ones split false for a problem the lesson never
+    asks -- the PROBLEM SPACE line lists the exact (a, b) pairs when it can. The condition
+    class (3): a number NOT A TEN ITSELF sits between two tens; the tens-and-ones split
+    works TODAY because each piece divides with nothing left over (teach and recap).
+    One-offs (5): the left-overs recap says what "that" was; LCM is named before the board
+    writes it; the equivalent-fractions intro says the pies come WITH each question; the
+    simplest-form intro says the BIGGEST shared number, and its recap's second sentence
+    follows from its first. Two pins moved with the text."""
+    print("\nPART 3nu — the third Basic sweep (build xz)")
+    import lessonscripts as L
+    import coursesweep as C
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for _s, b in les["teach"]] + [b for _s, b in (les.get("recap") or [])])
+
+    # ---- the tool fixes ----------------------------------------------------------------
+    tt = C.transcript_for(E("basic-u2-times-tables"), L)
+    page = C.render_transcript(E("basic-u2-times-tables"), tt)
+    check("⭐ the times-table pass marker is the transcript's own note on the page, never a TUTOR line",
+          "(transcript note -- never spoken, not the tutor's) (the times-table pass continues" in page
+          and "TUTOR: (the times-table pass continues" not in page, "")
+    ps = C.problem_space(E("basic-u3-divide-two-digit"))
+    check("⭐ the PROBLEM SPACE line lists the exact (a, b) pairs when the space is small -- 48 goes with 4, never with 3",
+          "the exact problems (a, b): (22, 2), (26, 2), (33, 3), (39, 3), (44, 4), (46, 2), (48, 4)," in ps
+          and "(48, 3)" not in ps and ps.startswith("PROBLEM SPACE: 12 problems; a is one of "), ps[:200])
+    check("  ...a wide space keeps the ranges alone (no pair list past PROBLEM_SPACE_LIST_MAX)",
+          "the exact problems" not in C.problem_space({"bank": [{"a": i, "b": 2, "op": "+"} for i in range(1, 30)], "pairs": []}), "")
+    check("  the charter says both: a pair the list does not contain is not a finding; a transcript note is never one",
+          "a pair the exact-problems list\ndoes not contain is not one either" in C.SWEEP_SYSTEM
+          and 'a line marked "(transcript note -- never spoken)" is the\ntranscript\'s own aside, not a tutor line -- never a finding' in C.SWEEP_SYSTEM, "")
+
+    # ---- the condition class -------------------------------------------------------------
+    check("⭐ rounding to tens: a number NOT A TEN ITSELF sits between two tens (40 does not live between two tens)",
+          "A number that is not a ten itself sits between two tens." in spoken(E("basic-u1-rounding-tens"))
+          and "Every number lives between two tens" not in spoken(E("basic-u1-rounding-tens")), "")
+    dv = spoken(E("basic-u3-divide-two-digit"))
+    check("⭐ dividing bigger numbers: the tens-and-ones split carries its condition in the teach AND the recap",
+          "today, tens and ones, because each piece divides with nothing left over" in dv
+          and "Here that was the tens and the ones, because each piece divided with nothing left over." in dv
+          and "here, the tens and the ones. Divide each piece" not in dv, "")
+    check("  ...and every problem the lesson asks really does split cleanly (the space, not the reviewer's cross product)",
+          all(p["a"] % 10 % p["b"] == 0 and (p["a"] // 10 * 10) % p["b"] == 0
+              for p in E("basic-u3-divide-two-digit")["bank"] + [pr["ask"] for pr in E("basic-u3-divide-two-digit")["pairs"]]), "")
+
+    # ---- the one-offs --------------------------------------------------------------------
+    check("  left-overs recap: 'that' is the number of things in the full groups",
+          "Then take the number of things in those full groups away from what you started with." in spoken(E("basic-u3-left-overs")), "")
+    check("  LCM is named before the board writes it",
+          "We write least common multiple as LCM for short." in spoken(E("basic-u4-least-common-multiple"))
+          and "as LCM for short" in E("basic-u4-least-common-multiple")["teach"][0][0]
+          and "LCM" not in E("basic-u4-least-common-multiple")["teach"][0][1].split("LCM of 2 and 3")[0], "")
+    check("  equivalent fractions: the intro says the pies come WITH each question (the intro's board is the Your-turn card)",
+          "Each question brings two pies to look at." in E("basic-u5-equivalent-fractions")["practice_intro"]
+          and "Look at the two pies." not in E("basic-u5-equivalent-fractions")["practice_intro"], "")
+    sf = E("basic-u5-simplest-form")
+    check("  simplest form: the intro says the BIGGEST shared number, and the recap's second sentence follows from its first",
+          "Find the biggest number the top and bottom share, and divide both by it." in sf["practice_intro"]
+          and "If you used a smaller shared number, they may still share something — divide again." in spoken(sf)
+          and "If they still share something, divide again" not in spoken(sf), "")
+    check("  the counts: 40,495 course lines, 36 Basic lessons validate",
+          len(L.course_audio_lines()) == 40495
+          and not [r for l in L.LESSONS if l["course"] == "basic" for r in L.validate(l) if not r[0]], len(L.course_audio_lines()))
 
 
 def part3he_the_main_road_moves_the_star():
@@ -50711,6 +50788,7 @@ def main():
     part3nr_the_third_probstat_sweep_part_two()
     part3ns_the_child_mode_skin()
     part3nt_the_two_flags_nobody_could_screenshot()
+    part3nu_the_third_basic_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

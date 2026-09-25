@@ -2,6 +2,15 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD xz -- THE THIRD BASIC SWEEP (9 findings, 29 clean; 41 and 14 at wy). Eight
+#               edits: the condition class -- "a number that is not a ten itself sits between
+#               two tens"; the tens-and-ones split works "because each piece divides with
+#               nothing left over" (teach and recap of dividing bigger numbers); and five
+#               one-offs -- the left-overs recap names what "that" is, LCM is named before
+#               the board writes it, the equivalent-fractions intro says the pies come with
+#               each question, the simplest-form intro says the BIGGEST shared number and
+#               its recap's second sentence follows from its first. Nothing declined; the
+#               reviewer's 48 ÷ 3 was a cross product of the space (fixed in coursesweep).
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 12 lessons; 
@@ -272,7 +281,7 @@ _BASIC_MORE = [
                         '[[step eq="10/16 → 5/8, both divided by 2"]][[pie parts="8" shaded="5" caption="5/8 — the same amount, simplest form"]]'),
              "ask": {"a": 14, "b": 21, "op": "simp"}},
         ],
-        "practice_intro": "Now it's your turn. Find what the top and bottom share, and divide both. Three right answers in a row and we're done — here comes the first one.",
+        "practice_intro": "Now it's your turn. Find the biggest number the top and bottom share, and divide both by it. Three right answers in a row and we're done — here comes the first one.",
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. 9 out of 12 and "
@@ -286,8 +295,8 @@ _BASIC_MORE = [
         "recap": [
             ("So, here it is again. Find the biggest number the top and the bottom "
              "share, divide both by it, and you have the shortest name for the "
-             "same amount. If they still share something, divide again. Do it to "
-             "both, never to one.",
+             "same amount. If you used a smaller shared number, they may still "
+             "share something — divide again. Do it to both, never to one.",
              '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="3/4 — the same amount"]]'),
             ("And the shortest name is the one we write, because it is the easiest to read and compare: nine twelfths is three fourths.",
              '[[step eq="9/12 = 3/4"]]'),
@@ -825,9 +834,9 @@ _BASIC_MORE = [
             "board": '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="3 groups of 4, 1 left over"]]',
         },
         "recap": [
-            ("So, here it is again. Fill as many equal groups as you can, then take "
-             "that away from what you started with. What is left is the "
-             "left-over — always smaller than a group.",
+            ("So, here it is again. Fill as many equal groups as you can. Then take "
+             "the number of things in those full groups away from what you "
+             "started with. What is left is the left-over — always smaller than a group.",
              '[[array rows="3" cols="4" extra="1" eq="13 ÷ 4 = 3 left over 1" caption="the red dot is the left-over"]]'),
             ("And it is for real life, where sharing rarely comes out even: 13 divided by 4 is 3, left over 1.",
              '[[step eq="13 ÷ 4 = 3 left over 1"]]'),
@@ -1079,9 +1088,9 @@ _BASIC_MORE = [
                         '[[pie parts="4" shaded="1" caption="one fourth"]][[pie parts="8" shaded="2" caption="two eighths — the same amount"]]'),
              "ask": {'a': 1, 'b': 2, 'c': 10, 'op': 'eqf'}},
         ],
-        "practice_intro": ("Now it's your turn. Look at the two pies. Three right "
-                           "answers in a row and we're done — here comes the first "
-                           "one."),
+        "practice_intro": ("Now it's your turn. Each question brings two pies to "
+                           "look at. Three right answers in a row and we're done — "
+                           "here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. One half equals "
@@ -1729,9 +1738,9 @@ _BASIC_MORE = [
         ],
         # 3 · TEACH -- the idea read off the picture, then the quick rule
         "teach": [
-            ("Every number lives between two tens. Rounding just means: hop to "
-             "the ten you are closer to — and at halfway, hop up. 47 is closer "
-             "to 50, so 47 rounds to 50.",
+            ("A number that is not a ten itself sits between two tens. Rounding "
+             "just means: hop to the ten you are closer to — and at halfway, hop "
+             "up. 47 is closer to 50, so 47 rounds to 50.",
              '[[numberline min="40" max="50" mid="45" points="47" hops="47,50" '
              'caption="47 rounds to 50"]]'),
             ("Here is the quick way to tell, in your head. Look at the ones "
@@ -2060,9 +2069,10 @@ _BASIC_MORE = [
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4: 80 ÷ 4 = 20, 4 ÷ 4 = 1"]]'),
         ],
         "teach": [
-            ("So the trick is: split the number into friendly pieces — tens and "
-             "ones — divide each piece, then put the answers together. 80 divided "
-             "by 4 equals 20. 4 divided by 4 equals 1. 20 plus 1 equals 21.",
+            ("So the trick is: split the number into friendly pieces — today, "
+             "tens and ones, because each piece divides with nothing left over. "
+             "Divide each piece, then put the answers together. 80 divided by 4 "
+             "equals 20. 4 divided by 4 equals 1. 20 plus 1 equals 21.",
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'
              '[[step eq="84 ÷ 4 = 21"]]'),
             ("One more, watch. 69 divided by 3. Split 69 into 60 and 9. 60 divided "
@@ -2094,7 +2104,7 @@ _BASIC_MORE = [
             "board": '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]',
         },
         "recap": [
-            ("So, here it is again. A two-digit number divided by a digit: split it into pieces you know how to divide — here, the tens and the ones. Divide each piece, then put the answers together.",
+            ("So, here it is again. A two-digit number divided by a digit: split it into pieces you know how to divide. Here that was the tens and the ones, because each piece divided with nothing left over. Divide each piece, then put the answers together.",
              '[[areamodel rows="4" cols="20,1" caption="84 ÷ 4 = 20 + 1 = 21"]]'),
             ("And that is how dividing reaches past the times tables — in pieces, the same way multiplying did. 84 divided by 4 is 80 divided by 4 plus 4 divided by 4, 21.",
              '[[step eq="84 ÷ 4 = 80 ÷ 4 + 4 ÷ 4 = 21"]]'),
@@ -2311,7 +2321,7 @@ _BASIC_MORE = [
         "teach": [
             ("That is the least common multiple: the smallest number in BOTH "
              "count-by lists — the first spot both sets of hops land on. For 2 "
-             "and 3, it is 6.",
+             "and 3, it is 6. We write least common multiple as LCM for short.",
              '[[step eq="2: 2, 4, 6"]][[step eq="3: 3, 6"]]'
              '[[step eq="LCM of 2 and 3 = 6"]]'),
             ("One more, watch. 4 and 6. Hop by 4: 4, 8, 12. Hop by 6: 6, 12. The "
