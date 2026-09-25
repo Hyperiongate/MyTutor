@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  APP_BUILD -> "2026-09-25ye-the-scripted-lane-goes-nightly". The nightly screenwatch
+#               workflow gets a second job that drives eight authored lessons a night through
+#               xy's scripted lane (screencheck.py --script rota, --fail-on MEDIUM); the last
+#               four fixed-slice note pins in ruletests.py read notes(). No change in this file
+#               beyond the stamp; nothing to prewarm. PART 3ny.
 #   2026-09-25  APP_BUILD -> "2026-09-25yd-every-label-goes-through-the-fit". The screen survey's
 #               508 small labels: the grapher never set vk's fit and wrote raw font-sizes
 #               (static/math-figures.js); screencheck's S5 and S1 learn two exceptions. No
@@ -9507,7 +9512,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-25yd-every-label-goes-through-the-fit"
+APP_BUILD = "2026-09-25ye-the-scripted-lane-goes-nightly"
 
 
 @app.get("/health")

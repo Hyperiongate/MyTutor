@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD ye -- PART 3ny, THE SCRIPTED LANE GOES NIGHTLY. Pins rota_lessons (eight
+#               a night, every lesson once a cycle), failing() and --fail-on, the CLI end to
+#               end with the capture stubbed, the workflow's second job, and that no dated-note
+#               pin reads a fixed slice any more: the four that did (3ik's client-log/voice,
+#               3jd's, 3jg's and 3jl's geo-figures) read notes() now (ui's law).
 #   2026-09-25  BUILD yd -- PART 3nx, EVERY LABEL GOES THROUGH THE FIT. The survey's 508 small
 #               labels (473 the grapher's, which never set the fit) and two old checks that
 #               misfired on it (S5 on a caption that is a question; S1 on the imaginary unit).
@@ -24068,6 +24073,83 @@ def part3nx_every_label_goes_through_the_fit():
             check(NAME, False, f"the drive did not run: {exc}")
 
 
+def part3ny_the_scripted_lane_goes_nightly():
+    """PART 3ny (build ye, 2026-09-25) -- THE SCRIPTED LANE GOES NIGHTLY, AND THE LAST
+    FIXED-SLICE PINS GO. Build xy gave screencheck a third way to capture -- the engine
+    walks an authored lesson, the real page plays every beat, no site and no secret --
+    and left the nightly screenwatch workflow driving the live lane only. Now the
+    workflow has a second, independent job: `scripted` drives the night's ROTATING
+    slice of the catalogue (--script rota: eight lessons in catalogue order, the slice
+    picked by the day of the year, so all 360 are watched once every ~45 nights and any
+    night can be re-run by hand with --rota-day) and fails on MEDIUM and above
+    (--fail-on: the over-tall beat's S9 LOW is the pu rule working, by design, and would
+    fail every night otherwise; the report lists it still). And xy's own warning is
+    honoured: the four dated-note pins that still read a fixed slice of a file
+    (client-log.js, voice.js, geo-figures.js x3) read notes() now, ui's law, so the
+    next header note on those files bites nobody."""
+    print("\nPART 3ny — the scripted lane goes nightly (build ye)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    sc, wf, rt = rd("screencheck.py"), rd(".github/workflows/screenwatch.yml"), rd("ruletests.py")
+    try:
+        import screencheck as SC
+        import lessonscripts as L  # noqa: N812
+    except Exception as exc:  # noqa: BLE001
+        bad("screencheck imports for 3ny", f"{type(exc).__name__}: {exc}")
+        return
+    n = len(L.LESSONS)
+    slices = (n + 7) // 8
+    seen = [lid for d in range(slices) for lid in SC.rota_lessons(L, 8, d)]
+    check("⭐ rota_lessons: eight a night in catalogue order, every lesson once per cycle, none twice",
+          len(seen) == n and len(set(seen)) == n and seen == [les["id"] for les in L.LESSONS], (n, len(seen), len(set(seen))))
+    check("  rota_lessons: the same day gives the same slice, the cycle wraps, size 0 gives nothing, the default is 8",
+          SC.rota_lessons(L, 8, 3) == SC.rota_lessons(L, 8, 3 + slices) and SC.rota_lessons(L, 0, 1) == []
+          and len(SC.rota_lessons(L)) == 8 and SC.rota_lessons(L, 8, 0)[0] == L.LESSONS[0]["id"], "")
+    F = SC.Finding
+    fs = [F("S9", SC.SEV_LOW, 1, "", ""), F("S8", SC.SEV_HIGH, 2, "", ""), F("S5", SC.SEV_MED, 3, "", "")]
+    check("⭐ failing(): LOW keeps every finding (the old rule), MEDIUM drops the LOW ones, HIGH keeps HIGH only",
+          [f.check for f in SC.failing(fs)] == ["S9", "S8", "S5"]
+          and [f.check for f in SC.failing(fs, SC.SEV_MED)] == ["S8", "S5"]
+          and [f.check for f in SC.failing(fs, SC.SEV_HIGH)] == ["S8"], "")
+    # The CLI end to end, no browser: the capture and the judge are stubbed, the wiring is real.
+    kept = (SC.playwright_available, SC.capture_script, SC.run_all)
+    try:
+        SC.playwright_available = lambda: True
+        SC.capture_script = lambda lid, **kw: []
+        SC.run_all = lambda snaps: [F("S9", SC.SEV_LOW, 1, "shrunk on purpose", "")]
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            r_med = SC.main(["--script", "rota", "--rota-size", "1", "--rota-day", "0", "--fail-on", "MEDIUM", "--shots", ""])
+            r_low = SC.main(["--script", "rota", "--rota-size", "1", "--rota-day", "0", "--shots", ""])
+            r_dft = SC.main(["--script", "entry-u1-counting-to-10", "--shots", ""])
+        check("⭐ the CLI: --script rota --fail-on MEDIUM passes on a LOW-only night; LOW (the default) fails it as it always did",
+              r_med == 0 and r_low == 1 and r_dft == 1, (r_med, r_low, r_dft))
+    finally:
+        SC.playwright_available, SC.capture_script, SC.run_all = kept
+    check("  screencheck: the three flags exist and say what they do",
+          '"--rota-size"' in sc and '"--rota-day"' in sc and '"--fail-on"' in sc
+          and "choices=[SEV_LOW, SEV_MED, SEV_HIGH]" in sc and 'elif want == "rota":' in sc
+          and "bad = failing(findings, args.fail_on)" in sc and "return 1 if bad else 0" in sc, "")
+    check("⭐ the workflow: a second job drives tonight's slice -- rota, eight, MEDIUM -- and keeps its evidence",
+          "\n  scripted:\n" in wf
+          and "python screencheck.py --script rota --rota-size 8 --fail-on MEDIUM" in wf
+          and "--shots screenwatch-script-shots --out screenwatch-script-report.md" in wf
+          and "name: screenwatch-script-${{ github.run_id }}" in wf and wf.count("if: always()") == 2
+          and wf.count("timeout-minutes: 20") == 2, "")
+    check("  the workflow: the scripted job needs no secret, and the live job is exactly what it was",
+          "SCREENWATCH_CODE" not in wf.split("\n  scripted:\n")[1]
+          and "python screencheck.py --live https://mrcadabra.com" in wf.split("\n  scripted:\n")[0]
+          and 'if [ -z "$SCREENWATCH_CODE" ]' in wf.split("\n  scripted:\n")[0], "")
+    slices_left = [ln.strip()[:90] for ln in rt.split("\n")
+                   if "BUILD" in ln and re.search(r"\w\[:\d{4,5}\]", ln) and "notes(" not in ln]
+    check("⭐ no dated-note pin reads a fixed slice of a file any more (ui's law, xy's warning)",
+          not slices_left, slices_left[:3])
+    check("  the changed files carry dated ye notes",
+          all("2026-09-25" in notes(f) and "ye" in notes(f)
+              for f in ("screencheck.py", "ruletests.py", "main.py", ".github/workflows/screenwatch.yml")), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -35208,7 +35290,7 @@ def part3ik_the_mark_goes_away_and_the_voice_is_counted():
     check("  the six files carry dated so notes",
           all("2026-09-04" in notes(f) and "(so)" in notes(f)          # (us) notes(), never a slice (ui's law)
               for f in ("static/session.html", "static/topic.html", "static/practice.html"))
-          and "BUILD so" in cl[:2500] and "BUILD so" in vo[:3000]
+          and "BUILD so" in notes("static/client-log.js") and "BUILD so" in notes("static/voice.js")   # (ye) notes(), not a slice
           and "BUILD so" in notes("main.py") and "BUILD so" in nw[:20000], "Jim's rule 8")
 
 
@@ -37520,7 +37602,8 @@ def part3je_geometry_units_one_to_three_to_the_shape():
           and '[[circle center="O" r="6" d="12" caption="two radiuses end to end: 2 × 6 = 12"]]' == _W(circ)[1], "")
     gf = rd("static/geo-figures.js")
     check("  geo-figures.js draws the diameter under d=, labelled, and nothing without it",
-          'if (a.d) {' in gf and '"diameter " + String(a.d)' in gf and "2026-09-06  BUILD ti" in gf[:3000], "")
+          'if (a.d) {' in gf and '"diameter " + String(a.d)' in gf
+          and "2026-09-06  BUILD ti" in notes("static/geo-figures.js"), "")   # (ye) notes(), not a slice
     mid = {"a": 2, "b": 10, "op": "mid"}
     check("  halfway along: the two ends on the ask, the middle marked with the halfway line in the walk-back",
           'points="2,10" caption="the ends, 2 and 10 — where is the middle?"' in L.board_for(mid, "abstract")
@@ -37771,7 +37854,8 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
     check("  geo-figures.js draws the parallelogram under kind=, base and side labelled, the true height dashed; nothing without it",
           'if (String(a.kind || "").trim().toLowerCase() === "parallelogram") {' in gf
           and '"height " + String(a.height)' in gf and 'stroke-dasharray="6,5"' in gf
-          and '"base " + String(a.base)' in gf and "2026-09-06  BUILD tk" in gf[:3000], "")
+          and '"base " + String(a.base)' in gf
+          and "2026-09-06  BUILD tk" in notes("static/geo-figures.js"), "")   # (ye) notes(), not a slice
     lshp = {"a": 5, "b": 2, "c": 4, "op": "lshp"}
     check("⭐ two rooms: two rectangles captioned and a pending line the ask SPEAKS (rule 44 -- 12 asks did not before tk)",
           '[[rectangle w="5" h="2" caption="one room: 5 by 2"]][[rectangle w="4" h="2" caption=' in L.board_for(lshp, "abstract")
@@ -38542,7 +38626,8 @@ def part3jl_precalc_units_four_to_six_to_the_shape():
     check("  the changed files carry dated tp notes",
           "2026-09-06  BUILD tp" in notes("lessonscripts.py") and "BUILD tp" in notes("main.py")
           and "2026-09-06  BUILD tp" in notes("ruletests.py") and "(tp)" in notes("static/methodology.html")
-          and "BUILD tp" in notes("static/math-figures.js") and "BUILD tp" in _gf[:3000],
+          and "BUILD tp" in notes("static/math-figures.js")
+          and "BUILD tp" in notes("static/geo-figures.js"),   # (ye) notes(), not a slice
           "Jim's rule 8")
 
 
@@ -51013,6 +51098,7 @@ def main():
     part3nv_the_third_geometry_sweep()
     part3nw_the_words_grow_back_on_a_shrunk_figure()
     part3nx_every_label_goes_through_the_fit()
+    part3ny_the_scripted_lane_goes_nightly()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,21 @@
 # screencheck.py  --  THE SCREEN AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD ye -- THE SCRIPTED LANE GOES NIGHTLY. Two small CLI additions so the
+#               screenwatch workflow can drive authored lessons on GitHub's runner without
+#               a secret, a server or a model call:
+#                 --script rota   a ROTATING slice of the catalogue: rota_lessons(L, size,
+#                                 day) takes the lessons in catalogue order, cuts them into
+#                                 slices of --rota-size (default 8) and picks slice
+#                                 day % slices, day being --rota-day or today's day of the
+#                                 year -- every lesson is watched once every ~45 nights and
+#                                 the pick is the same for anyone who names the day.
+#                 --fail-on SEV   the exit status fails on a finding AT OR ABOVE this
+#                                 severity (default LOW, which is what the auditor always
+#                                 did). The report still lists everything. The nightly
+#                                 scripted lane uses MEDIUM: the over-tall beat's S9 LOW is
+#                                 the pu rule working (253 of them in the yd survey, by
+#                                 design) and must not fail a night.
 #   2026-09-25  BUILD yd -- TWO OLD CHECKS TAUGHT BY THE SURVEY. S5 skips a caption that is
 #               itself a question (14 false hits, all "... how much longer is the pencil?");
 #               S1 leaves the imaginary unit alone on a board that carries i² = −1 or the
@@ -1133,6 +1148,30 @@ def script_walk(lesson, L=None):
     return turns
 
 
+def rota_lessons(L, size=8, day=None):
+    """(ye) The night's slice of the catalogue. Lessons in catalogue order, cut into
+    slices of `size`; the slice picked is `day % slices`, `day` defaulting to today's day
+    of the year (UTC). Pure: same day, same size, same lessons -- anyone can re-run a night.
+    A size of 0 or less, or an empty catalogue, gives nothing."""
+    ids = [les["id"] for les in L.LESSONS]
+    if size <= 0 or not ids:
+        return []
+    if day is None:
+        import datetime
+        day = datetime.datetime.now(datetime.timezone.utc).timetuple().tm_yday
+    slices = (len(ids) + size - 1) // size
+    k = int(day) % slices
+    return ids[k * size:(k + 1) * size]
+
+
+def failing(findings, fail_on=SEV_LOW):
+    """(ye) The findings that fail the run: those at or above `fail_on`. LOW keeps every
+    finding (the auditor's original rule); MEDIUM drops the LOW ones; HIGH keeps HIGH only."""
+    rank = {SEV_HIGH: 0, SEV_MED: 1, SEV_LOW: 2}
+    floor = rank.get(fail_on, 2)
+    return [f for f in findings if rank.get(f.severity, 3) <= floor]
+
+
 def capture_script(lesson_id, static_dir=None, port=8741, shots_dir=None,
                    viewport=(1280, 900), max_turns=60, L=None):
     """Drive ONE authored lesson through the real scripted player and snapshot every
@@ -1558,8 +1597,17 @@ def main(argv=None):
                     help="drive a real lesson on a running site (needs playwright + a code)")
     ap.add_argument("--script", metavar="LESSON", action="append",
                     help="(xy) drive an AUTHORED lesson through the scripted player and judge "
-                         "every turn -- a lesson id, a course name (every lesson of it), or "
-                         "'all'. Repeatable. Needs playwright; no key, no server, no cost.")
+                         "every turn -- a lesson id, a course name (every lesson of it), "
+                         "'all', or 'rota' (ye: the night's rotating slice of the catalogue, "
+                         "--rota-size lessons, picked by --rota-day). Repeatable. Needs "
+                         "playwright; no key, no server, no cost.")
+    ap.add_argument("--rota-size", type=int, default=8,
+                    help="(ye) how many lessons 'rota' drives (default 8)")
+    ap.add_argument("--rota-day", type=int, default=None,
+                    help="(ye) which day's slice 'rota' drives (default: today's day of the year, UTC)")
+    ap.add_argument("--fail-on", default=SEV_LOW, choices=[SEV_LOW, SEV_MED, SEV_HIGH],
+                    help="(ye) fail the run on a finding at or above this severity (default LOW: "
+                         "every finding fails, as always). The report lists everything regardless.")
     ap.add_argument("--code", default="", help="student code for --live")
     ap.add_argument("--course", default="geometry")
     ap.add_argument("--static", default=None, help="path to static/ (default: ./static)")
@@ -1585,6 +1633,13 @@ def main(argv=None):
         for want in args.script:
             if want == "all":
                 ids += [les["id"] for les in L.LESSONS]
+            elif want == "rota":
+                picked = rota_lessons(L, size=args.rota_size, day=args.rota_day)
+                print("# rota: %d of %d lessons (--rota-size %d, day %s): %s"
+                      % (len(picked), len(L.LESSONS), args.rota_size,
+                         "today" if args.rota_day is None else args.rota_day, ", ".join(picked)),
+                      file=sys.stderr)
+                ids += picked
             elif want in L.LESSON_BY_ID:
                 ids.append(want)
             else:
@@ -1628,7 +1683,11 @@ def main(argv=None):
             fh.write(md)
         print("wrote %s" % args.out)
     print(md)
-    return 1 if findings else 0
+    bad = failing(findings, args.fail_on)
+    if findings and not bad:
+        print("# %d finding%s, none at or above %s -- the run passes"
+              % (len(findings), "" if len(findings) == 1 else "s", args.fail_on), file=sys.stderr)
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
