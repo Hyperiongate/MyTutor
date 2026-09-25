@@ -2,6 +2,19 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  APP_BUILD -> "2026-09-25yc-the-redraw-settles". yb's figure redraw looped through
+#               the feed's MutationObserver (board.js figSettle: redraw only on a change of
+#               width). Found by the ten-course screen survey (four times slower; one lesson
+#               never settled). No change in this file beyond the stamp; nothing to prewarm.
+#   2026-09-24  APP_BUILD -> "2026-09-24yb-the-words-grow-back-on-a-shrunk-figure". The over-tall
+#               beat (the gate build xy's instrument named): a figure the board shrinks to fit
+#               its turn is drawn again for the width it gets, labels re-fitted
+#               (math-figures.js room, board.js figRedraw); screencheck S10 measures it. No
+#               change in this file beyond the stamp; nothing to prewarm. PART 3nw.
+#   2026-09-24  APP_BUILD -> "2026-09-24ya-the-third-geometry-sweep". The third Geometry reading
+#               (11 findings on 36, 27 clean; 36 and 16 at xb): lessons/geometry.py (12 edits +
+#               4 boards), static/math-figures.js ([[graph segments=]]). No change in this file
+#               beyond the stamp; ~12 lines to prewarm. PART 3nv.
 #   2026-09-24  APP_BUILD -> "2026-09-24xz-the-third-basic-sweep". The third Basic reading (9
 #               findings on 36, 29 clean; 41 and 14 at wy): lessons/basic.py (8 edits),
 #               coursesweep.py (the transcript note is not a tutor line; the problem space
@@ -9490,7 +9503,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-24xz-the-third-basic-sweep"
+APP_BUILD = "2026-09-25yc-the-redraw-settles"
 
 
 @app.get("/health")

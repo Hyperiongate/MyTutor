@@ -2,6 +2,16 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-24  BUILD yb -- THE ROOM CAN BE GIVEN. MathFigures.svg(kind, a, {room: px}) draws
+                 the figure for a known width: figFit uses it instead of measuring the board,
+                 so a figure board.js has shrunk to fit its turn (pu) is re-rendered with its
+                 labels grown back for that width -- the words stay readable at 340px, as vk
+                 made them on a 420px phone. No room given, nothing changes.
+     2026-09-24  BUILD ya -- [[graph segments="(1,3)-(1,8)"]] draws the piece of line between
+                 two points, thick and clipped to the window, under the points. The third
+                 Geometry sweep: the straight-up lesson said "a segment from (1, 3) to (1, 8)"
+                 over a board that drew the whole line x = 1. Additive; no other attribute
+                 changes.
      2026-09-23  BUILD xs -- THE FIELD THE WORDS DRAW. [[graph field="x+y"]] draws a SLOPE
                  FIELD: a short dash at each of a 12 x 12 grid of points across the window,
                  leaning at the value of the expression there (x and y both allowed; a bare
@@ -576,6 +586,20 @@
     String(a.hole || a.holes || "").split(/[;|,]/).forEach(function (s) {
       var v = parseFloat(s); if (isFinite(v)) holeXs.push(v);
     });
+    // (ya, 2026-09-24) SEGMENTS: segments="(1,3)-(1,8)|(2,2)-(5,6)" draws the piece of
+    // line BETWEEN two points, thick, so a beat that says "a segment from (1, 3) to
+    // (1, 8)" shows a segment and not the whole line x = 1 (the third Geometry sweep's
+    // words-board finding on the straight-up lesson). Drawn under the points, clipped
+    // to the window; a pair that does not parse is skipped.
+    String(a.segments || "").split(/[;|]/).forEach(function (sg) {
+      var m = sg.match(/^\s*(\([^)]*\))\s*-\s*(\([^)]*\))\s*$/);   // "(x1,y1)-(x2,y2)", negatives allowed
+      if (!m) return;
+      var p1 = parsePts(m[1])[0], p2 = parsePts(m[2])[0];
+      if (!p1 || !p2) return;
+      var inWin = function (p) { return p[0] >= xmin && p[0] <= xmax && p[1] >= ymin && p[1] <= ymax; };
+      if (!inWin(p1) || !inWin(p2)) return;
+      svg += '<line x1="' + mapX(p1[0]) + '" y1="' + mapY(p1[1]) + '" x2="' + mapX(p2[0]) + '" y2="' + mapY(p2[1]) + '" stroke="var(--bd-5b5bd6)" stroke-width="4" stroke-linecap="round"/>';
+    });
     // explicit points
     parsePts(a.points).forEach(function (p) {
       if (p[0] < xmin || p[0] > xmax || p[1] < ymin || p[1] > ymax) return;
@@ -740,12 +764,19 @@
   // the same ratio so a number line thins its labels instead of overlapping them.
   // Wide boards are byte-for-byte what they were (the ratio is 1); node (the va
   // render harness) has no document and gets 1 too.
-  var FIT_MAX = 2.0, _fit = 1;
+  var FIT_MAX = 2.0, _fit = 1, _room = 0;
+  // (yb, 2026-09-24) THE ROOM CAN BE GIVEN. svg(kind, a, {room: px}) tells the figure
+  // how wide it will actually be drawn -- board.js passes the width it shrank a figure
+  // to (pu's fit) -- so the labels grow back for THAT width exactly as they do for a
+  // narrow board. With no room given, the board's own width is measured as before.
   function figFit(w) {
     try {
-      if (typeof document === "undefined" || !document.getElementById) return 1;
-      var host = document.getElementById("feed") || document.getElementById("board");
-      var room = host ? host.clientWidth - 40 : 0;          // the feed's own padding
+      var room = _room;
+      if (!(room > 0)) {
+        if (typeof document === "undefined" || !document.getElementById) return 1;
+        var host = document.getElementById("feed") || document.getElementById("board");
+        room = host ? host.clientWidth - 40 : 0;          // the feed's own padding
+      }
       if (!(room > 0) || !(w > 0) || room >= w) return 1;
       return Math.min(FIT_MAX, w / room);
     } catch (e) { return 1; }
@@ -1546,7 +1577,11 @@
       s2 += tspan(W2 / 2, H2 - 8, eqText || (total + " ÷ " + rows + " = ?"), "var(--bd-5b5bd6)", 18, 800);
       return s2 + "</svg>";
     }
-    var W = Math.max(360, x0 + cols * (d + 4) + 60), H = y0 + rows * (d + gap) + (extra ? d + gap : 0) + 44;
+    // (yb) the "N rows" label sits to the RIGHT of the dots now, with 110 units of room:
+    // on the left it shared the margin with the per-row counts and read "5 rows2" --
+    // at the full size by a few units, and by a lot once the labels grow for a narrow
+    // room (vk/yb). The row counts keep the left margin to themselves.
+    var W = Math.max(360, x0 + cols * (d + 4) + 110), H = y0 + rows * (d + gap) + (extra ? d + gap : 0) + 44;
     var s = svgOpen(W, H, 760);
     for (var r = 0; r < rows; r++) {
       var yy = y0 + r * (d + gap) + d / 2, col = groups ? cellFill[r % cellFill.length] : "var(--bd-5b5bd6)";
@@ -1567,7 +1602,7 @@
     }
     // the column count along the top, the row count down the side
     s += tspan(x0 + cols * (d + 4) / 2, y0 - 12, cols + " in each row", "var(--bd-555566)", 12, 700);
-    s += tspan(x0 - 40, y0 + rows * (d + gap) / 2, rows + " rows", "var(--bd-555566)", 12, 700, "middle");
+    s += tspan(x0 + cols * (d + 4) + 14, y0 + rows * (d + gap) / 2 + 4, rows + " rows", "var(--bd-555566)", 12, 700, "start");
     var eq = eqText || (rows + " × " + cols + (extra ? " + " + extra : "") + " = " + (ask ? "?" : String(rows * cols + extra)));
     s += tspan(W / 2, H - 10, eq, "var(--bd-5b5bd6)", 18, 800);
     return s + "</svg>";
@@ -1793,8 +1828,9 @@
     numberline: numberline, areamodel: areamodel, vector: vector,
     venn: venn, tape: tape, clock: clock,
     _compile: compile,
-    svg: function (kind, a) {
-      try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; }
+    svg: function (kind, a, opts) {
+      _room = (opts && opts.room > 0) ? opts.room : 0;     // (yb) the width it will be drawn at, if known
+      try { return this[kind] ? this[kind](a || {}) : ""; } catch (e) { return ""; } finally { _room = 0; }
     }
   };
 })();

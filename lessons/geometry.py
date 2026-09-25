@@ -2,6 +2,16 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD ya -- THE THIRD GEOMETRY SWEEP (11 findings, 27 clean; 36 and 16 at xb).
+#               Twelve edits and four boards, nothing declined. The condition class: the radius
+#               sets every other MEASUREMENT; a segment is a PIECE of a line; a point OFF the
+#               mirror jumps and one on it stays (flip why + recap); adding the same number to
+#               sides of DIFFERENT lengths bends the shape; the inscribed angle's arms reach the
+#               rim and it halves the arc it opens ONTO (HIGH); IN THIS LESSON an arc is in
+#               degrees; the out-of number is the whole bag WHEN the chance is a count from
+#               it. Words and board: the reason question names the 80 its board labels; the
+#               sliding corner is a would-be; the straight-up lesson's boards draw the SEGMENT
+#               ([[graph segments=]], new in math-figures.js) instead of the line x = 1.
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 19 lessons; 
@@ -258,9 +268,7 @@ _GEOMETRY_U1 = [
         "advance_line": "Three in a row, and you can say why — you've got it! The diameter is two radiuses.",
         "why": [
             ("Why the circle? Because a circle is every point the same distance from "
-             "one middle point. That distance — middle to edge — is the radius. Draw "
-             "it and you have the circle\'s one measurement; everything else about "
-             "the circle follows from it, starting with the trip all the way across.",
+             "one middle point. That distance — middle to edge — is the radius. Draw it and you have the circle\'s one measurement; every other measurement of the circle follows from it, starting with the trip all the way across.",
              '[[goal text="Radius and diameter"]]'),
         ],
         "picture": [
@@ -333,9 +341,7 @@ _GEOMETRY_U1 = [
         "symbols": ("midpoint", "halfway"),
         "advance_line": "Three in a row, and you can say why — you've got it! Add the two ends and share by two.",
         "why": [
-            ("Why the midpoint? Because every line segment — a line with two ends — "
-             "has an exact middle: the point halfway along, the same distance from "
-             "both ends. Finding it is the first real construction in geometry, and "
+            ("Why the midpoint? Because every line segment — a piece of a line with two ends — has an exact middle. That is the point halfway along, the same distance from both ends. Finding it is the first real construction in geometry, and "
              "cutting a shape in half starts there.",
              '[[goal text="The midpoint"]]'),
         ],
@@ -498,8 +504,7 @@ _GEOMETRY_U2 = [
         "symbols": ("flip", "mirror"),
         "advance_line": "Three in a row, and you can say why — you've got it! A flip across the y line changes only the sign of x.",
         "why": [
-            ("Why a flip? Because the second move is a mirror. Stand a mirror upright on the y line — the line where x is zero. Every point jumps to the other side, the same distance away. A flip is also "
-             "called a reflection, and it is how a left hand becomes a right hand.",
+            ("Why a flip? Because the second move is a mirror. Stand a mirror upright on the y line — the line where x is zero. Every point off the mirror jumps to the other side, the same distance away; a point on the mirror stays put. A flip is also called a reflection, and it is how a left hand becomes a right hand.",
              '[[goal text="Flip it across"]]'),
         ],
         "picture": [
@@ -546,9 +551,7 @@ _GEOMETRY_U2 = [
             "board": '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="from (4, 6) to (−4, 6)"]]',
         },
         "recap": [
-            ("So, here it is again. A flip across the y line sends every point to "
-             "the other side of the mirror, the same height and the same distance "
-             "away. Only the sign of x changes; y never hears about it.",
+            ("So, here it is again. A flip across the y line sends every point off the mirror to the other side, the same height and the same distance away. A point on the mirror stays put. Only the sign of x changes; y never hears about it.",
              '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="x: 4 → −4 · y stays 6"]]'),
             ("And that is the second move, a reflection: 4, 6 goes to negative 4, 6.",
              '[[step eq="(4, 6) → (−4, 6)"]]'),
@@ -937,9 +940,7 @@ _GEOMETRY_U3 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. A triangle has "
-                       "angles of 40 and 60, and its exterior angle is 100. Tap the "
-                       "reason why."),
+            "spoken": ("One more thing — not the answer, the reason. A triangle has angles of 40, 60 and 80, and the exterior angle beside the 80 is 100. Tap the reason why."),
             "choices": ("because the exterior equals the two far angles put together | "
                         "because the exterior equals the inside corner, 80 | because "
                         "the exterior is 180 take away the bigger far angle"),
@@ -1115,8 +1116,7 @@ _GEOMETRY_U4 = [
         },
         "recap": [
             ("So, here it is again. An enlargement keeps the shape and changes the "
-             "size, and the scale factor is a times — every side timesed by the same "
-             "number. Never an add; adding bends the shape.",
+             "size, and the scale factor is a times — every side timesed by the same number. Never an add: adding the same number to sides of different lengths bends the shape.",
              '[[triangle v="A,B,C" sides="3,5,4" caption="small"]][[triangle v="D,E,F" sides="6,10,8" caption="× 2"]]'),
             ("And that is a similar shape: the same shape in a new size, every side "
              "timesed by 2 — 3 times 2 is 6.",
@@ -1712,8 +1712,7 @@ _GEOMETRY_U6 = [
         "why": [
             ("Why the rest of the circle? Because a circle can be cut. A radius is a "
              "line from the middle of a circle to its rim. Draw two radiuses and the "
-             "rim splits into two arcs. Every arc "
-             "is measured in degrees, by the angle it opens at the middle. All the way "
+             "rim splits into two arcs. In this lesson an arc is measured in degrees, by the angle it opens at the middle. All the way "
              "around is one full turn: 360 degrees. The two arcs always share exactly "
              "360.",
              '[[goal text="The rest of the circle"]]'),
@@ -1797,8 +1796,7 @@ _GEOMETRY_U6 = [
         "picture": [
             ("Here is an angle standing on the rim, opening onto the arc across from "
              "it. The arc measures 80 degrees, and the angle on the rim measures 40 — "
-             "half. Slide the corner anywhere along the far side of the rim and the "
-             "angle stays 40: the arc rules the angle from everywhere across from it.",
+             "half. Put the corner anywhere else on the far side of the rim and the angle would still be 40. The arc rules the angle from everywhere across from it.",
              '[[circle center="O" inscribed="80" caption="an inscribed angle on the rim — the arc across is 80°, the angle is 40°"]]'),
         ],
         "teach": [
@@ -1835,8 +1833,7 @@ _GEOMETRY_U6 = [
             "board": '[[circle center="O" inscribed="80" caption="arc 80° — from the rim, 40°"]]',
         },
         "recap": [
-            ("So, here it is again. An angle with its corner on the rim is an "
-             "inscribed angle, and it measures half the arc across from it. From the "
+            ("So, here it is again. An angle with its corner on the rim and both arms reaching the rim is an inscribed angle. It measures half the arc it opens onto. From the "
              "middle an arc looks its full size; from the rim, exactly half.",
              '[[circle center="O" inscribed="80" caption="arc 80°, inscribed angle 40°"]]'),
             ("And that is the circle's most famous rule: half the arc. 80 degrees, halved, is 40 degrees.",
@@ -2048,13 +2045,13 @@ _GEOMETRY_U7 = [
              "8). Both ends share the same x, so only the heights differ — and the gap "
              "between the heights is its length. Walk up from 3 to 8 and you take five "
              "steps.",
-             '[[graph lines="x=1" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="from (1, 3) straight up to (1, 8) along x = 1 — five steps"]]'),
+             '[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="from (1, 3) straight up to (1, 8) — five steps"]]'),
         ],
         "teach": [
             ("That is the method. The segment runs from (1, 3) up to (1, 8). Its "
              "length is the gap between the heights: 8 take away 3, which equals 5. "
              "Count the steps to check: 3 to 4, to 5, to 6, to 7, to 8 — five steps.",
-             '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]][[step eq="8 − 3 = 5"]]'),
+             '[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]][[step eq="8 − 3 = 5"]]'),
             ("The trap is counting DOTS instead of steps. From 3 to 8 there are six "
              "dots but only five steps — a fence with six posts has five rails. Length "
              "is the steps. Do the take away, and trust it over your counting finger.",
@@ -2063,11 +2060,11 @@ _GEOMETRY_U7 = [
         "pairs": [
             {"worked": ("Here is one more, done for you. From (2, 3) to (2, 9): the "
                         "length is 9 take away 3 — 6.",
-                        '[[graph points="(2,3),(2,9)" range="0..10" yrange="0..10" caption="from (2, 3) to (2, 9) — 9 − 3 = 6"]][[step eq="9 − 3 = 6"]]'),
+                        '[[graph segments="(2,3)-(2,9)" points="(2,3),(2,9)" range="0..10" yrange="0..10" caption="from (2, 3) to (2, 9) — 9 − 3 = 6"]][[step eq="9 − 3 = 6"]]'),
              "ask": {'a': 4, 'b': 3, 'c': 7, 'op': 'vseg'}},
             {"worked": ("One more together. From (6, 1) to (6, 5): 5 take away 1 equals "
                         "4.",
-                        '[[graph points="(6,1),(6,5)" range="0..10" yrange="0..10" caption="from (6, 1) to (6, 5) — 5 − 1 = 4"]][[step eq="5 − 1 = 4"]]'),
+                        '[[graph segments="(6,1)-(6,5)" points="(6,1),(6,5)" range="0..10" yrange="0..10" caption="from (6, 1) to (6, 5) — 5 − 1 = 4"]][[step eq="5 − 1 = 4"]]'),
              "ask": {'a': 6, 'b': 2, 'c': 8, 'op': 'vseg'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2081,13 +2078,13 @@ _GEOMETRY_U7 = [
                         "the length is the number of dots, six | because the length is "
                         "the top height, 8"),
             "answer": "because the length is the gap between the heights",
-            "board": '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5"]]',
+            "board": '[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5"]]',
         },
         "recap": [
             ("So, here it is again. An up-and-down segment on the grid has one length: "
              "the gap between its two heights, the top take away the bottom. That "
              "counts the steps — never the dots, which are always one too many.",
-             '[[graph points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]]'),
+             '[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]]'),
             ("And that is a segment measured straight from its coordinates: 8 take away 3 is 5.",
              '[[step eq="8 − 3 = 5"]]'),
         ],
@@ -2699,8 +2696,7 @@ _GEOMETRY_U9 = [
         "teach": [
             ("That is the method. Why 5? Because the pick does not know about colors "
              "— it lands on one of ALL the marbles. 3 reds plus 2 blues is 5 marbles, "
-             "so red\'s chance is 3 out of 5, and blue\'s is 2 out of 5. The out-of "
-             "number is always the whole bag.",
+             "so red\'s chance is 3 out of 5, and blue\'s is 2 out of 5. When the chance is a count from the bag, the out-of number is the whole bag.",
              '[[bars data="red:3 | blue:2" caption="red 3 and blue 2"]][[step eq="3 + 2 = 5 in the bag"]][[step eq="red: 3 out of 5 · blue: 2 out of 5"]]'),
             ("The trap is saying 3 out of 2 — the reds against the blues. That "
              "compares the two teams, but a chance is not a comparison between "

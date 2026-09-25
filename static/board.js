@@ -2,6 +2,21 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-25  BUILD yc -- THE REDRAW SETTLES. yb's redraw ran on every pass of the fitter --
+                 a redraw is a DOM mutation, the feed's MutationObserver answers every
+                 mutation with scrollFeed, and scrollFeed runs the fitter: a 60 fps loop for
+                 as long as a shrunk figure was on the board (the screen survey ran four
+                 times slower and basic-u5-equivalent-fractions never settled). figSettle()
+                 now redraws a figure only when the width it is drawn for CHANGES, and the
+                 restore no longer redraws before measuring. Idempotent, so the observer's
+                 next call finds nothing to do. Same behaviour on screen, none of the spin.
+     2026-09-24  BUILD yb -- THE WORDS GROW BACK ON A SHRUNK FIGURE. fitTurnToBoard (pu) draws
+                 each figure it shrank AGAIN for the width it gave it (figRedraw ->
+                 MathFigures.svg(kind, attrs, {room})), so the labels are re-fitted for that
+                 width instead of staying the size vk fitted for the full board; a restore
+                 draws it for the full board again first. showFig keeps the attrs on the
+                 wrapper (__figAttrs). Geo figures are untouched (their viewBoxes are already
+                 narrow).
      2026-09-24  BUILD xy -- THE BOARD LINE BELOW THE FOLD, FOUND AND FIXED. The pages'
                  scroll listeners judged "the student scrolled away" by distance from the
                  BOTTOM (ay), but since ir a turn anchors at the TOP -- so any scroll event
@@ -537,6 +552,7 @@ function showFig(kind, a) {
   const stage = feedBlock();
   const wrap = document.createElement("div"); wrap.className = "mfig pop";
   wrap.setAttribute("data-kind", String(kind || ""));   // (xy) the figure says what it is -- screencheck S9 reads it
+  wrap.__figAttrs = a;                                   // (yb) so the fitter can draw it again for the width it gives it
   wrap.innerHTML = (window.MathFigures ? window.MathFigures.svg(kind, a) : "");
   stage.appendChild(wrap);
   if (a.caption) { const c = document.createElement("div"); c.className = "cap"; c.textContent = a.caption; wrap.appendChild(c); }
@@ -1532,7 +1548,7 @@ function fitTurnToBoard(turnTop) {
     var pad = feedPadEl();
     var natural = feed.scrollHeight - pad.offsetHeight;
     var over = (natural - turnTop) - vh;
-    if (over <= 1) return;                          // it fits: nothing to do
+    if (over <= 1) { figSettle(svgs); return; }     // it fits: nothing to do (yb: full-board labels back)
 
     // (xy, 2026-09-24) ⚠️ AN <svg> HAS NO offsetHeight. That property belongs to
     // HTMLElement; on an SVG element it is undefined, so every sum below was NaN, the
@@ -1573,7 +1589,59 @@ function fitTurnToBoard(turnTop) {
       natural = feed.scrollHeight - pad.offsetHeight;
       over = (natural - turnTop) - vh;
     }
+    // (yb, 2026-09-24) THE WORDS GROW BACK ON A SHRUNK FIGURE. A figure drawn for the
+    // full board and then shrunk to fit its turn kept the label sizes vk fitted for
+    // the full board -- at 340px a 12-unit label on a 660-unit viewBox is 6px, the
+    // phone defect one build over. Each shrunk figure is drawn AGAIN for the width it
+    // now has (MathFigures.svg's room), labels re-fitted, same maxWidth, same wrapper.
+    figSettle(svgs);
   } catch (e) {}
+}
+
+// (yb) after the fit has settled: a shrunk figure is drawn for the width it has, a
+// figure back at full width is drawn for the full board -- and NOTHING is redrawn
+// when it is already drawn for that width. ⚠️ That last clause is load-bearing: a
+// redraw is a DOM mutation, the feed's MutationObserver answers every mutation with
+// scrollFeed, and scrollFeed runs this fitter -- the first cut redrew on every pass
+// and the page spun at 60 fps for as long as a shrunk figure was on the board
+// (the screen survey ran four times slower and one lesson never settled). Idempotent,
+// so the observer's next call finds nothing to do.
+function figSettle(svgs) {
+  for (var r = 0; r < svgs.length; r++) {
+    var sv = svgs[r];
+    if (sv.getAttribute("data-pu-maxw") === null) continue;
+    var orig = sv.getAttribute("data-pu-maxw"), cur = sv.style.maxWidth || "";
+    var room = sv.getAttribute("data-pu-room");
+    if (cur && cur !== orig) {
+      var want = Math.round(parseFloat(cur));
+      if (want > 0 && String(want) !== room) figRedraw(sv, want);
+    } else if (room !== null) {
+      figRedraw(sv, 0);
+    }
+  }
+}
+
+// (yb) draw a figure again for a given room (0 = the board's own width), keeping its
+// wrapper, caption, kind, maxWidth and the pu bookkeeping. Returns the new <svg>, or
+// null when the figure cannot be redrawn (a geo figure, no attrs, no renderer).
+function figRedraw(svg, room) {
+  try {
+    var wrap = svg.closest ? svg.closest(".mfig") : null;
+    if (!wrap || !wrap.__figAttrs || !window.MathFigures) return null;
+    var kind = wrap.getAttribute("data-kind");
+    if (!kind || typeof window.MathFigures[kind] !== "function") return null;
+    var html = window.MathFigures.svg(kind, wrap.__figAttrs, room > 0 ? { room: room } : null);
+    if (!html) return null;
+    var tpl = document.createElement("div"); tpl.innerHTML = html;
+    var fresh = tpl.querySelector("svg");
+    if (!fresh) return null;
+    var keepMax = svg.style.maxWidth, keepOrig = svg.getAttribute("data-pu-maxw");
+    if (keepOrig !== null) fresh.setAttribute("data-pu-maxw", keepOrig);
+    if (room > 0) { fresh.setAttribute("data-pu-room", String(room)); fresh.style.maxWidth = keepMax; }
+    else fresh.removeAttribute("data-pu-room");
+    svg.parentNode.replaceChild(fresh, svg);
+    return fresh;
+  } catch (e) { return null; }
 }
 
 let _feedPlacing = false;   // (xy) true between scrollFeed's call and its rAF: the board is about to place the view

@@ -2,6 +2,12 @@
 # screencheck.py  --  THE SCREEN AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-24  BUILD yb -- S10, THE FIGURE'S WORDS ARE READABLE. FIGURES_JS measures every
+#               figure's smallest label in screen pixels (font-size x drawn width / viewBox
+#               width) and whether the figure was drawn again for its width (data-pu-room);
+#               S10 reports a label under LABEL_PX_FLOOR (9px). The over-tall beat's shrink
+#               (pu, proportional since xy) left the labels at the full-board size -- 6px at
+#               340px; board.js redraws the figure for the width it gives it now.
 #   2026-09-24  BUILD xy -- THE TWO FLAGS NOBODY COULD SCREENSHOT (project 6 of the 09-14
 #               deep dive). Jim's corrections queue said "a board line below the fold"
 #               (twice, no screenshot survived) and "the graphic is half as big as it should
@@ -547,6 +553,32 @@ def check_s8_the_last_line_is_on_the_screen(snap):
 
 
 FIG_WIDTH_TOLERANCE = 0.12    # S9: same kind, same lesson -> widths within 12% of each other
+LABEL_PX_FLOOR = 9.0          # S10: the smallest label a figure may draw, in screen pixels
+
+
+def check_s10_the_figures_words_are_readable(snap):
+    """S10 -- THE FIGURE'S WORDS ARE READABLE (build yb, 2026-09-24). A figure is drawn in
+    a viewBox with 10-15 unit labels; on screen a label is font-size x (drawn width /
+    viewBox width). vk grew the labels for a narrow BOARD; a figure the board SHRANK to
+    fit its turn (pu) kept the sizes fitted for the full board -- at 340px on a 660-unit
+    viewBox a 12-unit label is 6px. FIGURES_JS measures the smallest label of every
+    figure of the turn; under LABEL_PX_FLOOR is a finding. Measured, never inferred."""
+    out = []
+    for fig in (snap.figures or []):
+        px = (fig or {}).get("label_px")
+        try:
+            px = float(px) if px is not None else None
+        except (TypeError, ValueError):
+            px = None
+        if px is None or px >= LABEL_PX_FLOOR:
+            continue
+        out.append(Finding(
+            "S10 the figure's words are readable", SEV_MED, snap.turn,
+            "The %s is drawn %dpx wide and its smallest label is %.1fpx -- under the %.0fpx floor%s." % (
+                fig.get("kind") or "figure", int(fig.get("width") or 0), px, LABEL_PX_FLOOR,
+                " (shrunk to fit the turn)" if fig.get("shrunk") else ""),
+            "kind %s, width %s, shrunk %s, refit %s" % (fig.get("kind"), fig.get("width"), fig.get("shrunk"), fig.get("refit"))))
+    return out
 
 
 def check_s9_figure_widths_agree(snaps):
@@ -604,6 +636,7 @@ CHECKS = [
     check_s6_nothing_is_clipped,
     check_s7_the_console_is_clean,
     check_s8_the_last_line_is_on_the_screen,
+    check_s10_the_figures_words_are_readable,
 ]
 # (xy) checks that read a whole LESSON -- every snapshot together -- not one turn
 LESSON_CHECKS = [
@@ -984,8 +1017,23 @@ FIGURES_JS = """() => {
       const svg = m.querySelector('svg'); if (!svg) return;
       const r = svg.getBoundingClientRect();
       const host = m.closest('.stepcell, .stepcard, .worklist, .mblock');
+      // (yb) the smallest label, in screen pixels: font-size in viewBox units times the
+      // drawn width over the viewBox width -- what the child's eye actually gets
+      let labelPx = null;
+      try {
+        const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+        const scale = (vb.length === 4 && vb[2] > 0) ? r.width / vb[2] : 1;
+        svg.querySelectorAll('text').forEach(t => {
+          const fs = parseFloat(t.getAttribute('font-size') || (getComputedStyle(t).fontSize || '12'));
+          if (!(fs > 0) || !(t.textContent || '').trim()) return;
+          const px = fs * scale;
+          if (labelPx === null || px < labelPx) labelPx = px;
+        });
+      } catch (e) {}
       out.push({ kind: m.getAttribute('data-kind') || '', width: Math.round(r.width), height: Math.round(r.height),
-                 shrunk: svg.hasAttribute('data-pu-maxw'), host: host ? host.className.split(' ')[0] : '' });
+                 shrunk: svg.hasAttribute('data-pu-maxw'), host: host ? host.className.split(' ')[0] : '',
+                 label_px: labelPx === null ? null : Math.round(labelPx * 10) / 10,
+                 refit: svg.hasAttribute('data-pu-room') });
     });
   });
   return out;
@@ -1363,6 +1411,13 @@ FIXTURES = [
                           "choices_bottom": 771, "window_h": 900}}),
     ("S8 silent on a snapshot with no fold measured (an older capture)", None,
      {"turn": 1, "bubble_html": "Let's begin."}),
+    # ---- S10: fires / silent (yb; the numbers are basic-u3-story-problems before and after the refit) ----
+    ("S10 fires when a shrunk figure's smallest label is under the floor", "S10 the figure's words are readable",
+     {"turn": 1, "figures": [{"kind": "array", "width": 351, "height": 248, "shrunk": True, "host": "mblock", "label_px": 6.2, "refit": False}]}),
+    ("S10 silent once the figure is drawn again for its width", None,
+     {"turn": 1, "figures": [{"kind": "array", "width": 466, "height": 329, "shrunk": True, "host": "mblock", "label_px": 15.5, "refit": True}]}),
+    ("S10 silent on a figure with no label measured", None,
+     {"turn": 1, "figures": [{"kind": "clock", "width": 418, "height": 418, "shrunk": False, "host": "mblock", "label_px": None}]}),
 ]
 
 # (xy) LESSON-level fixtures: a list of turns, judged together.

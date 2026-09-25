@@ -2,6 +2,21 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yc -- THE REDRAW SETTLES. yb's figure redraw ran on every fitter pass;
+#               each redraw is a DOM mutation, the feed's observer answers with scrollFeed,
+#               scrollFeed runs the fitter: a 60 fps loop while a shrunk figure was on the
+#               board (the survey ran four times slower; one lesson never settled). figSettle
+#               redraws only on a CHANGE of width. 3nw's pins moved to it; one new pin.
+#   2026-09-24  BUILD yb -- PART 3nw, THE WORDS GROW BACK ON A SHRUNK FIGURE (the over-tall
+#               beat, the gate build xy's instrument named). Pins MathFigures.svg's room,
+#               board.js's figRedraw in the fitter and on restore, the array's row label on
+#               the right, screencheck's S10 and its fixtures, and drives the lesson that
+#               showed it: every shrunk figure redrawn, no label under 9px.
+#   2026-09-24  BUILD ya -- PART 3nv, THE THIRD GEOMETRY SWEEP (11 findings on 36, 27 clean; 36
+#               and 16 at xb). Pins [[graph segments=]] (new; the straight-up lesson's four
+#               boards), the seven scoped laws (the inscribed angle HIGH among them), the
+#               reason question naming its 80, the would-be corner, the counts. Two pins moved
+#               with the text (3mc's line x = 1; 3mh's line segment).
 #   2026-09-24  BUILD xz -- PART 3nu, THE THIRD BASIC SWEEP (9 findings on 36, 29 clean; 41
 #               and 14 at wy). Pins the two tool fixes (the transcript note is not a TUTOR
 #               line; the PROBLEM SPACE lists its exact pairs), the condition class (not a
@@ -19313,7 +19328,7 @@ def part3mg_the_first_geometry_sweep():
           and "The angles along a straight line make 180, so 180 take away 50 equals 130" in _W({"a": 50, "b": 0, "op": "vert"})[0]   # (xj) split after the opener
           and L.OP_EXT["sla"]["praise"]({"a": 50}).startswith("The angles along a straight line make 180"), "")
     check("  laws with their condition: line segment; every point except the middle; the slides we used / a flip across an axis; isosceles (recap and advance); similar shapes; grid-lined rectangles",
-          "every line segment — a line with two ends — has an exact middle" in spoken(E("geo-u1-halfway-along"))
+          "every line segment — a piece of a line with two ends — has an exact middle" in spoken(E("geo-u1-halfway-along"))   # (ya) a piece of a line
           and "Every point except the middle travels" in spoken(E("geo-u2-half-turn"))
           and "The slides we used changed a number by adding. A flip across an axis changes ONE sign" in spoken(E("geo-u2-half-turn"))
           and "In an isosceles triangle, given the apex" in spoken(E("geo-u3-share-the-rest"))
@@ -19327,7 +19342,7 @@ def part3mg_the_first_geometry_sweep():
           and "the proof works for every triangle" in spoken(E("geo-u3-the-outside-angle"))
           and "proved once and yours forever" not in spoken(E("geo-u3-the-outside-angle"))
           and "with both arms reaching the circle" in spoken(E("geo-u6-half-the-arc"))
-          and "along the far side of the rim" in spoken(E("geo-u6-half-the-arc"))
+          and "anywhere else on the far side of the rim and the angle would still be 40" in spoken(E("geo-u6-half-the-arc"))   # (ya) a would-be, not a slide
           and "from farther away things look smaller" not in spoken(E("geo-u6-half-the-arc")), "")
     check("  the height is at a right angle to the base; rectangles that do not overlap; lengths add to lengths; adding only counts the things; a class chose ACTIVITIES",
           "at a right angle to it" in spoken(E("geo-u8-the-true-height"))
@@ -21139,7 +21154,7 @@ def part3mx_the_second_geometry_sweep():
     # ---- the authored pile, by class ---------------------------------------------
     check("⭐ the picture the words describe: the exterior angle's straight line (HIGH); the segment's line x = 1; the two-way table on the traps beat; the squares and the check on the hypotenuse worked line; the base angles 'filled in'",
           E("geo-u3-the-outside-angle")["picture"][0][1].endswith('[[angle deg="180" split="80,100" caption="the opened corner: 80° inside, 100° outside — one straight line"]]')
-          and E("geo-u7-straight-up")["picture"][0][1].startswith('[[graph lines="x=1" points="(1,3),(1,8)"')
+          and E("geo-u7-straight-up")["picture"][0][1].startswith('[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)"')   # (ya) the SEGMENT, not the whole line x = 1
           and E("geo-u9-reading-the-table")["teach"][1][1].startswith('[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="the crossing holds 2 — the next-door boxes are 4 and 6"]]')
           and '[[step eq="9² + 12² = 81 + 144 = 225"]][[step eq="15 × 15 = 225, so hyp = 15"]]' in boards(E("geo-u5-the-longest-side"))
           and "the base angles filled in: 70 and 70. Here is where they came from." in spoken(E("geo-u3-share-the-rest")), "")
@@ -23680,7 +23695,7 @@ def part3nt_the_two_flags_nobody_could_screenshot():
     check("⭐ screencheck: S8 and S9 exist, S8 among the per-turn checks and S9 among the lesson-level ones",
           "def check_s8_the_last_line_is_on_the_screen(snap):" in sc
           and "def check_s9_figure_widths_agree(snaps):" in sc
-          and "    check_s8_the_last_line_is_on_the_screen,\n]" in sc
+          and "    check_s8_the_last_line_is_on_the_screen,\n" in sc   # (yb) S10 follows it in the list
           and "LESSON_CHECKS = [\n    check_s9_figure_widths_agree,\n]" in sc
           and "for fn in LESSON_CHECKS:" in sc.split("def run_all(snaps):")[1][:1600], "")
     check("  screencheck: S8 measures the turn's last line against the board and the buttons against the window",
@@ -23736,7 +23751,7 @@ def part3nt_the_two_flags_nobody_could_screenshot():
           and "if (!(figH > 0)) return;" in _fit, "")
     check("  board.js: the fitter's floor, restore and iteration are untouched (pu)",
           "var FIG_FIT_MIN = 340;" in bjs and "svgs[j].style.maxWidth = o" in bjs and "pass < 3" in _fit
-          and "if (over <= 1) return;" in _fit, "")
+          and "if (over <= 1) { figSettle(svgs); return; }" in _fit, "")   # (yc)
     check("⭐ board.js: the anchored target is computed in ONE place and the scroll listener asks the same question",
           "function feedAnchorTarget() {" in bjs
           and "return Math.max(0, turnTop - 6, natural - feed.clientHeight);" in bjs.split("function feedAnchorTarget() {")[1][:600]
@@ -23845,6 +23860,148 @@ def part3nu_the_third_basic_sweep():
     check("  the counts: 40,495 course lines, 36 Basic lessons validate",
           len(L.course_audio_lines()) == 40495
           and not [r for l in L.LESSONS if l["course"] == "basic" for r in L.validate(l) if not r[0]], len(L.course_audio_lines()))
+
+
+def part3nv_the_third_geometry_sweep():
+    """PART 3nv (build ya, 2026-09-24) -- THE THIRD GEOMETRY SWEEP. 11 findings on 36 (0
+    generator, 11 authored), 27 clean -- 36 and 16 at xb, 63 and 7 at wk. All eleven
+    fixed, nothing declined. The condition class (7): the radius sets every other
+    MEASUREMENT; a segment is a PIECE of a line; a point OFF the mirror jumps, a point on
+    it stays (why and recap); adding the same number to sides of DIFFERENT lengths bends
+    the shape; the inscribed angle's arms reach the rim and it halves the arc it opens
+    ONTO (HIGH); IN THIS LESSON an arc is measured in degrees; the out-of number is the
+    whole bag WHEN the chance is a count from it. Words and board (3): the reason
+    question names the 80 its board labels; the sliding corner is a would-be, not a
+    picture; and [[graph segments="(1,3)-(1,8)"]] draws the SEGMENT the straight-up
+    lesson talks about instead of the whole line x = 1 -- a new graph attribute, in all
+    four of that lesson's boards. Two pins moved with the text."""
+    print("\nPART 3nv — the third Geometry sweep (build ya)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for k in ("why", "picture", "teach", "recap") for _s, b in (les.get(k) or [])]
+                                  + [(les.get("explain") or {}).get("board", "")])
+    mf = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "math-figures.js"), encoding="utf-8").read()
+
+    check("⭐ [[graph segments=]] draws the piece of line between two points, thick, clipped, negatives allowed",
+          'String(a.segments || "").split(/[;|]/).forEach(function (sg) {' in mf
+          and 'stroke-width="4" stroke-linecap="round"' in mf
+          and "var p1 = parsePts(m[1])[0], p2 = parsePts(m[2])[0];" in mf
+          and "if (!inWin(p1) || !inWin(p2)) return;" in mf, "")
+    su = E("geo-u7-straight-up")
+    check("⭐ straight up: every board of the lesson draws the SEGMENT from (1, 3) to (1, 8), and none the whole line x = 1",
+          boards(su).count('[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)"') >= 3
+          and 'lines="x=1"' not in boards(su)
+          and all('segments="(' in pr["worked"][1] for pr in su["pairs"]), boards(su)[:200])   # the pairs draw their own segments too
+    _valid, _allowed, _why = _board_contract(os.path.dirname(os.path.abspath(__file__)))
+    check("  the board contract lists segments as an attribute of [[graph]] (read from the renderer)",
+          bool(_allowed) and "segments" in _allowed[0].get("graph", set()), _why or str(sorted(_allowed[0].get("graph", set())) if _allowed else ""))
+
+    # ---- the condition class ---------------------------------------------------------------
+    check("⭐ the radius sets every other MEASUREMENT (not 'everything else about the circle')",
+          "every other measurement of the circle follows from it" in spoken(E("geo-u1-across-the-circle"))
+          and "everything else about the circle" not in spoken(E("geo-u1-across-the-circle")), "")
+    check("  a line segment is a PIECE of a line with two ends",
+          "every line segment — a piece of a line with two ends — has an exact middle. That is the point halfway along" in spoken(E("geo-u1-halfway-along")), "")
+    fl = spoken(E("geo-u2-flip-it-across"))
+    check("⭐ the flip: a point OFF the mirror jumps, a point on the mirror stays put -- why and recap",
+          "Every point off the mirror jumps to the other side, the same distance away; a point on the mirror stays put." in fl
+          and "sends every point off the mirror to the other side, the same height and the same distance away. A point on the mirror stays put." in fl
+          and "Every point jumps to the other side" not in fl and "sends every point to the other side" not in fl, "")
+    check("  the enlarging copy: adding the same number to sides of DIFFERENT lengths bends the shape",
+          "Never an add: adding the same number to sides of different lengths bends the shape." in spoken(E("geo-u4-the-enlarging-copy"))
+          and "Never an add; adding bends the shape" not in spoken(E("geo-u4-the-enlarging-copy")), "")
+    ha = spoken(E("geo-u6-half-the-arc"))
+    check("⭐ the inscribed angle (HIGH): both arms reach the rim, and it halves the arc it opens ONTO; the sliding corner is a would-be",
+          "An angle with its corner on the rim and both arms reaching the rim is an inscribed angle. It measures half the arc it opens onto." in ha
+          and "Put the corner anywhere else on the far side of the rim and the angle would still be 40" in ha
+          and "Slide the corner anywhere along" not in ha, "")
+    check("  IN THIS LESSON an arc is measured in degrees; the out-of number is the whole bag WHEN the chance is a count from it",
+          "In this lesson an arc is measured in degrees, by the angle it opens at the middle." in spoken(E("geo-u6-the-rest-of-the-circle"))
+          and "When the chance is a count from the bag, the out-of number is the whole bag." in spoken(E("geo-u9-out-of-all")), "")
+    check("  the exterior-angle reason question names the 80 its board labels",
+          "A triangle has angles of 40, 60 and 80, and the exterior angle beside the 80 is 100." in E("geo-u3-the-outside-angle")["explain"]["spoken"]
+          and 'angles="40,60,80"' in E("geo-u3-the-outside-angle")["explain"]["board"], "")
+    check("  the counts: 40,495 course lines, 36 Geometry lessons validate",
+          len(L.course_audio_lines()) == 40495
+          and not [r for l in L.LESSONS if l["course"] == "geometry" for r in L.validate(l) if not r[0]], len(L.course_audio_lines()))
+
+
+def part3nw_the_words_grow_back_on_a_shrunk_figure():
+    """PART 3nw (build yb, 2026-09-24) -- THE OVER-TALL BEAT: THE WORDS GROW BACK ON A SHRUNK
+    FIGURE. The gate build xy's instrument named: 29 of 45 surveyed lessons had a beat whose
+    bubble, figure and step lines run past a 544px board, and pu's fitter shrinks the figure
+    to fit (proportionally, since xy) -- but the labels stayed the size vk fitted for the
+    FULL board, so a 12-unit label on a 660-unit viewBox drawn at 340px was 6px: the phone
+    defect, one build over. Now MathFigures.svg(kind, a, {room}) draws a figure for a known
+    width (figFit uses the room instead of measuring the board), showFig keeps the attrs on
+    the wrapper, and fitTurnToBoard draws each figure it shrank AGAIN for the width it gave
+    it (figRedraw: same wrapper, caption, kind and maxWidth; data-pu-room marks it; a
+    restore draws it for the full board first). screencheck measures it: FIGURES_JS reports
+    every figure's smallest label in screen px and S10 fails one under 9px. The array's "N
+    rows" label moved to the right of the dots (it read "5 rows2" on the left). Driven for
+    real on the lesson that showed it."""
+    print("\nPART 3nw — the words grow back on a shrunk figure (build yb)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    mf, bjs, sc = rd("static/math-figures.js"), rd("static/board.js"), rd("screencheck.py")
+    check("⭐ math-figures.js: svg(kind, a, {room}) draws for a given width -- figFit uses the room, and clears it after",
+          "svg: function (kind, a, opts) {" in mf
+          and "_room = (opts && opts.room > 0) ? opts.room : 0;" in mf
+          and "finally { _room = 0; }" in mf
+          and "var room = _room;\n      if (!(room > 0)) {" in mf
+          and "return Math.min(FIT_MAX, w / room);" in mf, "")
+    check("  math-figures.js: with no room given the fit measures the board as before (vk), capped at 2.0",
+          'var host = document.getElementById("feed") || document.getElementById("board");' in mf
+          and "var FIT_MAX = 2.0" in mf, "")
+    check("⭐ board.js: the fitter draws each shrunk figure again for its width, and a restore draws it for the full board first",
+          "function figRedraw(svg, room) {" in bjs
+          and "window.MathFigures.svg(kind, wrap.__figAttrs, room > 0 ? { room: room } : null)" in bjs
+          and 'fresh.setAttribute("data-pu-room", String(room)); fresh.style.maxWidth = keepMax;' in bjs
+          and "figSettle(svgs);" in bjs.split("function fitTurnToBoard(turnTop) {")[1].split("\nfunction ")[0]
+          and "if (over <= 1) { figSettle(svgs); return; }" in bjs
+          and "wrap.__figAttrs = a;" in bjs, "")
+    # (yc) the redraw is IDEMPOTENT: a figure already drawn for its width is left alone, or the
+    # feed's MutationObserver -> scrollFeed -> fitter -> redraw loop spins at 60 fps
+    _fs = bjs.split("function figSettle(svgs) {")[1].split("\nfunction ")[0] if "function figSettle(svgs) {" in bjs else ""
+    check("⭐ board.js (yc): figSettle redraws a shrunk figure only when its width CHANGED, restores only when it was drawn for a room, and never otherwise",
+          bool(_fs) and 'if (want > 0 && String(want) !== room) figRedraw(sv, want);' in _fs
+          and "} else if (room !== null) {\n      figRedraw(sv, 0);" in _fs
+          and 'var room = sv.getAttribute("data-pu-room");' in _fs
+          and "figRedraw(svgs[j], 0)" not in bjs.split("function fitTurnToBoard(turnTop) {")[1].split("function figSettle")[0], "")
+    check("  board.js: the redraw keeps the caption (only the <svg> is replaced) and fails open",
+          "svg.parentNode.replaceChild(fresh, svg);" in bjs
+          and "} catch (e) { return null; }" in bjs.split("function figRedraw(svg, room) {")[1][:1600], "")
+    check("  math-figures.js: the array's row count sits to the RIGHT of the dots, in 110 units of room",
+          'rows + " rows", "var(--bd-555566)", 12, 700, "start");' in mf
+          and "x0 + cols * (d + 4) + 110" in mf and 'x0 - 40, y0 + rows * (d + gap) / 2, rows + " rows"' not in mf, "")
+    check("⭐ screencheck: S10 measures the smallest label in screen px and fails one under the 9px floor",
+          "def check_s10_the_figures_words_are_readable(snap):" in sc and "LABEL_PX_FLOOR = 9.0" in sc
+          and "    check_s10_the_figures_words_are_readable,\n]" in sc
+          and "const px = fs * scale;" in sc and "refit: svg.hasAttribute('data-pu-room')" in sc, "")
+    try:
+        import screencheck as SC
+        for name, expected, found in SC.fixture_results():
+            if not name.startswith("S10"):
+                continue
+            names = {f.check for f in found}
+            check(f"  fixture: {name}", (not names) if expected is None else (expected in names), sorted(names))
+    except Exception as exc:  # noqa: BLE001
+        bad("screencheck imports for 3nw", f"{type(exc).__name__}: {exc}")
+        return
+    NAME = "⭐ LIVE: basic-u3-story-problems -- every shrunk figure is drawn again for its width and no label is under 9px"
+    if dep_gate(NAME, "playwright", "the redraw is measured in a real browser"):
+        try:
+            snaps = SC.capture_script("basic-u3-story-problems", static_dir=_os.path.join(here, "static"), port=8795)
+            figs = [f for sn in snaps for f in sn.figures]
+            shrunk = [f for f in figs if f.get("shrunk")]
+            s10 = [f for f in SC.run_all(snaps) if f.check.startswith("S10")]
+            check(NAME, len(snaps) >= 6 and shrunk and all(f.get("refit") for f in shrunk)
+                  and all((f.get("label_px") or 99) >= 9 for f in figs) and not s10,
+                  (len(snaps), len(shrunk), [(f.get("width"), f.get("label_px"), f.get("refit")) for f in shrunk][:4], [x.summary[:80] for x in s10][:2]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -31263,7 +31420,7 @@ def part3fy_visible_without_moving_anything():
           "data-pu-maxw" in src and 'svgs[j].style.maxWidth = o' in src,
           "a one-way shrink would leave a laptop stuck with a phone-sized picture")
     check("  ...and it never touches a turn that already fits",
-          "if (over <= 1) return;" in src, "do no harm")
+          "if (over <= 1) { figSettle(svgs); return; }" in src, "do no harm")   # (yc) a turn that fits is never shrunk; figSettle only puts full-board labels back
     check("  the fit iterates, because one pass measurably was not enough",
           "pass < 3" in src,
           "shrinking reflows everything under it, so the first factor is an estimate")
@@ -50789,6 +50946,8 @@ def main():
     part3ns_the_child_mode_skin()
     part3nt_the_two_flags_nobody_could_screenshot()
     part3nu_the_third_basic_sweep()
+    part3nv_the_third_geometry_sweep()
+    part3nw_the_words_grow_back_on_a_shrunk_figure()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
