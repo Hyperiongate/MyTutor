@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yd -- PART 3nx, EVERY LABEL GOES THROUGH THE FIT. The survey's 508 small
+#               labels (473 the grapher's, which never set the fit) and two old checks that
+#               misfired on it (S5 on a caption that is a question; S1 on the imaginary unit).
+#               Pins the grapher's fit, no raw font-size left, axisLbl(), the two exceptions
+#               and their fixtures; drives the worst lesson: every label 9px or more.
 #   2026-09-25  BUILD yc -- THE REDRAW SETTLES. yb's figure redraw ran on every fitter pass;
 #               each redraw is a DOM mutation, the feed's observer answers with scrollFeed,
 #               scrollFeed runs the fitter: a 60 fps loop while a shrunk figure was on the
@@ -24004,6 +24009,65 @@ def part3nw_the_words_grow_back_on_a_shrunk_figure():
             check(NAME, False, f"the drive did not run: {exc}")
 
 
+def part3nx_every_label_goes_through_the_fit():
+    """PART 3nx (build yd, 2026-09-25) -- EVERY LABEL GOES THROUGH THE FIT, AND TWO OLD
+    CHECKS LEARN. The ten-course screen survey (360 lessons at 1280x900): 0 lines below
+    the fold, 0 unexplained figure sizes, 508 labels under 9px -- 473 of them the
+    grapher's. graph() opens its own <svg> (a viewBox that grows leftward for wide y
+    labels) so it never went through svgOpen and never set the fit; its grid numbers,
+    point labels, legend, hole marker and axis letters were raw font-sizes besides. Now
+    graph() sets _fit = figFit(S) first, every one of its labels reads fitSize(), and
+    AXIS_LBL became axisLbl() so bars, histogram and scatter's axis letters fit too. A
+    wide board is byte-for-byte what it was (fit 1). And two of screencheck's older
+    checks misfired on the survey: S5 skips a caption that is itself a question (14
+    hits, every one "... how much longer is the pencil?"), S1 leaves the imaginary unit
+    alone on a board carrying i² = −1 (Algebra II's "A new number" -- i is a number,
+    drawn plain by the gn2 table on purpose). Driven for real on the lesson with the
+    most small labels."""
+    print("\nPART 3nx — every label goes through the fit (build yd)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    mf, sc = rd("static/math-figures.js"), rd("screencheck.py")
+    _g = mf.split("function graph(a) {")[1].split("\n  function ")[0]
+    check("⭐ math-figures.js: the grapher sets the fit before it writes a label, and says so on its <svg>",
+          "_fit = figFit(S);" in _g and 'data-fit="\' + _fit.toFixed(2) + \'"' in _g
+          and _g.index("_fit = figFit(S);") < _g.index("var svg = '<svg viewBox="), "")
+    raw = [ln for ln in mf.split("\n") if "'<text " in ln and "fitSize(" not in ln and "axisLbl()" not in ln]
+    check("⭐ math-figures.js: NO label is written with a raw font-size any more (grid numbers, points, legend, hole, axes)",
+          not raw, [r.strip()[:80] for r in raw][:3])
+    check("  math-figures.js: AXIS_LBL is a function of the fit now, used by every coordinate figure",
+          "function axisLbl() {" in mf and "return 'font-size=\"' + fitSize(15) + '\"" in mf
+          and "AXIS_LBL + " not in mf and mf.count("' + axisLbl() + '") == 6, mf.count("' + axisLbl() + '"))   # three coordinate figures, x and y each
+    check("  math-figures.js: the y-label room grows with the fit (a wider label needs a wider left margin)",
+          "String(trimnum(ly)).length * 5 * _fit + 2" in _g, "")
+    check("⭐ screencheck: S5 skips a caption that is itself a question; S1 leaves the imaginary unit alone",
+          'if cap.strip().endswith("?"):\n            continue' in sc
+          and 'if letter == "i" and imaginary:\n                continue' in sc
+          and "_IMAGINARY_RE = re.compile(" in sc, "")
+    try:
+        import screencheck as SC
+        for name, expected, found in SC.fixture_results():
+            if not (name.startswith("S5 silent when the caption merely") or name.startswith("S1 silent on the imaginary") or name.startswith("S1 still fires on a plain i")):
+                continue
+            names = {f.check for f in found}
+            check(f"  fixture: {name}", (not names) if expected is None else (expected in names), sorted(names))
+    except Exception as exc:  # noqa: BLE001
+        bad("screencheck imports for 3nx", f"{type(exc).__name__}: {exc}")
+        return
+    NAME = "⭐ LIVE: alg1-u4-reading-the-line -- every graph label at 9px or more, shrunk graphs included, no S10"
+    if dep_gate(NAME, "playwright", "the labels are measured in a real browser"):
+        try:
+            snaps = SC.capture_script("alg1-u4-reading-the-line", static_dir=_os.path.join(here, "static"), port=8797)
+            figs = [f for sn in snaps for f in sn.figures]
+            labs = [f.get("label_px") for f in figs if f.get("label_px") is not None]
+            s10 = [f for f in SC.run_all(snaps) if f.check.startswith("S10")]
+            check(NAME, len(snaps) >= 6 and labs and min(labs) >= 9 and any(f.get("shrunk") for f in figs) and not s10,
+                  (len(snaps), min(labs) if labs else None, len(s10)))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -40017,7 +40081,7 @@ def part3jw_calculus_units_four_to_six_to_the_shape():
     check("⭐ [[graph]] grows its canvas leftward by the overflow of the widest y label (the cubic's five digits), and a graph whose labels fit keeps viewBox 0 0",
           "var leftExt = Math.max(0, Math.ceil(yLblW - (mapX(0) - 6)));" in _mf
           and "viewBox=\"' + (-leftExt) + ' 0 ' + (S + leftExt) + ' ' + S + '\"" in _mf
-          and "length * 5 + 2" in _mf
+          and "length * 5 * _fit + 2" in _mf   # (yd) the margin grows with the label fit
           and "2026-09-07  BUILD ua" in notes("static/math-figures.js"), "")
 
     # ---- the giveaway audit, captions, legends, pending lines, notation, fragments, notes
@@ -50948,6 +51012,7 @@ def main():
     part3nu_the_third_basic_sweep()
     part3nv_the_third_geometry_sweep()
     part3nw_the_words_grow_back_on_a_shrunk_figure()
+    part3nx_every_label_goes_through_the_fit()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

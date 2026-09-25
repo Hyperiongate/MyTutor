@@ -4,8 +4,10 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-25yc-the-redraw-settles`** (battery 13,098 passed, 0 failed, 3
-skipped) — a one-function fix to `yb`'s redraw, which looped through the feed's
+On Jim's disk: **`2026-09-25yd-every-label-goes-through-the-fit`** (battery 13,110
+passed, 0 failed, 3 skipped) — the ten-course screen survey's finding: the grapher never set
+the label fit (473 of 508 small labels), fixed; S5 and S1 learn two exceptions. Before it,
+`yc` (battery 13,098) — a one-function fix to `yb`'s redraw, which looped through the feed's
 MutationObserver (found by the screen survey: four times slower, one lesson never settled).
 Before it, `yb` (battery 13,097, one run for `ya` and `yb` together) — the whole chain below is on
 his disk; `yb` is the one to push (`xx`, `xy`, `xz`, `ya` before it if not yet pushed). Jim
@@ -92,9 +94,18 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`.
 
-## Written to D:\MyTutor (yc, 2026-09-25) — Jim pushes
+## Written to D:\MyTutor (yd, 2026-09-25) — Jim pushes
+
+- `static/math-figures.js` (the grapher's fit; `axisLbl()`), `screencheck.py` (S5, S1, fixtures),
+  `ruletests.py` (PART 3nx), `main.py` (stamp `2026-09-25yd-every-label-goes-through-the-fit`),
+  `changelog/Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, this handoff. Nothing to
+  prewarm. **The survey's table is in the yd doc: 360 lessons, 0 below the fold, 0 unexplained
+  figure sizes.** Open question for Jim's eye: the graph's grid numbers are 9.8px even at full
+  width (10 units on a 440 viewBox) — a one-number change if he wants them bigger.
+
+## Written to D:\MyTutor (yc, 2026-09-25) — pushed or pending
 
 - `static/board.js` (`figSettle`), `ruletests.py` (four pins moved, one added), `main.py` (stamp
   `2026-09-25yc-the-redraw-settles`), `changelog/Build_yc_The_Redraw_Settles_2026-09-25.md`,
@@ -404,6 +415,10 @@ That class has to be READ. The remaining rounds are the instrument, not a formal
 
 ## House decisions still open
 
+- **A figure that opens its own `<svg>` must set the fit itself (yd).** `svgOpen` sets `_fit`;
+  `graph()` does not use it and had never set it, so 473 small labels. Any new figure with
+  its own opener: `_fit = figFit(W)` first, every label through `tspan()`/`fitSize()`, axis
+  letters through `axisLbl()`. PART 3nx fails a raw `font-size=` on a `<text`.
 - **A redraw inside the fitter must be idempotent (yc).** Anything the fitter does to the
   DOM comes straight back to it through the feed's MutationObserver → scrollFeed. Redraw
   only on a CHANGE (figSettle compares `data-pu-room` to the new width); never

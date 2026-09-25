@@ -2,6 +2,11 @@
 # screencheck.py  --  THE SCREEN AUDITOR  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yd -- TWO OLD CHECKS TAUGHT BY THE SURVEY. S5 skips a caption that is
+#               itself a question (14 false hits, all "... how much longer is the pencil?");
+#               S1 leaves the imaginary unit alone on a board that carries i² = −1 or the
+#               word imaginary (Algebra II's "A new number": i is a number, drawn plain by
+#               the gn2 table on purpose). Three fixtures.
 #   2026-09-24  BUILD yb -- S10, THE FIGURE'S WORDS ARE READABLE. FIGURES_JS measures every
 #               figure's smallest label in screen pixels (font-size x drawn width / viewBox
 #               width) and whether the figure was drawn again for its width (data-pu-room);
@@ -273,6 +278,9 @@ for _L in VAR_SKIP:
         re.I)
 
 
+_IMAGINARY_RE = re.compile(r"(?<![A-Za-z])i\s*(?:²|\^\s*2|squared)\b|imaginary", re.I)
+
+
 def check_s1_mixed_variable_styling(snap):
     """S1 -- one formula, two typographies. session.html renders single-letter variables
     as bold red CAPITALS but skips VAR_SKIP, so "a squared plus b squared equals c
@@ -301,8 +309,16 @@ def check_s1_mixed_variable_styling(snap):
         # scripts through the real renderer; every hand-written fixture had passed.
         # Styled letters are replaced by a non-letter sentinel so they can never match.
         text = re.sub(r"\x00[A-Za-z]\x00", "§", plain)
+        # (yd, 2026-09-25) THE IMAGINARY UNIT IS A NUMBER, NOT A VARIABLE. On a board that
+        # carries "i² = −1" (or "i^2", "i squared", "imaginary"), a plain i beside a styled
+        # x is the renderer's case-sensitive table doing its job (gn2): i is drawn plain
+        # everywhere so it never reads as a variable named I. The survey's one S1 hit was
+        # Algebra II's "A new number" lesson, exactly this.
+        imaginary = bool(_IMAGINARY_RE.search(text))
         bare = []
         for letter in VAR_SKIP:
+            if letter == "i" and imaginary:
+                continue
             if _BARE_MATH_RE[letter].search(text) or letter in welded:
                 bare.append(letter)
         if bare:
@@ -442,6 +458,11 @@ def check_s5_caption_does_not_answer(snap):
         return []
     out = []
     for cap in captions(snap.screen_html):
+        # (yd, 2026-09-25) a caption that is itself a QUESTION ("two bars side by side --
+        # how much longer is the pencil?") repeats the question; it answers nothing. The
+        # ten-course screen survey raised 14 of these, every one a caption ending in "?".
+        if cap.strip().endswith("?"):
+            continue
         shared = q_terms & {m.group(1).lower() for m in _IS_THE_RE.finditer(cap)}
         if shared:
             out.append(Finding(
@@ -1411,6 +1432,14 @@ FIXTURES = [
                           "choices_bottom": 771, "window_h": 900}}),
     ("S8 silent on a snapshot with no fold measured (an older capture)", None,
      {"turn": 1, "bubble_html": "Let's begin."}),
+    # ---- S5 / S1 tidies (yd): a caption that is a question; the imaginary unit ----
+    ("S5 silent when the caption merely repeats the question", None,
+     {"turn": 1, "bubble_html": "Which pencil is longer? How much longer is the pencil?",
+      "board_html": '<div class="mfig pop"><svg class="geofig"></svg><div class="cap">two bars side by side — how much longer is the pencil?</div></div>'}),
+    ("S1 silent on the imaginary unit beside a styled x", None,
+     {"turn": 1, "board_html": '<span class="mvar">X</span> = 3i · i² = −1'}),
+    ("S1 still fires on a plain i in an ordinary formula", "S1 mixed variable styling",
+     {"turn": 1, "board_html": '<span class="mvar">X</span> = i + 2 · i × 4 = 12'}),
     # ---- S10: fires / silent (yb; the numbers are basic-u3-story-problems before and after the refit) ----
     ("S10 fires when a shrunk figure's smallest label is under the floor", "S10 the figure's words are readable",
      {"turn": 1, "figures": [{"kind": "array", "width": 351, "height": 248, "shrunk": True, "host": "mblock", "label_px": 6.2, "refit": False}]}),

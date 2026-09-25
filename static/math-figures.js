@@ -2,6 +2,13 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-25  BUILD yd -- EVERY LABEL GOES THROUGH THE FIT. The screen survey (S10) found
+                 508 labels under 9px in 360 lessons, 473 of them the graph's: its grid
+                 numbers, point labels, legend, hole marker and the x / y axis letters were
+                 written with a raw font-size that vk's fit never touched, so a graph drawn
+                 narrow (a phone, or pu's shrink) kept 7.7px numbers. All of them read
+                 fitSize() now; AXIS_LBL became axisLbl() so bars, histogram and scatter's
+                 axis letters fit too. Wide boards are byte-for-byte what they were (fit 1).
      2026-09-24  BUILD yb -- THE ROOM CAN BE GIVEN. MathFigures.svg(kind, a, {room: px}) draws
                  the figure for a known width: figFit uses it instead of measuring the board,
                  so a figure board.js has shrunk to fit its turn (pu) is re-rendered with its
@@ -230,7 +237,7 @@
                  removable discontinuities in limits. Skipped safely when the x is outside
                  the window or the curve is undefined there. Purely additive.
      2026-08-06  AXIS LABELS ALWAYS (Jim: "the axis should always be labeled X and Y" -- the
-                 old labels were 11px light gray and easy to miss). New shared AXIS_LBL style
+                 old labels were 11px light gray and easy to miss). New shared AXIS_LBL style (axisLbl() since yd)
                  (15px bold italic, dark, white halo so it reads over grid lines) applied to
                  the main [[graph]] grapher, the shared axesGrid helper ([[conic]] and
                  [[vector]] now get letter labels for the first time), and [[scatter]].
@@ -277,8 +284,12 @@
   var COLORS = ["var(--bd-5b5bd6)", "var(--bd-0d9488)", "var(--bd-e0392b)", "var(--bd-d97706)", "var(--bd-7c3aed)", "var(--bd-2563eb)"];
   // Shared attribute string for the x / y AXIS LETTER LABELS (2026-08-06, Jim: every
   // coordinate figure must clearly label its axes). Bold italic, dark, white halo.
-  var AXIS_LBL = 'font-size="15" font-weight="800" font-style="italic" fill="var(--bd-26263a)" ' +
-    'stroke="var(--bd-ffffff)" stroke-width="3" paint-order="stroke" font-family="Georgia,Times,serif"';
+  // (yd, 2026-09-25) a FUNCTION now, so the size goes through fitSize() at draw time --
+  // the axis letters grow with every other label when the figure is drawn narrow.
+  function axisLbl() {
+    return 'font-size="' + fitSize(15) + '" font-weight="800" font-style="italic" fill="var(--bd-26263a)" ' +
+      'stroke="var(--bd-ffffff)" stroke-width="3" paint-order="stroke" font-family="Georgia,Times,serif"';
+  }
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -457,36 +468,41 @@
     // cubic in Calculus Unit 5) was cut to its last four characters. The canvas now
     // grows leftward by exactly the overflow of the widest label, so every label is
     // whole and nothing else moves. A graph whose labels already fit is unchanged.
+    // (yd, 2026-09-25) the grapher opens its own <svg> (a viewBox that grows leftward),
+    // so it never went through svgOpen and never set the fit: every label it wrote was
+    // at the full-board size however narrow it was drawn -- 473 of the survey's 508
+    // small labels. It measures its room now, like every other figure.
+    _fit = figFit(S);
     var yLblW = 0;
     for (var ly = Math.ceil(ymin / ystep) * ystep; ly <= ymax + 1e-9; ly += ystep) {
       if (Math.abs(ly) < 1e-9) continue;
-      yLblW = Math.max(yLblW, String(trimnum(ly)).length * 5 + 2);   // measured: 5px a character at this size
+      yLblW = Math.max(yLblW, String(trimnum(ly)).length * 5 * _fit + 2);   // measured: 5px a character at this size (yd: times the fit)
     }
     var leftExt = Math.max(0, Math.ceil(yLblW - (mapX(0) - 6)));
     if (mapX(0) < PAD || mapX(0) > S - PAD) leftExt = 0;   // the axis is off the frame: labels sit inside it
 
     var svg = '<svg viewBox="' + (-leftExt) + ' 0 ' + (S + leftExt) + ' ' + S + '" xmlns="' + NS +
-      '" style="width:100%;max-width:' + (430 + leftExt) + 'px;height:auto;display:block;margin:6px auto;">';
+      '" style="width:100%;max-width:' + (430 + leftExt) + 'px;height:auto;display:block;margin:6px auto;" data-fit="' + _fit.toFixed(2) + '">';
     svg += '<defs><clipPath id="gclip"><rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '"/></clipPath></defs>';
     svg += '<rect x="' + PAD + '" y="' + PAD + '" width="' + plot + '" height="' + plot + '" fill="var(--bd-fbfbff)" stroke="var(--bd-e7e6f2)"/>';
 
     for (var gx = Math.ceil(xmin / xstep) * xstep; gx <= xmax + 1e-9; gx += xstep) {
       var px = mapX(gx), zx = Math.abs(gx) < 1e-9;
       svg += '<line x1="' + px + '" y1="' + PAD + '" x2="' + px + '" y2="' + (S - PAD) + '" stroke="' + (zx ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (zx ? 1.5 : 1) + '"/>';
-      if (!zx) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="middle">' + trimnum(gx) + '</text>';
+      if (!zx) svg += '<text x="' + px + '" y="' + (mapY(0) + 13) + '" font-size="' + fitSize(10) + '" fill="var(--bd-8890a0)" text-anchor="middle">' + trimnum(gx) + '</text>';
     }
     for (var gy = Math.ceil(ymin / ystep) * ystep; gy <= ymax + 1e-9; gy += ystep) {
       var py = mapY(gy), zy = Math.abs(gy) < 1e-9;
       svg += '<line x1="' + PAD + '" y1="' + py + '" x2="' + (S - PAD) + '" y2="' + py + '" stroke="' + (zy ? "var(--bd-9aa7b6)" : "var(--bd-eef0f7)") + '" stroke-width="' + (zy ? 1.5 : 1) + '"/>';
-      if (!zy) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="10" fill="var(--bd-8890a0)" text-anchor="end">' + trimnum(gy) + '</text>';
+      if (!zy) svg += '<text x="' + (mapX(0) - 6) + '" y="' + (py + 3) + '" font-size="' + fitSize(10) + '" fill="var(--bd-8890a0)" text-anchor="end">' + trimnum(gy) + '</text>';
     }
     // AXIS LABELS (2026-08-06, Jim: the axes must ALWAYS be clearly labeled x and y):
     // big, bold, dark, on a white halo so they read over the grid -- and CLAMPED into the
     // frame so they stay visible even when an axis line itself is off-screen.
     var axLblY = Math.max(PAD + 13, Math.min(S - PAD - 4, mapY(0) + 4));
     var ayLblX = Math.max(PAD + 6, Math.min(S - PAD - 12, mapX(0) + 6));
-    svg += '<text x="' + (S - PAD + 2) + '" y="' + axLblY + '" ' + AXIS_LBL + '>x</text>';
-    svg += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
+    svg += '<text x="' + (S - PAD + 2) + '" y="' + axLblY + '" ' + axisLbl() + '>x</text>';
+    svg += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + axisLbl() + '>y</text>';
 
     svg += '<g clip-path="url(#gclip)">';
     // (xs, 2026-09-23) field="expr": THE SLOPE FIELD, Diffeq Unit 1's picture. A short
@@ -537,7 +553,7 @@
           var lab = String(a.label == null ? "" : a.label).trim();
           if (lab && cnt) {
             var lx0 = mapX((lo + hi) / 2), ly0 = mapY((sumT / cnt + sumB / cnt) / 2) + 6;
-            svg += '<text x="' + lx0 + '" y="' + ly0 + '" font-size="18" font-weight="800" fill="' + shadeCol + '" text-anchor="middle" ' +
+            svg += '<text x="' + lx0 + '" y="' + ly0 + '" font-size="' + fitSize(18) + '" font-weight="800" fill="' + shadeCol + '" text-anchor="middle" ' +
                    'stroke="var(--bd-ffffff)" stroke-width="4" paint-order="stroke" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(lab) + '</text>';
           }
         }
@@ -575,7 +591,7 @@
       var iy = parsedLines[0].m * ix + parsedLines[0].b;
       if (ix >= xmin && ix <= xmax && iy >= ymin && iy <= ymax) {
         svg += '<circle cx="' + mapX(ix) + '" cy="' + mapY(iy) + '" r="5.5" fill="var(--bd-ffffff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
-        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="11" font-weight="700" fill="var(--bd-c0392b)">' + (crossMode === "ask" ? "(?, ?)" : "(" + trimnum(ix) + ", " + trimnum(iy) + ")") + '</text>';
+        svg += '<text x="' + (mapX(ix) + 9) + '" y="' + (mapY(iy) - 7) + '" font-size="' + fitSize(11) + '" font-weight="700" fill="var(--bd-c0392b)">' + (crossMode === "ask" ? "(?, ?)" : "(" + trimnum(ix) + ", " + trimnum(iy) + ")") + '</text>';
       }
     }
     // BUILD dk (audit re-run finding 8): a point must never be drawn AT a declared
@@ -607,7 +623,7 @@
         if (Math.abs(p[0] - holeXs[hi]) < 1e-9) return;   // the hole owns that x
       }
       svg += '<circle cx="' + mapX(p[0]) + '" cy="' + mapY(p[1]) + '" r="4.5" fill="var(--bd-5b5bd6)"/>';
-      svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="10.5" fill="var(--bd-26263a)">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
+      svg += '<text x="' + (mapX(p[0]) + 8) + '" y="' + (mapY(p[1]) - 6) + '" font-size="' + fitSize(10.5) + '" fill="var(--bd-26263a)">(' + trimnum(p[0]) + ", " + trimnum(p[1]) + ')</text>';
     });
     // HOLES (2026-08-07, Jim's live catch: the tutor SAID "I've punched a hole out at
     // x = 2" over an unbroken curve). hole="2" (or hole="2; 5") draws an OPEN circle on
@@ -637,7 +653,7 @@
       }
       if (!isFinite(hy) || hx < xmin || hx > xmax || hy < ymin || hy > ymax) return;
       svg += '<circle cx="' + mapX(hx) + '" cy="' + mapY(hy) + '" r="5.5" fill="var(--bd-fbfbff)" stroke="var(--bd-e0392b)" stroke-width="2.5"/>';
-      svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="10.5" font-weight="700" fill="var(--bd-c0392b)">hole</text>';
+      svg += '<text x="' + (mapX(hx) + 9) + '" y="' + (mapY(hy) - 8) + '" font-size="' + fitSize(10.5) + '" font-weight="700" fill="var(--bd-c0392b)">hole</text>';
     });
     // PIECEWISE ENDPOINTS (build di, audit finding S-4): a domain-clipped piece marks
     // its own boundary -- an OPEN circle for a strict bound (the value does not belong
@@ -668,7 +684,7 @@
     var lx = PAD + 2, ly = S - 8, li = 0;
     curves.forEach(function (c) {
       var col = COLORS[li % COLORS.length]; var shown = names[li] || c.label; li++;
-      svg += '<text x="' + lx + '" y="' + ly + '" font-size="12" font-weight="700" fill="' + col + '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(shown) + '</text>';
+      svg += '<text x="' + lx + '" y="' + ly + '" font-size="' + fitSize(12) + '" font-weight="700" fill="' + col + '" font-family="system-ui,Segoe UI,Arial,sans-serif">' + esc(shown) + '</text>';
       lx += Math.min(160, 24 + esc(shown).length * 8.2);
       if (lx > S - 90) { lx = PAD + 2; ly += 15; }
     });
@@ -944,8 +960,8 @@
       s += tspan(PAD - 6, PAD + plotH - plotH * i / 4 + 3, String(trimnum(ymin + (ymax - ymin) * i / 4)), "var(--bd-8890a0)", 9, 500, "end");
     }
     // x / y axis letter labels (2026-08-06, Jim: axes always clearly labeled).
-    s += '<text x="' + (W - 6) + '" y="' + (PAD + plotH + 14) + '" text-anchor="end" ' + AXIS_LBL + '>x</text>';
-    s += '<text x="' + (PAD - 6) + '" y="' + (PAD - 8) + '" text-anchor="end" ' + AXIS_LBL + '>y</text>';
+    s += '<text x="' + (W - 6) + '" y="' + (PAD + plotH + 14) + '" text-anchor="end" ' + axisLbl() + '>x</text>';
+    s += '<text x="' + (PAD - 6) + '" y="' + (PAD - 8) + '" text-anchor="end" ' + axisLbl() + '>y</text>';
     var m, b;
     if (a.fit && /^(true|yes|1)$/i.test(String(a.fit))) {
       var n = pts.length, sx = 0, sy = 0, sxx = 0, sxy = 0;
@@ -1103,8 +1119,8 @@
     // x / y axis letter labels (2026-08-06) -- clamped into the frame like the main grapher's.
     var axLblY = Math.max(PAD + 13, Math.min(H - PAD - 4, mapY(0) + 4));
     var ayLblX = Math.max(PAD + 6, Math.min(W - PAD - 12, mapX(0) + 6));
-    s += '<text x="' + (W - PAD + 2) + '" y="' + axLblY + '" ' + AXIS_LBL + '>x</text>';
-    s += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + AXIS_LBL + '>y</text>';
+    s += '<text x="' + (W - PAD + 2) + '" y="' + axLblY + '" ' + axisLbl() + '>x</text>';
+    s += '<text x="' + ayLblX + '" y="' + (PAD - 6) + '" ' + axisLbl() + '>y</text>';
     return { svg: s, mapX: mapX, mapY: mapY };
   }
 
