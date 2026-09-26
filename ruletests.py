@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yf -- PART 3nz, THE THIRD CALCULUS SWEEP (24 findings, 18 clean; 46 at xi).
+#               Pins the two generators' drawn wrong paths (chan, linf), the pi in the slice's
+#               area (HIGH; xi's pin moved with it), the condition class, the words-and-board
+#               fixes and the counts. Three pins moved: 3ju's fence bracket, xi's squaring line, the
+#               FTC recap's "above the axis" condition (3jv).
 #   2026-09-25  BUILD ye -- PART 3ny, THE SCRIPTED LANE GOES NIGHTLY. Pins rota_lessons (eight
 #               a night, every lesson once a cycle), failing() and --fail-on, the CLI end to
 #               end with the capture stubbed, the workflow's second job, and that no dated-note
@@ -19771,7 +19776,7 @@ def part3mj_the_first_calculus_sweep_half():
           "the first's derivative times the second, plus the first times the second's derivative" in spoken(E("calc-u3-two-things-multiplied"))
           and '[[step eq="product rule: 1·(x + 4) + x·1 = 2x + 4"]]' in boards(E("calc-u3-two-things-multiplied"))
           and '[[step eq="area = x(20 − x)"]][[step eq="slope = 20 − 2x"]][[step eq="20 − 2x = 0"]][[step eq="x = 10"]]' in boards(E("calc-u5-the-best-rectangle"))
-          and "the area is x times 20 take away x. Differentiate: 20 take away 2 x" in spoken(E("calc-u5-the-best-rectangle"))
+          and "the area is x times the whole of 20 take away x. Differentiate: 20 take away 2 x" in spoken(E("calc-u5-the-best-rectangle"))   # (yf) the spoken bracket
           and '[[rectangle w="18" h="2" caption=' in E("calc-u5-the-best-rectangle")["picture"][0][1]
           and "so its slope is 30 take away 2 x — and that is zero exactly at 15" in spoken(E("calc-u5-equal-halves-win"))
           and '[[step eq="1 × 29 = 29, 5 × 25 = 125, 14 × 16 = 224"]]' in boards(E("calc-u5-equal-halves-win"))
@@ -20191,7 +20196,7 @@ def part3mm_the_second_calculus_sweep():
           and "Under this ramp, starting at zero with speed equal to t" in spoken(E("calc-u7-when-the-graph-is-a-ramp"))
           and E("calc-u7-when-the-graph-is-a-ramp")["advance_line"].endswith("For this speed-equals-t ramp: square the time, then halve it.")
           and E("calc-u7-end-take-away-start")["advance_line"].endswith("Work the antiderivative out at both ends, then end take away start.")
-          and "under a graph that stays above the axis" in spoken(E("calc-u7-end-take-away-start"))
+          and "For the graphs in this lesson, which stay above the axis" in spoken(E("calc-u7-end-take-away-start"))   # (yf) the recap's condition, restated
           and "When one curve stays on top the whole way across the stretch" in spoken(E("calc-u8-the-gap-between-two-curves"))
           and "On the same stretch, when one curve stays above the other" in spoken(E("calc-u8-the-gap-between-two-curves"))
           and "The halfway speed is the height of a rectangle with the same area as the trapezium" in spoken(E("calc-u8-a-speed-that-climbs"))
@@ -21622,9 +21627,9 @@ def part3nd_the_second_calculus_sweep():
 
     # ---- the truth findings --------------------------------------------------------------
     check("⭐⭐ SQUARING MAKES A SLICE, STACKING MAKES THE SOLID (HIGH, in the teach and the walk-back): squaring the radius is not itself what turns an area into a volume",
-          "Squaring the radius gives one slice its area; stacking those slices along the length turns it into a solid." in spoken(E("calc-u8-spin-it-into-a-solid"))
+          "Pi times the radius squared gives one slice its area; stacking those circles along the length turns it into a solid." in spoken(E("calc-u8-spin-it-into-a-solid"))   # (yf) the pi said
           and "turns a flat area into a solid one" not in spoken(E("calc-u8-spin-it-into-a-solid"))
-          and "Squaring the radius gives each slice its area, and stacking those slices along the length turns it into a solid." in W({"a": 3, "b": 2, "op": "revo"})[0], "")
+          and "Pi times the radius squared gives each slice its area, and stacking those circles along the length turns it into a solid." in W({"a": 3, "b": 2, "op": "revo"})[0], "")
     check("⭐⭐ 25 TIMES 12 IS 300, NOT 300 PI (HIGH): the pi comes from the circle's area, and the worked pair says which is which",
           "25 times 12 is 300, so the volume is 300 pi" in spoken(E("calc-u8-spin-it-into-a-solid"))
           and "25 times 12 is 300 pi" not in spoken(E("calc-u8-spin-it-into-a-solid"))
@@ -24148,6 +24153,102 @@ def part3ny_the_scripted_lane_goes_nightly():
     check("  the changed files carry dated ye notes",
           all("2026-09-25" in notes(f) and "ye" in notes(f)
               for f in ("screencheck.py", "ruletests.py", "main.py", ".github/workflows/screenwatch.yml")), "Jim's rule 8")
+
+
+def part3nz_the_third_calculus_sweep():
+    """PART 3nz (build yf, 2026-09-25) -- THE THIRD CALCULUS SWEEP. 24 findings on 36 (2
+    generator, 22 authored), 18 clean -- 46 and 13 at xi, 88 and 4 at wq. All fixed,
+    nothing declined. The HIGH: xi's own fix "squaring the radius gives one slice its
+    area" lost the pi -- "pi times the radius squared", in the teach beat and the revo
+    walk-back. The generator pair: chan's and linf's walk-backs spoke their wrong-path
+    numbers over a board that drew only the right one -- both draw them as ✗ step lines
+    now (ww's pattern). The condition class (10), the words-and-board class (6: the tangent
+    named, the spoken bracket, the 11 explained, the forwards step drawn, the halfway line
+    drawn, two reason boards drawing their givens), and five one-offs. Two pins moved with
+    the text."""
+    print("\nPART 3nz — the third Calculus sweep (build yf)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    W = lambda p: L._worked_for(p)
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    boards = lambda les: " ".join([b for k in ("why", "picture", "teach", "recap") for _s, b in (les.get(k) or [])]
+                                  + [(les.get("explain") or {}).get("board", "")])
+
+    # ---- the generators --------------------------------------------------------------------
+    ch = W({"a": 8, "b": 3, "op": "chan"})
+    check("⭐ chan's walk-back DRAWS the wrong paths it speaks: the inside forgotten and the two added, as ✗ lines",
+          "Forgetting the inside leaves 3, the commonest mistake in Calculus, and 11 adds what should be timesed." in ch[0]
+          and '[[step eq="3 ✗ inside forgotten · 11 ✗ added"]]' in ch[1] and '[[step eq="3 × 8 = 24"]]' in ch[1], ch[1][-120:])
+    lf = W({"a": 36, "b": 3, "op": "linf"})
+    check("⭐ linf's walk-back DRAWS the wrong paths it speaks: taken away and timesed, as ✗ lines",
+          "33 takes one from the other and 108 times them, and neither describes what the fraction does." in lf[0]
+          and '[[step eq="33 ✗ taken away · 108 ✗ timesed"]]' in lf[1] and '[[step eq="36 ÷ 3 = 12"]]' in lf[1], lf[1][-120:])
+    check("  every chan and linf problem in the banks draws its own two wrong paths",
+          all("✗ inside forgotten" in W(p)[1] and f"{p['a'] + p['b']} ✗ added" in W(p)[1]
+              for les in L.LESSONS for p in les.get("bank", []) if p["op"] == "chan")
+          and all(f"{p['a'] - p['b']} ✗ taken away" in W(p)[1] and f"{p['a'] * p['b']} ✗ timesed" in W(p)[1]
+                  for les in L.LESSONS for p in les.get("bank", []) if p["op"] == "linf"), "")
+
+    # ---- the HIGH ----------------------------------------------------------------------------
+    sp = spoken(E("calc-u8-spin-it-into-a-solid"))
+    check("⭐⭐ PI TIMES THE RADIUS SQUARED gives a slice its area (HIGH) -- the teach beat and the revo walk-back; 'squaring the radius gives' is gone from both",
+          "Pi times the radius squared gives one slice its area; stacking those circles along the length turns it into a solid." in sp
+          and "Squaring the radius gives" not in sp
+          and "Pi times the radius squared gives each slice its area, and stacking those circles along the length turns it into a solid." in W({"a": 3, "b": 2, "op": "revo"})[0]
+          and "Squaring the radius gives" not in W({"a": 3, "b": 2, "op": "revo"})[0], "")
+
+    # ---- the condition class -----------------------------------------------------------------
+    check("⭐ the limit-law reason choice carries its condition: each has its own limit",
+          E("calc-u1-limits-pass-through")["explain"]["answer"] == "because each has its own limit, and the limit passes through"
+          and "because a limit passes straight through the arithmetic" not in E("calc-u1-limits-pass-through")["explain"]["choices"], "")
+    wc = spoken(E("calc-u2-the-window-closes"))
+    check("  the window closes: ON THIS CURVE, between two DIFFERENT x's; and the tangent is named on the picture beat",
+          "on this curve, the average rate between two different x\'s was the two put together. So slide the second one onto the first." in wc
+          and "The straight line touching the curve there is called the tangent. It has that steepness, and its slope is the derivative." in wc, "")
+    check("  a plain number underneath needs no QUOTIENT rule (not 'no rule at all')",
+          "those need no quotient rule at all" in spoken(E("calc-u3-a-number-underneath"))
+          and "need no rule at all" not in spoken(E("calc-u3-a-number-underneath")), "")
+    bend = spoken(E("calc-u5-where-the-bend-changes"))
+    check("  the bend: SETTING the first derivative TO ZERO cannot find it; the inflection point is AT x = 2",
+          "setting the FIRST derivative to zero cannot find it. Being flat is a different thing" in bend
+          and "so the inflection point is at x equals 2." in bend and "x equals 2 is the inflection point" not in bend, "")
+    check("  the FTC recap, the average-value recap, the diffeq recap and the ramp's triangle carry their conditions",
+          "For the graphs in this lesson, which stay above the axis, the area underneath comes from running the rule backwards. Find an antiderivative, work it out at both ends" in spoken(E("calc-u7-end-take-away-start"))
+          and "For a curve that stays above the axis, like these, the average height is its area divided by its width. That is the height of the flat rectangle" in spoken(E("calc-u7-flatten-it-out"))
+          and "For a steady rate like this one, the rate has to meet the clock. Rate times time is what goes" in spoken(E("calc-u9-an-equation-about-a-rate"))
+          and "before it tells you what is left" in spoken(E("calc-u9-an-equation-about-a-rate"))
+          and "This right triangle under the ramp is half of the square around it, so the area is 6 times 6 halved" in spoken(E("calc-u7-when-the-graph-is-a-ramp")), "")
+
+    # ---- words and board ---------------------------------------------------------------------
+    ins = E("calc-u3-do-not-forget-the-inside")
+    check("  the inside: the 11 the board draws is explained -- adding is not the rule",
+          "Adding 6 and 5 gives 11, and adding is not the rule." in spoken(ins)
+          and '[[step eq="6 ✗ inside forgotten · 11 ✗ added"]]' in boards(ins), "")
+    check("  the best rectangle speaks its bracket: x times THE WHOLE OF 20 take away x, over area = x(20 − x)",
+          "the area is x times the whole of 20 take away x" in spoken(E("calc-u5-the-best-rectangle"))
+          and '[[step eq="area = x(20 − x)"]]' in boards(E("calc-u5-the-best-rectangle")), "")
+    rb = E("calc-u6-the-rule-run-backwards")
+    check("  the rule run backwards: the forwards step is drawn on the picture beat; 'the derivative 52 x'; 'one antiderivative'",
+          rb["picture"][0][1].startswith('[[step eq="forwards: 3x² → 6x"]][[write text="derivative = 6x"]]')
+          and "The derivative 52 x came from 26 x squared" in spoken(rb) and "The derivative 6 x came from 3 x squared, not 12 x squared" in spoken(rb)
+          and "And that is one antiderivative: 6 x came from 3 x squared." in spoken(rb)
+          and "A derivative of" not in spoken(rb) and "the first antiderivative" not in spoken(rb), "")
+    tz = E("calc-u8-a-speed-that-climbs")
+    check("  the trapezium picture draws the halfway line the words point at",
+          'lines="x=2.5"' in tz["picture"][0][1] and 'names="speed; halfway along"' in tz["picture"][0][1]
+          and "The line marks halfway along; find the height where it meets the ramp" in tz["picture"][0][0], "")
+    check("  the two reason boards draw what the words give: 'starts with 20 L'; 'under the top: 50 · under the bottom: 18'",
+          E("calc-u8-adding-on-to-what-was-there")["explain"]["board"].startswith('[[step eq="starts with 20 L"]]')
+          and E("calc-u8-the-gap-between-two-curves")["explain"]["board"].startswith('[[step eq="under the top: 50 · under the bottom: 18"]]'), "")
+    check("  one-offs: 'a definite integral -- the area under this graph over these 5 seconds'; the product rule's guess 'is not the rule'",
+          "And that is a definite integral — the area under this graph over these 5 seconds: 8 times 5 is 40." in spoken(E("calc-u7-the-area-is-the-answer"))
+          and "that is the tempting guess, and it is not the rule" in spoken(E("calc-u3-two-things-multiplied")), "")
+    check("  the counts: 40,495 course lines, 36 Calculus lessons validate",
+          len(L.course_audio_lines()) == 40495
+          and not [r for l in L.LESSONS if l["course"] == "calculus" for r in L.validate(l) if not r[0]], len(L.course_audio_lines()))
+    check("  the changed files carry dated yf notes",
+          all("2026-09-25" in notes(f) and "yf" in notes(f)
+              for f in ("lessons/calculus.py", "lessonscripts.py", "ruletests.py", "main.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51099,6 +51200,7 @@ def main():
     part3nw_the_words_grow_back_on_a_shrunk_figure()
     part3nx_every_label_goes_through_the_fit()
     part3ny_the_scripted_lane_goes_nightly()
+    part3nz_the_third_calculus_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

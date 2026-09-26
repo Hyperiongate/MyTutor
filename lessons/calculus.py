@@ -2,6 +2,23 @@
 # lessons/calculus.py  --  CALCULUS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yf -- THE THIRD CALCULUS SWEEP (24 findings on all 36, 18 clean; 46 and
+#               13 at xi). 22 authored edits, no beat added, nothing declined. The HIGH: "squaring
+#               the radius gives one slice its area" (xi's own fix) -> "pi times the radius
+#               squared" (spin-it-into-a-solid; the revo walk-back in lessonscripts.py too). The
+#               condition class (10): "on this curve" for the two-x's-put-together rate, "no
+#               QUOTIENT rule", "setting the first derivative to zero cannot find it", "for the
+#               graphs in this lesson, which stay above the axis" (the FTC and average-value
+#               recaps), "for a steady rate like this one" (the diffeq recap), "this right
+#               triangle under the ramp", the limit-law reason choice carries "each has a limit
+#               of its own". Words and board (6): the tangent named on the picture beat; "the
+#               whole of 20 take away x"; "11 added" explained where the board drew it; the
+#               forwards step 3x² -> 6x drawn; the halfway line drawn on the trapezium picture;
+#               the reason boards for accumulation ("starts with 20 L") and the gap ("under the
+#               top: 50 · under the bottom: 18") draw what the words give. One-offs (5): "the
+#               inflection point is at x = 2", "the derivative 52 x came from", "one
+#               antiderivative", "a definite integral -- the area under this graph over these
+#               5 seconds", "it is not the rule", "before it tells you what is left".
 #   2026-09-22  BUILD xi -- THE SECOND CALCULUS SWEEP (46 findings on all 36, 13 clean;
 #               88 and 4 at wq, fixed in wr). 28 authored edits, no beat added. The truth
 #               ones: squaring the radius gives one SLICE its area and stacking makes the
@@ -180,10 +197,10 @@ _CALCULUS_U1 = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. f heads for 6 and g "
                        "for 5, so f times g heads for 30. Tap the reason why."),
-            "choices": ("because a limit passes straight through the arithmetic | "
+            "choices": ("because each has its own limit, and the limit passes through | "
                         "because the bigger limit always wins | "
                         "because 6 and 5 are added to make 30"),
-            "answer": "because a limit passes straight through the arithmetic",
+            "answer": "because each has its own limit, and the limit passes through",
             "board": '[[graph func="6 + (x-4)^2/8; 5 - (x-4)^2/8" hole="4" lines="x=4" names="f; g" range="0..8" yrange="0..9" caption="why 30?"]]',
         },
         "recap": [
@@ -458,13 +475,13 @@ _CALCULUS_U2 = [
         "picture": [
             ("Here is y equals x squared with the point at x equals 4. Look at how steep "
              "the curve is right there — not across a window, but at that one point. "
-             "The straight line touching the curve there has that steepness, and its "
-             "slope is the derivative.",
+             "The straight line touching the curve there is called the tangent. It has "
+             "that steepness, and its slope is the derivative.",
              '[[graph func="x^2" names="y = x²" lines="y=8x-16" points="(4,16)" range="0..6" yrange="0..36" caption="y = x squared with the tangent at x = 4 — it climbs 8 for every step across"]]'),
         ],
         "teach": [
-            ("That is the method: the average rate between two x\'s was the two put "
-             "together, so slide the second one onto the first. Between 4 and 5 the rate "
+            ("That is the method: on this curve, the average rate between two different "
+             "x\'s was the two put together. So slide the second one onto the first. Between 4 and 5 the rate "
              "is 9. Between 4 and 4 point 1 it is about 8 point 1. Closing in, it settles "
              "on 8, which is 4 plus 4.",
              '[[graph func="x^2" names="y = x²" lines="y=8x-16" points="(4,16)" range="0..6" yrange="0..36" caption="the window closes onto x = 4 — the rate settles on 8"]][[step eq="4 → 5: 9 · 4 → 4.1: 8.1 · closing in: 8"]]'),
@@ -721,7 +738,7 @@ _CALCULUS_U3 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Feed the x into the derivative you worked out.",
         "why": [
             ("What is the derivative of two functions multiplied together? Not the two "
-             "derivatives multiplied — that is the tempting guess, and it is wrong. There "
+             "derivatives multiplied — that is the tempting guess, and it is not the rule. There "
              "is a rule for it, and the surest way to believe the rule is to check it "
              "against expanding first, which you can already do.",
              '[[goal text="Two things multiplied"]]'),
@@ -808,7 +825,8 @@ _CALCULUS_U3 = [
              "which is 30.",
              '[[write text="y = (5x + 3)^6"]][[machine input="6" rule="× 5" output="30" caption="6 times 5 is 30 — both came down"]][[step eq="6 comes down · inside gives 5 · 6 × 5 = 30"]]'),
             ("Forgetting the inside leaves 6 and is the commonest mistake in all of "
-             "Calculus — it quietly assumes the inside was just x. Whenever something sits "
+             "Calculus — it quietly assumes the inside was just x. Adding 6 and 5 gives 11, "
+             "and adding is not the rule. Whenever something sits "
              "inside something else, its derivative must come out as well.",
              '[[step eq="30 ✓"]][[step eq="6 ✗ inside forgotten · 11 ✗ added"]]'),
         ],
@@ -921,7 +939,7 @@ _CALCULUS_U3 = [
         "why": [
             ("There is a quotient rule for one function divided by another, and it is "
              "fiddly. But most fractions in practice have a plain number underneath, "
-             "and those need no rule at all. A number underneath just divides "
+             "and those need no quotient rule at all. A number underneath just divides "
              "everything, before or after, and the answer comes out the same.",
              '[[goal text="A number underneath"]]'),
         ],
@@ -1278,10 +1296,10 @@ _CALCULUS_U5 = [
         ],
         "teach": [
             ("That is the method: write the area in terms of one side. With side x, the "
-             "other side is 20 take away x, so the area is x times 20 take away x. "
+             "other side is 20 take away x, so the area is x times the whole of 20 take away x. "
              "Differentiate: 20 take away 2 x. Set the slope to zero: a side of 10. It "
              "is the top, not a dip — the area curve is a dome, rising to 10 and falling "
-             "after. Four tens use the fence exactly, so the winner is a square.",
+             "after. Four tens use the fence exactly: a square.",
              '[[rectangle w="10" h="10" show="perimeter" caption="a square of side 10 — the walk round it is the whole 40"]][[step eq="area = x(20 − x)"]][[step eq="slope = 20 − 2x"]][[step eq="20 − 2x = 0"]][[step eq="x = 10"]][[step eq="40 ÷ 4 = 10 m each side"]]'),
             ("Every fixed fence used for a rectangle this way wants a square; long thin "
              "rectangles waste their fence on length and enclose almost nothing. So share "
@@ -1457,8 +1475,8 @@ _CALCULUS_U5 = [
         "advance_line": "Three in a row, and you can say why — you've got it! Set the second derivative to zero, and check the bend changes sides.",
         "why": [
             ("A curve can bend like a cup or like a dome, and somewhere between the two "
-             "it changes its mind. That place is an inflection point, and the FIRST "
-             "derivative cannot find it — being flat is a different thing from changing "
+             "it changes its mind. That place is an inflection point, and setting the FIRST "
+             "derivative to zero cannot find it. Being flat is a different thing from changing "
              "your bend. The second derivative measures the bend.",
              '[[goal text="Where the bend changes"]]'),
         ],
@@ -1473,8 +1491,8 @@ _CALCULUS_U5 = [
             ("That is the method, for these cubics: set the second derivative to zero, "
              "then check the bend changes sides there. For x cubed take away 6 x squared, "
              "the second derivative is 6 x take away 12, which is zero at x equals 2. "
-             "Before 2 the curve is a dome; after it, a cup — so x equals 2 is the "
-             "inflection point.",
+             "Before 2 the curve is a dome; after it, a cup — so the inflection point is "
+             "at x equals 2.",
              '[[graph func="x^3-6*x^2" names="y = x³ − 6x²; x = 2" lines="x=2" range="0..6" yrange="-36..6" caption="dome to the left of x = 2, cup to the right"]][[step eq="6x − 12 = 0"]][[step eq="x = 2"]]'),
             ("Notice the arithmetic differs from the critical-point pattern you met: "
              "there you halved, here you divide by 6. Halving out of habit gives the "
@@ -1545,7 +1563,7 @@ _CALCULUS_U6 = [
              "Forwards, 3 x squared drops its 2 down the front and gives 6 x. Backwards "
              "from 6 x, the 6 goes into the machine and comes out halved — because "
              "differentiating had doubled it.",
-             '[[write text="derivative = 6x"]][[machine input="6" rule="÷ 2" output="?" caption="the power rule run backwards — the front number goes in and is halved"]]'),
+             '[[step eq="forwards: 3x² → 6x"]][[write text="derivative = 6x"]][[machine input="6" rule="÷ 2" output="?" caption="the power rule run backwards — the front number goes in and is halved"]]'),
         ],
         "teach": [
             ("That is the method: HALVE the front number, and put the power back up to "
@@ -1556,7 +1574,7 @@ _CALCULUS_U6 = [
              '[[step eq="6x → 3 ✓"]][[step eq="6 ✗ copied · 12 ✗ doubled"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. A derivative of 52 x came from 26 x "
+            {"worked": ("Here is one more, done for you. The derivative 52 x came from 26 x "
                         "squared — half of 52.",
                         '[[machine input="52" rule="÷ 2" output="26" caption="52 halved is 26"]][[write text="26x²"]][[step eq="52 ÷ 2 = 26"]]'),
              "ask": {"a": 44, "b": 0, "op": "anti"}},
@@ -1569,7 +1587,7 @@ _CALCULUS_U6 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. A derivative of 6 x "
+            "spoken": ("One more thing — not the answer, the reason. The derivative 6 x "
                        "came from 3 x squared, not 12 x squared. Tap the reason why."),
             "choices": ("because differentiating doubled the front number, so going back halves it | "
                         "because going backwards doubles the front number | "
@@ -1581,7 +1599,7 @@ _CALCULUS_U6 = [
             ("So, here it is again. An antiderivative is a function a derivative could have come from. For a derivative like 6 x, halve the front number and put the power back to squared. Halve, never double, and never copy the "
              "number straight over.",
              '[[machine input="6" rule="÷ 2" output="3" caption="the rule run backwards"]]'),
-            ("And that is the first antiderivative: 6 x came from 3 x squared.",
+            ("And that is one antiderivative: 6 x came from 3 x squared.",
              '[[step eq="6x → 3x²"]]'),
         ],
         "bank": [{"a": v, "b": 0, "op": "anti"} for v in
@@ -1857,7 +1875,7 @@ _CALCULUS_U7 = [
              "under a steady speed that area is a rectangle: height times width. Never add "
              "the two numbers, and never hand back the time alone.",
              '[[graph lines="y=8" names="a steady 8 metres a second" shade="0..5" label="40" range="0..7" yrange="0..10" caption="the area is the answer"]]'),
-            ("And that is a definite integral: 8 times 5 is 40.",
+            ("And that is a definite integral — the area under this graph over these 5 seconds: 8 times 5 is 40.",
              '[[step eq="8 × 5 = 40"]]'),
         ],
         "bank": [{"a": a, "b": b, "op": "defi"} for a, b in
@@ -1887,8 +1905,8 @@ _CALCULUS_U7 = [
              '[[graph lines="y=x" names="speed = t" shade="0..6" label="?" range="0..8" yrange="0..8" caption="the speed ramps up from nothing — the shaded triangle is the distance after 6 seconds"]]'),
         ],
         "teach": [
-            ("That is the method: square the time, then halve it. A triangle covers half "
-             "of the rectangle around it, so the area is 6 times 6 halved — 18 metres. "
+            ("That is the method: square the time, then halve it. This right triangle under "
+             "the ramp is half of the square around it, so the area is 6 times 6 halved — 18 metres. "
              "The car went 18 metres in those 6 seconds.",
              '[[graph lines="y=x" names="speed = t" shade="0..6" label="18" range="0..8" yrange="0..8" caption="6 by 6, halved — 18 metres"]][[step eq="6 × 6 ÷ 2 = 18 m"]]'),
             ("Forgetting the half claims 36, the whole rectangle, as if the car had gone "
@@ -1978,7 +1996,7 @@ _CALCULUS_U7 = [
             "board": '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="?" range="0..7" yrange="0..14" caption="why 16, and not 4?"]]',
         },
         "recap": [
-            ("So, here it is again. To find the area under a graph that stays above the axis, run the rule backwards. Work the antiderivative out at both ends, and take start from end. That is the Fundamental Theorem — one idea in two "
+            ("So, here it is again. For the graphs in this lesson, which stay above the axis, the area underneath comes from running the rule backwards. Find an antiderivative, work it out at both ends, and take start from end. That is the Fundamental Theorem — one idea in two "
              "hats. Never square the gap, and never hand back the gap itself.",
              '[[graph lines="y=2x" names="y = 2x" shade="3..5" label="16" range="0..7" yrange="0..14" caption="end take away start"]]'),
             ("And that is the biggest idea in the subject: 5 squared take away 3 squared is 16.",
@@ -2041,8 +2059,9 @@ _CALCULUS_U7 = [
             "board": '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve" shade="0..5" label="60" range="0..5" yrange="0..21" caption="why 12, and not 60?"]]',
         },
         "recap": [
-            ("So, here it is again. The average height of a curve is its area divided by "
-             "its width — the height of the flat rectangle with the same area. The area "
+            ("So, here it is again. For a curve that stays above the axis, like these, the "
+             "average height is its area divided by "
+             "its width. That is the height of the flat rectangle with the same area. The area "
              "is not a height, and the width is not a height either.",
              '[[graph func="12 + 6*sin(2*pi*x/5)" names="the curve; flattened to 12" lines="y=12" shade="0..5" label="60" range="0..5" yrange="0..21" caption="flatten it out"]]'),
             ("And that is the average value of a function: 60 over 5 is 12.",
@@ -2114,7 +2133,7 @@ _CALCULUS_U8 = [
                         "because the two areas are added together | "
                         "because the strip is the whole top area"),
             "answer": "because the bottom area is already inside the top area",
-            "board": '[[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="?" range="0..10" yrange="0..10" caption="why 32, and not 68?"]]',
+            "board": '[[step eq="under the top: 50 · under the bottom: 18"]][[graph func="5 + 2.5*sin(2*pi*x/10); 1.8 + 0.9*sin(2*pi*x/10)" names="top; bottom" shade="0..10" between="1" label="?" range="0..10" yrange="0..10" caption="why 32, and not 68?"]]',
         },
         "recap": [
             ("So, here it is again. On the same stretch, when one curve stays above the other, the area between them is the top area take away the bottom area. The bottom area is already inside the top. Never add them, and "
@@ -2143,9 +2162,9 @@ _CALCULUS_U8 = [
         "picture": [
             ("Here is the train\'s speed: 4 metres a second at the start, climbing "
              "steadily to 10 after 5 seconds. The shaded shape under it is a trapezium — "
-             "a rectangle with a triangle on top. Find the height halfway along, "
-             "because there is a lovely shortcut hiding there.",
-             '[[graph func="4 + 6*x/5" names="speed" shade="0..5" label="?" range="0..7" yrange="0..14" caption="the speed climbs steadily from 4 to 10 over 5 seconds — the shaded trapezium is the distance"]]'),
+             "a rectangle with a triangle on top. The line marks halfway along; find the "
+             "height where it meets the ramp, because there is a lovely shortcut hiding there.",
+             '[[graph func="4 + 6*x/5" names="speed; halfway along" lines="x=2.5" shade="0..5" label="?" range="0..7" yrange="0..14" caption="the speed climbs steadily from 4 to 10 over 5 seconds — the line marks halfway along; how high is the ramp there?"]]'),
         ],
         "teach": [
             ("That is the method: average the two speeds, then hold it for the time. The speed climbs steadily, so the average speed is exactly halfway between 4 and 10: that is 7. And 7 metres a second for 5 seconds is 35 metres. The "
@@ -2245,7 +2264,7 @@ _CALCULUS_U8 = [
                         "because the integral is the whole amount in the tank | "
                         "because the start is emptied before the tap opens"),
             "answer": "because the integral is the change, added onto the start",
-            "board": '[[graph lines="y=6" names="6 litres a minute running in" shade="0..5" label="?" range="0..7" yrange="0..8" caption="why 50, and not 30?"]]',
+            "board": '[[step eq="starts with 20 L"]][[graph lines="y=6" names="6 litres a minute running in" shade="0..5" label="?" range="0..7" yrange="0..8" caption="why 50, and not 30?"]]',
         },
         "recap": [
             ("So, here it is again. The area under a flow graph is what arrives — the "
@@ -2286,7 +2305,7 @@ _CALCULUS_U8 = [
              "Each slice is a circle of area pi times 3 squared — 9 pi — and 4 lengths "
              "of that stack up to 36 pi.",
              '[[solid kind="cylinder" r="3" h="4" caption="a circle of area 9π, stacked 4 long — 36π"]][[step eq="3² × 4 = 36"]][[step eq="volume = 36π"]]'),
-            ("Squaring the radius gives one slice its area; stacking those slices along the length turns it into a solid. Leaving the squaring out gives 12, still an area pretending to be a volume. Doubling the radius where you meant to square it gives only 24.",
+            ("Pi times the radius squared gives one slice its area; stacking those circles along the length turns it into a solid. Leaving the squaring out gives 12, still an area pretending to be a volume. Doubling the radius where you meant to square it gives only 24.",
              '[[step eq="36 ✓"]][[step eq="12 ✗ not squared · 24 ✗ doubled"]]'),
         ],
         "pairs": [
@@ -2358,7 +2377,7 @@ _CALCULUS_U9 = [
             ("That is the method, for a rate that holds steady like this one: rate times time is what goes, then take it off the start. Run it 7 minutes: 4 times 7 is 28 gone, so 60 take away 28 leaves "
              "32 — the line has dropped from 60 to 32.",
              '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60),(7,32)" range="0..9" yrange="0..70" caption="from 60 down to 32 after 7 minutes — 28 gone"]][[step eq="4 × 7 = 28"]][[step eq="60 − 28 = 32"]]'),
-            ("So the rate has to meet the clock before it means anything. Taking away "
+            ("So the rate has to meet the clock before it tells you what is left. Taking away "
              "one minute\'s worth leaves 56, and answering 28 hands back what drained "
              "rather than what is in the tank.",
              '[[step eq="32 ✓"]][[step eq="56 ✗ one minute · 28 ✗ what drained"]]'),
@@ -2386,8 +2405,8 @@ _CALCULUS_U9 = [
             "board": '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60)" range="0..9" yrange="0..70" caption="why 32, and not 28?"]]',
         },
         "recap": [
-            ("So, here it is again. A differential equation gives a rate, and the rate "
-             "has to meet the clock: rate times time is what goes, and that comes off "
+            ("So, here it is again. A differential equation gives a rate. For a steady rate "
+             "like this one, the rate has to meet the clock. Rate times time is what goes, and that comes off "
              "the start. What drained is not what is left, and one minute\'s worth is "
              "not the whole run.",
              '[[graph lines="y=-4x+60" names="litres in the tank" points="(0,60),(7,32)" range="0..9" yrange="0..70" caption="an equation about a rate"]]'),

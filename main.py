@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  APP_BUILD -> "2026-09-25yf-the-third-calculus-sweep". Calculus's third reading (24
+#               findings, 18 clean; 46 at xi): 22 spoken/board edits in lessons/calculus.py, two
+#               generator walk-backs draw their wrong paths and revo's says pi (lessonscripts.py).
+#               No change in this file beyond the stamp; prewarm ~22 lines. PART 3nz.
 #   2026-09-25  APP_BUILD -> "2026-09-25ye-the-scripted-lane-goes-nightly". The nightly screenwatch
 #               workflow gets a second job that drives eight authored lessons a night through
 #               xy's scripted lane (screencheck.py --script rota, --fail-on MEDIUM); the last
@@ -9512,7 +9516,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-25ye-the-scripted-lane-goes-nightly"
+APP_BUILD = "2026-09-25yf-the-third-calculus-sweep"
 
 
 @app.get("/health")

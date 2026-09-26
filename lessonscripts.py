@@ -2,6 +2,12 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-25  BUILD yf -- THE THIRD CALCULUS SWEEP, the generator side (2 ops). Both walk-backs
+#               spoke their wrong-path numbers over a board that drew only the right one: chan's
+#               "{b} inside forgotten, {a+b} adds" and linf's "{a-b} takes one from the other,
+#               {a*b} times them" are ✗ step lines now (ww's pattern). And revo's walk-back said
+#               "squaring the radius gives each slice its area" (the sweep's one HIGH, on the
+#               authored teach beat -- the same words here): pi times the radius squared. No count moved.
 #   2026-09-24  BUILD xw -- THE THIRD PROB/STAT SWEEP, PART TWO, the generator side (3 ops).
 #               farv: the walk-back says "23 is only how far the stray sits from it" over a
 #               board that never drew 23 -- a ✗ line now, "23 ✗ the distance, not the stray"
@@ -5921,7 +5927,8 @@ def _linf_worked(p):
             f"{a - b} takes one from the other and {a * b} times them, and neither "
             f"describes what the fraction does.",
             f'[[graph func="({a}*x^2)/({b}*x^2 + {b})" names="y = {a}x² / ({b}x² + {b})" lines="y={c}" range="0..12" yrange="0..{c + 2}" caption="the curve settles toward the line y = {c} — {a} over {b}"]]'
-            f'[[step eq="far out: {a}x² ÷ {b}x²"]][[step eq="{a} ÷ {b} = {c}"]]')
+            f'[[step eq="far out: {a}x² ÷ {b}x²"]][[step eq="{a} ÷ {b} = {c}"]]'
+            f'[[step eq="{a - b} ✗ taken away · {a * b} ✗ timesed"]]')   # (yf) the wrong paths drawn (no ' · ' between two equations -- the dot rule)
 
 
 def _jump_board(p):
@@ -6057,7 +6064,8 @@ def _chan_worked(p):
             f"Forgetting the inside leaves {b}, "
             f"the commonest mistake in Calculus, and {a + b} adds what should be timesed.",
             f'[[machine input="{b}" rule="× {a}" output="{t}" caption="the power {b} meets the inside\'s {a} — {t}"]]'
-            f'[[step eq="{b} × {a} = {t}"]]')
+            f'[[step eq="{b} × {a} = {t}"]]'
+            f'[[step eq="{b} ✗ inside forgotten · {a + b} ✗ added"]]')   # (yf) the wrong paths drawn, the authored teach board's shape
 
 
 def _chev_board(p):
@@ -6472,8 +6480,8 @@ def _revo_worked(p):
     a, b = p["a"], p["b"]; q = a * a; v = q * b
     return (f"Here it is, step by step: every slice through the cylinder is a circle of radius {a}. "
             f"Its area is pi times {a} squared — {q} pi. Stack {b} lengths of that and "
-            f"the volume is {v} pi. Squaring the radius gives each slice its area, and "
-            f"stacking those slices along the length turns it into a solid. "
+            f"the volume is {v} pi. Pi times the radius squared gives each slice its area, and "
+            f"stacking those circles along the length turns it into a solid. "
             f"{a * b} leaves the squaring out, and {2 * a * b} doubles the radius "
             f"where it should be squared.",
             f'[[solid kind="cylinder" r="{a}" h="{b}" caption="a circle of area {q}π, stacked {b} long — {v}π"]]'
