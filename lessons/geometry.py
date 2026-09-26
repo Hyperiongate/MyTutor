@@ -2,6 +2,11 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
 #   2026-09-24  BUILD ya -- THE THIRD GEOMETRY SWEEP (11 findings, 27 clean; 36 and 16 at xb).
 #               Twelve edits and four boards, nothing declined. The condition class: the radius
 #               sets every other MEASUREMENT; a segment is a PIECE of a line; a point OFF the
@@ -112,7 +117,7 @@ _GEOMETRY_U1 = [
         "symbols": ("right angle", "degrees"),
         "advance_line": "Three in a row, and you can say why — you've got it! A right angle is 90, so the pair adds to 90.",
         "why": [
-            ("Welcome to geometry. Why start with a corner? Because you already know "
+            ("Why start with a corner? Because you already know "
              "two totals: a right angle is 90 degrees, and the angles along a "
              "straight line make 180. Today we use the smaller total: two angles "
              "that together make a right angle, a perfect square corner. Corners are "

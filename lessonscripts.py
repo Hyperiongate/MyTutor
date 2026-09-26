@@ -2,6 +2,16 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE COURSE REVIEW, AND NO PLAN FOR THE YOUNGEST. bridge_steps(course,
+#               after_tour) turns lessons/bridges.py's review into `say` beats named "bridge"
+#               (main.py plays them before a student's first lesson in a course; every line in
+#               the closure via BRIDGE_LINES). lesson_orientation drops the plan sentence and
+#               the card's plan item for Entry and Basic (ELEM_COURSES): Jim, "too much
+#               information for somebody taking one of the first two courses". Course lines
+#               40,495 -> 40,552 (the 57 distinct review lines).
+#   2026-09-26  BUILD yh -- THE FOURTH PRE-CALC SWEEP, the generator side (1 op). vasy's same-x
+#               walk-back caption groups the whole bottom -- y = 1 ÷ ((x − 7)(x − 7)) -- as the
+#               two-zero branch and the ask board already did. No count moved.
 #   2026-09-26  BUILD yg -- THE SIXTH ENTRY SWEEP, the generator side (4 ops). Three untaught
 #               symbols on walk-back boards in a course that never teaches them: big's "13 > 6"
 #               is "13 is bigger than 6", eqs's "6 ÷ 2 = 3 each" is "6 shared into 2 equal groups
@@ -934,6 +944,7 @@ def ans(p):
 # names below are exactly what the 25,500 lines that used to sit here produced.
 # =============================================================================
 from lessons import LESSONS, COURSE_ORDER
+from lessons.bridges import BRIDGES   # (yi) the course reviews
 _by_id = {les["id"]: les for les in LESSONS}
 if sorted(COURSE_ORDER) != sorted(_by_id):
     raise RuntimeError("COURSE_ORDER and LESSONS disagree: "
@@ -4741,7 +4752,7 @@ def _vasy_worked(p):
     return (f"Here it is, step by step: two factors, but both die at the SAME x — only {a} zeroes "
             f"the bottom. Look at the curve: it flies off once. Count the different zeros, "
             f"never the factors: the count is 1.",
-            f'[[graph func="1/((x-{a})*(x-{a}))" range="{a - 3}..{a + 3}" yrange="-6..6" caption="y = 1 ÷ (x − {a})(x − {a}) — flies off once, at {a}: one forbidden x"]]'
+            f'[[graph func="1/((x-{a})*(x-{a}))" range="{a - 3}..{a + 3}" yrange="-6..6" caption="y = 1 ÷ ((x − {a})(x − {a})) — flies off once, at {a}: one forbidden x"]]'
             f'[[step eq="(x − {a})(x − {a}): both die at {a} — count 1"]]')
 
 
@@ -15980,6 +15991,8 @@ CHECK_LINES = ("Ready?", "Okay so far?", "Shall we keep going?", "Good so far?",
                "Ready for the next bit?")
 READY_CHOICES = "I'm ready | Show me that example again"
 ORIENT_PLAN = "First the idea, then a picture, then the method — then your turn."
+ORIENT_PLAN_ITEM = "The idea, a picture, the method, then your turn"   # (yi) the card's last item, one owner
+ELEM_COURSES = ("entry", "basic")   # (yi) the two courses that hear no plan (main.py's _ELEM_COURSES, same pair)
 
 
 def prev_lesson(lesson):
@@ -16032,17 +16045,66 @@ def lesson_orientation(lesson, prev_done=False, last=None):
     dev file mode, any error) returns byte-for-byte what us shipped."""
     topic = _spoken_name(str(lesson.get("topic") or "").strip())
     prev = prev_lesson(lesson)
+    # (yi, 2026-09-26) THE PLAN IS NOT FOR THE YOUNGEST. Jim: "discuss it, show it, the
+    # method, that type of thing ... too much information for somebody taking one of the
+    # first two courses." Entry and Basic hear where they are and what today is, and
+    # nothing about the shape of the lesson; the card drops its last item the same way.
+    elem = lesson.get("course") in ELEM_COURSES
+    plan_sp = "" if elem else f" {ORIENT_PLAN}"
+    plan_it = "" if elem else f" | {ORIENT_PLAN_ITEM}"
     if prev_done and prev:
         ptopic = _spoken_name(str(prev.get("topic") or "").strip())
-        spoken = f"Before this came {ptopic}, and you finished it. Today: {topic}. {ORIENT_PLAN}"
+        spoken = f"Before this came {ptopic}, and you finished it. Today: {topic}.{plan_sp}"
         head = _last_time_item(prev, last) if last else ""
-        items = (f"{head} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+        items = (f"{head} | Today: {lesson.get('topic')}{plan_it}"
                  if head else
-                 f"Done: {prev.get('topic')} | Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn")
+                 f"Done: {prev.get('topic')} | Today: {lesson.get('topic')}{plan_it}")
     else:
-        spoken = f"Today: {topic}. {ORIENT_PLAN}"
-        items = f"Today: {lesson.get('topic')} | The idea, a picture, the method, then your turn"
+        spoken = f"Today: {topic}.{plan_sp}"
+        items = f"Today: {lesson.get('topic')}{plan_it}"
     return spoken, f'[[card title="Today" items="{items}"]]'
+
+
+# =============================================================================
+# (yi, 2026-09-26) THE COURSE REVIEW -- what earlier courses gave you.
+# -----------------------------------------------------------------------------
+# Jim: "every lesson, aside from entry level, should have a review discussion ...
+# welcome to geometry, before we get into this, a few things that we covered in
+# earlier courses that are important to know for geometry. It should list those
+# things and discuss them ... enough so that somebody's not shocked when they go into
+# a new course." The text lives in lessons/bridges.py (one review per course, nine
+# courses). bridge_steps turns one into `say` beats named "bridge": the welcome (or,
+# after the screen tour, which already welcomed, the "Now, before we get into..."
+# opener), one beat per thing worth remembering, and the hand-over to lesson one.
+# main.py plays them at the front of a student's FIRST scripted lesson in the course;
+# session.html shows an obvious Skip while they play. Every line is in the closure.
+# =============================================================================
+BRIDGE_COURSES = tuple(c for c in ("basic", "prealgebra", "algebra1", "geometry", "algebra2",
+                                   "precalc", "calculus", "diffeq", "probstat") if c in BRIDGES)
+
+
+def bridge_steps(course, after_tour=False):
+    """The course review as `say` beats, beat="bridge", or [] for a course without one
+    (Entry, or an unknown course). `after_tour` picks the opener that does not welcome
+    twice. Pure."""
+    b = BRIDGES.get(course)
+    if not b:
+        return []
+    opener = b["after_tour"] if after_tour else b["welcome"]
+    seq = [opener] + list(b["beats"]) + [b["handover"]]
+    return [{"kind": "say", "spoken": sp, "board": bd, "beat": "bridge"} for sp, bd in seq]
+
+
+def bridge_lines():
+    """Every spoken line of every review, both openers included -- for the closure."""
+    out = []
+    for c in sorted(BRIDGES):
+        b = BRIDGES[c]
+        out += [b["welcome"][0], b["after_tour"][0]] + [sp for sp, _ in b["beats"]] + [b["handover"][0]]
+    return tuple(out)
+
+
+BRIDGE_LINES = bridge_lines()
 
 
 def beat_of(lesson, spoken):
@@ -16982,7 +17044,9 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     # (uy) the demo lesson's own closing line -- see above
                     + (LINE_DEMO_LESSON_END,)
                     # (vb) the tour -- see TOUR_LINES above
-                    + TOUR_LINES)
+                    + TOUR_LINES
+                    # (yi) the course reviews -- see BRIDGE_LINES above
+                    + BRIDGE_LINES)
 
 
 def course_audio_lines(lessons=None):

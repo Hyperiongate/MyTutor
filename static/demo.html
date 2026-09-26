@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (yi) 2026-09-26 -- THE OBVIOUS SKIP. The tour's "Skip the tour -- take me to the levels"
+    was a muted underlined link; it is a filled pill now (.skiplink), like the classroom's.
     (uy) 2026-09-10 -- THE FIVE THINGS JIM WATCHED THIS PAGE DO WRONG, and every one of
     them was OWNERSHIP rather than timing. ① THE MOUTH READS THE REAL AUDIO -- for real
     this time. sc declared usingAnalyser/analyser/timeData believing cadabra.js would
@@ -519,8 +521,12 @@
   .checkbtn{border:0;background:var(--grad);color:#fff;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer}
   .fb{text-align:center;font-weight:700;margin:8px 0;min-height:22px}
   .fb.ok{color:var(--ok)} .fb.no{color:var(--red)}
-  .skiplink{display:block;margin:8px auto 0;border:0;background:none;color:var(--muted);font-size:12.5px;
-    text-decoration:underline;cursor:pointer}
+  /* (yi, 2026-09-26) THE OBVIOUS SKIP. It was a muted 12.5px underlined link; Jim: "a very
+     obvious skip button". A filled pill now, the classroom's .skipbig at this page's scale. */
+  .skiplink{display:inline-block;margin:10px auto 0;border:2px solid #fff;border-radius:999px;
+    background:var(--accent,#5b5bd6);color:#fff;font-size:15px;font-weight:900;padding:12px 20px;
+    text-decoration:none;cursor:pointer;box-shadow:0 6px 20px rgba(91,91,214,.45);font-family:inherit}
+  .skiplink:hover{filter:brightness(1.08)}
   .levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;max-width:760px;margin:0 auto}
   .lvl{border:1.5px solid var(--keyline);background:#fff;border-radius:13px;padding:11px 12px;text-align:left;cursor:pointer}
   .lvl:hover{border-color:var(--purple)}

@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (yi) 2026-09-26 -- THE BOARD CHIP. "🟦 Dark board / ⬜ White board" in the top bar, the
+    lesson page's toggle (rp) on this page too, wired by board.js (MTBoard.wire); the choice
+    is the same remembered one (mt_board). Jim: every course, every page, the same boards.
     (xy) 2026-09-24 -- the feed's scroll listener sets stickBottom = feedIsFollowing()
     (board.js), judged against the board's own anchored target instead of the distance
     to the bottom -- the cause of "a board line below the fold" under ir's top-anchored
@@ -261,6 +264,12 @@
       background-clip: text; -webkit-text-fill-color: transparent; }
     .topbar .spacer { flex: 1; }
     .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
+    /* (yi) the board chip, the lesson page's .chip at this page's scale */
+    .boardchip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800;
+      color: var(--ink); background: var(--panel, var(--card, #fff)); border: 1.5px solid var(--line);
+      border-radius: 999px; padding: 6px 13px; cursor: pointer; line-height: 1; font-family: inherit;
+      margin-right: 14px; box-shadow: 0 3px 10px rgba(20,30,45,.07); }
+
 
     .tutor-head { display: flex; align-items: center; gap: 18px; padding: 4px 22px 16px; }
     .tutor-id { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; }
@@ -765,6 +774,11 @@
       <div class="topbar">
         <div class="title">💡 Explore a Topic with Mr. Cadabra</div>
         <div class="spacer"></div>
+        <!-- (yi, 2026-09-26) THE STUDENT PICKS THE BOARD HERE TOO. Jim: "every single course
+             has the same capabilities of whiteboard, blackboard." The lesson page has had
+             this chip since rp; this page only honoured the saved choice. Same attribute,
+             same board.js wiring (MTBoard.wire), same remembered choice (mt_board). -->
+        <button class="boardchip" id="boardChip" type="button" data-board-toggle aria-pressed="false">🟦 Dark board</button>
         <a id="homeLink" href="#">← Home</a>
       </div>
       <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
@@ -1531,6 +1545,7 @@
     loadVoice();
 
     window.__setState = setState;
+    try { if (window.MTBoard) MTBoard.wire("white", document.getElementById("feed")); } catch (e) {}   /* (yi) the board chip: one system, board.js's */
   </script>
   <script src="/static/math-keyboard.js"></script>
   <script src="/static/graph-input.js"></script>

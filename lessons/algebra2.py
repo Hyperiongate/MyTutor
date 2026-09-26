@@ -2,6 +2,11 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
 #   2026-09-24  BUILD xv -- THE THIRD ALGEBRA II SWEEP (28 findings on 36, 27 authored, 19 of
 #               36 clean; 43 and 14 at ww, 73 at wk). Three HIGHs in two lessons: "a real
 #               number times i, like 3 i, is called an imaginary number" (2 + 3i is not);
@@ -142,7 +147,7 @@ _ALGEBRA2_U1 = [
         "symbols": ("absolute value", "distance"),
         "advance_line": "Three in a row, and you can say why — you've got it! Do the take away, keep the size, drop the sign.",
         "why": [
-            ("Why two straight bars? Welcome to Algebra Two. The bars around a number "
+            ("Why two straight bars? The bars around a number "
              "are called absolute value, and they ask one question: how far is this "
              "number from zero? It does not matter which side of zero the number is "
              "on. Four is four steps from zero, and negative four is also four steps "

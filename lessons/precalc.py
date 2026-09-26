@@ -2,6 +2,23 @@
 # lessons/precalc.py  --  TRIG / PRE-CALC: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
+#   2026-09-26  BUILD yh -- THE FOURTH PRE-CALC SWEEP (15 findings on all 36, 25 clean; 28 at xm).
+#               12 authored edits, no beat added, nothing declined. The two HIGHs: the ramp's
+#               "the sine of an angle is the rise divided by the slope's length" is said for the
+#               angle the ramp makes with the ground; Vieta's reason question had a distractor
+#               that was TRUE for roots 2 and 6 (the bigger root doubled is 12) -- it is "the
+#               bigger root, squared" now, and the question names the plain x squared. Condition
+#               class: "same size ... only the sign can differ, by quarter" (reference angles);
+#               "once each turn"; "30° ramp:" on the closing board (its words say the 30 too: "a 30-degree ramp ... it rises half its length"). Words and board: the machines
+#               picture says 10 and 13; "f of the whole of x take away 3"; "y = sin 2x" on the
+#               board; the 196 worked pair draws its whole equation; the teach's "like f of the whole of x take away 3" too; the shrinking window draws
+#               b² − a² = (b − a)(b + a) and names a and b (its "3 + 5 = 8" line went, to stay under the six-line flood cap; "3 → 5: rise 16 ÷ run 2 = 8" carries the numbers). One-off: "the angle and its partner
+#               are the two sharp corners".
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 20 lessons; 
@@ -137,13 +154,13 @@ _PRECALC_U1 = [
         "symbols": ("composition", "inside"),
         "advance_line": "Three in a row, and you can say why — you've got it! In a composition, the inside function runs first.",
         "why": [
-            ("Why machines in a row? Welcome to Pre-Calculus, where functions become "
+            ("Why machines in a row? In Pre-Calculus, functions become "
              "the main characters. Algebra One fed numbers through two machines in a row. Now the chaining gets a name — composition — and a notation: f of g of x. Read it from the inside out: g runs first, then f eats what g made.",
              '[[goal text="Machines in a row"]][[step eq="f(g(x)) — the inside runs first"]]'),
         ],
         "picture": [
             ("Here are the two machines in a row. The first is g: it times by 2, and 5 "
-             "goes in. Whatever comes out of g goes straight into f, which adds 3. Two "
+             "goes in, so 10 comes out. That 10 goes straight into f, which adds 3: 13. Two "
              "machines, one conveyor belt, and the belt runs from g to f.",
              '[[machine input="5" rule="2x" output="10" fname="g" caption="g runs first: g(5) = 10"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="then f eats what g made: f(10) = 13"]]'),
         ],
@@ -215,10 +232,10 @@ _PRECALC_U1 = [
         # take away 3 must BE zero". Now a concrete f -- the square root -- and BOTH
         # curves on the board in every beat, and the method in plain words.
         "why": [
-            ("Why does the graph slide? One rule moves any graph written as y equals f of x, "
-             "and the board shows it. The curve starting at the corner, at zero, is "
+            ("Why does the graph slide? One rule moves any graph written as y equals f of x. "
+             "The curve starting at the corner, at zero, is "
              "one you know: y equals the square root of x — call that rule f. The other curve is the SAME rule "
-             "with one change inside the parentheses: y equals f of x take away 3. The "
+             "with one change inside the parentheses: y equals f of the whole of x take away 3. The "
              "whole curve slid 3 to the RIGHT — not up, not left.",
              '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" range="0..12" yrange="0..4" caption="the same curve, slid 3 to the right"]][[goal text="The graph slides"]]'),
         ],
@@ -237,9 +254,9 @@ _PRECALC_U1 = [
              '[[step eq="new curve at x = 7: f(7 − 3) = f(4) = 2"]][[step eq="new x = old x + 3 = 4 + 3 = 7"]]'),
             ("The trap is reading the minus literally and sliding LEFT — landing at "
              "(1, 2). But the minus inside is a delay, not a direction: x has to grow "
-             "by 3 before the rule sees what it saw before. On the board the arrow "
+             "by 3 before the rule sees what it saw before. The arrow "
              "says where the point goes: (4, 2) becomes (7, 2), the check mark — not "
-             "(1, 2). For a slide written inside the parentheses, like f of x take away 3, the sign points opposite.",
+             "(1, 2). For a slide written inside the parentheses, like f of the whole of x take away 3, the sign points opposite.",
              '[[graph func="sqrt(x) | sqrt(x-3)" names="y = f(x) | y = f(x − 3)" points="(4,2),(7,2)" range="0..12" yrange="0..4" caption="right 3 ✓ — not left"]][[step eq="(4, 2) → (7, 2) ✓"]][[step eq="(1, 2) ✗ — the literal minus"]]'),
         ],
         "pairs": [
@@ -644,11 +661,11 @@ _PRECALC_U2 = [
                            "done — here comes the first one."),
         "show_work_on_correct": True,
         "explain": {
-            "spoken": ("One more thing — not the answer, the reason. A puzzle with roots 2 "
-                       "and 6 ends in the number 12. Tap the reason why."),
+            "spoken": ("One more thing — not the answer, the reason. A puzzle that starts with a plain x squared, "
+                       "with roots 2 and 6, ends in the number 12. Tap the reason why."),
             "choices": ("because the end number is the product of the roots | because the "
                         "end number is the sum of the roots | because the end number is "
-                        "the bigger root, doubled"),
+                        "the bigger root, squared"),
             "answer": "because the end number is the product of the roots",
             "board": '[[areamodel rows="x,-2" cols="x,-6" caption="the corner room: (−2) × (−6) = 12"]]',
         },
@@ -1249,7 +1266,7 @@ _PRECALC_U4 = [
         "teach": [
             ("That is the method. Take 175 degrees: the arrow sits 5 short of flat "
              "left, so its reference angle is 180 take away 175 — 5 degrees. The "
-             "reference angle is why the trig values at 175 echo the ones at 5: the "
+             "reference angle is why the trig values at 175 are the same size as the ones at 5. Only the sign can differ, by quarter. The "
              "circle reuses its first quarter, everywhere.",
              '[[angle deg="180" split="175,5" caption="180 − 175 = 5° — the gap to flat left"]][[step eq="175° → 180 − 175 = 5°"]]'),
             ("Now 135: the gap to flat left is 45. The trap is measuring from straight "
@@ -1315,7 +1332,7 @@ _PRECALC_U4 = [
              "every 360 degrees — its period. Write y equals the sine of 2 x and the "
              "wave wiggles twice as fast: the story that took 360 degrees now fits in "
              "180. Faster wiggle, shorter period.",
-             '[[goal text="The faster wave"]][[step eq="sin 2x: the story fits in 180°"]]'),
+             '[[goal text="The faster wave"]][[step eq="y = sin 2x: the story fits in 180°"]]'),
         ],
         "picture": [
             ("Here are two waves on one grid, the axis in degrees. The slow one is the "
@@ -1525,7 +1542,7 @@ _PRECALC_U5 = [
             "board": '[[step eq="sin 35° = cos 55°"]][[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners across ninety"]]',
         },
         "recap": [
-            ("So, here it is again. Sine and cosine are partners: the sine of an angle equals the cosine of 90 degrees take away that angle. They are the two sharp corners of one right triangle. For these angles, do not keep the same angle, and do not add 90 — the partner is 90 take away it.",
+            ("So, here it is again. Sine and cosine are partners: the sine of an angle equals the cosine of 90 degrees take away that angle. The angle and its partner are the two sharp corners of one right triangle. For these angles, do not keep the same angle, and do not add 90 — the partner is 90 take away it.",
              '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="partners finish 90 together"]]'),
             ("And that is what the CO in cosine means: the sine of a equals the cosine of 90 degrees take away a.",
              '[[step eq="sin a° = cos (90 − a)°"]]'),
@@ -1685,7 +1702,7 @@ _PRECALC_U5 = [
              "say four just because there are four quarters.",
              '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" range="0..1080" yrange="-1.5..1.5" caption="count one turn\'s crossings, then times the turns"]]'),
             ("And that is solving, by counting: the sine equals 0 twice each turn, and "
-             "equals 1 once.",
+             "equals 1 once each turn.",
              '[[step eq="sin = 0: 2 each turn"]][[step eq="sin = 1: 1 each turn"]]'),
         ],
         "bank": [
@@ -1799,7 +1816,7 @@ _PRECALC_U6 = [
         "advance_line": "Three in a row, and you can say why — you've got it! At 30 degrees, the climb is half the length.",
         "why": [
             ("Why does a ramp climb half its length? A ramp rises at 30 degrees — how "
-             "high does its far end sit? The sine of an angle is the rise divided by the slope's length, so the rise equals length times sine. At 30 degrees that sine is a half. The ramp climbs half its length.",
+             "high does its far end sit? For the ramp's angle to the ground, the sine is the rise divided by the ramp's length, so the rise equals length times sine. At 30 degrees that sine is a half. The ramp climbs half its length.",
              '[[goal text="The thirty-degree ramp"]][[step eq="rise = length × sin 30° = ½ × length"]]'),
         ],
         "picture": [
@@ -1846,8 +1863,8 @@ _PRECALC_U6 = [
             ("So, here it is again. The rise is the length times the sine of the angle, and the sine of 30 degrees is a half. So a 30-degree ramp climbs half its length. The length is the walk, never the height, and never "
              "double it.",
              '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="the climb is half the length"]]'),
-            ("And that is a ramp, measured without climbing it.",
-             '[[step eq="rise = ½ × length"]]'),
+            ("And that is a 30-degree ramp, measured without climbing it: it rises half its length.",
+             '[[step eq="30° ramp: rise = ½ × length"]]'),
         ],
         "bank": [
             {"a": 6, "b": 0, "op": "ramp"},
@@ -2064,9 +2081,9 @@ _PRECALC_U7 = [
                         "13.",
                         '[[conic type="circle" r="13" cx="5" cy="5" caption="un-square 169 — radius 13"]][[step eq="(x − 5)² + (y − 5)² = 169"]] [[step eq="radius = 13"]]'),
              "ask": {'a': 8, 'b': 3, 'c': 12, 'op': 'crad'}},
-            {"worked": ("One more together. The same kind of equation, ending in 196: "
-                        "un-square 196 — the radius is 14.",
-                        '[[circle center="O" r="14" caption="un-square 196 — radius 14"]][[step eq="= 196"]] [[step eq="radius = 14"]]'),
+            {"worked": ("One more together. x take away 2, squared, plus y take away 3, "
+                        "squared, equals 196: un-square 196 — the radius is 14.",
+                        '[[conic type="circle" r="14" cx="2" cy="3" caption="un-square 196 — radius 14"]][[step eq="(x − 2)² + (y − 3)² = 196"]] [[step eq="radius = 14"]]'),
              "ask": {'a': 6, 'b': 11, 'c': 10, 'op': 'crad'}},
         ],
         "practice_intro": ("Now it's your turn. Three right answers in a row and we're "
@@ -2914,10 +2931,10 @@ _PRECALC_U9 = [
              '[[graph func="x^2" lines="x=2; x=6; y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="y = x² — the window from x = 2 to x = 6, and the line joining its two ends"]]'),
         ],
         "teach": [
-            ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On this curve, between two different x's, the average rate is the two x's put together. That is because "
-             "b squared take away a squared is b take away a, times b plus a — and the "
-             "run divides out. Try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5.",
-             '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8"]][[step eq="3 → 5: rise 16 ÷ run 2 = 8"]][[step eq="3 + 5 = 8"]]'),
+            ("That is the method: rise divided by run. And 8 is simply 2 plus 6. On this curve, between two different x's, the average rate is the two x's put together. Call them a and b. "
+             "b squared take away a squared is b take away a, times b plus a, and the "
+             "run, b take away a, divides out. Try 3 to 5: rise 16, run 2, and 8 again, which is 3 plus 5.",
+             '[[graph func="x^2" lines="y=8x-12" points="(2,4),(6,36)" range="0..7" yrange="0..50" caption="the line through the two ends climbs 8 per step — 2 + 6"]][[step eq="rise 32 ÷ run 4 = 8"]][[step eq="2 + 6 = 8"]][[step eq="b² − a² = (b − a)(b + a)"]][[step eq="rise ÷ run = b + a"]][[step eq="3 → 5: rise 16 ÷ run 2 = 8"]]'),
             ("Shrink the window toward a single point. From 4 to 5 the rate is 9; "
              "from 4 to 4 point 1, about 8 point 1; closer still, 8 point 0 1. The "
              "rates creep toward 8 — twice the 4. That limit is called the "

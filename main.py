@@ -2,6 +2,20 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE COURSE REVIEW, AND FOUR OTHER THINGS JIM SAW (09-26). (1) A
+#               student's FIRST scripted lesson in a course opens with the course review --
+#               lessons/bridges.py via lessonscripts.bridge_steps, played by _script_start_lesson
+#               when _bridge_due says the record holds no finished lesson in the course;
+#               ScriptStartIn.after_tour picks the opener that does not welcome twice. Entry has
+#               none. (2) lesson_orientation says no plan to Entry/Basic. (3) Lesson one's why
+#               beat no longer says "Welcome to <course>" after the intro line. (4) The board
+#               toggle is on the topic and practice pages too. (5) The Skip button is obvious,
+#               and covers the review. APP_BUILD -> "2026-09-26yi-the-course-review". Prewarm
+#               ~60 lines (the reviews). PART 3oc.
+#   2026-09-26  APP_BUILD -> "2026-09-26yh-the-fourth-precalc-sweep". Pre-Calc's fourth reading (15
+#               findings, 25 clean; 28 at xm) -- the third round's last: 13 spoken/board edits in
+#               lessons/precalc.py, vasy's caption in lessonscripts.py. No change in this file
+#               beyond the stamp; prewarm ~11 lines. PART 3ob.
 #   2026-09-26  APP_BUILD -> "2026-09-26yg-the-sixth-entry-sweep". Entry's sixth reading (6 findings,
 #               31 clean; 19 at wy): four generator walk-backs (lessonscripts.py: no > or ÷ on an
 #               Entry board, the take-away count shown, min5q's per-step law) and one authored
@@ -5952,6 +5966,7 @@ class ScriptStartIn(BaseModel):
     code: str
     course: str = "basic"
     lesson: str = ""        # build jw: a lesson id from /api/script/lessons; blank = first
+    after_tour: bool = False   # (yi) the screen tour just ran: the review opens without a second welcome
 
 
 class ScriptAnswerIn(BaseModel):
@@ -6121,6 +6136,19 @@ def script_start(body: ScriptStartIn):
     return _with_practice(resp, _SCRIPT_SESSIONS.get((body.code or "").strip()))
 
 
+def _bridge_due(code: str, course: str) -> bool:
+    """(yi) Is this the student's first scripted lesson in the course? True when the
+    course has a review and the record holds no finished lesson for it (or there is
+    no record to ask). A lesson ended in this course -- mastered or still learning --
+    is a row, so the review never plays twice for one student."""
+    if course not in lessonscripts.BRIDGE_COURSES:
+        return False
+    if store is None or not store.enabled():
+        return True
+    rows = store.get_script_done(code, course) or []
+    return not rows
+
+
 def _script_start_lesson(body: ScriptStartIn):
     t0 = _time.monotonic()
     code = (body.code or "").strip()
@@ -6170,6 +6198,21 @@ def _script_start_lesson(body: ScriptStartIn):
     if _aw:
         _at = 2 if len(steps) >= 2 and (steps[1].get("beat") == "orientation") else 1
         steps[_at:_at] = _aw
+    # (yi, 2026-09-26) THE COURSE REVIEW COMES FIRST. A student's FIRST scripted lesson
+    # in a course -- no finished lesson on the record for it -- opens with the review
+    # (lessons/bridges.py, via lessonscripts.bridge_steps): welcome, the few things
+    # from earlier courses that matter here, and the hand-over. Then the lesson
+    # introduces itself as before. Entry has no review (nothing came before it).
+    # `after_tour` (the page's word that the screen tour just welcomed them) picks the
+    # opener that does not welcome twice. With no store (dev file mode) the review
+    # plays on every first lesson, which is what a developer wants to see. Fail-open:
+    # any error means no review, never a lost lesson.
+    try:
+        _bridge = _bridge_due(code, lesson["course"])
+        if _bridge:
+            steps = lessonscripts.bridge_steps(lesson["course"], after_tour=bool(body.after_tour)) + steps
+    except Exception as exc:  # noqa: BLE001
+        print(f"[script] review skipped (non-fatal): {exc}")
     _SCRIPT_SESSIONS[code] = {"state": state, "lesson": lesson, "mode": "script",
                               "ai_turns": 0, "history": [], "redo": None,
                               "t0": _time.monotonic()}
@@ -9520,7 +9563,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-26yg-the-sixth-entry-sweep"
+APP_BUILD = "2026-09-26yi-the-course-review"
 
 
 @app.get("/health")

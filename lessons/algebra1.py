@@ -2,6 +2,11 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
 #   2026-09-23  BUILD xq -- THE THIRD ALGEBRA I SWEEP (23 findings, 23 clean). Thirteen
 #               authored lines: the law with its condition (the curve agrees at 2 AND at
 #               zero before "everywhere else it breaks"; one odd number drags the mean "in
@@ -170,7 +175,7 @@ _ALGEBRA1_U1 = [
         "symbols": ("x", "times"),
         "advance_line": "Three in a row, and you can say why — you've got it! Times first, then add — even with a letter inside.",
         "why": [
-            ("Welcome to algebra. Why start here? Because you already know the two "
+            ("Why start here? Because you already know the two "
              "moves this lesson needs: a number against a letter means times, and "
              "times comes before add. Put them together and you can work out "
              "something like 3 x plus 2 the moment you learn what x is equal to. And "

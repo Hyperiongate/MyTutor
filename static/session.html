@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (yi) 2026-09-26 -- THE COURSE REVIEW, THE OBVIOUS SKIP, AND THE ORDER OF THE WELCOME.
+    Jim (09-26): a new course should open with a short review of what earlier courses gave
+    you, with an obvious Skip; "welcome to geometry" came AFTER the lesson had introduced
+    itself. Now: /api/script/start plays the review (main.py, lessons/bridges.py) at the
+    front of a student's first lesson in the course, as `say` beats named "bridge"; scrPlay
+    shows the big #tourSkip ("Skip the review") while they play and drops the rest of them on
+    a tap. tourHandoff sends after_tour so the review's opener does not welcome twice after
+    the screen tour. #tourSkip is a filled, pulsing pill now (.skipbig), for the tour too.
     (xy) 2026-09-24 -- "THE STUDENT SCROLLED AWAY" IS JUDGED AGAINST THE BOARD'S OWN TARGET.
     The feed's scroll listener set stickBottom from the distance to the BOTTOM (ay); under
     ir a tutor turn anchors at the TOP, so any scroll event that was not ours -- the browser
@@ -723,6 +731,15 @@
       cursor: pointer; line-height: 1; font-family: inherit;
       box-shadow: 0 3px 10px rgba(20,30,45,.07); }
     .chip[hidden] { display: none; }
+    /* (yi) THE OBVIOUS SKIP -- the tour's and the review's. Fixed bottom-right, filled
+       with the accent, big enough for a thumb; the phone rules below move it to the
+       top-right corner. The pulse runs twice when it appears, so it is seen. */
+    .skipbig { position: fixed; right: 18px; bottom: 18px; z-index: 60; padding: 14px 22px;
+      border-radius: 999px; border: 2px solid #fff; background: var(--accent, #5b5bd6); color: #fff;
+      font-weight: 900; font-size: 17px; font-family: inherit; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(91,91,214,.45); animation: chippulse .9s ease-in-out 2; }
+    .skipbig:hover { filter: brightness(1.08); }
+    .skipbig:disabled { opacity: .6; cursor: default; }
     .chip.on { background: linear-gradient(90deg, rgba(91,91,214,.14), rgba(20,184,166,.14));
       border-color: var(--accent); }
     .chip .chipct { font-weight: 900; color: var(--accent); }
@@ -1234,6 +1251,13 @@
   <!-- build or (2026-08-27): the sidebar's tab. Fixed to the left edge, OUTSIDE the
        aside (a display:none aside would swallow it). Desktop only; phones keep dz's dock. -->
   <button id="sbTab" type="button" aria-controls="sideLeft" aria-expanded="false">&#9656; Open the sidebar</button>
+  <!-- (yi, 2026-09-26) ONE OBVIOUS SKIP. Jim: "a very obvious skip button". The same button
+       serves the screen tour (ik) and the course review (yi); its label says which. Big,
+       filled, pulsing when it appears -- never a muted link. OUTSIDE the aside, like #sbTab:
+       the first live probe of the review found it inside #sideLeft, which is display:none
+       whenever the sidebar is closed -- the tour opens the sidebar for its stops, the review
+       does not, so the pill measured 0 x 0. Skipping the tour still counts as finishing it. -->
+  <button id="tourSkip" class="skipbig" type="button" style="display:none">Skip the intro &#9656;</button>
   <div class="app">
     <aside class="side left" id="sideLeft">
       <div class="tutor-head" id="tutorPanel" data-cad="tutor">
@@ -1244,10 +1268,9 @@
           <div class="status" id="status">&nbsp;</div>
         </div>
       </div>
-      <!-- build ik (2026-08-18): visible ONLY while the opening tour is playing.
-           Skipping counts as finishing -- it hands off through the same
-           __tour_done__ path, so the server records the tour as seen. -->
-      <button id="tourSkip" type="button" style="display:none;position:fixed;right:18px;bottom:18px;z-index:60;padding:10px 16px;border-radius:999px;border:1px solid #cfcfe8;background:#fff;color:#4a4a68;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(40,40,80,.12)">Skip the intro &#9656;</button>
+      <!-- build ik (2026-08-18): the tour's Skip lived here, inside the aside, until yi: it
+           is at the top of <body> now, beside #sbTab, for the same reason or gave -- a
+           display:none aside swallows it, and the review plays with the sidebar closed. -->
 
       <!-- NAV ORDER (2026-08-07 build bf, Jim's exact sequence): Curriculum → Course
            assessment → Progress dashboard → Practice a problem → Explore a topic (NEW —
@@ -3307,6 +3330,7 @@
       const sk = el("tourSkip");
       document.body.classList.add("touring");            // (ug) phones: the top row makes room for Skip
       if (sk) {
+        sk.textContent = "Skip the intro \u25B8";   // (yi) the one button serves the review too -- say which
         sk.style.display = "";
         sk.onclick = function () {
           skipped = true; sk.disabled = true;
@@ -3396,6 +3420,7 @@
           body: JSON.stringify({ code: CODE, course: COURSE }) });
       } catch (e) {}       // the lesson must never wait on a bookkeeping row
       try {
+        SCR.afterTour = true;          // (yi) the tour just welcomed them: the review opens "Now, before we get into..."
         if (await scriptStart()) return;
       } catch (e) {}
       await runTutor(openerMessage);   // no authored lesson here: exactly as before
@@ -3427,7 +3452,9 @@
                   aiFetch: null, lastAnswer: "",     // (ur) the re-teach in flight, and the answer that earned it
                   check: null, lastWorked: null,     // (us) the check on screen, and the last worked example (for "show me that again")
                   afterMiss: false,                  // (xn) the next ask is the fresh problem after a miss -- the pencil points at it
-                  lastRight: "" };                   // (xr) the answer that was just graded right -- the pencil underlines it on the praise
+                  lastRight: "",                     // (xr) the answer that was just graded right -- the pencil underlines it on the praise
+                  afterTour: false,                  // (yi) the screen tour just ran -- the review's opener does not welcome twice
+                  skipReview: null };                // (yi) the Skip promise while a review beat plays
 
     async function scriptLessons() {
       if (SCR.all) return SCR.all;
@@ -3775,6 +3802,30 @@
         });
         return;
       }
+      // (yi, 2026-09-26) THE COURSE REVIEW HAS A SKIP. While a beat named "bridge" plays
+      // (lessons/bridges.py, at the front of a student's first lesson in a course) the
+      // big Skip button is up, labelled for the review. Skipping stops his voice mid-
+      // line, drops every review beat still in the queue, and goes straight on to the
+      // lesson's own first line -- nothing is graded, nothing is recorded, and a student
+      // who lets it play never sees a difference. The button leaves with the last
+      // review beat.
+      if (step.beat === "bridge") {
+        const sk = el("tourSkip");
+        let skipped = false;
+        const skipWait = new Promise((resolve) => {
+          if (!sk) return;
+          if (sk.style.display === "none") { sk.textContent = "Skip the review \u25B8"; sk.style.display = ""; sk.disabled = false; document.body.classList.add("touring"); }   // touring: phones make room for the pill (ug)
+          sk.onclick = () => { skipped = true; sk.disabled = true; try { stopAllSpeech(); } catch (e) {} resolve(); };
+        });
+        await Promise.race([scrSay(words), skipWait]);
+        statusEl.textContent = "";
+        const moreReview = SCR.queue.length && SCR.queue[0].beat === "bridge";
+        if (skipped) SCR.queue = SCR.queue.filter((q) => q.beat !== "bridge");
+        if (skipped || !moreReview) { if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; } document.body.classList.remove("touring"); }
+        if (!skipped) await delay(SCR_BREATH);
+        scrNext();
+        return;
+      }
       // A beat that GENUINELY SPOKE moves itself along after a breath. A beat that
       // said nothing hands the pace to the student rather than racing a reader.
       const heard = await scrSay(words);
@@ -3916,7 +3967,8 @@
       try {
         const r = await fetch("/api/script/start", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, course: COURSE, lesson: les.id }) });
+          body: JSON.stringify({ code: CODE, course: COURSE, lesson: les.id, after_tour: !!SCR.afterTour }) });   /* (yi) */
+        SCR.afterTour = false;
         if (!r.ok) return false;
         const j = await r.json();
         if (!j.ok || !(j.steps || []).length) return false;

@@ -2,6 +2,11 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
 #   2026-09-24  BUILD xw -- THE THIRD PROB/STAT SWEEP, PART TWO (the whole course: 26
 #               findings, 18 authored, 23 of 36 clean; 60 and 10 at xg). HIGH: the four-times
 #               rule's recap "with everything else about the poll the same" (its own
@@ -143,7 +148,7 @@ _PROBSTAT_U1 = [
         "symbols": ("mode", "stack"),
         "advance_line": "Three in a row, and you can say why — you've got it! The mode is the value under the tallest stack.",
         "why": [
-            ("Why look before you count? Welcome to Probability and Statistics, where "
+            ("Why look before you count? In Probability and Statistics, "
              "the first move is always to LOOK. A dot plot puts one dot above a number "
              "for every time that number happened. The shape of the data stands up off "
              "the page — tall where values repeat, flat where they do not.",

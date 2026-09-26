@@ -2,6 +2,11 @@
 # lessons/calculus.py  --  CALCULUS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
+#               "Welcome to <course>" AFTER the lesson had already introduced itself (the
+#               intro line and the Today card) -- Jim heard the order as wrong. The course
+#               review (lessons/bridges.py) welcomes the student now, before lesson one; the
+#               why beat opens on its why.
 #   2026-09-25  BUILD yf -- THE THIRD CALCULUS SWEEP (24 findings on all 36, 18 clean; 46 and
 #               13 at xi). 22 authored edits, no beat added, nothing declined. The HIGH: "squaring
 #               the radius gives one slice its area" (xi's own fix) -> "pi times the radius
@@ -156,7 +161,7 @@ _CALCULUS_U1 = [
         "symbols": ("limits", "product"),
         "advance_line": "Three in a row, and you can say why — you've got it! For a sum or a product, when each function has a limit of its own, limits pass straight through the arithmetic.",
         "why": [
-            ("Welcome to Calculus, built on one idea you already own: the limit — where a "
+            ("Calculus is built on one idea you already own: the limit — where a "
              "function is headed. Pre-Calculus found limits one at a time. Calculus needs "
              "them to join up, because real functions are built from simpler ones, and "
              "happily they do, without any fuss at all.",
