@@ -2,6 +2,14 @@
    geo-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-26  BUILD yk -- [[angle deg="360"]] draws THE FULL TURN: a ray from a centred
+                 vertex and an arrowed arc that sweeps the whole way round back to it,
+                 labelled 360°. Jim, on the Geometry review: it said 90, 180 and 360 over one
+                 square corner -- "I think we need to show a straight line with an arc
+                 showing that's 180, a circle going all the way around, that's 360." The
+                 review draws all three now; 180 already drew the straight line with its arc.
+                 And [[angle row="90,180,360" names="a|b|c"]] puts several angles SIDE BY
+                 SIDE in one landscape figure -- three stacked figures shrank to the floor.
      2026-09-06  BUILD tp -- [[triangle sas="10,4,150"]] draws an HONEST triangle from
                  two sides and the angle between them: the first vertex is the corner,
                  the first side runs along the base, the second leaves at the true angle,
@@ -201,9 +209,23 @@
   // ---- [[angle]] : a single labeled angle with a degree measure ----
   function angle(a) {
     var W = 300, H = 212;
+    // (yk, 2026-09-26) THE FULL TURN. deg="360" draws what the words "a full turn is 360
+    // degrees" say: one ray from a centred vertex, and an arrow that starts on the ray and
+    // sweeps the whole way round back to it -- the third of the three totals Geometry's
+    // review names beside the square corner and the straight line. Jim: "a circle showing
+    // starting at one point, going around all the way around, that's 360." Anything else
+    // above 180 is still capped at 180 as before (a straight line, never bent).
+    // (yk) row="90,180,360" draws SEVERAL angles side by side in ONE figure -- the three
+    // totals on one line of the board, full width, instead of three figures stacked and
+    // shrunk to the floor (the first live look at the review showed exactly that). Each
+    // panel is the plain angle drawing; names="a|b|c" writes a word under each.
+    var rowRaw = String(a.row || "").trim();
+    if (rowRaw) return angleRow(rowRaw, String(a.names || ""), W, H);   // read here, so the board contract credits names= to [[angle]]
+    var rawDeg = num(a.deg != null ? a.deg : a.measure, 45);
+    if (Math.abs(rawDeg - 360) < 0.5) return fullTurn(a, W, H);
     // 2026-08-01: cap raised 175 -> 180. The old cap silently BENT straight lines (the tutor
     // asked for 180 and got 175). Wide angles recentre the vertex so both rays stay visible.
-    var deg = Math.max(5, Math.min(180, num(a.deg != null ? a.deg : a.measure, 45)));
+    var deg = Math.max(5, Math.min(180, rawDeg));
     var label = String(a.label || "").trim();
     // 2026-08-26 (build oi): cross="?" extends both rays through the vertex -- two full
     // lines crossing -- and labels the OPPOSITE (vertical) angle. Degenerate X's are
@@ -279,6 +301,56 @@
       if (ch[0]) s += txt(r1[0] + 12, r1[1] + 3, ch[0], INK, 16, 800);          // first ray end
       if (ch[2]) s += txt(r2[0] + 13, r2[1] - 6, ch[2], INK, 16, 800);          // second ray end
     }
+    return s + "</svg>";
+  }
+
+  // (yk) [[angle row="90,180,360" names="a square corner|a straight line|a full turn"]] --
+  // the panels side by side. Each panel is angle() itself with one deg, its <svg> wrapper
+  // stripped and the drawing shifted right by its slot; the outer viewBox is as wide as
+  // the panels together, so the figure is landscape and the board gives it full width.
+  function angleRow(rowRaw, namesRaw, W, H) {
+    var degs = rowRaw.split(/[,|;]/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 4);
+    if (!degs.length) return angle({ deg: 45 });
+    var names = String(namesRaw || "").split("|").map(function (x) { return x.trim(); });
+    var PW = W, PH = H + (names.some(Boolean) ? 26 : 0);
+    var s = open(PW * degs.length, PH);
+    for (var i = 0; i < degs.length; i++) {
+      var inner = angle({ deg: degs[i] }).replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+      s += '<g transform="translate(' + (i * PW) + ',0)">' + inner;
+      // the square corner draws its mark and no number on its own; in a row of totals it says 90° like its neighbours
+      if (Math.abs(num(degs[i], 0) - 90) < 0.5) s += txt(80 + 36 + 8, 172 - 36 - 4, "90°", TEAL, 14, 700);
+      if (names[i]) s += txt(PW / 2, H + 16, names[i], INK, 15, 700);
+      s += "</g>";
+    }
+    return s + "</svg>";
+  }
+
+  // (yk) [[angle deg="360"]] -- the full turn, drawn as a turn: a ray, and an arrowed arc
+  // that leaves it and comes all the way round to it. The SVG arc command cannot draw a
+  // closed circle in one arc, so the sweep is two half-turns; the arrowhead sits a few
+  // degrees short of the ray so the turn visibly ARRIVES rather than merging into it.
+  function fullTurn(a, W, H) {
+    var V = [150, 112], Ln = 118, ar = 52;
+    var s = open(W, H);
+    s += line(V, [V[0] + Ln, V[1]], ACC, 2.5);
+    var endDeg = 352, rad = endDeg * Math.PI / 180;
+    var p0 = [V[0] + ar, V[1]];
+    var pm = [V[0] - ar, V[1]];
+    var p1 = [V[0] + ar * Math.cos(rad), V[1] - ar * Math.sin(rad)];
+    // counter-clockwise on screen = the SVG sweep flag 0 (y grows downward)
+    s += '<path d="M ' + p0[0] + " " + p0[1] + " A " + ar + " " + ar + " 0 0 0 " + pm[0] + " " + pm[1]
+       + " A " + ar + " " + ar + " 0 0 0 " + p1[0] + " " + p1[1] + '" fill="none" stroke="' + TEAL + '" stroke-width="2.4"/>';
+    // the arrowhead, tangent to the arc at its end (the arc is moving "up" toward the ray there)
+    var tx = -Math.sin(rad), ty = -Math.cos(rad);            // the tangent direction of a CCW arc at angle rad
+    var hx = p1[0], hy = p1[1], L = 11, Wd = 6;
+    var bx = hx - tx * L, by = hy - ty * L;
+    var nx = ty, ny = -tx;
+    s += '<polygon points="' + hx + "," + hy + " " + (bx + nx * Wd) + "," + (by + ny * Wd) + " " + (bx - nx * Wd) + "," + (by - ny * Wd)
+       + '" fill="' + TEAL + '"/>';
+    s += dot(V, 3);
+    s += txt(V[0], V[1] - ar - 14, "360°", TEAL, 14, 700);
+    var label = String(a.label || "").trim();
+    if (label) s += txt(V[0] - 15, V[1] + 18, label.split("")[1] || label, INK, 16, 800);
     return s + "</svg>";
   }
 

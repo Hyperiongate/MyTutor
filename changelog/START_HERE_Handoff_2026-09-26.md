@@ -4,8 +4,11 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-26yj-the-true-distractor`** (battery 13,189 passed, 0 failed,
-3 skipped) — the pre-sweep `yh` asked for: `tools/distractorscan.py` computes every reason
+On Jim's disk: **`2026-09-26yk-the-three-totals-are-drawn`** (battery 13,195 passed, 0
+failed, 3 skipped) — Jim's first look at the Geometry review: it said 90, 180 and 360 over
+one right angle. `[[angle deg="360"]]` draws the full turn and `[[angle row=… names=…]]`
+draws angles side by side in one figure; the review's angles beat and lesson one's why beat
+draw what they say. Before it, `yj` (battery 13,189) — the pre-sweep `yh` asked for: `tools/distractorscan.py` computes every reason
 question's wrong choices against its own numbers; eleven were right by the numbers (one of
 them `xa`'s own replacement for an earlier one) and are false now; verdicts pinned at zero,
 candidates ratcheted. Before it, `yi` (battery 13,174) — Jim's five 09-26 items: the course review (nine courses, `lessons/bridges.py`,
@@ -115,9 +118,17 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`, `Build_yj_The_True_Distractor_2026-09-26.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`, `Build_yj_The_True_Distractor_2026-09-26.md`, `Build_yk_The_Three_Totals_Are_Drawn_2026-09-26.md`.
 
-## Written to D:\MyTutor (yj, 2026-09-26) — Jim pushes
+## Written to D:\MyTutor (yk, 2026-09-26) — Jim pushes
+
+- `static/geo-figures.js` (the full turn; the row), `lessons/bridges.py`, `lessons/geometry.py`,
+  `ruletests.py` (PART 3oe), `main.py` (stamp `2026-09-26yk-the-three-totals-are-drawn`),
+  `speechmap.py` (unchanged content), `changelog/Build_yk_The_Three_Totals_Are_Drawn_2026-09-26.md`,
+  this handoff. **Nothing to prewarm** (boards only). To see it: the Geometry review's second
+  beat, and Geometry unit 1 lesson 1's first beat.
+
+## Written to D:\MyTutor (yj, 2026-09-26) — pushed or pending
 
 - `tools/distractorscan.py` (NEW), `lessons/basic.py`, `lessons/prealgebra.py`,
   `lessons/geometry.py`, `lessons/algebra2.py`, `lessons/probstat.py`, `lessons/calculus.py`
@@ -446,9 +457,9 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `yj` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-26yj-the-true-distractor` (yi and earlier are pushed and
-   prewarmed; yj adds no lines) (ya's 12, xz's 8 and xw's ~60 if not yet done) and plays Geometry unit 1 past the
+1. The chain through `yk` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-26yk-the-three-totals-are-drawn` (yi and earlier are pushed and
+   prewarmed; yj and yk add no lines) (ya's 12, xz's 8 and xw's ~60 if not yet done) and plays Geometry unit 1 past the
    pairs (xy's fix), Basic unit 3 lesson 4 (yb's array words), Entry vs Pre-Algebra (xx's
    skin), Pre-Calc unit 2 lesson 3's reason question (yh). **The sweeps are done unless he
    asks** — see the section above. The next gate build is the true-distractor pre-sweep, or
@@ -580,6 +591,11 @@ What the third round leaves behind, as work — none of it a sweep:
   slices that remained (3ik's client-log.js and voice.js, 3jd/3jg/3jl's geo-figures.js) read
   `notes()` since `ye`, and PART 3ny fails any pin with "BUILD" on its line that reads a
   `[:NNNN]` slice again. Write new dated-note pins as `"BUILD xx" in notes("path")`.
+- **Several small figures go side by side, never stacked (yk).** Three `[[angle]]` figures
+  on one beat stacked and shrank to the floor; `[[angle row="90,180,360" names="a|b|c"]]`
+  draws them in one landscape figure at full width. When a beat needs more than one small
+  figure of the same kind, look for (or add) a row form of the tag before stacking. And a
+  spoken total gets its picture: the full turn is `deg="360"`.
 - **A new course opens with its review (yi).** `lessons/bridges.py` holds one review per
   course after Entry; `main.py` plays it at the front of a student's FIRST scripted lesson
   in the course (`_bridge_due`: no finished lesson on the record; with no store, every first

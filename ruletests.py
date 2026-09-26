@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yk -- PART 3oe, THE THREE TOTALS ARE DRAWN. [[angle deg="360"]] (the full
+#               turn) and [[angle row= names=]] (angles side by side in one figure) in
+#               geo-figures.js; Geometry's review beat and lesson one's why beat draw what they
+#               say. Rendered headless in the battery.
 #   2026-09-26  BUILD yj -- PART 3od, THE TRUE DISTRACTOR, CANON-WIDE. tools/distractorscan.py
 #               measures yh's class over all 292 reason questions; eleven wrong choices were
 #               right by the numbers and are false now. Verdicts pinned at zero, candidates
@@ -24700,6 +24704,74 @@ def part3od_the_true_distractor():
           all("2026-09-26" in notes(f) and "yj" in notes(f)
               for f in ("tools/distractorscan.py", "ruletests.py", "main.py", "lessons/basic.py", "lessons/prealgebra.py",
                         "lessons/geometry.py", "lessons/algebra2.py", "lessons/probstat.py", "lessons/calculus.py")), "Jim's rule 8")
+
+
+def part3oe_the_three_totals_are_drawn():
+    """PART 3oe (build yk, 2026-09-26) -- THE THREE TOTALS ARE DRAWN. Jim, on Geometry's
+    review: "it shows a picture of a right angle and says a right angle is 90 degrees, a
+    straight line is 180 degrees, and all the way around a full circle is 360 degrees. And
+    yet it only shows a picture of a right angle." geo-figures.js: [[angle deg="360"]] draws
+    the full turn (a ray, an arrowed arc that sweeps the whole way round back to it,
+    labelled), and [[angle row="90,180,360" names="a|b|c"]] draws several angles side by
+    side in ONE landscape figure -- three stacked figures shrank to the 340px floor on the
+    first live look. The review's angles beat and lesson one's why beat (90 and 180) draw
+    what they say. Rendered headless: the row is one <svg>, three panels, three labels."""
+    print("\nPART 3oe — the three totals are drawn (build yk)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    gf = rd("static/geo-figures.js")
+    import lessonscripts as L
+    from lessons.bridges import BRIDGES
+    check("⭐ geo-figures.js: deg=360 is the full turn -- one ray, a two-half-turn arc back to it, an arrowhead, the label; anything else above 180 still caps at 180",
+          'if (Math.abs(rawDeg - 360) < 0.5) return fullTurn(a, W, H);' in gf
+          and "function fullTurn(a, W, H) {" in gf and 'var endDeg = 352' in gf
+          and '<polygon points="' in gf.split("function fullTurn")[1].split("function circle")[0]
+          and 'txt(V[0], V[1] - ar - 14, "360°", TEAL, 14, 700)' in gf
+          and "var deg = Math.max(5, Math.min(180, rawDeg));" in gf, "")
+    check("⭐ geo-figures.js: row= draws up to four angles side by side in one figure, names= writes a word under each, the 90 panel says 90°",
+          'if (rowRaw) return angleRow(rowRaw, String(a.names || ""), W, H);' in gf
+          and "function angleRow(rowRaw, namesRaw, W, H) {" in gf and ".slice(0, 4)" in gf
+          and "var s = open(PW * degs.length, PH);" in gf and '<g transform="translate(' in gf
+          and 'txt(80 + 36 + 8, 172 - 36 - 4, "90°", TEAL, 14, 700)' in gf, "")
+    _valid, _allowed, _why = _board_contract(here)
+    check("  the board contract reads row= and names= off [[angle]] (the renderer is the contract)",
+          bool(_allowed) and {"row", "names", "deg"} <= set(_allowed[0].get("angle", set())), _why or str(sorted(_allowed[0].get("angle", set())) if _allowed else ""))
+    check("⭐ the Geometry review's angles beat draws the three totals it names, in one row; lesson one's why beat draws its two",
+          BRIDGES["geometry"]["beats"][0][1] == '[[angle row="90,180,360" names="a square corner|a straight line|a full turn" caption="90°, 180° and 360° — the three totals"]]'
+          and "A square corner is 90 degrees, a straight line is 180, and a full turn is 360." in BRIDGES["geometry"]["beats"][0][0]
+          and L.LESSON_BY_ID["geo-u1-two-make-a-corner"]["why"][0][1] == '[[goal text="Two angles make a right angle"]][[angle row="90,180" names="a right angle|a straight line" caption="the two totals you already know: 90° and 180°"]]'
+          and "a right angle is 90 degrees, and the angles along a straight line make 180" in L.LESSON_BY_ID["geo-u1-two-make-a-corner"]["why"][0][0], "")
+    NAME = "⭐ RENDERED: the row is one landscape <svg> with three panels, the 90° / 180° / 360° labels and the three names; the full turn alone has its arrow"
+    if dep_gate(NAME, "playwright", "the figure is rendered in a real browser"):
+        try:
+            from playwright.sync_api import sync_playwright
+            css = rd("static/board-theme.css")
+            html = ('<html><head><style>' + css + '</style></head><body><div class="feed" id="a"></div><script>' + gf + '</script>'
+                    '<script>var G = window.GeoFigures; document.getElementById("a").innerHTML = '
+                    'G.svg("angle", {row:"90,180,360", names:"a square corner|a straight line|a full turn"}) + G.svg("angle", {deg:"360"}) + G.svg("angle", {deg:"500"});</script></body></html>')
+            with sync_playwright() as pw:
+                br = pw.chromium.launch(); pg = br.new_page(viewport={"width": 1000, "height": 400})
+                errs = []; pg.on("pageerror", lambda e: errs.append(str(e)[:100]))
+                pg.set_content(html); pg.wait_for_timeout(300)
+                m = pg.evaluate("""() => { const svgs = [...document.querySelectorAll('svg')];
+                    const t = s => [...s.querySelectorAll('text')].map(x => x.textContent);
+                    const r = svgs[0].getBoundingClientRect();
+                    return { n: svgs.length, vb: svgs[0].getAttribute('viewBox'), wide: r.width > r.height * 2,
+                             texts: t(svgs[0]), panels: svgs[0].querySelectorAll('g[transform]').length,
+                             turnArrow: svgs[1].querySelectorAll('polygon').length, turnTexts: t(svgs[1]),
+                             capped: t(svgs[2]) }; }""")
+                br.close()
+            check(NAME,
+                  not errs and m["n"] == 3 and m["vb"] == "0 0 900 238" and m["wide"] and m["panels"] == 3
+                  and {"90°", "180°", "360°", "a square corner", "a straight line", "a full turn"} <= set(m["texts"])
+                  and m["turnArrow"] == 1 and "360°" in m["turnTexts"] and "180°" in m["capped"],
+                  str(m) + str(errs))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the render did not run: {exc}")
+    check("  the changed files carry dated yk notes",
+          all("2026-09-26" in notes(f) and "yk" in notes(f)
+              for f in ("static/geo-figures.js", "lessons/bridges.py", "lessons/geometry.py", "ruletests.py", "main.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51658,6 +51730,7 @@ def main():
     part3ob_the_fourth_precalc_sweep()
     part3oc_the_course_review()
     part3od_the_true_distractor()
+    part3oe_the_three_totals_are_drawn()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

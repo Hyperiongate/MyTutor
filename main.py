@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  APP_BUILD -> "2026-09-26yk-the-three-totals-are-drawn". Jim: the Geometry review
+#               said 90, 180 and 360 over one right angle. static/geo-figures.js draws the full
+#               turn ([[angle deg="360"]]) and a row of angles in one figure (row=, names=); the
+#               review's angles beat and Geometry lesson one's why beat draw what they say. No
+#               change in this file beyond the stamp; nothing to prewarm (boards only). PART 3oe.
 #   2026-09-26  APP_BUILD -> "2026-09-26yj-the-true-distractor". The pre-sweep yh asked for: every
 #               reason question's wrong choices computed against its own numbers
 #               (tools/distractorscan.py); eleven were right by the numbers, in six course files,
@@ -9568,7 +9573,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-26yj-the-true-distractor"
+APP_BUILD = "2026-09-26yk-the-three-totals-are-drawn"
 
 
 @app.get("/health")

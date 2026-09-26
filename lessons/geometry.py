@@ -2,6 +2,9 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yk -- lesson one's why beat draws the two totals it names ("a right angle
+#               is 90 degrees, and the angles along a straight line make 180") beside its goal
+#               card: the corner and the straight line with its arc. Jim: shown early on.
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -125,7 +128,7 @@ _GEOMETRY_U1 = [
              "straight line make 180. Today we use the smaller total: two angles "
              "that together make a right angle, a perfect square corner. Corners are "
              "everywhere: walls, pages, the frame of a door.",
-             '[[goal text="Two angles make a right angle"]]'),
+             '[[goal text="Two angles make a right angle"]][[angle row="90,180" names="a right angle|a straight line" caption="the two totals you already know: 90° and 180°"]]'),
         ],
         "picture": [
             ("Here is a right angle with a line drawn out from its corner, splitting it into two "

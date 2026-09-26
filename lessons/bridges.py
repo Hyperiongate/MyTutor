@@ -2,6 +2,10 @@
 # lessons/bridges.py  --  THE COURSE REVIEW: what earlier courses gave you  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yk -- Geometry's angles beat DRAWS all three totals it names: the square
+#               corner, the straight line with its arc, and the full turn with its arrow
+#               ([[angle deg="360"]] and row= are new in geo-figures.js), side by side in one
+#               figure. Jim: it said 90, 180 and 360 over one right angle.
 #   2026-09-26  BUILD yi -- NEW FILE. Jim (09-26): "every lesson, aside from entry level,
 #               should have a review discussion ... welcome to geometry, before we get into
 #               this, a few things that we covered in earlier courses that are important to
@@ -126,7 +130,7 @@ BRIDGES = {
         "beats": [
             ("First, angles. A square corner is 90 degrees, a straight line is 180, and a full "
              "turn is 360. Geometry uses those three totals constantly.",
-             '[[angle deg="90" caption="a square corner: 90°"]][[step eq="straight line: 180° · full turn: 360°"]]'),
+             '[[angle row="90,180,360" names="a square corner|a straight line|a full turn" caption="90°, 180° and 360° — the three totals"]]'),
             ("Second, solving a simple equation. If an angle plus 40 equals 180, take 40 from both "
              "sides: the angle is 140. Many geometry problems end this way.",
              '[[step eq="x + 40 = 180"]][[step eq="x = 140"]]'),
