@@ -2,6 +2,9 @@
 # lessons/calculus.py  --  CALCULUS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -852,7 +855,7 @@ _CALCULUS_U3 = [
             "spoken": ("One more thing — not the answer, the reason. For 5 x plus 3 to the "
                        "power 6, the front number is 30, not 6. Tap the reason why."),
             "choices": ("because the inside has a derivative, and it comes out too | "
-                        "because the power is always multiplied by five | "
+                        "because the power is always multiplied by three | "
                         "because 6 and 5 are added to make 30"),
             "answer": "because the inside has a derivative, and it comes out too",
             "board": '[[write text="y = (5x + 3)^6"]][[machine input="6" rule="× 5" output="?" caption="why 30, and not 6?"]]',
@@ -1055,7 +1058,7 @@ _CALCULUS_U4 = [
                        "40 at t equals 5, not at 40. Tap the reason why."),
             "choices": ("because the speed is set equal to 40 and solved for t | "
                         "because the time is always the speed you were given | "
-                        "because 40 is divided by the distance's number"),
+                        "because 40 take away 8 is the time"),
             "answer": "because the speed is set equal to 40 and solved for t",
             "board": '[[graph lines="y=8x" names="speed = 8t" range="0..7" yrange="0..56" caption="why 5, and not 40?"]]',
         },

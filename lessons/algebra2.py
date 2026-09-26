@@ -2,6 +2,9 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -192,7 +195,7 @@ _ALGEBRA2_U1 = [
                        "of 3 take away 8 is 5, not negative 5. Tap the reason why."),
             "choices": ("because the bars ask how far apart, and distance has no sign | "
                         "because the bars always make a number bigger | because the "
-                        "take away was done the wrong way round"),
+                        "bars keep only the first number, 3"),
             "answer": "because the bars ask how far apart, and distance has no sign",
             "board": '[[numberline min="1" max="10" points="3,8" hops="3,8" caption="|3 − 8| = 5"]]',
         },

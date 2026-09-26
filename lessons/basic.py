@@ -2,6 +2,9 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-24  BUILD xz -- THE THIRD BASIC SWEEP (9 findings, 29 clean; 41 and 14 at wy). Eight
 #               edits: the condition class -- "a number that is not a ten itself sits between
 #               two tens"; the tens-and-ones split works "because each piece divides with
@@ -225,7 +228,7 @@ _BASIC_MORE = [
             "spoken": ("One more thing — not the answer, the reason. For 18 and 2, "
                        "the partner is 9 and not 16. Tap the reason why."),
             "choices": ("because 2 times 9 comes straight back to 18 | because 16 "
-                        "is too big to be a factor | because 18 take away 9 leaves 9"),
+                        "is too big to be a factor | because 18 take away 2 leaves 16"),
             "answer": "because 2 times 9 comes straight back to 18",
             "board": '[[array rows="2" cols="9" view="groups" eq="2 × 9 = 18" caption="2 and 9 are a pair"]]',
         },
@@ -965,8 +968,8 @@ _BASIC_MORE = [
         "explain": {
             "spoken": ("One more thing — not the answer, the reason. The greatest "
                        "common factor of 12 and 18 is 6, not 12. Tap the reason why."),
-            "choices": ("because 12 is not a factor of 18 | because 6 is half of 12 "
-                        "| because 18 take away 12 is 6"),
+            "choices": ("because 12 is not a factor of 18 | because the greatest common factor is always the smaller number "
+                        "| because 12 and 18 share no factor bigger than 3"),
             "answer": "because 12 is not a factor of 18",
             "board": '[[venn left="Factors of 12" right="Factors of 18" a="4, 12" both="1, 2, 3, 6" b="9, 18" caption="12 sits outside the overlap"]]',
         },
@@ -1549,7 +1552,7 @@ _BASIC_MORE = [
                        "long and 3 wide has a perimeter of 16, not 8. Tap the reason "
                        "why."),
             "choices": ("because the walk around has four sides, not two | because "
-                        "16 is twice 8 | because 5 and 3 are odd numbers"),
+                        "5 plus 3 is the whole walk around | because 5 and 3 are odd numbers"),
             "answer": "because the walk around has four sides, not two",
             "board": '[[rectangle w="5" h="3" show="perimeter" caption="four sides: 5, 3, 5, 3"]]',
         },

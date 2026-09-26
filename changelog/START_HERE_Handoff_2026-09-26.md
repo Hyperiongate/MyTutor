@@ -4,8 +4,11 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-26yi-the-course-review`** (battery 13,174 passed, 0 failed,
-3 skipped) — Jim's five 09-26 items: the course review (nine courses, `lessons/bridges.py`,
+On Jim's disk: **`2026-09-26yj-the-true-distractor`** (battery 13,189 passed, 0 failed,
+3 skipped) — the pre-sweep `yh` asked for: `tools/distractorscan.py` computes every reason
+question's wrong choices against its own numbers; eleven were right by the numbers (one of
+them `xa`'s own replacement for an earlier one) and are false now; verdicts pinned at zero,
+candidates ratcheted. Before it, `yi` (battery 13,174) — Jim's five 09-26 items: the course review (nine courses, `lessons/bridges.py`,
 played before a student's first lesson in a course, with an obvious Skip); no "idea /
 picture / method" plan for Entry and Basic; lesson one's why beat no longer welcomes after
 the intro; the board toggle on the topic and practice pages; the Skip is a big filled pill
@@ -112,9 +115,18 @@ an "Add credits" top-up is what the 429 "no credits remaining" needs; wv makes t
 Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_Highs_Three_Seats`,
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
-`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`.
+`Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`, `Build_yj_The_True_Distractor_2026-09-26.md`.
 
-## Written to D:\MyTutor (yi, 2026-09-26) — Jim pushes
+## Written to D:\MyTutor (yj, 2026-09-26) — Jim pushes
+
+- `tools/distractorscan.py` (NEW), `lessons/basic.py`, `lessons/prealgebra.py`,
+  `lessons/geometry.py`, `lessons/algebra2.py`, `lessons/probstat.py`, `lessons/calculus.py`
+  (eleven reason choices), `ruletests.py` (PART 3od), `main.py` (stamp
+  `2026-09-26yj-the-true-distractor`), `speechmap.py` (unchanged content),
+  `changelog/Build_yj_The_True_Distractor_2026-09-26.md`, this handoff. **Nothing to prewarm**
+  (choices are buttons). To see one: Basic unit 4, the GCF lesson's reason question.
+
+## Written to D:\MyTutor (yi, 2026-09-26) — pushed
 
 - `lessons/bridges.py` (NEW — the nine reviews), `lessonscripts.py`, `main.py` (stamp
   `2026-09-26yi-the-course-review`), `static/session.html`, `static/topic.html`,
@@ -420,11 +432,9 @@ sweep stays on the admin page for that.
 
 What the third round leaves behind, as work — none of it a sweep:
 
-- **The true distractor, canon-wide (a pre-sweep, structural).** yh found a reason-question
-  distractor that was numerically true for its example. Every `explain.choices` set can be
-  checked by machine where the choices name a number: compute each wrong choice against the
-  question's numbers and fail any that lands on the answer. Where the choices are words, a
-  sweep is the only reader. A gate build: `tools/`-style scan + a battery PART that ratchets.
+- ~~The true distractor, canon-wide~~ — **done in `yj`** (`tools/distractorscan.py`, PART 3od:
+  zero verdicts, 20 candidates ratcheted and read). When a reason question is written or
+  edited, run `python tools/distractorscan.py` and read any new candidate.
 - **The over-tall beat** (253 S9 LOW at 1280×900, by design under `pu`; the yd doc's table
   says which lessons) — shorter beats, lesson by lesson, if Jim's eye wants the figures bigger
   on a laptop.
@@ -436,9 +446,9 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `yi` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-26yi-the-course-review`, prewarms yi's ~60, yh's ~11, yf's ~22 and
-   yg's 1 (ya's 12, xz's 8 and xw's ~60 if not yet done) and plays Geometry unit 1 past the
+1. The chain through `yj` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-26yj-the-true-distractor` (yi and earlier are pushed and
+   prewarmed; yj adds no lines) (ya's 12, xz's 8 and xw's ~60 if not yet done) and plays Geometry unit 1 past the
    pairs (xy's fix), Basic unit 3 lesson 4 (yb's array words), Entry vs Pre-Algebra (xx's
    skin), Pre-Calc unit 2 lesson 3's reason question (yh). **The sweeps are done unless he
    asks** — see the section above. The next gate build is the true-distractor pre-sweep, or
@@ -585,10 +595,13 @@ What the third round leaves behind, as work — none of it a sweep:
 - **The Skip is `.skipbig` (yi).** One `#tourSkip`, filled and pulsing, labelled for what it
   skips (the intro, the review); the demo's `.skiplink` matches. A new skippable sequence
   reuses it, never a muted link.
-- **A reason-question distractor must be false for the example (yh).** Vieta's "the bigger
-  root, doubled" was 12 for roots 2 and 6 — the answer by accident. When writing or editing
-  `explain.choices`, compute every wrong choice against the question's numbers. The canon-wide
-  check is the next pre-sweep (above).
+- **A reason-question distractor must be false for the example (yh; measured at yj).** Vieta's
+  "the bigger root, doubled" was 12 for roots 2 and 6 — the answer by accident; yj found ten
+  more, one of them a sweep's own replacement (`xa`: "add 3 to both sides" under 6 → 9).
+  `tools/distractorscan.py` is the check: a VERDICT (a choice right by its own numbers) fails
+  the battery; a CANDIDATE (an operation in words that lands on the result) is ratcheted at
+  20 and must be read before the count moves. Write a new distractor so its arithmetic lands
+  somewhere else — the named wrong answer is the best place.
 - **Entry boards carry no symbol Entry never teaches (yg).** No `>` and no `÷` on any
   Entry board, authored or generated — a comparison is "13 is bigger than 6", a share is
   "6 shared into 2 equal groups = 3 each", a count of fives is "55 minutes = 11 counts of

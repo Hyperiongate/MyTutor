@@ -2,6 +2,9 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -160,7 +163,7 @@ _GEOMETRY_U1 = [
                        "reason why."),
             "choices": ("because the two fill a square corner, which is 90 | "
                         "because the two sit on a straight line, which is 180 | because "
-                        "the other angle is always twice the first"),
+                        "the two angles always add to 180"),
             "answer": "because the two fill a square corner, which is 90",
             "board": '[[angle deg="90" split="30,60" caption="30° + 60° = 90°"]]',
         },
@@ -474,7 +477,7 @@ _GEOMETRY_U2 = [
                        "5 slides 4 to the right, and its new x is 7. Tap the reason "
                        "why."),
             "choices": ("because a slide right adds to x only: 3 plus 4 | "
-                        "because a slide right adds 4 to both numbers | because a "
+                        "because a slide right adds 4 to y, never to x | because a "
                         "slide right takes 4 off x"),
             "answer": "because a slide right adds to x only: 3 plus 4",
             "board": '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3, 5) to (7, 5)"]]',
@@ -1270,7 +1273,7 @@ _GEOMETRY_U4 = [
                        "so 5 matches 10. Tap the reason why."),
             "choices": ("because the factor is 2, and 5 times 2 is 10 | because 3 grew "
                         "by 3, so 5 grows by 3 to 8 | because the big side is always "
-                        "double, whatever the factor"),
+                        "6, whatever the small side"),
             "answer": "because the factor is 2, and 5 times 2 is 10",
             "board": '[[triangle v="A,B,C" sides="3,5," caption="small"]][[triangle v="D,E,F" sides="6,10," caption="big × 2"]]',
         },

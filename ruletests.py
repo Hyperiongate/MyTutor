@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- PART 3od, THE TRUE DISTRACTOR, CANON-WIDE. tools/distractorscan.py
+#               measures yh's class over all 292 reason questions; eleven wrong choices were
+#               right by the numbers and are false now. Verdicts pinned at zero, candidates
+#               ratcheted at 20 (every one read). One pin moved (3md's ratio distractor).
 #   2026-09-26  BUILD yi -- PART 3oc, THE COURSE REVIEW (and the board chip everywhere, no plan for
 #               Entry/Basic, the welcome out of the why beat, the obvious Skip). The count pins
 #               moved with the 57 review lines: course 40,495 -> 40,552, closure 40,749 -> 40,806,
@@ -19106,7 +19110,7 @@ def part3md_the_first_prealgebra_sweep():
     check("  ratios: adding THE SAME NUMBER to both sides; the true distractor replaced; the recaps speak their boards",
           "Adding the same number to both sides does not keep a ratio like 2 to 3; timesing both by the same number does" in spoken(E("pre-u6-keeping-a-ratio"))   # (xa) scoped to the example
           and "add 3 cups of milk" not in E("pre-u6-keeping-a-ratio")["explain"]["choices"]
-          and "because you add 3 to both sides" in E("pre-u6-keeping-a-ratio")["explain"]["choices"]
+          and "because 6 divided by 2 is 3, so the milk is 3" in E("pre-u6-keeping-a-ratio")["explain"]["choices"]   # (yj) xa's replacement was itself true by the numbers (6 + 3 = 9)
           and "made three times bigger and still tasting right — 2 to 3 is 6 to 9" in spoken(E("pre-u6-keeping-a-ratio"))   # (xk) the closing line no longer claims a recipe for twelve the lesson never showed
           and "recipe for twelve" not in spoken(E("pre-u6-keeping-a-ratio"))
           and "18 divided by 3 is 6, then 6 times 4 is 24" in spoken(E("pre-u6-scaling-a-rate"))
@@ -24608,6 +24612,94 @@ def part3oc_the_course_review():
                         "static/topic.html", "static/practice.html", "static/demo.html",
                         "lessons/geometry.py", "lessons/algebra1.py", "lessons/algebra2.py", "lessons/calculus.py",
                         "lessons/precalc.py", "lessons/probstat.py")), "Jim's rule 8")
+
+
+def part3od_the_true_distractor():
+    """PART 3od (build yj, 2026-09-26) -- THE TRUE DISTRACTOR, CANON-WIDE. The class yh
+    found in one Pre-Calc reason question -- a wrong choice that is right by the example's
+    numbers ("roots 2 and 6 end in 12": "the bigger root, doubled" IS 12) -- measured across
+    all 292 reason questions by tools/distractorscan.py: the numbers in the question, the
+    number it presents as the result, the arithmetic each wrong choice names, computed. A
+    VERDICT is a choice that names its own numbers and states a conclusion that is the
+    result and true ("18 take away 12 is 6" under "the GCF of 12 and 18 is 6"). A
+    CANDIDATE is a choice in words whose named operation lands on the result over the
+    question's numbers -- read by hand; most name the operation the question itself uses.
+    Eleven wrong choices were right by the numbers (three verdicts, eight read out of the
+    candidates) and are false now; one of them was xa's own replacement for an earlier
+    true distractor. The verdict count is pinned at ZERO and the candidate count ratchets
+    (20 at yj, every one read): a new candidate must be read before the count moves."""
+    print("\nPART 3od — the true distractor, canon-wide (build yj)")
+    import os as _os, sys as _sys
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    if _os.path.join(here, "tools") not in _sys.path:
+        _sys.path.insert(0, _os.path.join(here, "tools"))
+    import distractorscan as D
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    ch = lambda lid: E(lid)["explain"]["choices"]
+
+    # ---- the scanner itself, on known text -----------------------------------------------------
+    gcf = "One more thing — not the answer, the reason. The greatest common factor of 12 and 18 is 6, not 12. Tap the reason why."
+    check("⭐ the scanner: the question's result is the number before ', not' (the opener's own 'One ... not' never counts); 'negative 4' reads as -4",
+          D.result_of(gcf) == 6 and D.result_of("One more thing — not the answer, the reason. 50 percent of 8 is 4. Tap the reason why.") == 4
+          and D.result_of("One more thing — not the answer, the reason. Start at 3, count back 7, and you land on negative 4. Tap the reason why.") == -4
+          and D.numbers_in("negative 3 times 4 equals negative 12") == [-3, 4, -12], "")
+    check("⭐ the scanner: a VERDICT is a wrong choice right by its own numbers -- yh's class, on the three that were",
+          D.judge(gcf, "because 18 take away 12 is 6")[3] and D.judge(gcf, "because 18 take away 12 is 6")[1] == {6.0}
+          and D.judge(gcf, "because 6 is half of 12")[1] == {6.0}
+          and D.judge("One more thing — not the answer, the reason. A rectangle 5 long and 3 wide has a perimeter of 16, not 8. Tap the reason why.",
+                      "because 16 is twice 8")[1] == {16.0}, "")
+    check("  the scanner: a choice whose stated conclusion is NOT the result is no verdict ('8 take away 2 is 6, so the partner is 6' under a result of 4)",
+          D.judge("One more thing — not the answer, the reason. x squared plus 6 x plus 8 is x plus 2, times x plus 4. Tap the reason why.",
+                  "because 8 take away 2 is 6, so the partner is 6")[1] == set(), "")
+    vi = "One more thing — not the answer, the reason. A puzzle with roots 2 and 6 ends in the number 12. Tap the reason why."
+    _o, _v, _r, _s = D.judge(vi, "because the end number is the bigger root, doubled")
+    check("  the scanner: yh's Vieta distractor, in words, is a CANDIDATE (doubled over the question's numbers reaches 12)",
+          not _s and 12 in _v and _r == 12, (_o, sorted(_v)))
+
+    # ---- the canon --------------------------------------------------------------------------
+    rows = D.scan()
+    verd = [r for r in rows if r["hit"] and r["strong"]]
+    cand = [r for r in rows if r["hit"] and not r["strong"]]
+    check("⭐⭐ ZERO VERDICTS: no reason question in any course has a wrong choice that is right by its own numbers",
+          not verd, str([(r["lesson"], r["choice"]) for r in verd][:5]))
+    check(f"⭐ the candidates ratchet: at most 20 wrong choices whose named operation lands on the result (every one read at yj -- a new one must be read)",
+          len(cand) <= 20, str([(r["lesson"], r["choice"]) for r in cand if r["lesson"] not in {
+              "basic-u1-place-value-to-1000", "basic-u1-multi-digit-review", "basic-u3-what-dividing-means", "basic-u5-fraction-of-a-group",
+              "basic-u7-dimes-and-pennies", "pre-u1-exponents-are-repeated-times", "pre-u2-the-smallest-factor", "pre-u3-adding-a-negative",
+              "pre-u3-taking-away-a-negative", "pre-u3-times-with-a-negative", "pre-u5-tenths-times-a-number", "pre-u6-filling-in-a-proportion",
+              "pre-u9-collecting-x", "alg1-u7-the-vanishing-middle", "geo-u8-the-true-height", "alg2-u6-the-fading-half",
+              "ps-u8-which-value-sits-out-there", "ps-u9-how-wide-is-the-doubt", "calc-u4-differentiate-twice", "calc-u7-end-take-away-start"}]))
+    check("  every reason question was judged: 292 questions, over 280 wrong choices name arithmetic",
+          sum(1 for l in L.LESSONS if l.get("explain")) == 292 and len(rows) >= 280, (sum(1 for l in L.LESSONS if l.get("explain")), len(rows)))
+
+    # ---- the eleven, false now ---------------------------------------------------------------
+    check("⭐ the GCF question: neither wrong choice computes 6 any more (was '6 is half of 12', '18 take away 12 is 6')",
+          "because the greatest common factor is always the smaller number" in ch("basic-u4-greatest-common-factor")
+          and "because 12 and 18 share no factor bigger than 3" in ch("basic-u4-greatest-common-factor")
+          and "half of 12" not in ch("basic-u4-greatest-common-factor") and "18 take away 12" not in ch("basic-u4-greatest-common-factor"), "")
+    check("  factor pairs: '18 take away 2 leaves 16' (the named wrong answer, not the partner); perimeter: '5 plus 3 is the whole walk around' (8, not 16)",
+          "because 18 take away 2 leaves 16" in ch("basic-u4-factor-pairs") and "leaves 9" not in ch("basic-u4-factor-pairs")
+          and "because 5 plus 3 is the whole walk around" in ch("basic-u9-perimeter") and "twice 8" not in ch("basic-u9-perimeter"), "")
+    check("  the ratio: '6 divided by 2 is 3, so the milk is 3' (xa's 'add 3 to both sides' gave 9 -- the answer)",
+          "because 6 divided by 2 is 3, so the milk is 3" in ch("pre-u6-keeping-a-ratio") and "add 3 to both sides" not in ch("pre-u6-keeping-a-ratio"), "")
+    check("  the corner: 'the two angles always add to 180' (twice 30 was 60); the slide: 'adds 4 to y, never to x' (both numbers gave x = 7); the matching side: 'always 6, whatever the small side' (double 5 was 10)",
+          "because the two angles always add to 180" in ch("geo-u1-two-make-a-corner") and "twice the first" not in ch("geo-u1-two-make-a-corner")
+          and "because a slide right adds 4 to y, never to x" in ch("geo-u2-slide-it-over") and "to both numbers" not in ch("geo-u2-slide-it-over")
+          and "because the big side is always 6, whatever the small side" in ch("geo-u4-the-matching-side") and "always double" not in ch("geo-u4-the-matching-side"), "")
+    check("  the bars: 'keep only the first number, 3' (the wrong way round gave 5); the fair prize: 'always double the stake' (five times 5 was 25)",
+          "because the bars keep only the first number, 3" in ch("alg2-u1-how-far-from-zero") and "wrong way round" not in ch("alg2-u1-how-far-from-zero")
+          and "because a fair prize is always double the stake" in ch("ps-u7-what-would-be-fair") and "five times the stake" not in ch("ps-u7-what-would-be-fair"), "")
+    check("  the chain rule: 'multiplied by three' (by five was 30); the speed: '40 take away 8 is the time' (40 over 8 was 5)",
+          "because the power is always multiplied by three" in ch("calc-u3-do-not-forget-the-inside") and "multiplied by five" not in ch("calc-u3-do-not-forget-the-inside")
+          and "because 40 take away 8 is the time" in ch("calc-u4-when-is-it-going-that-fast") and "distance's number" not in ch("calc-u4-when-is-it-going-that-fast"), "")
+    check("  every reason choice is still a button (12 words or fewer) and every lesson validates",
+          all(len(c.split()) <= 12 for l in L.LESSONS if l.get("explain") for c in l["explain"]["choices"].split("|"))
+          and not [r for l in L.LESSONS for r in L.validate(l) if not r[0]], "")
+    check("  the changed files carry dated yj notes",
+          all("2026-09-26" in notes(f) and "yj" in notes(f)
+              for f in ("tools/distractorscan.py", "ruletests.py", "main.py", "lessons/basic.py", "lessons/prealgebra.py",
+                        "lessons/geometry.py", "lessons/algebra2.py", "lessons/probstat.py", "lessons/calculus.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51565,6 +51657,7 @@ def main():
     part3oa_the_sixth_entry_sweep()
     part3ob_the_fourth_precalc_sweep()
     part3oc_the_course_review()
+    part3od_the_true_distractor()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

@@ -2,6 +2,9 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-19  BUILD xf -- THE PRE-SWEEP, THE OTHER EIGHT (Jim away from his computer; no
 #               reader seat). xe's two classes, applied to this course ahead of its next
 #               reading: (1) every closing recap board whose equation the words did not read is read now -- 17 lessons; 
@@ -1736,7 +1739,7 @@ _PREALGEBRA_U6 = [
             "spoken": ("One more thing — not the answer, the reason. 2 to 3, with 6 "
                        "cups of flour, needs 9 cups of milk. Tap the reason why."),
             "choices": ("because both sides were timesed by 3 | because 3 is one more "
-                        "than 2, so 6 needs 7 | because you add 3 to both sides"),
+                        "than 2, so 6 needs 7 | because 6 divided by 2 is 3, so the milk is 3"),
             "answer": "because both sides were timesed by 3",
             "board": '[[tape parts="2 | 3" caption="one batch: 2 : 3"]][[tape parts="6 | 9" caption="3 batches: 6 : 9"]]',
         },

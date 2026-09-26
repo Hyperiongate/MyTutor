@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  APP_BUILD -> "2026-09-26yj-the-true-distractor". The pre-sweep yh asked for: every
+#               reason question's wrong choices computed against its own numbers
+#               (tools/distractorscan.py); eleven were right by the numbers, in six course files,
+#               and are false now. No change in this file beyond the stamp; nothing to prewarm
+#               (choices are buttons, never spoken). PART 3od.
 #   2026-09-26  BUILD yi -- THE COURSE REVIEW, AND FOUR OTHER THINGS JIM SAW (09-26). (1) A
 #               student's FIRST scripted lesson in a course opens with the course review --
 #               lessons/bridges.py via lessonscripts.bridge_steps, played by _script_start_lesson
@@ -9563,7 +9568,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-26yi-the-course-review"
+APP_BUILD = "2026-09-26yj-the-true-distractor"
 
 
 @app.get("/health")

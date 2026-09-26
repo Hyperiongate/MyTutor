@@ -2,6 +2,9 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
+#               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
+#               false now; the choice still names a real misconception. PART 3od.
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -2211,7 +2214,7 @@ _PROBSTAT_U7 = [
             "spoken": ("One more thing — not the answer, the reason. At 5 tokens a play and a "
                        "win one time in five, the fair prize is 25, not 5. Tap the reason why."),
             "choices": ("because every play pays in but only the wins pay out | "
-                        "because a prize is always five times the stake | "
+                        "because a fair prize is always double the stake | "
                         "because 5 tokens is too small to be a prize"),
             "answer": "because every play pays in but only the wins pay out",
             "board": '[[hundredgrid shaded="20" unit="percent" caption="why 25 and not 5?"]]',
