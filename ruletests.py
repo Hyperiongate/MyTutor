@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yg -- PART 3oa, THE SIXTH ENTRY SWEEP (6 findings, 31 clean; 19 at wy). Pins
+#               the take-away walk-back's shown count (standing under ten, back from ten), no > or
+#               ÷ on any Entry board, min5q's per-step law, the hundreds line, the counts. Two pins
+#               moved (3mt's two "-" walk-back sentences).
 #   2026-09-25  BUILD yf -- PART 3nz, THE THIRD CALCULUS SWEEP (24 findings, 18 clean; 46 at xi).
 #               Pins the two generators' drawn wrong paths (chan, linf), the pi in the slice's
 #               area (HIGH; xi's pin moved with it), the condition class, the words-and-board
@@ -20774,9 +20778,9 @@ def part3mt_the_fifth_entry_sweep():
           and W({"a": 9, "b": 4, "op": "+", "story": "Sam has 9 shells. He finds 4 more. How many shells does he have in all?"})[0]
               == "Here it is, step by step: each star stands for one of the shells. Start at 9 and count on 4 more: 10, 11, 12, 13. 9 plus 4 equals 13."
           and W({"a": 3, "b": 1, "op": "-", "story": "Ed has 3 kites. 1 blows away. How many kites are left?"})[0]
-              == "Here it is, step by step: each star stands for one of the kites. 3, take 1 away — 2 are left."
+              == "Here it is, step by step: each star stands for one of the kites. 3, take 1 away. Count the ones still standing — 1, 2. 2 are left."   # (yg) the count shown
           and W({"a": 2, "b": 1, "op": "+"})[0] == "Here it is, step by step: count every star, both groups — 1, 2, 3. 2 plus 1 equals 3."
-          and W({"a": 3, "b": 1, "op": "-"})[0] == "Here it is, step by step: 3, take 1 away — 2 are left."
+          and W({"a": 3, "b": 1, "op": "-"})[0] == "Here it is, step by step: 3, take 1 away. Count the ones still standing — 1, 2. 2 are left."   # (yg)
           and L._story_noun({"a": 1, "b": 1, "op": "+"}) == "" and L._story_noun({"story": "Nobody counts anything here."}) == "", "")
     check("  every story problem in the story lesson yields a noun, and the picture (the board) is unchanged",
           all(L._story_noun(p) for p in E("entry-u3-story-problems")["bank"])
@@ -24249,6 +24253,65 @@ def part3nz_the_third_calculus_sweep():
     check("  the changed files carry dated yf notes",
           all("2026-09-25" in notes(f) and "yf" in notes(f)
               for f in ("lessons/calculus.py", "lessonscripts.py", "ruletests.py", "main.py")), "Jim's rule 8")
+
+
+def part3oa_the_sixth_entry_sweep():
+    """PART 3oa (build yg, 2026-09-26) -- THE SIXTH ENTRY SWEEP. 6 findings on 36 (5
+    generator, 1 authored), 31 clean -- 19 and 20 at wy. All fixed, nothing declined.
+    Three untaught symbols on walk-back boards in a course that never teaches them (big's
+    ">", eqs's and min5q's "÷") are words now, in the shape the ask boards already use;
+    min5q's law lost its overreach ("every clock number is worth five minutes" -- the 12
+    is 0): each STEP from one number to the next is five. And the base "-" walk-back
+    showed no count ("11, take 2 away -- 9 are left"): it follows each Entry lesson's
+    own method now -- under ten, count the stars still standing; ten and up, count back
+    from the start -- and the caption carries the count. One authored edit: a big book
+    has hundreds of pages (not every book). Two pins moved with the text."""
+    print("\nPART 3oa — the sixth Entry sweep (build yg)")
+    import lessonscripts as L
+    E = lambda lid: L.LESSON_BY_ID[lid]
+    W = lambda p: L._worked_for(p)
+    spoken = lambda les: " ".join(L.audio_lines(les))
+    ent = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "lessons", "entry.py"), encoding="utf-8").read()
+
+    check("⭐ the take-away walk-back SHOWS its count: ten and up counts back from the start, the caption too",
+          W({"a": 11, "b": 2, "op": "-"}) == ("Here it is, step by step: start at 11 and count back 2 — 10, 9. 11 take away 2 equals 9.",
+                                              '[[objects emoji="⭐" groups="11" take="2" caption="start at 11 and count back 2 — 10, 9"]][[step eq="11 − 2 = 9"]]')
+          and "18, 17, 16, 15, 14, 13, 12, 11, 10. 19 take away 9 equals 10." in W({"a": 19, "b": 9, "op": "-"})[0], W({"a": 11, "b": 2, "op": "-"}))
+    check("⭐ ...and under ten it counts the stars still standing (the single-digit lesson's own method), story noun kept",
+          W({"a": 7, "b": 3, "op": "-"}) == ("Here it is, step by step: 7, take 3 away. Count the ones still standing — 1, 2, 3, 4. 4 are left.",
+                                             '[[objects emoji="⭐" groups="7" take="3" caption="7, take 3 away — count the ones still standing: 1, 2, 3, 4"]][[step eq="7 − 3 = 4"]]')
+          and W({"a": 3, "b": 1, "op": "-", "story": "Ed has 3 kites. 1 blows away. How many kites are left?"})[0].startswith(
+              "Here it is, step by step: each star stands for one of the kites. 3, take 1 away. Count the ones still standing — 1, 2."), "")
+    check("  every Entry take-away problem walks its count the way its lesson taught (under ten standing, ten and up back), and the column paths are untouched",
+          all(("count back" in W(p)[0]) == (p["a"] >= 10)
+              for lid in ("entry-u3-take-away-single-digit", "entry-u3-take-away-bigger", "entry-u3-story-problems")
+              for p in E(lid)["bank"] + [pr["ask"] for pr in E(lid)["pairs"]] if p["op"] == "-")
+          and W({"a": 47, "b": 23, "op": "-"})[0].startswith("Here it is, step by step: ones first — 7 take away 3 equals 4.")
+          and W({"a": 42, "b": 27, "op": "-"})[0].startswith("Here it is, step by step: 2 is too small to take 7 away, so regroup"), "")
+    check("⭐ the > sign never reaches an Entry board: big's walk-back says '13 is bigger than 6'",
+          '[[step eq="13 is bigger than 6"]]' in W({"a": 13, "b": 6, "op": "big"})[1]
+          and " > " not in W({"a": 13, "b": 6, "op": "big"})[1]
+          and not any(" > " in W(p)[1] for p in E("entry-u1-which-is-bigger")["bank"]), "")
+    check("⭐ the ÷ sign never reaches an Entry board: eqs's '6 shared into 2 equal groups = 3 each', min5q's '55 minutes = 11 counts of five'",
+          '[[step eq="6 shared into 2 equal groups = 3 each"]]' in W({"a": 6, "b": 2, "op": "eqs"})[1]
+          and '[[step eq="55 minutes = 11 counts of five"]][[step eq="the minute hand points to 11"]]' in W({"a": 55, "b": 0, "op": "min5q"})[1]
+          and '[[step eq="5 minutes = 1 count of five"]]' in W({"a": 5, "b": 0, "op": "min5q"})[1]
+          and not any("÷" in (W(p) or ("", ""))[1] for les in L.LESSONS if les["course"] == "entry"
+                      for p in les["bank"] + [pr["ask"] for pr in les["pairs"]]), "")
+    check("  no authored Entry board or line carries ÷ or > either (the course never teaches them)",
+          "÷" not in ent and " > " not in ent, "")
+    check("  min5q: each STEP from one clock number to the next is five minutes (the 12 is 0, not 5)",
+          W({"a": 55, "b": 0, "op": "min5q"})[0].startswith("Here it is, step by step: each step from one clock number to the next is five minutes.")
+          and "every clock number is worth" not in W({"a": 55, "b": 0, "op": "min5q"})[0], "")
+    check("  hundreds: a BIG book has hundreds of pages (not every book)",
+          "A big book has hundreds of pages, a big school has hundreds of students, and a jar can hold hundreds of pennies." in spoken(E("entry-u4-hundreds-tens-and-ones"))
+          and "hundreds of pages in a book" not in spoken(E("entry-u4-hundreds-tens-and-ones")), "")
+    check("  the counts: 40,495 course lines, 36 Entry lessons validate",
+          len(L.course_audio_lines()) == 40495
+          and not [r for l in L.LESSONS if l["course"] == "entry" for r in L.validate(l) if not r[0]], len(L.course_audio_lines()))
+    check("  the changed files carry dated yg notes",
+          all("2026-09-26" in notes(f) and "yg" in notes(f)
+              for f in ("lessons/entry.py", "lessonscripts.py", "ruletests.py", "main.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51201,6 +51264,7 @@ def main():
     part3nx_every_label_goes_through_the_fit()
     part3ny_the_scripted_lane_goes_nightly()
     part3nz_the_third_calculus_sweep()
+    part3oa_the_sixth_entry_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

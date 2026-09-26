@@ -2,6 +2,10 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yg -- THE SIXTH ENTRY SWEEP (6 findings on all 36, 31 clean; 19 at wy). One
+#               authored edit: "hundreds of pages in a book" said as if every book -- "a big book
+#               has hundreds of pages, a big school has hundreds of students, and a jar can hold
+#               hundreds of pennies". The other five were generators (lessonscripts.py).
 #   2026-09-22  BUILD xo -- PHASE C: THE FORTY-EIGHT GET THEIR WALK-BACK. The 12 lessons
 #               of units 1, 8 and 9 (ops big c20 cnt aft bef sid cor pat grp eqs hrl min5
 #               min5q) have a scripted walk-back in lessonscripts.py now, so each carries
@@ -890,8 +894,8 @@ _ENTRY_MORE = [
         "advance_line": "Three in a row — you've got it! You can read hundreds, tens and ones.",
         "why": [
             ("Why go up to hundreds? Because the world does not stop at ninety-nine. "
-             "There are hundreds of pages in a book, hundreds of students in a school, "
-             "hundreds of pennies in a jar. The same bundling keeps going — ten tens "
+             "A big book has hundreds of pages, a big school has hundreds of students, "
+             "and a jar can hold hundreds of pennies. The same bundling keeps going — ten tens "
              "become one hundred.",
              '[[goal text="Hundreds, tens and ones"]]'),
         ],

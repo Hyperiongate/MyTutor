@@ -2,6 +2,14 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yg -- THE SIXTH ENTRY SWEEP, the generator side (4 ops). Three untaught
+#               symbols on walk-back boards in a course that never teaches them: big's "13 > 6"
+#               is "13 is bigger than 6", eqs's "6 ÷ 2 = 3 each" is "6 shared into 2 equal groups
+#               = 3 each" (the ask's own shape), min5q's "55 ÷ 5 = 11" is "55 minutes = 11 counts
+#               of five" -- and min5q says "each step from one clock number to the next is five
+#               minutes" (the 12 is 0, not 5). The base "-" walk-back showed no count ("11, take 2
+#               away -- 9 are left"): under ten it counts the stars still standing, ten and up it
+#               counts back from the start, each Entry lesson's own method. No count moved.
 #   2026-09-25  BUILD yf -- THE THIRD CALCULUS SWEEP, the generator side (2 ops). Both walk-backs
 #               spoke their wrong-path numbers over a board that drew only the right one: chan's
 #               "{b} inside forgotten, {a+b} adds" and linf's "{a-b} takes one from the other,
@@ -1306,10 +1314,23 @@ def _col_sub(a, b, noun=""):
                       f"{a % 10 - b % 10}. Tens: {a // 10} take away {b // 10} equals "
                       f"{left // 10}. {a} take away {b} equals {left}.")
         return (spoken, board)
-    board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="{a} − {b} = {left}"]]'
+    # (yg, 2026-09-26) THE WALK-BACK SHOWS ITS COUNT. It said "11, take 2 away -- 9 are
+    # left", which asserts the answer; the Entry reviewer called it. Each lesson's own
+    # method now: a start under ten counts the stars still standing (the single-digit
+    # lesson: "count only the ones still standing: one, two"), ten and up counts back
+    # from the start (the bigger-numbers lesson: "start at eleven, then ten, nine,
+    # eight"), and the caption carries the count too.
+    if a >= 10:
+        back = ", ".join(str(a - i) for i in range(1, b + 1))
+        board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="start at {a} and count back {b} — {back}"]]'
+                 f'[[step eq="{a} − {b} = {left}"]]')
+        return (f"Here it is, step by step: {_stars_stand_for(noun, f'start at {a} and count back {b} — {back}. ')}"
+                f"{a} take away {b} equals {left}.", board)
+    standing = ", ".join(str(i) for i in range(1, left + 1))
+    board = (f'[[objects emoji="⭐" groups="{a}" take="{b}" caption="{a}, take {b} away — count the ones still standing: {standing}"]]'
              f'[[step eq="{a} − {b} = {left}"]]')
-    return (f"Here it is, step by step: {_stars_stand_for(noun, f'{a}, take {b} away — ')}"
-            f"{left} are left.", board)
+    return (f"Here it is, step by step: {_stars_stand_for(noun, f'{a}, take {b} away. ')}"
+            f"Count the ones still standing — {standing}. {left} are left.", board)
 
 
 def _tens_ones_worked(p):
@@ -6916,7 +6937,7 @@ def _big_worked(p):
             f"You reach {lo} first, and {hi} later — so {hi} is bigger. "
             f"Not {lo + hi}: adding them is a different question.",
             f'[[numberline min="1" max="{top}" points="{lo},{hi}" caption="{lo} comes first, {hi} comes later — {hi} is bigger"]]'
-            f'[[step eq="{hi} > {lo}"]]')
+            f'[[step eq="{hi} is bigger than {lo}"]]')   # (yg) in words: the > sign is not taught in Entry
 
 
 def _hrl_worked(p):
@@ -6933,11 +6954,11 @@ def _min5q_worked(p):
     a = p["a"]
     n = a // 5
     fives = ", ".join(str(5 * i) for i in range(1, n + 1))
-    return (f"Here it is, step by step: every clock number is worth five minutes. "
+    return (f"Here it is, step by step: each step from one clock number to the next is five minutes. "
             f"Count by fives until you reach {a} — {fives}. That took {_plural(n, 'count')}, "
             f"so the minute hand points to the {n}.",
             f'[[clock time="12:{a:02d}" caption="count by fives to {a}: {fives}"]]'
-            f'[[step eq="{a} ÷ 5 = {n}"]][[step eq="the minute hand points to {n}"]]')
+            f'[[step eq="{a} minutes = {_plural(n, "count")} of five"]][[step eq="the minute hand points to {n}"]]')   # (yg) no ÷ in Entry; the 12 is 0 minutes
 
 
 def _min5_worked(p):
@@ -7013,7 +7034,7 @@ def _eqs_worked(p):
             f"Go round and round the {b} groups until none are left. Every group ends with {each}. "
             f"{a} shared into {b} equal groups is {each} each.",
             f'[[array total="{a}" rows="{b}" caption="{a} dealt into {b} equal groups — {each} in each"]]'
-            f'[[step eq="{a} ÷ {b} = {each} each"]]')
+            f'[[step eq="{a} shared into {b} equal groups = {each} each"]]')   # (yg) the ask board's shape: no ÷ in Entry
 
 
 # ---- Diffeq ---------------------------------------------------------------------------
