@@ -2,6 +2,35 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD ym -- THE QUIZ KEEPS THE LESSON'S SHAPE. Found by the yl pre-read of
+#               all 1,799 pinned quiz questions against their own lesson's bank: 166 in 97
+#               lessons asked OUTSIDE the lesson -- Entry's "add past ten" quiz opened on
+#               1 + 1, "take away bigger" on 2 - 1, "add with carrying" on 1 + 9, Basic's
+#               GCF lesson asked the GCF of 2 and 0. ONE CAUSE: envelope() bounds a
+#               candidate from ABOVE only (never a bigger number than the lesson shows) and
+#               pool_for scans from a = 1, b = 0; quiz_problems then sampled the ramped
+#               pool from index 0 -- its easiest end, the very end quizsets.py's header
+#               says it never uses. So a bank that runs 5..9 got a quiz that opened on 1.
+#               THE FIX, at the source: shape_of(les) MEASURES the shape the shipped bank
+#               keeps -- the floor and ceiling of a, b and c (measured off the bank, where
+#               the envelope's core lane took the DECLARED bound), the digit counts, and the
+#               yes/no facts every shipped problem agrees on (the sum passes ten; the ones
+#               carry; the ones borrow; a is bigger than b; b divides a; b is never zero;
+#               the problem carries its own STORY -- the two story-problems lessons quizzed
+#               bare facts, "What is 6 plus 1?", where every bank problem is a story)
+#               -- and keeps_shape(shape, p) says whether a candidate stays inside it.
+#               quiz_pool(les) scans from the shape's floor up and keeps only shape-keepers
+#               (pool_for's capped scan from a = 1 never reached a two-digit lesson's own
+#               numbers); quiz_problems' fallback lane draws from it, from the MIDDLE of
+#               each stride, never index 0. The drill pool (pool_for,
+#               Abrabot's lane) is NOT gated by the shape in this build -- it carries the
+#               same class and is a scope decision for Jim (the ym doc says so); the quiz
+#               is the graded instrument and the sweep's subject. tools/genquiz.py now
+#               keeps every pinned question that keeps the shape and replaces only the
+#               breakers -- 214 in 106 lessons once shape_of read c's floor and each op
+#               of a mixed lesson on its own -- so the prewarm is 214 new sentences,
+#               not 1,799. PART 3og pins the
+#               count of quiz questions outside their shape at zero.
 #   2026-08-24  BUILD mo -- THE RANK IS THE VALIDATOR'S OWN. A REAL BUG, found while
 #               building Entry-Level Unit 8's clock lesson.
 #               ⚠️ WHAT WAS WRONG. Three functions here (_probe_ok, _ordered, verify)
@@ -388,6 +417,153 @@ def build(lessons=None, cap=_MAX_PER_LESSON):
 _QUIZ_CACHE = {}
 
 
+def _facts(p):
+    """(ym) The yes/no facts a problem has, for shape_of to compare across a bank:
+    the problem carries its own story (a story-problems lesson is spoken as stories, and a
+    generated bare fact is not one), the sum passes ten, the ones carry, the ones borrow,
+    a is bigger than b, a and b are equal, b divides a, b is zero, a is zero. Only fields that are whole numbers
+    are read; a fact that cannot be read is simply absent."""
+    a, b = p.get("a"), p.get("b")
+    out = {"has_story": bool(p.get("story"))}    # a story problem is spoken as its story
+    ia, ib = isinstance(a, int) and not isinstance(a, bool), isinstance(b, int) and not isinstance(b, bool)
+    if ia:
+        out["a_zero"] = a == 0
+    if ib:
+        out["b_zero"] = b == 0
+    if ia and ib:
+        out["sum_past_ten"] = a + b > 10
+        out["ones_carry"] = (abs(a) % 10 + abs(b) % 10) >= 10
+        out["ones_borrow"] = (abs(a) % 10) < (abs(b) % 10)
+        out["a_bigger"] = a > b
+        out["a_equals_b"] = a == b
+        out["b_divides_a"] = b != 0 and a % b == 0
+    return out
+
+
+def _digits(v):
+    return len(str(abs(v)))
+
+
+def shape_of(les):
+    """(ym) THE SHAPE THE SHIPPED BANK KEEPS, measured never assumed: per op (a mixed-op
+    lesson has one shape per op), the floor and the ceiling of a, b and c across the
+    shipped problems (the envelope's core lane took the DECLARED b_max, so a bank that
+    never went past 4 quizzed 2 + 7), the set of digit counts a and b use, and every yes/no fact of _facts() that EVERY
+    shipped problem of that op agrees on. Returns {op: shape}; a lesson with nothing
+    shipped (a table pass) returns {}. A quiz question that steps outside this is a
+    question the lesson never asked -- the class the yl pre-read found 166 of."""
+    shapes = {}
+    by_op = {}
+    for p in _shipped(les):
+        by_op.setdefault(str(p.get("op", les.get("op", "+"))), []).append(p)
+    for op, probs in by_op.items():
+        sh = {"n": len(probs), "min": {}, "max": {}, "digits": {}, "facts": {}}
+        for k in ("a", "b", "c"):
+            vals = [p[k] for p in probs if isinstance(p.get(k), int) and not isinstance(p.get(k), bool)]
+            if not vals:
+                continue
+            sh["min"][k] = min(vals)
+            sh["max"][k] = max(vals)
+            if k in ("a", "b"):
+                sh["digits"][k] = sorted({_digits(v) for v in vals})
+        facts = [_facts(p) for p in probs]
+        keys = set().union(*[set(f) for f in facts]) if facts else set()
+        for key in keys:
+            vals = {f.get(key) for f in facts}
+            if len(vals) == 1 and None not in vals:
+                sh["facts"][key] = vals.pop()
+        shapes[op] = sh
+    return shapes
+
+
+def keeps_shape(shapes, p, default_op="+"):
+    """(ym) Does this problem stay inside the shape its op's shipped bank keeps? True
+    when the op has no measured shape (nothing to compare against). Returns (ok, why):
+    why names the first break -- "a=1 below the floor 5", "b has 2 digits (bank: 1)",
+    "sum_past_ten is False (bank: always True)" -- so a pin and a report can say it."""
+    sh = shapes.get(str(p.get("op", default_op)))
+    if not sh:
+        return True, ""
+    for k, lo in sh["min"].items():
+        v = p.get(k)
+        if isinstance(v, int) and not isinstance(v, bool) and v < lo:
+            return False, f"{k}={v} below the floor {lo}"
+    for k, hi in sh.get("max", {}).items():
+        v = p.get(k)
+        if isinstance(v, int) and not isinstance(v, bool) and v > hi:
+            return False, f"{k}={v} above the ceiling {hi}"
+    for k, ds in sh["digits"].items():
+        v = p.get(k)
+        if isinstance(v, int) and not isinstance(v, bool) and _digits(v) not in ds:
+            return False, f"{k} has {_digits(v)} digit(s) (bank: {'/'.join(str(d) for d in ds)})"
+    have = _facts(p)
+    for key, want in sh["facts"].items():
+        if key in have and have[key] != want:
+            return False, f"{key} is {have[key]} (bank: always {want})"
+    return True, ""
+
+
+def quiz_pool(les, cap=_MAX_PER_LESSON, board_tags=None):
+    """(ym) THE QUIZ'S OWN POOL: every candidate that the envelope admits, the course's
+    validator accepts (_probe_ok), the lesson does not already teach, AND that keeps
+    the shape the shipped bank keeps -- scanned from the shape's FLOOR upward, per op
+    of the lesson, so a two-digit lesson's pool is two-digit problems and not the 240
+    easiest sums under its cap (pool_for scans from a = 1, and a big-number lesson's
+    capped pool never reached its own numbers: Basic's multi-digit review had 240
+    sums and not one from 26 up). Ramped by the validator's key, like pool_for."""
+    if board_tags is None:
+        import tags as _t
+        board_tags = set(_t.BOARD_TAGS)
+    env = envelope(les)
+    if not env:
+        return []
+    shapes = shape_of(les)
+    taught = {_key(p) for p in _shipped(les)}
+    out, seen = [], 0
+    ops = list(shapes.items()) or [(les.get("op", "+"), {"min": {}})]
+    per_op = max(1, cap // len(ops))          # a mixed-op lesson's pool holds every op
+    for op, sh in ops:
+        lo = sh.get("min", {})
+        got = 0
+        A = range(max(1, lo.get("a", 1)), min(env["a_max"], _HARD_A) + 1)
+        B = range(max(0, lo.get("b", 0)), min(max(env["b_max"], 0), _HARD_B) + 1)
+        C = range(max(0, lo.get("c", 0)), min(max(env["c_max"], 0), _HARD_C) + 1)
+        for a in A:
+            for b in B:
+                for c in C:
+                    seen += 1
+                    if seen > _SCAN_CAP or len(out) >= cap or got >= per_op:
+                        break
+                    if (a, b, c) in taught:
+                        continue
+                    p = {"a": a, "b": b, "c": c, "op": op}
+                    if not keeps_shape(shapes, p, op)[0]:
+                        continue
+                    if admits(les, env, p) and _probe_ok(les, p, board_tags):
+                        out.append(p)
+                        got += 1
+                if seen > _SCAN_CAP or len(out) >= cap or got >= per_op:
+                    break
+            if seen > _SCAN_CAP or len(out) >= cap or got >= per_op:
+                break
+    return _ordered(out, les)
+
+
+def quiz_slots(n, want):
+    """(ym) The indexes a quiz takes from a ramped pool of n: the MIDDLE of each of
+    `want` equal strides -- never index 0, the easiest problem there is, which the
+    old int(i * stride) always took first. n <= want returns every index."""
+    if n <= want:
+        return list(range(n))
+    stride = n / float(want)
+    out = []
+    for i in range(want):
+        j = min(int((i + 0.5) * stride), n - 1)
+        if j not in out:
+            out.append(j)
+    return out
+
+
 def quiz_problems(les):
     """The fixed question set for this lesson's topic quiz (may be shorter than
     QUIZ_LEN, and empty when the lesson cannot honestly field one)."""
@@ -411,14 +587,11 @@ def quiz_problems(les):
         pass
     try:
         want = L.QUIZ_LEN
-        pool = pool_for(les)
-        out = []
-        if pool:
-            if len(pool) <= want:
-                out = list(pool)
-            else:
-                stride = len(pool) / float(want)
-                out = [pool[int(i * stride)] for i in range(want)]
+        # (ym) THE QUIZ STAYS INSIDE THE LESSON'S SHAPE: only pool problems that keep
+        # the shape the shipped bank keeps (floor, digit counts, the facts every bank
+        # problem agrees on), taken from the middle of each stride, never the easiest.
+        pool = quiz_pool(les)
+        out = [pool[j] for j in quiz_slots(len(pool), want)] if pool else []
         if len(out) < want:
             seen = {_key(p) for p in out}
             for p in reversed(list(les.get("bank") or [])):

@@ -3,6 +3,18 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD ym -- THE QUIZ PAGE SHOWS THE SHAPE, NOT THE LIST. The first quiz sweep
+#               (Entry, 102 findings) read the lesson's PROBLEM SPACE line -- which lists the
+#               bank's exact (a, b) pairs -- and called every quiz question that was not one
+#               of those pairs "outside the lesson": 5 nickels and 3 pennies where the bank
+#               had 5 and 2, 45 take away 21 where the bank had 85 take away 21. A quiz asks
+#               NEW problems by design; being absent from the bank's list is the point. So the
+#               quiz page carries quiz_space() instead: the SHAPE the bank keeps, measured by
+#               drillpool.shape_of (a, b, c from floor to ceiling; the digit counts; the
+#               facts every bank problem agrees on), with the sentence that a question absent
+#               from the bank is by design and one outside the shape is the finding. The
+#               charter's rule 3 and its Do-NOT-report list say the same. The other class the
+#               sweep found -- 1 + 1 in "add past ten" -- was real, and ym fixes it in the data.
 #   2026-09-26  BUILD yl -- THE QUIZ SWEEP. Every sweep report has ended "the topic quiz's
 #               sentences (quizsets.py) -- a separate instrument". This is it: the same
 #               reviewer, over each lesson's FIVE pinned quiz questions -- the spoken ask, its
@@ -402,6 +414,52 @@ def problem_space(lesson, L=None) -> str:
     return line + ". A rule is judged against THESE problems, not against numbers this lesson cannot ask."
 
 
+_FACT_WORDS = {"has_story": "the problem is told as a story", "sum_past_ten": "the two numbers add past ten", "ones_carry": "the ones carry",
+               "ones_borrow": "the ones borrow", "a_bigger": "a is bigger than b",
+               "a_equals_b": "a and b are equal", "b_divides_a": "b divides a exactly",
+               "b_zero": "b is zero", "a_zero": "a is zero"}
+
+
+def quiz_space(lesson) -> str:
+    """(ym) THE QUIZ SPACE, ON THE QUIZ PAGE. A topic quiz asks problems the lesson did NOT
+    ask -- new numbers inside the shape the lesson's bank keeps -- so the bank's exact list
+    (problem_space) is the wrong thing to judge it by: the first quiz sweep called 71 of its
+    102 findings on questions that were simply not in that list. This line says the SHAPE,
+    measured by drillpool.shape_of, and says what is by design and what is a finding."""
+    try:
+        import drillpool as D
+        shapes = D.shape_of(lesson)
+    except Exception:  # noqa: BLE001
+        shapes = {}
+    if lesson.get("mastery") == "table":
+        return ("QUIZ SPACE: a times-table lesson -- any of the 81 facts, 1 × 1 to 9 × 9. A question "
+                "absent from the lesson's own examples is BY DESIGN.")
+    parts = []
+    for op, sh in shapes.items():
+        bits = []
+        for k in ("a", "b", "c"):
+            if k in sh.get("min", {}):
+                lo, hi = sh["min"][k], sh.get("max", {}).get(k, sh["min"][k])
+                if lo == hi == 0 and k != "a":
+                    continue                       # a padding field
+                dg = sh.get("digits", {}).get(k)
+                bits.append(f"{k} from {lo} to {hi}" + (f" ({'/'.join(str(d) for d in dg)}-digit)" if dg else ""))
+        facts = [(("" if v else "never: ") + _FACT_WORDS.get(key, key)) for key, v in sorted(sh.get("facts", {}).items())
+                 if key in _FACT_WORDS]
+        line = f"op {op}: " + "; ".join(bits)
+        if facts:
+            line += "; always -- " + ", ".join(f for f in facts if not f.startswith("never: ")) if any(not f.startswith("never: ") for f in facts) else ""
+            nev = [f[7:] for f in facts if f.startswith("never: ")]
+            if nev:
+                line += "; never -- " + ", ".join(nev)
+        parts.append(line)
+    body = " | ".join(parts) if parts else "(no shipped problems to measure)"
+    return ("QUIZ SPACE: the quiz asks problems the lesson did NOT ask -- new numbers inside the shape "
+            "its bank keeps: " + body + ". A question that is not one of the lesson's own examples is "
+            "BY DESIGN and is not a finding; a question OUTSIDE this shape (a number below the floor "
+            "or above the ceiling, a fact the bank always keeps broken) is.")
+
+
 def render_transcript(lesson, turns, kind="lesson") -> str:
     """The transcript as the reviewer reads it: one numbered turn per beat, the words
     and then the board, tags left in (the rule index explains every tag).
@@ -411,7 +469,7 @@ def render_transcript(lesson, turns, kind="lesson") -> str:
             f"-- \"{lesson.get('topic')}\" -- levels {'/'.join(lesson.get('levels') or ())}")
     if kind == "quiz":
         head = "TOPIC QUIZ for " + head
-    lines = [head, problem_space(lesson), ""]
+    lines = [head, quiz_space(lesson) if kind == "quiz" else problem_space(lesson), ""]
     if kind == "quiz":
         lines += [lesson_context(lesson), ""]
     for t in turns:
@@ -504,8 +562,10 @@ KEY in code and moves on. Nothing is improvised and nothing is taught during the
 of five right is a pass, and the pass is what the child's record says was learned -- so a
 question that is wrong, unanswerable or off the lesson costs every child who takes it.
 
-The page shows: the LESSON's problem space (the numbers the lesson itself practised); WHAT
-THE LESSON TAUGHT (its teaching beats and worked examples, context only -- NOT under review);
+The page shows: the QUIZ SPACE (the SHAPE of the lesson's own problems -- each number's floor
+and ceiling, and the facts every one of the lesson's problems keeps; a quiz question is a NEW
+problem inside that shape by design, never one of the lesson's own examples); WHAT THE
+LESSON TAUGHT (its teaching beats and worked examples, context only -- NOT under review);
 then the quiz as the child meets it. Each STUDENT line answers with the KEY -- the answer the
 quiz marks right -- so you are judging the key, not a child.
 
@@ -516,16 +576,20 @@ Report ONLY defects a careful teacher would flag, in this order of importance:
      need that is neither spoken nor on the board; a picture the words point at that is not
      there; an ambiguous question).
   3. The question is outside the lesson: it asks something the lesson did not teach, or uses
-     a number, a form or a case the lesson never practised (an unsimplified fraction where
-     the lesson used only simplified ones; a case the problem space excludes) -- judge this
-     against WHAT THE LESSON TAUGHT and the PROBLEM SPACE, not against the topic in general.
+     a number, a form or a case outside the QUIZ SPACE (a number below the floor or above
+     the ceiling; a fact every lesson problem keeps, broken -- 1 + 1 in a lesson whose sums
+     all pass ten; an unsimplified fraction where the lesson used only simplified ones) --
+     judge this against WHAT THE LESSON TAUGHT and the QUIZ SPACE, not against the topic in
+     general, and NEVER because the exact numbers are not among the lesson's own examples.
   4. A wrong choice that is also a right answer, two choices the same, or the key missing
      from the choices.
   5. Wording a child at this level cannot parse; a term the lesson did not teach.
   6. Two questions that are the same question in different numbers is FINE (a quiz repeats
      the skill); the same question twice with the same numbers is not.
 
-Do NOT report: the choice of numbers when they are within the lesson's space; that the quiz
+Do NOT report: a question whose numbers are not one of the lesson's own examples -- every
+quiz question is a new problem by design, and only the QUIZ SPACE says whether it is inside
+the lesson; the choice of numbers when they are within that space; that the quiz
 does not teach or explain (by design -- it marks and moves on); "Right." after every answer
 (the child answered the key); the [[choices]] not being read aloud (tap buttons, by design);
 the same things the course sweep's charter excludes -- a [[numberline]]'s own ticks, a

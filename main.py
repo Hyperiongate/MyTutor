@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD ym -- THE QUIZ KEEPS THE LESSON'S SHAPE. Data, drillpool and the quiz page: 214
+#               of the 1,799 pinned quiz questions (quizsets.py) asked outside their own
+#               lesson's shape (Entry's "add past ten" opened on 1 + 1) and are replaced;
+#               drillpool.shape_of / keeps_shape / quiz_slots; tools/genquiz.py keeps and
+#               replaces; coursesweep's quiz page shows the lesson's SHAPE, not its exact
+#               list (the first quiz sweep read the list). Nothing in this file but the stamp. APP_BUILD ->
+#               "2026-09-27ym-the-quiz-keeps-the-lessons-shape". PREWARM: 214 replaced
+#               questions are 214 new spoken asks -- Price it, then render. PART 3og.
 #   2026-09-26  BUILD yl -- THE QUIZ SWEEP. The course sweep's card lists "quiz<course>"
 #               (quizgeometry, ...) beside the ten courses: the same reviewer reads each
 #               lesson's five pinned quiz questions under coursesweep.QUIZ_SYSTEM. /start
@@ -9583,7 +9591,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-26yl-the-quiz-sweep"
+APP_BUILD = "2026-09-27ym-the-quiz-keeps-the-lessons-shape"
 
 
 @app.get("/health")
