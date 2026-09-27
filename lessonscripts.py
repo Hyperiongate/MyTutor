@@ -2,6 +2,11 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yq -- cdmp asks in the lesson's own words. The Diffeq quiz sweep: the
+#               knife-edge lesson teaches "the middle squared must equal 4 times the last" and
+#               its ask said "on the y prime term ... the plain y term" -- two terms the lesson
+#               never taught. The ask says "With 24 in the middle, what must the last term be
+#               to land exactly there?" now. Its 12 bank asks and 5 quiz asks are new lines.
 #   2026-09-27  BUILD yo -- cnt's taps never pass ten. The second Entry quiz sweep: counting
 #               to 10 offered "9 | 10 | 11" for ten stars, and 11 is a number the course has
 #               not reached. cnt declares its own choices now (1 < a < 10: the neighbours;
@@ -15100,8 +15105,8 @@ OP_EXT = {
         "spoken": lambda p: (f"A door closer is critically damped when that "
                              f"test number is exactly zero — the fastest "
                              f"close with no bounce at all. With {p['a']} "
-                             f"on the y prime term, what must the plain y "
-                             f"term be to land exactly there?"),
+                             f"in the middle, what must the last term be "
+                             f"to land exactly there?"),   # (yq) the lesson's own words: the middle and the last
         "board": lambda p: (f'[[step eq="{p["a"]}² − 4c = 0"]]'
                             f'[[step eq="c = ?"]]'),
         "worked": _cdmp_worked,   # (xo) Phase C: the scripted second explanation

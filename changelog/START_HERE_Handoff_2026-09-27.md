@@ -4,8 +4,16 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-27yp-the-facts-belong-to-their-op`** (battery 13,271 passed,
-0 failed, 3 skipped) — the first Basic quiz sweep (12 findings, 31 clean), read on `yo`: a
+On Jim's disk: **`2026-09-27yq-the-other-seven-quiz-sweeps`** (battery 13,279 passed,
+0 failed, 3 skipped) — the remaining seven quiz sweeps, read on `yo` and pasted together
+(50 findings; **every course's quiz has now been read once**): most were `yp`'s classes
+seen before `yp` shipped (accidental facts; twins; the wrong number read as a — settled by
+the numbers on each ask, no data change); new were "b never divides a" (an always-only
+rule now, like b divides c), two more ways a worked example slips past `demonstrated`
+(a drawn board tag; one stranger between the numbers — 57 replaced, 169 marked), and the
+knife-edge ask in the lesson's own words (`cdmp`). **Prewarm: 74 lines.** Then the second
+quiz readings, all ten, back to back. Before it, `yp` (battery 13,271) — the first Basic
+quiz sweep (12 findings, 31 clean), read on `yo`: a
 shape fact measured on the wrong op ("the ones carry" by addition on 35 × 3) was printed
 and enforced — `_facts(p, op)` scopes the sum and carry to +, the borrow to −, and adds the
 tens-and-ones split to ÷ (56 ÷ 4 was real); percent-of asked 45% inside its 10..50 range
@@ -502,7 +510,9 @@ What the third round leaves behind, as work — none of it a sweep:
   shape). ~~Held from `ym`: the drill pool~~ — **done in `yn`** on Jim's "GO". The second
   Entry reading gave `yo` (the demonstrated example; the story wording; cnt's taps); the
   first Basic and Pre-Algebra readings gave `yp` (facts by op; landmark sets; the split;
-  no question twice). **The seven remaining quiz sweeps are still to read: whatever a reading raises that is not "outside
+  no question twice); the other seven gave `yq` (b divides a always-only; a demonstration
+  off a drawn tag and across one stranger; cdmp's words). **Every course's quiz is read
+  once; the second readings are next: whatever a reading raises that is not "outside
   the shape" or "the lesson's own example" is a new class — measure it across the canon
   before fixing the instances it quotes.**
 - **The 09-14 leftovers** #8 (tour first tap) and #12 (the prefetch-shelf counter; watch
@@ -511,11 +521,10 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `yp` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-27yp-the-facts-belong-to-their-op`, **prewarms (yp's 38 new
-   quiz asks — Price it, render; yo's 236 and ym's 214 are rendered)**, then runs the seven
-   remaining QUIZ sweeps (Algebra I through Prob/Stat; Entry, Basic and Pre-Algebra are
-   read) from the card back to back, pasting each — a quiz sweep report is read like a course sweep's: a finding
+1. The chain through `yq` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-27yq-the-other-seven-quiz-sweeps`, **prewarms (yq's 74 new
+   lines — Price it, render; yp's 38, yo's 236 and ym's 214 are rendered)**, then runs the
+   SECOND quiz readings — all ten courses, back to back, pasted together — a quiz sweep report is read like a course sweep's: a finding
    on an ask is the op's words (generator) or the question's numbers (`quizsets.py`,
    regenerated with `tools/genquiz.py`, which keeps every question that keeps its shape and
    replaces only breakers; a finding that says "not one of the lesson's own examples" is

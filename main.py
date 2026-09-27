@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS. "b divides a" is an always-only rule;
+#               a demonstration is read off a drawn board tag and across one stranger (57
+#               quiz questions replaced); cdmp asks in the lesson's own words (its 12 bank asks
+#               and 5 quiz asks are new lines). Nothing in this file but the stamp. APP_BUILD
+#               -> "2026-09-27yq-the-other-seven-quiz-sweeps". PREWARM: 57 + 17 = 74 new
+#               spoken lines -- Price it, then render. PART 3ok.
 #   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP. The first Basic quiz sweep: a shape
 #               fact measured on the wrong op ("the ones carry" on 35 x 3), percent-of asking
 #               45% with a "one of 2 equal parts" board, a division whose tens do not split.
@@ -9613,7 +9619,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-27yp-the-facts-belong-to-their-op"
+APP_BUILD = "2026-09-27yq-the-other-seven-quiz-sweeps"
 
 
 @app.get("/health")

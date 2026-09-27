@@ -2,6 +2,21 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS (Algebra I 20, Geometry 6, Algebra II 2,
+#               Pre-Calc 9, Calculus 7, Diffeq 1, Prob/Stat 5 -- all read on yo). Three things.
+#               (1) "b divides a" is a rule only when it ALWAYS holds, like b divides c: nine
+#               lessons' banks happened never to have it (x + 6 = 12 in "undoing a plus"; a
+#               box from 7 to 21; a jump from 2 to 8) and the page's "never -- b divides a
+#               exactly" was enforced by the reader on numbers that mean nothing for the op.
+#               (2) A DEMONSTRATION READ TWO MORE WAYS. The reader found worked examples the
+#               number rule missed: the scatter plot's own points ([[scatter points="(2,10),
+#               ..."]] drawn in the teach beat and again in the quiz), and "the arc is 18
+#               divided by 6" for a 60-degree arc on a rim of 18 (60 ... 6 ... 18 -- one number
+#               between). demonstrated() now also matches a quiz ask's BOARD TAG against the
+#               teaching boards (same tag, same numeric attributes -- the picture IS the
+#               example) and allows ONE stranger between the problem's numbers. (3) The
+#               reader's "x = 6 is outside 2..4" findings were the wrong number read as a; the
+#               numbers on every ask (yp) settle those -- no data change.
 #   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP, AND A LANDMARK VALUE IS A LANDMARK.
 #               The first Basic quiz sweep (12 findings, 31 clean). (1) A fact measured on
 #               numbers that mean nothing for the op: "the ones carry" was read on 35 × 3
@@ -491,7 +506,7 @@ def _facts(p, op="+"):
     return out
 
 
-_ALWAYS_ONLY = {"b_divides_c"}   # a fact that is a rule only when it always holds
+_ALWAYS_ONLY = {"b_divides_c", "b_divides_a"}   # a fact that is a rule only when it always holds (yq: b divides a too)
 _LANDMARK_MAX = 4        # at most this many distinct values ...
 _LANDMARK_SPREAD = 10    # ... across a span at least this many times as many: 10 / 25 / 50, not 1 / 2 / 8 / 9
 
@@ -663,6 +678,16 @@ def demonstrated(les, p, units=None):
     if not nums:
         return False
     units = demonstrated_units(les) if units is None else units
+    # (yq) the picture IS the example: a board tag of the ask with the same name and the
+    # same numeric attributes as a teaching board tag (the scatter plot's own points)
+    try:
+        level = (les.get("levels") or L.LEVELS)[-1]
+        for m in _TAG_RE.finditer(L.board_for(p, level) or ""):
+            sig = _tag_sig(m)
+            if sig and sig[0] != "choices" and sig in {_tag_sig(u) for u in units if u.startswith("[[")}:
+                return True
+    except Exception:  # noqa: BLE001
+        pass
     if len(nums) == 1:
         n = next(iter(nums))
         for u in units:
@@ -680,12 +705,27 @@ def demonstrated(les, p, units=None):
             continue
         for i in range(len(vals)):
             seen = set()
-            for j in range(i, min(len(vals), i + len(nums))):
+            for j in range(i, min(len(vals), i + len(nums) + _DEMO_STRANGERS)):
                 if vals[j] in nums:
                     seen.add(vals[j])
                 if seen == nums:
                     return True
     return False
+
+
+_DEMO_STRANGERS = 1     # (yq) "the arc is 18 divided by 6" for 60 degrees: one number may sit between
+
+
+def _tag_sig(unit_or_match):
+    """(yq) A board tag's signature: its name and its numeric attributes (numbers, and
+    point lists like "(2,10),(4,20)"), or None when it carries no numbers."""
+    m = _TAG_RE.match(unit_or_match) if isinstance(unit_or_match, str) else unit_or_match
+    if not m:
+        return None
+    name, body = m.group(1), m.group(2)
+    attrs = tuple(sorted((k, v.strip()) for k, v in _ATTR_RE.findall(body)
+                         if k not in _RANGE_ATTRS and re.fullmatch(r"[-\d.,()\s|]+", v.strip()) and re.search(r"\d", v)))
+    return (name, attrs) if attrs else None
 
 
 def fresh_first(les, pool):

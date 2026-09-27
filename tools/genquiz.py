@@ -2,6 +2,9 @@
 # tools/genquiz.py  --  GENERATE quizsets.py, THE PINNED TOPIC-QUIZ QUESTIONS
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yq -- no change to the generator; drillpool reads a demonstration two
+#               more ways (a board tag the teaching drew; one stranger between the numbers)
+#               and "b divides a" is an always-only rule now; regenerated: 57 replaced.
 #   2026-09-27  BUILD yp -- THE SAME QUESTION TWICE IS REPLACED. From the first Pre-Algebra
 #               quiz sweep: "how many factors of 9" asked twice (two problems that differ in a
 #               number the child never hears), and 76 / 104 on a line asked both ways round.
@@ -197,6 +200,10 @@ def main():
 # quizsets.py  --  THE TOPIC QUIZ QUESTION SETS, PINNED  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS. 57 replaced: the
+#               tutor's own worked examples the number rule had missed (the
+#               scatter plot's own points; "the arc is 18 divided by 6" for a
+#               60-degree arc on a rim of 18), where the op had a fresh problem.
 #   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP; A LANDMARK VALUE IS A
 #               LANDMARK; THE SAME QUESTION TWICE IS REPLACED. 38 replaced:
 #               percent-of asks only 10, 25 and 50 percent (the three methods its
