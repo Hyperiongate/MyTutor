@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yn -- THE DRILL POOL KEEPS THE SHAPE TOO (Jim: "GO" on ym's held item).
+#               drillpool.pool_for -- the pool /api/drill serves live -- is the shape scan now:
+#               Abrabot no longer drills 1 + 1 after adding past ten. Nothing in this file but
+#               the stamp. APP_BUILD -> "2026-09-27yn-the-drill-pool-keeps-the-shape-too".
+#               Nothing to prewarm: Abrabot speaks in the browser's own voice. PART 3oh.
 #   2026-09-27  BUILD ym -- THE QUIZ KEEPS THE LESSON'S SHAPE. Data, drillpool and the quiz page: 214
 #               of the 1,799 pinned quiz questions (quizsets.py) asked outside their own
 #               lesson's shape (Entry's "add past ten" opened on 1 + 1) and are replaced;
@@ -9591,7 +9596,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-27ym-the-quiz-keeps-the-lessons-shape"
+APP_BUILD = "2026-09-27yn-the-drill-pool-keeps-the-shape-too"
 
 
 @app.get("/health")

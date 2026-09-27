@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yn -- PART 3oh, THE DRILL POOL KEEPS THE SHAPE TOO: Abrabot's pool for
+#               "add past ten" adds past ten; the two-digit review's pool is two-digit and both
+#               ops; a story lesson still drills bare arithmetic; every pooled problem in the
+#               course keeps its shape; the pool grew; one scanner, two doors; the quiz table
+#               did not move. One pin moved (3og's "held ungated" pin flips to "gated at yn").
 #   2026-09-27  BUILD ym -- PART 3og, THE QUIZ KEEPS THE LESSON'S SHAPE: drillpool.shape_of /
 #               keeps_shape / quiz_slots on a fixture; the ratchet -- no pinned quiz question
 #               outside its lesson's shape (214 replaced by tools/genquiz.py's keep-and-replace);
@@ -25000,17 +25005,17 @@ def part3og_the_quiz_keeps_the_lessons_shape():
     # (3) the fallback lane draws inside the shape too (a lesson added after the table)
     dp = rd("drillpool.py")
     check("quiz_problems' fallback lane draws from quiz_pool (scanned from the shape's floor, shape-keepers only) by quiz_slots",
-          "        pool = quiz_pool(les)\n" in dp and "if not keeps_shape(shapes, p, op)[0]:" in dp
-          and "A = range(max(1, lo.get(\"a\", 1)), min(env[\"a_max\"], _HARD_A) + 1)" in dp
+          "        pool = quiz_pool(les)\n" in dp and "if not keeps_shape(shapes, p, op, drill=drill)[0]:" in dp  # (yn) the one scanner
+          and "A = range(max(1, lo.get(\"a\", 1)), min(hi.get(\"a\", env[\"a_max\"]), env[\"a_max\"], _HARD_A) + 1)" in dp
           and "out = [pool[j] for j in quiz_slots(len(pool), want)] if pool else []" in dp
           and "out = [pool[int(i * stride)] for i in range(want)]" not in dp, "")
     gq = rd(_os.path.join("tools", "genquiz.py"))
     check("  tools/genquiz.py keeps what keeps the shape and replaces only the breakers; --fresh rebuilds",
           "def keep_and_replace(les, pinned, shapes):" in gq and 'FRESH = "--fresh" in sys.argv[1:]' in gq
           and "D.quiz_slots(len(pool), want)" in gq and "pool = D.quiz_pool(les)" in gq, "")
-    check("  the drill pool is not gated by the shape in this build (held for Jim), and the note says so",
-          "if admits(les, env, p) and _probe_ok(les, p, board_tags):" in dp and "keeps_shape" not in dp.split("def pool_for")[1].split("def verify")[0]
-          and "scope decision for Jim" in notes("drillpool.py"), "")
+    check("  the drill pool was held ungated at ym and gated at yn (Jim: GO) -- pool_for is the shape scan's drill door",
+          "return _scan(les, cap, board_tags, drill=True)" in dp.split("def pool_for")[1].split("def verify")[0]
+          and "scope decision for Jim" in notes("drillpool.py") and "BUILD yn" in notes("drillpool.py"), "")  # (yn) moved
     # (4) the quiz page shows the SHAPE, not the bank's exact list, and the charter says so
     import coursesweep as C
     les = next(l for l in L.LESSONS if l["id"] == "entry-u2-add-past-ten")
@@ -25030,6 +25035,67 @@ def part3og_the_quiz_keeps_the_lessons_shape():
     check("  the changed files carry dated ym notes",
           all("2026-09-27" in notes(f) and "ym" in notes(f)
               for f in ("drillpool.py", "quizsets.py", "coursesweep.py", _os.path.join("tools", "genquiz.py"), "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3oh_the_drill_pool_keeps_the_shape_too():
+    """PART 3oh (build yn, 2026-09-27) -- THE DRILL POOL KEEPS THE SHAPE TOO. ym gated the
+    quiz and held Abrabot's drill pool for Jim; Jim: "GO". pool_for is now the same shape
+    scan quiz_pool is (drillpool._scan: floor to ceiling per op, cap shared across ops,
+    keeps_shape then the envelope then the validator), with one difference by the ruling
+    that drill is practice and quizzes are for mastery: the drill pool does not require a
+    story -- a story lesson drills its bare arithmetic, its quiz asks its stories
+    (keeps_shape drill=True skips has_story). Measured: 28,411 -> 28,656 problems, 46 -> 41
+    lessons with no pool, 241 -> 233 at twenty or more; the quiz table did not move."""
+    print("\nPART 3oh — the drill pool keeps the shape too (build yn)")
+    import os as _os
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    try:
+        import drillpool as D
+        import lessonscripts as L
+        import quizsets as Q
+    except Exception as exc:  # noqa: BLE001
+        bad("drillpool / quizsets import", str(exc)); return
+    by = {l["id"]: l for l in L.LESSONS}
+    les = by["entry-u2-add-past-ten"]
+    pool = D.pool_for(les)
+    check("⭐ Abrabot no longer drills 1 + 1 after adding past ten: every pooled problem of the lesson adds past ten from a floor of 5",
+          pool and all(p["a"] >= 5 and p["a"] + p["b"] > 10 for p in pool)
+          and not any(p["a"] == 1 and p["b"] == 1 for p in pool), str([(p["a"], p["b"]) for p in pool[:6]]))
+    rev = D.pool_for(by["basic-u1-multi-digit-review"])
+    check("  the two-digit review's pool is two-digit problems of BOTH its ops (the old scan from 1 filled its cap with sums under 50, and one op)",
+          rev and all(p["a"] >= 26 for p in rev) and {p["op"] for p in rev} == {"+", "-"}, str([(p["op"], p["a"], p["b"]) for p in rev[:4]]))
+    story = D.pool_for(by["entry-u3-story-problems"])
+    check("  a story lesson still drills its bare arithmetic (drill forgives the story; the quiz does not)",
+          story and all(not p.get("story") for p in story) and D.quiz_pool(by["entry-u3-story-problems"]) == []
+          and all(p.get("story") for p in Q.QUIZ_SETS["entry-u3-story-problems"]), str(len(story)))
+    sh = D.shape_of(by["entry-u3-story-problems"])
+    check("  keeps_shape(drill=True) skips has_story and nothing else",
+          D.keeps_shape(sh, {"op": "+", "a": 4, "b": 1}, "+", drill=True) == (True, "")
+          and D.keeps_shape(sh, {"op": "+", "a": 4, "b": 1}, "+") == (False, "has_story is False (bank: always True)")
+          and D.keeps_shape(sh, {"op": "+", "a": 1, "b": 1}, "+", drill=True)[0] is False, "")
+    outside, total, empty, big = 0, 0, 0, 0
+    for l in L.LESSONS:
+        pl = D.pool_for(l)
+        total += len(pl)
+        empty += not pl
+        big += len(pl) >= 20
+        shapes = D.shape_of(l)
+        outside += sum(1 for p in pl if not D.keeps_shape(shapes, p, l.get("op", "+"), drill=True)[0])
+    check(f"⭐ every pooled problem in the course keeps its lesson's shape ({total:,} pooled; 28,411 before yn)",
+          outside == 0 and total >= 28000, f"{outside} outside, {total} pooled")
+    check(f"  the pool grew, not shrank: {empty} lessons with no pool (46 before), {big} at twenty or more (241 before)",
+          empty <= 46 and big >= 225, f"{empty} / {big}")
+    dp = rd("drillpool.py")
+    check("  one scanner, two doors: pool_for -> _scan(drill=True), quiz_pool -> _scan(drill=False); the scan runs floor to ceiling per op",
+          "return _scan(les, cap, board_tags, drill=True)" in dp and "return _scan(les, cap, board_tags, drill=False)" in dp
+          and "def _scan(les, cap=_MAX_PER_LESSON, board_tags=None, drill=False):" in dp
+          and "A = range(max(1, lo.get(\"a\", 1)), min(hi.get(\"a\", env[\"a_max\"]), env[\"a_max\"], _HARD_A) + 1)" in dp
+          and "if not keeps_shape(shapes, p, op, drill=drill)[0]:" in dp, "")
+    check("  the quiz table did not move (the generator keeps what keeps the shape; a re-run replaces nothing)",
+          sum(len(v) for v in Q.QUIZ_SETS.values()) == 1799 and "2026-09-27  BUILD ym" in notes("quizsets.py"), "")
+    check("  the changed files carry dated yn notes",
+          all("2026-09-27" in notes(f) and "yn" in notes(f) for f in ("drillpool.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51991,6 +52057,7 @@ def main():
     part3oe_the_three_totals_are_drawn()
     part3of_the_quiz_sweep()
     part3og_the_quiz_keeps_the_lessons_shape()
+    part3oh_the_drill_pool_keeps_the_shape_too()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

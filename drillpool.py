@@ -2,6 +2,24 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yn -- THE DRILL POOL KEEPS THE SHAPE TOO. ym held this for Jim; Jim: "GO".
+#               pool_for (Abrabot's lane, live from main.py) is the same scan quiz_pool was:
+#               from the shape's floor to its ceiling per op, the cap shared across ops, every
+#               candidate through keeps_shape and then the envelope and the course's own
+#               validator. So Abrabot no longer drills 1 + 1 after adding past ten. ONE
+#               DIFFERENCE, by Jim's ruling that drill is practice and quizzes are for mastery
+#               (2026-08-23): the drill pool does NOT require a story -- a story-problems
+#               lesson drills the bare arithmetic inside its stories (as it always has),
+#               while its quiz asks the stories themselves. keeps_shape(..., drill=True) skips
+#               the has_story fact; nothing else differs. Measured before/after on the frozen
+#               copy: 28,411 -> 28,656 problems (big-number mixed-op lessons gain the pool
+#               they never had, because the old scan from 1 filled their cap with tiny sums);
+#               46 -> 41 lessons with no pool (the two that lose one -- the exponents lesson's
+#               single candidate, the parametric walk's ten -- were outside their bank's
+#               shape); 241 -> 233 lessons at 20 or more (add past ten: 67 -> 11, the 56 that
+#               left never passed ten). _key(p) is (op, a, b, c) now -- 31 - 29 is not a repeat
+#               of 31 + 29 in a mixed-op pool. _scan() is the one scanner;
+#               pool_for and quiz_pool are its two doors. PART 3oh.
 #   2026-09-27  BUILD ym -- THE QUIZ KEEPS THE LESSON'S SHAPE. Found by the yl pre-read of
 #               all 1,799 pinned quiz questions against their own lesson's bank: 166 in 97
 #               lessons asked OUTSIDE the lesson -- Entry's "add past ten" quiz opened on
@@ -104,7 +122,11 @@ _SCAN_CAP = 60000              # candidates examined per lesson before we stop l
 
 
 def _key(p):
-    return (p["a"], p.get("b", 0), p.get("c", 0))
+    """A problem's identity: its op AND its numbers. (yn) The op was not part of it, which
+    was right while a pool held one op; the shape scan pools every op of a mixed lesson,
+    and 31 - 29 is not a repeat of 31 + 29. (Every shipped bank problem names its op --
+    measured at yn: none omits it.)"""
+    return (str(p.get("op", "+")), p["a"], p.get("b", 0), p.get("c", 0))
 
 
 def _taps(op, p):
@@ -303,37 +325,12 @@ def _ordered(problems, les):
 def pool_for(les, cap=_MAX_PER_LESSON, board_tags=None):
     """Extra practice problems for one lesson, excluding the ones it already teaches.
 
-    Two gates in cost order: the cheap envelope first, which rejects most candidates
-    without running anything, then the real validator on the survivors."""
-    if board_tags is None:
-        import tags as _t
-        board_tags = set(_t.BOARD_TAGS)
-    env = envelope(les)
-    if not env:
-        return []
-    taught = {_key(p) for p in _shipped(les)}
-    out, seen = [], 0
-    A = range(1, min(env["a_max"] * _SPAN, _HARD_A) + 1)
-    B = range(0, min(max(env["b_max"] * _SPAN, 1), _HARD_B) + 1)
-    C = range(0, min(max(env["c_max"] * _SPAN, 1), _HARD_C) + 1)
-    for a in A:
-        for b in B:
-            for c in C:
-                seen += 1
-                if seen > _SCAN_CAP or len(out) >= cap:
-                    # ⚠️ THE EARLY RETURN MUST SORT TOO. It did not, so the 61 lessons
-                    # that hit the cap or the scan limit -- the BIGGEST pools, the ones
-                    # a child is most likely to reach -- came back in raw enumeration
-                    # order while every smaller pool was neatly ramped. Caught by the
-                    # battery pin written in the same build, which is the whole reason
-                    # to pin an invariant rather than trust the function that holds it.
-                    return _ordered(out, les)
-                if (a, b, c) in taught:
-                    continue
-                p = {"a": a, "b": b, "c": c, "op": les["op"]}
-                if admits(les, env, p) and _probe_ok(les, p, board_tags):
-                    out.append(p)
-    return _ordered(out, les)
+    (yn) The SHAPE SCAN, the same one the quiz draws from: candidates from the shape's
+    floor to its ceiling per op, every one through keeps_shape (drill=True: a story lesson
+    drills its bare arithmetic), then the cheap envelope, then the real validator. Until yn
+    this scanned from a = 1, b = 0 and bounded from above only, so a lesson that adds past
+    ten drilled 1 + 1 and a two-digit lesson's capped pool never reached its own numbers."""
+    return _scan(les, cap, board_tags, drill=True)
 
 
 def verify(les, problems, board_tags):
@@ -476,11 +473,13 @@ def shape_of(les):
     return shapes
 
 
-def keeps_shape(shapes, p, default_op="+"):
+def keeps_shape(shapes, p, default_op="+", drill=False):
     """(ym) Does this problem stay inside the shape its op's shipped bank keeps? True
     when the op has no measured shape (nothing to compare against). Returns (ok, why):
     why names the first break -- "a=1 below the floor 5", "b has 2 digits (bank: 1)",
-    "sum_past_ten is False (bank: always True)" -- so a pin and a report can say it."""
+    "sum_past_ten is False (bank: always True)" -- so a pin and a report can say it.
+    drill=True (yn) skips the has_story fact: the drill pool practises a story lesson's
+    arithmetic, the quiz asks its stories."""
     sh = shapes.get(str(p.get("op", default_op)))
     if not sh:
         return True, ""
@@ -498,19 +497,28 @@ def keeps_shape(shapes, p, default_op="+"):
             return False, f"{k} has {_digits(v)} digit(s) (bank: {'/'.join(str(d) for d in ds)})"
     have = _facts(p)
     for key, want in sh["facts"].items():
+        if drill and key == "has_story":
+            continue                       # (yn) drill practises the arithmetic; the quiz asks the story
         if key in have and have[key] != want:
             return False, f"{key} is {have[key]} (bank: always {want})"
     return True, ""
 
 
 def quiz_pool(les, cap=_MAX_PER_LESSON, board_tags=None):
-    """(ym) THE QUIZ'S OWN POOL: every candidate that the envelope admits, the course's
-    validator accepts (_probe_ok), the lesson does not already teach, AND that keeps
-    the shape the shipped bank keeps -- scanned from the shape's FLOOR upward, per op
-    of the lesson, so a two-digit lesson's pool is two-digit problems and not the 240
-    easiest sums under its cap (pool_for scans from a = 1, and a big-number lesson's
-    capped pool never reached its own numbers: Basic's multi-digit review had 240
-    sums and not one from 26 up). Ramped by the validator's key, like pool_for."""
+    """(ym) THE QUIZ'S OWN POOL: the shape scan with every fact kept, the story included --
+    a story-problems lesson's quiz is its stories (from the bank's tail, since a generated
+    problem has none to tell). Since yn the drill pool is the same scan without the story
+    fact; _scan is the one scanner."""
+    return _scan(les, cap, board_tags, drill=False)
+
+
+def _scan(les, cap=_MAX_PER_LESSON, board_tags=None, drill=False):
+    """(ym/yn) THE ONE SCANNER. Every candidate that keeps the shape the shipped bank
+    keeps (drillpool.shape_of; drill=True forgives the story), that the envelope admits,
+    that the course's validator accepts (_probe_ok) and that the lesson does not already
+    teach -- scanned from the shape's FLOOR to its CEILING, per op of the lesson with the
+    cap shared across ops, so a two-digit lesson's pool is two-digit problems and a
+    mixed-op lesson's pool holds every op. Ramped by the validator's key."""
     if board_tags is None:
         import tags as _t
         board_tags = set(_t.BOARD_TAGS)
@@ -520,24 +528,24 @@ def quiz_pool(les, cap=_MAX_PER_LESSON, board_tags=None):
     shapes = shape_of(les)
     taught = {_key(p) for p in _shipped(les)}
     out, seen = [], 0
-    ops = list(shapes.items()) or [(les.get("op", "+"), {"min": {}})]
+    ops = list(shapes.items()) or [(les.get("op", "+"), {"min": {}, "max": {}})]
     per_op = max(1, cap // len(ops))          # a mixed-op lesson's pool holds every op
     for op, sh in ops:
-        lo = sh.get("min", {})
+        lo, hi = sh.get("min", {}), sh.get("max", {})
         got = 0
-        A = range(max(1, lo.get("a", 1)), min(env["a_max"], _HARD_A) + 1)
-        B = range(max(0, lo.get("b", 0)), min(max(env["b_max"], 0), _HARD_B) + 1)
-        C = range(max(0, lo.get("c", 0)), min(max(env["c_max"], 0), _HARD_C) + 1)
+        A = range(max(1, lo.get("a", 1)), min(hi.get("a", env["a_max"]), env["a_max"], _HARD_A) + 1)
+        B = range(max(0, lo.get("b", 0)), min(hi.get("b", env["b_max"]), max(env["b_max"], 0), _HARD_B) + 1)
+        C = range(max(0, lo.get("c", 0)), min(hi.get("c", env["c_max"]), max(env["c_max"], 0), _HARD_C) + 1)
         for a in A:
             for b in B:
                 for c in C:
                     seen += 1
                     if seen > _SCAN_CAP or len(out) >= cap or got >= per_op:
                         break
-                    if (a, b, c) in taught:
+                    if (op, a, b, c) in taught:
                         continue
                     p = {"a": a, "b": b, "c": c, "op": op}
-                    if not keeps_shape(shapes, p, op)[0]:
+                    if not keeps_shape(shapes, p, op, drill=drill)[0]:
                         continue
                     if admits(les, env, p) and _probe_ok(les, p, board_tags):
                         out.append(p)

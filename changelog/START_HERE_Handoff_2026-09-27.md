@@ -4,9 +4,15 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-27ym-the-quiz-keeps-the-lessons-shape`** (battery 13,227
-passed, 0 failed, 3 skipped) — the first thing the quiz instrument found, fixed at the
-source: 214 of the 1,799 pinned quiz questions (106 lessons, all ten courses) asked outside
+On Jim's disk: **`2026-09-27yn-the-drill-pool-keeps-the-shape-too`** (battery 13,236
+passed, 0 failed, 3 skipped) — `ym`'s held item, on Jim's "GO": Abrabot's drill pool
+(`drillpool.pool_for`, live from `/api/drill`) is the same shape scan the quiz draws from
+(`_scan`: floor to ceiling per op, every candidate through `keeps_shape`), so Abrabot no
+longer drills 1 + 1 after adding past ten; the one difference is that drill forgives the
+story (a story lesson drills its bare arithmetic; its quiz asks its stories). The pool
+grew, 28,411 → 28,656; 41 lessons without one (46 before); `_key` carries the op. Nothing
+to prewarm. Before it, `ym` (battery 13,227) — the first thing the quiz instrument found,
+fixed at the source: 214 of the 1,799 pinned quiz questions (106 lessons, all ten courses) asked outside
 their own lesson's shape — Entry's "add past ten" opened on 1 + 1, "add single digit"
 asked 2 + 7 over a bank that stops at 4, the two story lessons quizzed bare facts.
 `drillpool.shape_of` measures the shape a bank keeps (floor, ceiling, digit counts, the
@@ -476,20 +482,18 @@ What the third round leaves behind, as work — none of it a sweep:
 - **The graph's grid numbers** (9.8px at full width — a one-number change if he wants 12).
 - ~~The quizsets sweep~~ — **the instrument is built (`yl`)**; the readings are Jim's to run,
   one per course, from the card. Its first reading gave `ym` (the quiz keeps the lesson's
-  shape). **Held from `ym`: the drill pool (Abrabot's lane) carries the same class** —
-  `pool_for` still scans from 1, so Abrabot can drill 1 + 1 after adding past ten. Gating it
-  by `keeps_shape` moves every lesson's pool and PART 3de's pins; drill is practice, not
-  mastery (ruling 2026-08-23). Jim's call. **And the quiz sweeps still to read: whatever a
-  second Entry reading raises that is not "outside the shape" is a new class.**
+  shape). ~~Held from `ym`: the drill pool~~ — **done in `yn`** on Jim's "GO". **The quiz
+  sweeps still to read: whatever a second Entry reading raises that is not "outside the
+  shape" is a new class.**
 - **The 09-14 leftovers** #8 (tour first tap) and #12 (the prefetch-shelf counter; watch
   `__open__`).
 - **The nightly `scripted` job's first reports** (ye) — open one; a red job names its lessons.
 
 ## What to do next
 
-1. The chain through `ym` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-27ym-the-quiz-keeps-the-lessons-shape`, **prewarms (214 new
-   quiz asks — Price it, render)**, then re-runs the Entry QUIZ sweep from the card and the
+1. The chain through `yn` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-27yn-the-drill-pool-keeps-the-shape-too`, **prewarms (ym's 214
+   new quiz asks — Price it, render; yn adds none)**, then re-runs the Entry QUIZ sweep from the card and the
    other nine, pasting each — a quiz sweep report is read like a course sweep's: a finding
    on an ask is the op's words (generator) or the question's numbers (`quizsets.py`,
    regenerated with `tools/genquiz.py`, which keeps every question that keeps its shape and
