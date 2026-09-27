@@ -2,6 +2,11 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-26  BUILD yl -- one line: unitcircle() names a.turn itself when it hands the
+                 compass to compassRose(), so the board contract (ruletests _board_contract,
+                 which reads a tag's attributes off its own function) credits turn= to
+                 [[unitcircle]] -- the quiz scan found the five bearing questions' boards
+                 "unknown attr" for a tag that had drawn them since tp. Nothing drawn changed.
      2026-09-25  BUILD yd -- EVERY LABEL GOES THROUGH THE FIT. The screen survey (S10) found
                  508 labels under 9px in 360 lessons, 473 of them the graph's: its grid
                  numbers, point labels, legend, hole marker and the x / y axis letters were
@@ -1139,7 +1144,7 @@
     // dashed arc of that many degrees clockwise from the arrow's tip, labelled
     // "turn 40°", with nothing at its far end -- the new bearing is the lesson's
     // answer. Precalc Unit 6's "past the full turn". Without bearing= nothing changed.
-    if (a.bearing != null && isFinite(parseFloat(a.bearing))) return compassRose(a);
+    if (a.bearing != null && isFinite(parseFloat(a.bearing))) return compassRose({ bearing: a.bearing, turn: a.turn, caption: a.caption });   // (yl) read here, so the board contract credits turn= to [[unitcircle]]
     var deg = num(a.angle != null ? a.angle : a.deg, 45); var d360 = ((deg % 360) + 360) % 360;
     var rad = deg * Math.PI / 180;
     var W = 360, H = 340, cx = 168, cy = 168, R = 122;

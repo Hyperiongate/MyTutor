@@ -3,6 +3,19 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yl -- THE QUIZ SWEEP. Every sweep report has ended "the topic quiz's
+#               sentences (quizsets.py) -- a separate instrument". This is it: the same
+#               reviewer, over each lesson's FIVE pinned quiz questions -- the spoken ask, its
+#               board, its tap buttons and its key -- with the lesson's own problem space and
+#               its teaching beats on the page for context, and a charter of its own
+#               (QUIZ_SYSTEM: the key, answerable as asked and drawn, within what the lesson
+#               taught, the wrong choices wrong, the words). A quiz sweep is a course named
+#               "quiz<course>" (quizgeometry): split_course() reads it, lessons_for/estimate/
+#               run_sweep/write_report all go through the same doors, the transcript is
+#               quiz_transcript_for(), and the report is titled "Quiz sweep". The admin card
+#               lists the ten beside the ten courses. A finding on a quiz question is owned by
+#               the op that speaks it (generator:<op>); a finding about the NUMBERS lands in
+#               quizsets.py (regenerate with tools/genquiz.py after a bank change).
 #   2026-09-24  BUILD xz -- THE TRANSCRIPT NOTE IS NOT A TUTOR LINE, AND THE SPACE LISTS ITS
 #               PAIRS. The third Basic sweep quoted the times-table pass marker as a spoken
 #               line (it was labelled TUTOR) and paired a=48 with b=3 out of the space's two
@@ -389,12 +402,18 @@ def problem_space(lesson, L=None) -> str:
     return line + ". A rule is judged against THESE problems, not against numbers this lesson cannot ask."
 
 
-def render_transcript(lesson, turns) -> str:
+def render_transcript(lesson, turns, kind="lesson") -> str:
     """The transcript as the reviewer reads it: one numbered turn per beat, the words
-    and then the board, tags left in (the rule index explains every tag)."""
+    and then the board, tags left in (the rule index explains every tag).
+    (yl) kind="quiz": the head says it is the TOPIC QUIZ, the problem space is the LESSON's
+    (so a quiz question outside it can be seen), and what the lesson taught follows."""
     head = (f"LESSON {lesson.get('id')} -- {lesson.get('course')} unit {lesson.get('unit')} "
             f"-- \"{lesson.get('topic')}\" -- levels {'/'.join(lesson.get('levels') or ())}")
+    if kind == "quiz":
+        head = "TOPIC QUIZ for " + head
     lines = [head, problem_space(lesson), ""]
+    if kind == "quiz":
+        lines += [lesson_context(lesson), ""]
     for t in turns:
         if t["kind"] == "student":
             lines.append(f"[{t['n']}] STUDENT {t['spoken']}")
@@ -477,6 +496,51 @@ Answer with pure JSON: {"findings": [{"turn": <n>, "quote": "<exact words>",
 "clean": <true|false>, "note": "<anything you could not judge>"}""" % MAX_FINDINGS_PER_LESSON
 
 
+QUIZ_SYSTEM = """You are reviewing ONE TOPIC QUIZ from Mr. Cadabra's Classroom, a voice maths tutor
+for children. A topic quiz is five fixed questions asked at the end of a lesson; the child
+hears each question out loud while its BOARD line is drawn on screen and its [[choices]] are
+shown as tap buttons; the child taps, says or types a number; the quiz marks it against the
+KEY in code and moves on. Nothing is improvised and nothing is taught during the quiz. Four
+of five right is a pass, and the pass is what the child's record says was learned -- so a
+question that is wrong, unanswerable or off the lesson costs every child who takes it.
+
+The page shows: the LESSON's problem space (the numbers the lesson itself practised); WHAT
+THE LESSON TAUGHT (its teaching beats and worked examples, context only -- NOT under review);
+then the quiz as the child meets it. Each STUDENT line answers with the KEY -- the answer the
+quiz marks right -- so you are judging the key, not a child.
+
+Report ONLY defects a careful teacher would flag, in this order of importance:
+  1. The KEY is wrong: the number the quiz marks right is not the right answer to the
+     question as asked.
+  2. The question cannot be answered from what is said and drawn (a number the child would
+     need that is neither spoken nor on the board; a picture the words point at that is not
+     there; an ambiguous question).
+  3. The question is outside the lesson: it asks something the lesson did not teach, or uses
+     a number, a form or a case the lesson never practised (an unsimplified fraction where
+     the lesson used only simplified ones; a case the problem space excludes) -- judge this
+     against WHAT THE LESSON TAUGHT and the PROBLEM SPACE, not against the topic in general.
+  4. A wrong choice that is also a right answer, two choices the same, or the key missing
+     from the choices.
+  5. Wording a child at this level cannot parse; a term the lesson did not teach.
+  6. Two questions that are the same question in different numbers is FINE (a quiz repeats
+     the skill); the same question twice with the same numbers is not.
+
+Do NOT report: the choice of numbers when they are within the lesson's space; that the quiz
+does not teach or explain (by design -- it marks and moves on); "Right." after every answer
+(the child answered the key); the [[choices]] not being read aloud (tap buttons, by design);
+the same things the course sweep's charter excludes -- a [[numberline]]'s own ticks, a
+[[graph]]'s range= being its x-window, "times/timesed/timesing" as the course's verb,
+"over nine", "square back", a bare "log" being base 2 in Algebra II; the quiz's intro or
+pass lines, which are fixed for every quiz. A quote must be COPIED EXACTLY from a TUTOR line
+or a BOARD line. Give at most %d findings, the worst first, and if the quiz is sound say so
+with an empty list.
+
+Answer with pure JSON: {"findings": [{"turn": <n>, "quote": "<exact words>",
+"kind": "false|unsupported|words-board|untaught-term|unclear|repeats|tone",
+"severity": "HIGH|MEDIUM|LOW", "why": "<one sentence>", "fix": "<one sentence>"}],
+"clean": <true|false>, "note": "<anything you could not judge>"}""" % MAX_FINDINGS_PER_LESSON
+
+
 def _rules_text():
     try:
         with open(os.path.join(HERE, "RULES.md"), encoding="utf-8") as fh:
@@ -485,11 +549,12 @@ def _rules_text():
         return "(rule index unavailable -- judge on mathematics and clarity alone)"
 
 
-def review_lesson(lesson, turns, judge):
+def review_lesson(lesson, turns, judge, kind="lesson"):
     """One judge read. `judge(messages, max_tokens, want_json) -> (text, err)` is the
-    lessonaudit transport (or a stub in the battery). Returns (result, err)."""
-    body = render_transcript(lesson, turns)
-    msgs = [{"role": "system", "content": SWEEP_SYSTEM},
+    lessonaudit transport (or a stub in the battery). Returns (result, err).
+    (yl) kind="quiz" reads the quiz transcript under the quiz charter."""
+    body = render_transcript(lesson, turns, kind=kind)
+    msgs = [{"role": "system", "content": QUIZ_SYSTEM if kind == "quiz" else SWEEP_SYSTEM},
             {"role": "user", "content":
                 f"THE TUTOR'S RULE INDEX (what every [[tag]] means, and the teaching rules):\n\n"
                 f"{_rules_text()[:60000]}\n\n=====\n\n{body}"}]
@@ -518,7 +583,8 @@ def _parse_json(text):
 # The generator-owned kinds: a finding on one of these is a finding on the OP that made
 # the line, and the fix lands in the generator, not the lesson.
 GENERATED_KINDS = frozenset({"ask", "praise", "walk-back", "second-look", "fresh-one",
-                             "fixed-line"})
+                             "fixed-line",
+                             "quiz-ask"})    # (yl) a quiz question's words are its op's; its numbers are quizsets.py's
 
 
 def place_findings(lesson, turns, data):
@@ -559,19 +625,101 @@ def place_findings(lesson, turns, data):
 # =============================================================================
 # 3. THE RUN
 # =============================================================================
+QUIZ_PREFIX = "quiz"
+
+
+def split_course(course, L=None):
+    """(yl) ("lesson", course) for a course; ("quiz", base) for "quiz<base>" when base is
+    a real course. The quiz sweep is the same machine over the same lessons, reading the
+    quiz instead of the lesson; the name is what picks the lane, and it is alphanumeric
+    so the report and checkpoint names (_NAME_RE, _PARTIAL_RE) hold as they are."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    c = str(course or "")
+    known = {les.get("course") for les in L.LESSONS}
+    if c.startswith(QUIZ_PREFIX) and c[len(QUIZ_PREFIX):] in known and c not in known:
+        return "quiz", c[len(QUIZ_PREFIX):]
+    return "lesson", c
+
+
+def quiz_courses(L=None):
+    """(yl) the ten quiz sweeps, one per course, in course order."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    seen = []
+    for les in L.LESSONS:
+        if les.get("course") not in seen:
+            seen.append(les.get("course"))
+    return [QUIZ_PREFIX + c for c in seen]
+
+
 def lessons_for(course, L=None):
     if L is None:
         import lessonscripts as L  # noqa: N812
-    return [les for les in L.LESSONS if les.get("course") == course]
+    _kind, base = split_course(course, L)
+    return [les for les in L.LESSONS if les.get("course") == base]
+
+
+def quiz_transcript_for(lesson, L=None):
+    """(yl) THE QUIZ AS THE CHILD MEETS IT: the intro line, then each pinned question --
+    the spoken ask, its board with the tap buttons, and the student answering the KEY
+    (marked as the key, so the reviewer judges the key, not the child) -- the "Right." after
+    each, and the pass line. A lesson with no quiz (fewer than QUIZ_MIN pinned questions)
+    returns []. Same dict shape as transcript_for, kinds quiz-intro / quiz-ask / student /
+    quiz-mark / quiz-end; a quiz-ask carries its op, so a finding on its words is the
+    generator's."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    try:
+        import quizsets as _qs
+        probs = list(_qs.QUIZ_SETS.get(lesson.get("id")) or [])[:L.QUIZ_LEN]
+    except Exception:  # noqa: BLE001
+        probs = []
+    if len(probs) < L.QUIZ_MIN:
+        return []
+    level = lesson.get("levels", L.LEVELS)[-1]
+    turns = [{"n": 1, "kind": "quiz-intro", "spoken": L.LINE_QUIZ_INTRO[len(probs)], "board": "", "op": ""}]
+    for p in probs:
+        board = (L.board_for(p, level) or "") + (L.choices_for(p) or "")
+        turns.append({"n": len(turns) + 1, "kind": "quiz-ask", "spoken": L.spoken_for(p, level),
+                      "board": board, "op": p.get("op", "")})
+        turns.append({"n": len(turns) + 1, "kind": "student",
+                      "spoken": f"answers {L.ans(p)} — the KEY (the answer the quiz marks right)", "board": "", "op": ""})
+        turns.append({"n": len(turns) + 1, "kind": "quiz-mark", "spoken": L.LINE_QUIZ_RIGHT, "board": "", "op": ""})
+    turns.append({"n": len(turns) + 1, "kind": "quiz-end", "spoken": L.LINE_QUIZ_PASS, "board": "", "op": ""})
+    return turns
+
+
+def lesson_context(lesson, L=None) -> str:
+    """(yl) what the lesson TAUGHT, for the quiz reviewer: its why, picture and teach beats
+    and its worked pairs, words and boards, marked as context -- not under review."""
+    if L is None:
+        import lessonscripts as L  # noqa: N812
+    lines = ["WHAT THE LESSON TAUGHT (context only -- NOT under review; judge the quiz against it):"]
+    for field in ("why", "picture", "teach"):
+        for sp, bd in (lesson.get(field) or []):
+            lines.append(f"  ({field}) {sp}")
+            if bd:
+                lines.append(f"      BOARD: {bd}")
+    for pr in (lesson.get("pairs") or []):
+        w = pr.get("worked") or ("", "")
+        lines.append(f"  (worked) {w[0]}")
+        if w[1]:
+            lines.append(f"      BOARD: {w[1]}")
+    return "\n".join(lines)
 
 
 def estimate(course, L=None):
     """FREE: how many lessons, how many characters the reviewer reads, and the estimate."""
     les = lessons_for(course, L)
+    kind, _base = split_course(course, L)
     chars = 0
     for x in les:
         try:
-            chars += len(render_transcript(x, transcript_for(x, L)))
+            if kind == "quiz":
+                chars += len(render_transcript(x, quiz_transcript_for(x, L), kind="quiz"))
+            else:
+                chars += len(render_transcript(x, transcript_for(x, L)))
         except Exception:  # noqa: BLE001
             pass
     return {"course": course, "lessons": len(les), "chars": chars,
@@ -605,15 +753,20 @@ def _assemble(course, picked, rows, stopped, t0, now=None, resumed=None):
         unplaced_total += int(r.get("unplaced") or 0)
         if r.get("clean"):
             clean.append(r["lesson"])
-    out = {"course": course, "ran": len(picked) - len(errors), "asked": len(picked),
+    kind, _base = split_course(course)
+    out = {"course": course, "kind": kind, "ran": len(picked) - len(errors), "asked": len(picked),
            "findings": findings, "errors": errors, "clean": clean, "stopped": stopped,
            "unplaced": unplaced_total, "seconds": round(time.monotonic() - t0, 1),
            "when": (now or _dt.datetime.now(_dt.timezone.utc)).strftime("%Y-%m-%d %H:%M UTC"),
-           "not_covered": [
-               "the topic quiz's sentences (quizsets.py) -- a separate instrument",
+           "not_covered": ([
+               "the lessons' own beats -- the course sweep's lane (pick the course, not its quiz)",
+               "the 90% Unit Quiz -- the live tutor's, the night watch's lane",
+               "the rendered SCREEN (screencheck.py judges that in the battery)"]
+               if kind == "quiz" else [
+               "the topic quiz's sentences (quizsets.py) -- the QUIZ sweep's lane (pick quiz<course>)",
                "the AI's own words on a second miss -- that is the night watch's lane",
                "the rendered SCREEN (screencheck.py judges that in the battery)",
-               f"a times-table pass beyond its first {TABLE_FACTS_SHOWN} facts"]}
+               f"a times-table pass beyond its first {TABLE_FACTS_SHOWN} facts"])}
     if resumed:
         out["resumed"] = resumed
     return out
@@ -631,7 +784,10 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
     if L is None:
         import lessonscripts as L  # noqa: N812
     t0 = time.monotonic()
+    kind, _base = split_course(course, L)        # (yl) "quizgeometry" reads the quizzes
     picked = lessons_for(course, L)
+    if kind == "quiz":
+        picked = [les for les in picked if quiz_transcript_for(les, L)]   # a lesson with no quiz is not asked
     if resume and (resume.get("course") == course) and not limit and resume.get("asked"):
         limit = int(resume["asked"])      # (xp) a resumed sweep keeps the first run's size
     if limit:
@@ -671,12 +827,12 @@ def run_sweep(data_dir, course, judge, limit=None, progress=None, L=None, now=No
             except Exception:  # noqa: BLE001
                 pass
         try:
-            turns = transcript_for(les, L)
+            turns = quiz_transcript_for(les, L) if kind == "quiz" else transcript_for(les, L)
         except Exception as exc:  # noqa: BLE001
             rows.append(_row_for(les, error=f"walk failed: {exc}"))
             _save()
             continue
-        data, err = review_lesson(les, turns, judge)
+        data, err = review_lesson(les, turns, judge, kind=kind)
         if err:
             rows.append(_row_for(les, error=err))
             # (wv) the same hard error, lesson after lesson, will not change: stop
@@ -719,7 +875,9 @@ def report_markdown(result, build="") -> str:
     kinds = {}
     for f in fs:
         kinds[f.get("kind") or "?"] = kinds.get(f.get("kind") or "?", 0) + 1
-    L = [f"# Course sweep -- {result.get('course')} -- {result.get('when')}"
+    _kind, _base = split_course(result.get("course"))
+    L = [(f"# Quiz sweep -- {_base} -- {result.get('when')}" if _kind == "quiz"
+          else f"# Course sweep -- {result.get('course')} -- {result.get('when')}")
          + (f"  (build {build})" if build else ""),
          "",
          f"_Read by: {result.get('seat') or 'the judge seat'}_",
@@ -746,10 +904,15 @@ def report_markdown(result, build="") -> str:
              f"{(result.get('errors') or [{}])[0].get('error', '')[:200]}. Nothing here is a "
              f"reading of the course; fix the seat and run it again.", ""])
            if result.get("errors") and not result.get("ran") and not result.get("stopped") else []),
-         "_A GENERATOR finding is on a line the engine makes for every lesson that shares the "
-         "op -- fix the generator once and it is fixed everywhere. An AUTHORED finding is on "
-         "this lesson's own words. Severity is the reviewer's; every quote was matched to the "
-         "transcript before it was kept._",
+         ("_A finding on a quiz question is owned by the op that SPEAKS it (fix the generator and "
+          "every question that shares the op is fixed) -- unless it is about the question's NUMBERS, "
+          "which live in quizsets.py (regenerate with tools/genquiz.py). Severity is the reviewer's; "
+          "every quote was matched to the transcript before it was kept._"
+          if _kind == "quiz" else
+          "_A GENERATOR finding is on a line the engine makes for every lesson that shares the "
+          "op -- fix the generator once and it is fixed everywhere. An AUTHORED finding is on "
+          "this lesson's own words. Severity is the reviewer's; every quote was matched to the "
+          "transcript before it was kept._"),
          ""]
     if gen:
         L.append("## Generator findings -- fix once, fixes many")

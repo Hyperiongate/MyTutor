@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <!--
+    (yl) 2026-09-26 -- THE QUIZ SWEEP on the course-sweep card: the menu lists "quiz · geometry"
+    (value quizgeometry) beside each course; the same Price / Run / Resume / Read buttons.
     (xt) 2026-09-23 -- THE VOICE CACHE RECLAIM CARD (project 9 of the 09-14 deep dive).
     Every build that changes authored text orphans the clips it replaces -- the old
     line's mp3 stays on disk under a hash nothing asks for again -- and the evictor
@@ -2069,7 +2071,10 @@
       var pick = $("csCourse");
       if (!pick.options.length) {
         (d.courses || []).forEach(function (c) {
-          var o = document.createElement("option"); o.value = c; o.textContent = c; pick.appendChild(o);
+          var o = document.createElement("option"); o.value = c;
+          /* (yl) "quizgeometry" is the QUIZ sweep of geometry -- say so on the menu */
+          o.textContent = (c.indexOf("quiz") === 0 && c.length > 4) ? "quiz \u00b7 " + c.slice(4) : c;
+          pick.appendChild(o);
         });
       }
       var j = d.job || {};

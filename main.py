@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yl -- THE QUIZ SWEEP. The course sweep's card lists "quiz<course>"
+#               (quizgeometry, ...) beside the ten courses: the same reviewer reads each
+#               lesson's five pinned quiz questions under coursesweep.QUIZ_SYSTEM. /start
+#               accepts the quiz name through coursesweep.split_course; nothing else in the
+#               job, the checkpoint or the report path changed. APP_BUILD ->
+#               "2026-09-26yl-the-quiz-sweep". Nothing to prewarm. PART 3of.
 #   2026-09-26  APP_BUILD -> "2026-09-26yk-the-three-totals-are-drawn". Jim: the Geometry review
 #               said 90, 180 and 360 over one right angle. static/geo-figures.js draws the full
 #               turn ([[angle deg="360"]]) and a row of angles in one figure (row=, names=); the
@@ -5210,7 +5216,9 @@ def admin_coursesweep_start(body: CourseSweepIn, key: str = "",
     if coursesweep is None:
         raise HTTPException(status_code=404, detail="coursesweep.py is not deployed")
     course = (body.course or "").strip().lower()
-    if course not in {les.get("course") for les in lessonscripts.LESSONS}:
+    # (yl) "quiz<course>" is the quiz sweep of that course -- same doors, the quiz read
+    _kind, _base = coursesweep.split_course(course)
+    if _base not in {les.get("course") for les in lessonscripts.LESSONS}:
         raise HTTPException(status_code=400, detail=f"unknown course {course!r}")
     limit = int(body.limit) if body.limit and int(body.limit) > 0 else None
     est = coursesweep.estimate(course)
@@ -5281,7 +5289,9 @@ def admin_coursesweep_status(key: str = "",
         return {"ok": False, "enabled": False, "job": {}, "reports": [],
                 "note": "coursesweep.py is not deployed on this build"}
     return {"ok": True, "enabled": True, "job": _sweep_snapshot(),
-            "courses": sorted({les.get("course") for les in lessonscripts.LESSONS}),
+            "courses": sorted({les.get("course") for les in lessonscripts.LESSONS})
+                       + coursesweep.quiz_courses(),      # (yl) ...and the ten quiz sweeps
+
             "reports": coursesweep.list_reports(DATA_DIR),
             "partials": coursesweep.list_partials(DATA_DIR)}   # (xp) the card's Resume
 
@@ -9573,7 +9583,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-26yk-the-three-totals-are-drawn"
+APP_BUILD = "2026-09-26yl-the-quiz-sweep"
 
 
 @app.get("/health")

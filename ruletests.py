@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-26  BUILD yl -- PART 3of, THE QUIZ SWEEP: the machine pass over all 1,799 pinned
+#               quiz questions every battery, and coursesweep's quiz lane (quiz<course>) with a
+#               stubbed judge. Two pins moved (the status lists 20 names now: ten courses, ten
+#               quiz sweeps; _assemble's "not_covered" is a per-kind expression now, so the
+#               source-literal pin on run_sweep's return shape reads '"not_covered": (').
 #   2026-09-26  BUILD yk -- PART 3oe, THE THREE TOTALS ARE DRAWN. [[angle deg="360"]] (the full
 #               turn) and [[angle row= names=]] (angles side by side in one figure) in
 #               geo-figures.js; Geometry's review beat and lesson one's why beat draw what they
@@ -18212,8 +18217,8 @@ def part3lv_the_course_sweep():
                 check("  a traversal in the name is a 404, never a file",
                       c.get("/api/admin/coursesweep/report", params={"name": "../../main"}, headers=H).status_code == 404, "")
                 lst = c.get("/api/admin/coursesweep/status", headers=H).json()
-                check("  the status lists the ten courses and the reports on disk",
-                      len(lst.get("courses", [])) == 10 and lst.get("reports") and lst["reports"][0]["course"] == "entry", "")
+                check("  the status lists the ten courses (and, since yl, their ten quiz sweeps) and the reports on disk",
+                      len(lst.get("courses", [])) == 20 and lst.get("reports") and lst["reports"][0]["course"] == "entry", "")
         finally:
             M.DATA_DIR = _olddata
             M._sweep_judge = _oldjudge
@@ -22579,7 +22584,7 @@ def part3nk_the_sweep_survives_a_restart():
               and not C._NAME_RE.match("algebra1_partial"), "")
     check("  run_sweep's old return shape is _assemble's now: every field the card and write_report read is still there",
           all(k in cs for k in ('"ran": len(picked) - len(errors)', '"stopped": stopped', '"unplaced": unplaced_total',
-                                '"not_covered": [', 'out["resumed"] = resumed'))
+                                '"not_covered": (', 'out["resumed"] = resumed'))  # (yl) the field is per kind now
           and "def _row_for(les, placed=None, clean=False, error=None, unplaced=0):" in cs, "")
 
     # ---- main.py: the job on the disk, recovered at startup; resume through the endpoint ----
@@ -24772,6 +24777,135 @@ def part3oe_the_three_totals_are_drawn():
     check("  the changed files carry dated yk notes",
           all("2026-09-26" in notes(f) and "yk" in notes(f)
               for f in ("static/geo-figures.js", "lessons/bridges.py", "lessons/geometry.py", "ruletests.py", "main.py")), "Jim's rule 8")
+
+
+def part3of_the_quiz_sweep():
+    """PART 3of (build yl, 2026-09-26) -- THE QUIZ SWEEP. Jim: "Okay, start on the quiz
+    sweep." The last unread text in the app: the 1,799 pinned topic-quiz questions
+    (quizsets.py) -- the questions a child is graded on. Two instruments. (1) THE MACHINE
+    PASS, here, every battery: every question's op check holds, its key is a whole number,
+    its three tap choices are distinct and hold the key, its board is a tag the renderer
+    knows with attributes it reads, its words keep the canon's vocabulary and the sentence
+    cap, and no lesson asks the same question twice. (2) THE READER: coursesweep reads a
+    quiz sweep as the course "quiz<course>" -- quiz_transcript_for (the intro, each ask
+    with its board and buttons, the student answering the KEY, the mark, the pass line),
+    the lesson's problem space and teaching beats on the page as context, QUIZ_SYSTEM as
+    the charter (the key, answerable as asked and drawn, within what the lesson taught,
+    the wrong choices wrong), "Quiz sweep" on the report. The admin card lists the ten.
+    One finding of the scan fixed on the way: [[unitcircle]]'s turn= was not credited to the
+    tag by the board contract (read inside compassRose); it is now."""
+    print("\nPART 3of — the quiz sweep (build yl)")
+    import os as _os, re as _re, json as _json
+    here = _os.path.dirname(_os.path.abspath(__file__))
+    rd = lambda fn: open(_os.path.join(here, fn), encoding="utf-8").read()
+    import lessonscripts as L
+    import quizsets as Q
+    import coursesweep as C
+
+    # ---- the machine pass ------------------------------------------------------------------
+    _valid, _allowed, _why = _board_contract(here)
+    al = _allowed[0] if _allowed else {}
+    n = 0; bad = {"op": [], "key": [], "choices": [], "board": [], "words": [], "twice": [], "quizless": []}
+    for les in L.LESSONS:
+        ps = list(Q.QUIZ_SETS.get(les["id"]) or [])[:L.QUIZ_LEN]
+        if len(ps) < L.QUIZ_MIN:
+            bad["quizless"].append(les["id"]); continue
+        level = les.get("levels", L.LEVELS)[-1]
+        seen = set()
+        for p in ps:
+            n += 1
+            chk = (L.OP_EXT.get(p.get("op"), {}) or {}).get("check")
+            if chk and not chk(p)[0]:
+                bad["op"].append((les["id"], p))
+            try:
+                a = L.ans(p)
+            except Exception as exc:  # noqa: BLE001
+                bad["key"].append((les["id"], p, str(exc)[:60])); continue
+            if not isinstance(a, int):
+                bad["key"].append((les["id"], p, a))
+            sp, bd, ch = L.spoken_for(p, level), L.board_for(p, level), L.choices_for(p)
+            opts = _re.findall(r'options="([^"]*)"', ch or "")
+            vals = [x.strip() for x in (opts[0].split("|") if opts else [])]
+            if len(vals) != 3 or len(set(vals)) != 3 or str(a) not in vals:
+                bad["choices"].append((les["id"], p, ch))
+            for m in _re.finditer(r'\[\[\s*([\w-]+)((?:\s+[\w-]+="[^"]*")*)\s*\]\]', bd or ""):
+                if m.group(1) not in al or (set(_re.findall(r'\s([\w-]+)="', m.group(2))) - set(al[m.group(1)])):
+                    bad["board"].append((les["id"], m.group(1)))
+            low = sp.lower()
+            if any(t in low for banned in L.VOCABULARY.values() for t in banned) \
+                    or any(len(x.split()) >= 27 for x in _re.split(r"(?<=[.!?])\s+", sp)):
+                bad["words"].append((les["id"], sp[:80]))
+            key = (p.get("op"), p.get("a"), p.get("b"), p.get("c"))
+            if key in seen:
+                bad["twice"].append((les["id"], p))
+            seen.add(key)
+    check(f"⭐⭐ THE MACHINE PASS over every pinned quiz question ({n}): every op check holds, every key is a whole number",
+          n >= 1790 and not bad["op"] and not bad["key"], str((bad["op"][:2], bad["key"][:2])))
+    check("⭐ every question's three tap choices are distinct and hold the key",
+          not bad["choices"], str(bad["choices"][:3]))
+    check("⭐ every quiz board is a tag the renderer knows, with attributes it reads (the contract credits unitcircle's turn= now)",
+          bool(al) and not bad["board"] and "turn" in al.get("unitcircle", set()), str(bad["board"][:3]) + (_why or ""))
+    check("  every quiz question keeps the canon's words and the sentence cap; no lesson asks the same question twice; every lesson has a quiz",
+          not bad["words"] and not bad["twice"] and not bad["quizless"], str((bad["words"][:2], bad["twice"][:2], bad["quizless"][:3])))
+
+    # ---- the reader's lane -----------------------------------------------------------------
+    check("⭐ split_course: 'quizgeometry' is the quiz sweep of geometry; a course is itself; a bare 'quiz' is not a course",
+          C.split_course("quizgeometry", L) == ("quiz", "geometry") and C.split_course("geometry", L) == ("lesson", "geometry")
+          and C.split_course("quiz", L) == ("lesson", "quiz") and C.split_course("quiznope", L) == ("lesson", "quiznope")
+          and sorted(C.quiz_courses(L)) == sorted("quiz" + c for c in ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat"))
+          and C.quiz_courses(L)[0] == "quizentry" and len(C.quiz_courses(L)) == 10
+          and all(C._NAME_RE.match(q + "_2026-09-26") for q in C.quiz_courses(L)), "")
+    les = L.LESSON_BY_ID["geo-u1-two-make-a-corner"]
+    t = C.quiz_transcript_for(les, L)
+    ps = Q.QUIZ_SETS[les["id"]]
+    check("⭐ quiz_transcript_for: the intro, then for each of the five -- the ask with its board AND tap buttons, the student answering the KEY, 'Right.' -- then the pass line",
+          [x["kind"] for x in t] == ["quiz-intro"] + ["quiz-ask", "student", "quiz-mark"] * 5 + ["quiz-end"]
+          and t[0]["spoken"] == L.LINE_QUIZ_INTRO[5] and t[-1]["spoken"] == L.LINE_QUIZ_PASS
+          and t[1]["spoken"] == L.spoken_for(ps[0], "abstract") and "[[choices" in t[1]["board"] and t[1]["op"] == ps[0]["op"]
+          and t[2]["spoken"] == f"answers {L.ans(ps[0])} — the KEY (the answer the quiz marks right)"
+          and t[3]["spoken"] == L.LINE_QUIZ_RIGHT
+          and C.quiz_transcript_for({"id": "nope", "levels": ("abstract",)}, L) == [], str([x["kind"] for x in t]))
+    page = C.render_transcript(les, t, kind="quiz")
+    check("  the page: 'TOPIC QUIZ for LESSON', the lesson's problem space, what the lesson taught (context only), then the quiz",
+          page.startswith("TOPIC QUIZ for LESSON geo-u1-two-make-a-corner") and "PROBLEM SPACE:" in page
+          and "WHAT THE LESSON TAUGHT (context only -- NOT under review" in page
+          and page.index("WHAT THE LESSON TAUGHT") < page.index("(quiz-ask) TUTOR:")
+          and "STUDENT answers" in page and "the KEY" in page, page[:200])
+    check("⭐ QUIZ_SYSTEM: the key first, answerable as asked and drawn, within what the lesson taught, the wrong choices wrong; the same exclusions; JSON",
+          "1. The KEY is wrong" in C.QUIZ_SYSTEM and "2. The question cannot be answered from what is said and drawn" in C.QUIZ_SYSTEM
+          and "3. The question is outside the lesson" in C.QUIZ_SYSTEM and "4. A wrong choice that is also a right answer" in C.QUIZ_SYSTEM
+          and "Do NOT report:" in C.QUIZ_SYSTEM and "Answer with pure JSON" in C.QUIZ_SYSTEM
+          and "quiz-ask" in C.GENERATED_KINDS, "")
+    # the run, judge stubbed: a finding placed on a quiz-ask is the op's
+    import tempfile as _tf
+    calls = []
+    def judge(msgs, max_tokens=2000, want_json=False):
+        calls.append(msgs)
+        q = next(x for x in t if x["kind"] == "quiz-ask")
+        return _json.dumps({"findings": [{"turn": q["n"], "quote": q["spoken"][:40], "kind": "unclear",
+                                          "severity": "LOW", "why": "w", "fix": "f"}], "clean": False}), None
+    with _tf.TemporaryDirectory() as d:
+        res = C.run_sweep(d, "quizgeometry", judge, limit=1, L=L)
+        name = C.write_report(d, res, build="yl")
+        md = C.read_report(d, name)
+    check("⭐ run_sweep('quizgeometry'): the quiz charter is the system prompt, the quiz page is the body, the finding lands on the ask and is the op's; the report says Quiz sweep",
+          res["kind"] == "quiz" and res["ran"] == 1 and calls and calls[0][0]["content"] == C.QUIZ_SYSTEM
+          and "TOPIC QUIZ for LESSON" in calls[0][1]["content"]
+          and len(res["findings"]) == 1 and res["findings"][0]["beat"] == "quiz-ask" and res["findings"][0]["owner"] == "generator:" + ps[0]["op"]
+          and name.startswith("quizgeometry_") and md.startswith("# Quiz sweep -- geometry --")
+          and "the lessons' own beats -- the course sweep's lane" in " ".join(res["not_covered"])
+          and "quizsets.py" in md, str(res)[:300])
+    est = C.estimate("quizgeometry", L)
+    check("  estimate('quizgeometry') prices 36 quizzes off the quiz pages; a course sweep's report now points at the quiz lane",
+          est["lessons"] == 36 and est["chars"] > 100000
+          and "the QUIZ sweep's lane" in " ".join(C._assemble("geometry", [], [], None, 0)["not_covered"]), str(est)[:120])
+    mn, ad = rd("main.py"), rd("static/admin.html")
+    check("  main.py: /start accepts quiz<course> through split_course; /status lists the ten quiz sweeps; the card labels them 'quiz · course'",
+          "_kind, _base = coursesweep.split_course(course)" in mn and "+ coursesweep.quiz_courses()" in mn
+          and 'o.textContent = (c.indexOf("quiz") === 0 && c.length > 4) ? "quiz \\u00b7 " + c.slice(4) : c;' in ad, "")
+    check("  the changed files carry dated yl notes",
+          all("2026-09-26" in notes(f) and "yl" in notes(f)
+              for f in ("coursesweep.py", "main.py", "static/admin.html", "static/math-figures.js", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -51731,6 +51865,7 @@ def main():
     part3oc_the_course_review()
     part3od_the_true_distractor()
     part3oe_the_three_totals_are_drawn()
+    part3of_the_quiz_sweep()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
