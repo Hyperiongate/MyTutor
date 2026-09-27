@@ -2,6 +2,16 @@
 # quizsets.py  --  THE TOPIC QUIZ QUESTION SETS, PINNED  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP; A LANDMARK VALUE IS A
+#               LANDMARK; THE SAME QUESTION TWICE IS REPLACED. 38 replaced:
+#               percent-of asks only 10, 25 and 50 percent (the three methods its
+#               bank teaches), a price goes up by 10, 20, 30 or 50, a two-digit
+#               division's tens and ones each divide (56 ÷ 4 and 78 ÷ 3 are gone),
+#               a proportion scales by a whole number, the tutor's own worked
+#               example ("2 and 5." -- the number regex had read "5." as no
+#               number), and a question asked twice in one quiz -- word for word
+#               ("how many factors of 9", twice) or as a twin (76 and 104 on a line,
+#               both ways round) -- where the op had a fresh problem to offer.
 #   2026-09-27  BUILD yo -- THE QUIZ PREFERS WHAT THE LESSON DID NOT DEMONSTRATE.
 #               Regenerated in keep-and-replace mode again: a pinned question that
 #               is the very example the tutor worked on the board (9 + 6 in the
@@ -373,9 +383,9 @@ QUIZ_SETS = {
     'basic-u3-divide-two-digit': [
         {"op": '/', "a": 24, "b": 2, "c": 0},
         {"op": '/', "a": 42, "b": 2, "c": 0},
-        {"op": '/', "a": 56, "b": 4, "c": 0},
+        {"op": '/', "a": 60, "b": 4, "c": 0},
         {"op": '/', "a": 64, "b": 2, "c": 0},
-        {"op": '/', "a": 78, "b": 3, "c": 0},
+        {"op": '/', "a": 44, "b": 2, "c": 0},
     ],
     'basic-u3-story-problems': [
         {"op": '/', "a": 30, "b": 6, "story": '30 seeds are shared into 6 equal pots. How many seeds go in each pot?'},
@@ -408,7 +418,7 @@ QUIZ_SETS = {
     'basic-u4-least-common-multiple': [
         {"op": 'lcm', "a": 5, "b": 5, "c": 0},
         {"op": 'lcm', "a": 2, "b": 8, "c": 0},
-        {"op": 'lcm', "a": 2, "b": 5, "c": 0},
+        {"op": 'lcm', "a": 3, "b": 9, "c": 0},
         {"op": 'lcm', "a": 5, "b": 3, "c": 0},
         {"op": 'lcm', "a": 3, "b": 10, "c": 0},
     ],
@@ -423,7 +433,7 @@ QUIZ_SETS = {
         {"op": 'of', "a": 12, "b": 6, "c": 0},
         {"op": 'of', "a": 15, "b": 3, "c": 0},
         {"op": 'of', "a": 18, "b": 3, "c": 0},
-        {"op": 'of', "a": 18, "b": 6, "c": 0},
+        {"op": 'of', "a": 24, "b": 4, "c": 0},
         {"op": 'of', "a": 20, "b": 4, "c": 0},
     ],
     'basic-u5-equivalent-fractions': [
@@ -465,12 +475,12 @@ QUIZ_SETS = {
         {"op": 'fus', "a": 2, "b": 2, "c": 10},
         {"op": 'fus', "a": 1, "b": 4, "c": 12},
         {"op": 'fus', "a": 1, "b": 5, "c": 10},
-        {"op": 'fus', "a": 2, "b": 4, "c": 12},
+        {"op": 'fus', "a": 2, "b": 2, "c": 12},
         {"op": 'fus', "a": 2, "b": 3, "c": 12},
     ],
     'basic-u7-tenths': [
         {"op": 'dt', "a": 3, "b": 2, "c": 0},
-        {"op": 'dt', "a": 2, "b": 3, "c": 0},
+        {"op": 'dt', "a": 5, "b": 2, "c": 0},
         {"op": 'dt', "a": 1, "b": 5, "c": 0},
         {"op": 'dt', "a": 5, "b": 3, "c": 0},
         {"op": 'dt', "a": 4, "b": 2, "c": 0},
@@ -504,11 +514,11 @@ QUIZ_SETS = {
         {"op": 'wpc', "a": 80, "b": 100, "c": 0},
     ],
     'basic-u8-percent-of': [
-        {"op": 'pc', "a": 20, "b": 5, "c": 0},
-        {"op": 'pc', "a": 20, "b": 15, "c": 0},
-        {"op": 'pc', "a": 45, "b": 20, "c": 0},
-        {"op": 'pc', "a": 36, "b": 25, "c": 0},
-        {"op": 'pc', "a": 20, "b": 40, "c": 0},
+        {"op": 'pc', "a": 50, "b": 16, "c": 0},
+        {"op": 'pc', "a": 25, "b": 24, "c": 0},
+        {"op": 'pc', "a": 25, "b": 32, "c": 0},
+        {"op": 'pc', "a": 25, "b": 20, "c": 0},
+        {"op": 'pc', "a": 25, "b": 28, "c": 0},
     ],
     'basic-u8-percent-off': [
         {"op": 'poff', "a": 30, "b": 10, "c": 0},
@@ -560,10 +570,10 @@ QUIZ_SETS = {
         {"op": 'tba', "a": 2, "b": 5, "c": 9},
     ],
     'pre-u1-parentheses-first': [
-        {"op": 'parf', "a": 3, "b": 5, "c": 2},
+        {"op": 'parf', "a": 2, "b": 7, "c": 3},
         {"op": 'parf', "a": 1, "b": 3, "c": 5},
         {"op": 'parf', "a": 1, "b": 9, "c": 3},
-        {"op": 'parf', "a": 5, "b": 3, "c": 5},
+        {"op": 'parf', "a": 2, "b": 8, "c": 5},
         {"op": 'parf', "a": 4, "b": 3, "c": 8},
     ],
     'pre-u1-exponents-are-repeated-times': [
@@ -582,7 +592,7 @@ QUIZ_SETS = {
     ],
     'pre-u2-how-many-factors': [
         {"op": 'nfac', "a": 9, "b": 8, "c": 0},
-        {"op": 'nfac', "a": 9, "b": 2, "c": 0},
+        {"op": 'nfac', "a": 19, "b": 5, "c": 0},
         {"op": 'nfac', "a": 14, "b": 7, "c": 0},
         {"op": 'nfac', "a": 20, "b": 2, "c": 0},
         {"op": 'nfac', "a": 25, "b": 6, "c": 0},
@@ -638,7 +648,7 @@ QUIZ_SETS = {
     ],
     'pre-u4-a-fraction-of-a-number': [
         {"op": 'nuf', "a": 2, "b": 8, "c": 16},
-        {"op": 'nuf', "a": 4, "b": 8, "c": 8},
+        {"op": 'nuf', "a": 2, "b": 5, "c": 15},
         {"op": 'nuf', "a": 3, "b": 6, "c": 12},
         {"op": 'nuf', "a": 4, "b": 7, "c": 14},
         {"op": 'nuf', "a": 2, "b": 3, "c": 21},
@@ -686,7 +696,7 @@ QUIZ_SETS = {
         {"op": 'dth', "a": 7, "b": 9, "c": 0},
     ],
     'pre-u5-sharing-a-decimal': [
-        {"op": 'dsh', "a": 1, "b": 2, "c": 4},
+        {"op": 'dsh', "a": 2, "b": 5, "c": 5},
         {"op": 'dsh', "a": 5, "b": 6, "c": 8},
         {"op": 'dsh', "a": 1, "b": 8, "c": 2},
         {"op": 'dsh', "a": 6, "b": 5, "c": 5},
@@ -710,7 +720,7 @@ QUIZ_SETS = {
         {"op": 'prop', "a": 2, "b": 6, "c": 18},
         {"op": 'prop', "a": 2, "b": 5, "c": 20},
         {"op": 'prop', "a": 5, "b": 4, "c": 8},
-        {"op": 'prop', "a": 6, "b": 9, "c": 21},
+        {"op": 'prop', "a": 6, "b": 7, "c": 21},
         {"op": 'prop', "a": 4, "b": 5, "c": 25},
     ],
     'pre-u6-sharing-in-a-ratio': [
@@ -739,12 +749,12 @@ QUIZ_SETS = {
         {"op": 'pwh', "a": 90, "b": 36, "c": 0},
         {"op": 'pwh', "a": 70, "b": 35, "c": 0},
         {"op": 'pwh', "a": 90, "b": 63, "c": 0},
-        {"op": 'pwh', "a": 40, "b": 36, "c": 0},
+        {"op": 'pwh', "a": 20, "b": 20, "c": 0},
     ],
     'pre-u7-a-price-goes-up': [
-        {"op": 'pup', "a": 40, "b": 50, "c": 0},
+        {"op": 'pup', "a": 30, "b": 40, "c": 0},
         {"op": 'pup', "a": 30, "b": 30, "c": 1},
-        {"op": 'pup', "a": 40, "b": 80, "c": 0},
+        {"op": 'pup', "a": 20, "b": 70, "c": 0},
         {"op": 'pup', "a": 20, "b": 50, "c": 1},
         {"op": 'pup', "a": 50, "b": 50, "c": 1},
     ],
@@ -766,7 +776,7 @@ QUIZ_SETS = {
         {"op": 'sla', "a": 159, "b": 0, "c": 0},
         {"op": 'sla', "a": 132, "b": 0, "c": 0},
         {"op": 'sla', "a": 104, "b": 0, "c": 0},
-        {"op": 'sla', "a": 76, "b": 0, "c": 0},
+        {"op": 'sla', "a": 61, "b": 0, "c": 0},
         {"op": 'sla', "a": 47, "b": 0, "c": 0},
     ],
     'pre-u8-angles-in-a-triangle': [
@@ -805,9 +815,9 @@ QUIZ_SETS = {
         {"op": 'dst', "a": 4, "b": 6, "c": 0},
     ],
     'alg1-u1-two-steps-with-a-letter': [
-        {"op": 'ev2', "a": 5, "b": 2, "c": 7},
-        {"op": 'ev2', "a": 6, "b": 2, "c": 2},
-        {"op": 'ev2', "a": 6, "b": 2, "c": 6},
+        {"op": 'ev2', "a": 7, "b": 3, "c": 5},
+        {"op": 'ev2', "a": 7, "b": 4, "c": 7},
+        {"op": 'ev2', "a": 3, "b": 2, "c": 5},
         {"op": 'ev2', "a": 6, "b": 3, "c": 5},
         {"op": 'ev2', "a": 6, "b": 4, "c": 5},
     ],
@@ -842,7 +852,7 @@ QUIZ_SETS = {
     'alg1-u2-undoing-a-times': [
         {"op": 'un2', "a": 5, "b": 10, "c": 0},
         {"op": 'un2', "a": 4, "b": 16, "c": 0},
-        {"op": 'un2', "a": 2, "b": 10, "c": 0},
+        {"op": 'un2', "a": 6, "b": 42, "c": 0},
         {"op": 'un2', "a": 3, "b": 21, "c": 0},
         {"op": 'un2', "a": 5, "b": 40, "c": 0},
     ],
@@ -906,7 +916,7 @@ QUIZ_SETS = {
         {"op": 'yint', "a": 4, "b": 2, "c": 0},
         {"op": 'yint', "a": 7, "b": 4, "c": 0},
         {"op": 'yint', "a": 9, "b": 5, "c": 0},
-        {"op": 'yint', "a": 3, "b": 7, "c": 0},
+        {"op": 'yint', "a": 6, "b": 7, "c": 0},
         {"op": 'yint', "a": 5, "b": 8, "c": 0},
     ],
     'alg1-u4-start-and-climb': [
@@ -988,8 +998,8 @@ QUIZ_SETS = {
     ],
     'alg1-u7-the-common-factor': [
         {"op": 'gcfx', "a": 2, "b": 3, "c": 4},
-        {"op": 'gcfx', "a": 5, "b": 3, "c": 2},
-        {"op": 'gcfx', "a": 3, "b": 2, "c": 5},
+        {"op": 'gcfx', "a": 3, "b": 5, "c": 4},
+        {"op": 'gcfx', "a": 3, "b": 4, "c": 5},
         {"op": 'gcfx', "a": 3, "b": 4, "c": 3},
         {"op": 'gcfx', "a": 5, "b": 4, "c": 5},
     ],
@@ -1060,8 +1070,8 @@ QUIZ_SETS = {
         {"op": 'comp', "a": 79, "b": 0, "c": 0},
         {"op": 'comp', "a": 67, "b": 0, "c": 0},
         {"op": 'comp', "a": 52, "b": 0, "c": 0},
-        {"op": 'comp', "a": 38, "b": 0, "c": 0},
-        {"op": 'comp', "a": 23, "b": 0, "c": 0},
+        {"op": 'comp', "a": 31, "b": 0, "c": 0},
+        {"op": 'comp', "a": 16, "b": 0, "c": 0},
     ],
     'geo-u1-when-lines-cross': [
         {"op": 'vert', "a": 69, "b": 0, "c": 0},
@@ -1284,12 +1294,12 @@ QUIZ_SETS = {
         {"op": 'poft', "a": 6, "b": 4, "c": 0},
         {"op": 'poft', "a": 4, "b": 8, "c": 0},
         {"op": 'poft', "a": 5, "b": 6, "c": 0},
-        {"op": 'poft', "a": 8, "b": 4, "c": 0},
+        {"op": 'poft', "a": 6, "b": 7, "c": 0},
         {"op": 'poft', "a": 8, "b": 6, "c": 0},
     ],
     'geo-u9-the-other-chance': [
         {"op": 'notp', "a": 6, "b": 11, "c": 0},
-        {"op": 'notp', "a": 5, "b": 11, "c": 0},
+        {"op": 'notp', "a": 5, "b": 14, "c": 0},
         {"op": 'notp', "a": 6, "b": 14, "c": 0},
         {"op": 'notp', "a": 4, "b": 14, "c": 0},
         {"op": 'notp', "a": 4, "b": 16, "c": 0},
@@ -1367,7 +1377,7 @@ QUIZ_SETS = {
     'alg2-u3-degrees-add': [
         {"op": 'pdeg', "a": 2, "b": 4, "c": 0},
         {"op": 'pdeg', "a": 2, "b": 6, "c": 0},
-        {"op": 'pdeg', "a": 6, "b": 2, "c": 0},
+        {"op": 'pdeg', "a": 3, "b": 6, "c": 0},
         {"op": 'pdeg', "a": 4, "b": 9, "c": 0},
         {"op": 'pdeg', "a": 5, "b": 3, "c": 0},
     ],
@@ -1389,7 +1399,7 @@ QUIZ_SETS = {
         {"op": 'pval', "a": 1, "b": 6, "c": 2},
         {"op": 'pval', "a": 3, "b": 7, "c": 2},
         {"op": 'pval', "a": 4, "b": 7, "c": 3},
-        {"op": 'pval', "a": 1, "b": 1, "c": 3},
+        {"op": 'pval', "a": 2, "b": 6, "c": 3},
         {"op": 'pval', "a": 1, "b": 6, "c": 3},
     ],
     'alg2-u4-sharing-shrinks': [
@@ -1541,10 +1551,10 @@ QUIZ_SETS = {
     ],
     'alg2-u9-three-slots': [
         {"op": 'cnt3', "a": 4, "b": 3, "c": 2},
-        {"op": 'cnt3', "a": 3, "b": 2, "c": 4},
+        {"op": 'cnt3', "a": 3, "b": 4, "c": 4},
         {"op": 'cnt3', "a": 4, "b": 3, "c": 3},
         {"op": 'cnt3', "a": 5, "b": 3, "c": 4},
-        {"op": 'cnt3', "a": 2, "b": 4, "c": 3},
+        {"op": 'cnt3', "a": 2, "b": 2, "c": 5},
     ],
     'alg2-u9-what-to-expect': [
         {"op": 'expv', "a": 2, "b": 3, "c": 2},
@@ -1561,7 +1571,7 @@ QUIZ_SETS = {
         {"op": 'samp', "a": 16, "b": 5, "c": 5},
     ],
     'pc-u1-machines-in-a-row': [
-        {"op": 'fcmp', "a": 3, "b": 3, "c": 4},
+        {"op": 'fcmp', "a": 5, "b": 3, "c": 5},
         {"op": 'fcmp', "a": 2, "b": 2, "c": 8},
         {"op": 'fcmp', "a": 6, "b": 2, "c": 5},
         {"op": 'fcmp', "a": 3, "b": 2, "c": 8},
@@ -2544,7 +2554,7 @@ QUIZ_SETS = {
         {"op": 'lnrz', "a": 9, "b": 3, "c": 5},
         {"op": 'lnrz', "a": 64, "b": 8, "c": 3},
         {"op": 'lnrz', "a": 9, "b": 3, "c": 6},
-        {"op": 'lnrz', "a": 9, "b": 3, "c": 9},
+        {"op": 'lnrz', "a": 36, "b": 6, "c": 8},
         {"op": 'lnrz', "a": 16, "b": 4, "c": 9},
     ],
     'diffeq-u9-rabbits-and-foxes': [

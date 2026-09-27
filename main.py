@@ -2,6 +2,15 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP. The first Basic quiz sweep: a shape
+#               fact measured on the wrong op ("the ones carry" on 35 x 3), percent-of asking
+#               45% with a "one of 2 equal parts" board, a division whose tens do not split.
+#               drillpool scopes the facts, keeps landmark value sets, reads "5.". And the
+#               first Pre-Algebra quiz sweep, folded in: no quiz asks the same question twice
+#               (word for word, or a twin); a proportion scales by a whole number; every ask
+#               on the sweep page carries its numbers. 38 quiz questions replaced. Nothing in
+#               this file but the stamp. APP_BUILD -> "2026-09-27yp-the-facts-belong-to-their-op".
+#               PREWARM: 38 new spoken asks -- Price it, then render. PART 3oj.
 #   2026-09-27  BUILD yo -- THE QUIZ PREFERS WHAT THE LESSON DID NOT DEMONSTRATE. The second
 #               Entry quiz sweep's three classes: 236 quiz questions that were the tutor's own
 #               worked example replaced (quizsets.py; drillpool.demonstrated); the quiz page
@@ -9604,7 +9613,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate"
+APP_BUILD = "2026-09-27yp-the-facts-belong-to-their-op"
 
 
 @app.get("/health")

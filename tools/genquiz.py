@@ -2,6 +2,15 @@
 # tools/genquiz.py  --  GENERATE quizsets.py, THE PINNED TOPIC-QUIZ QUESTIONS
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE SAME QUESTION TWICE IS REPLACED. From the first Pre-Algebra
+#               quiz sweep: "how many factors of 9" asked twice (two problems that differ in a
+#               number the child never hears), and 76 / 104 on a line asked both ways round.
+#               A later question that is asked the same way as an earlier one (drillpool.
+#               asked_as) or is its twin (twin_key: same op, same numbers, same answer) is
+#               replaced when the pool has a fresh candidate, and no replacement may itself
+#               repeat a kept question. The shape moved too (drillpool: facts scoped to their
+#               op, landmark value sets, the "/" split and the b-divides-c facts, the number
+#               regex); the table regenerated: 38 replaced.
 #   2026-09-27  BUILD yo -- AND REPLACE WHAT THE LESSON DEMONSTRATED, WHEN IT CAN. The second
 #               Entry quiz sweep: 18 quiz questions were the very example the tutor worked
 #               on the board (9 + 6; 4 groups with 2). drillpool.demonstrated() reads that;
@@ -82,15 +91,27 @@ def keep_and_replace(les, pinned, shapes):
     breaks = [(i, why) for i, why in breaks if why]
     broken = {i for i, _ in breaks}
     pool = D.quiz_pool(les)
-    fresh = [c for c in pool if not D.demonstrated(les, c, units)]
-    held_now = {D._key(p) for p in out}
-    spare = [c for c in fresh if D._key(c) not in held_now]
+    spare = D.fresh_spares(les, out)     # (yp) one owner of "could replace": drillpool.fresh_spares
     for i, p in enumerate(out):
         if i in broken:
             continue
         if D.demonstrated(les, p, units) and spare:
             breaks.append((i, "demonstrated in the lesson's teaching"))
             spare.pop(0)               # one fresh candidate is spoken for
+    # (yp) the same question twice -- asked the same way, or a twin -- keeps the first and
+    # replaces the later one when the pool has a fresh candidate left
+    broken = {i for i, _ in breaks}
+    asked, twins = set(), set()
+    for i, p in enumerate(out):
+        if i in broken:
+            continue
+        a, t = D.asked_as(les, p), D.twin_key(les, p)
+        if (a in asked or t in twins) and spare:
+            breaks.append((i, "asked the same way as an earlier question" if a in asked else "a twin of an earlier question"))
+            spare.pop(0)
+            continue
+        asked.add(a)
+        twins.add(t)
     if not breaks:
         return out, []
     breaks.sort()
@@ -106,10 +127,18 @@ def keep_and_replace(les, pinned, shapes):
         bop = str(out[slot].get("op", op))
         order = [c for c in order if str(c.get("op", op)) == bop] + [c for c in order if str(c.get("op", op)) != bop]
         order = [c for c in order if not D.demonstrated(les, c, units)] + [c for c in order if D.demonstrated(les, c, units)]
+        kept = [q for i_, q in enumerate(out) if i_ not in {b for b, _ in breaks} or i_ < slot and q is not out[slot]]
+        kept_asked = {D.asked_as(les, q) for q in kept} | {D.asked_as(les, q) for q in (r[2] for r in reps)}
+        kept_twins = {D.twin_key(les, q) for q in kept} | {D.twin_key(les, q) for q in (r[2] for r in reps)}
         for cand in order:
-            if D._key(cand) not in held and (why != "demonstrated in the lesson's teaching" or not D.demonstrated(les, cand, units)):
-                new = cand
-                break
+            if D._key(cand) in held:
+                continue
+            if why == "demonstrated in the lesson's teaching" and D.demonstrated(les, cand, units):
+                continue
+            if D.asked_as(les, cand) in kept_asked or D.twin_key(les, cand) in kept_twins:
+                continue               # (yp) never replace one repeat with another
+            new = cand
+            break
         if new is None:
             for cand in reversed(list(les.get("bank") or [])):
                 if D._key(cand) not in held and D.keeps_shape(shapes, cand, op)[0]:
@@ -168,6 +197,16 @@ def main():
 # quizsets.py  --  THE TOPIC QUIZ QUESTION SETS, PINNED  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP; A LANDMARK VALUE IS A
+#               LANDMARK; THE SAME QUESTION TWICE IS REPLACED. 38 replaced:
+#               percent-of asks only 10, 25 and 50 percent (the three methods its
+#               bank teaches), a price goes up by 10, 20, 30 or 50, a two-digit
+#               division's tens and ones each divide (56 ÷ 4 and 78 ÷ 3 are gone),
+#               a proportion scales by a whole number, the tutor's own worked
+#               example ("2 and 5." -- the number regex had read "5." as no
+#               number), and a question asked twice in one quiz -- word for word
+#               ("how many factors of 9", twice) or as a twin (76 and 104 on a line,
+#               both ways round) -- where the op had a fresh problem to offer.
 #   2026-09-27  BUILD yo -- THE QUIZ PREFERS WHAT THE LESSON DID NOT DEMONSTRATE.
 #               Regenerated in keep-and-replace mode again: a pinned question that
 #               is the very example the tutor worked on the board (9 + 6 in the

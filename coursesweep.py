@@ -3,6 +3,17 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE QUIZ SPACE NAMES A LANDMARK SET AND THE SPLIT, AND EVERY ASK
+#               CARRIES ITS NUMBERS. The first Pre-Algebra quiz sweep read "36 bottles in 9
+#               hours" as a = 9 and called it above the ceiling (a is 4, the hours asked for; b
+#               is 9); every quiz-ask line now ends [a=4 b=9 c=36] and the charter says to judge
+#               the space against those. quiz_space
+#               prints a field's exact value set when drillpool.shape_of kept one ("a is one
+#               of 10, 25, 50" -- percent-of's three methods), and the "/" fact in words
+#               ("the tens and the ones each divide by b"). The accidental facts the first
+#               Basic quiz sweep enforced ("the ones carry" on 35 × 3; "add past ten" on a
+#               factor pair) are no longer measured for those ops, so they are no longer
+#               printed -- see drillpool's yp note.
 #   2026-09-27  BUILD yo -- THE PAGE SAYS WHICH QUESTION IS THE LESSON'S OWN, AND WHY. The second
 #               Entry quiz sweep (25 findings): 18 "repeats" -- a quiz question that was the
 #               very example the tutor worked on the board. yo replaces those where the op has
@@ -425,6 +436,7 @@ def problem_space(lesson, L=None) -> str:
 
 
 _FACT_WORDS = {"has_story": "the problem is told as a story", "sum_past_ten": "the two numbers add past ten", "ones_carry": "the ones carry",
+               "split_divides": "the tens and the ones each divide by b (the tens-and-ones split)",
                "ones_borrow": "the ones borrow", "a_bigger": "a is bigger than b",
                "a_equals_b": "a and b are equal", "b_divides_a": "b divides a exactly",
                "b_zero": "b is zero", "a_zero": "a is zero"}
@@ -453,6 +465,9 @@ def quiz_space(lesson) -> str:
                 if lo == hi == 0 and k != "a":
                     continue                       # a padding field
                 dg = sh.get("digits", {}).get(k)
+                if k in sh.get("values", {}):        # (yp) a landmark set: the values, not the range
+                    bits.append(f"{k} is one of " + ", ".join(str(v) for v in sh["values"][k]) + " and nothing else")
+                    continue
                 bits.append(f"{k} from {lo} to {hi}" + (f" ({'/'.join(str(d) for d in dg)}-digit)" if dg else ""))
         facts = [(("" if v else "never: ") + _FACT_WORDS.get(key, key)) for key, v in sorted(sh.get("facts", {}).items())
                  if key in _FACT_WORDS and not (key == "has_story" and not v)]   # (yo) no story FIELD is not "never a story"
@@ -467,7 +482,7 @@ def quiz_space(lesson) -> str:
     return ("QUIZ SPACE: the quiz asks problems the lesson did NOT ask -- new numbers inside the shape "
             "its bank keeps: " + body + ". A question that is not one of the lesson's own examples is "
             "BY DESIGN and is not a finding; a question OUTSIDE this shape (a number below the floor "
-            "or above the ceiling, a fact the bank always keeps broken) is.")
+            "or above the ceiling, a value not in a named set, a fact the bank always keeps broken) is.")
 
 
 def render_transcript(lesson, turns, kind="lesson") -> str:
@@ -597,7 +612,9 @@ Report ONLY defects a careful teacher would flag, in this order of importance:
   6. Two questions that are the same question in different numbers is FINE (a quiz repeats
      the skill); the same question twice with the same numbers is not.
 
-Do NOT report: a question whose numbers are not one of the lesson's own examples -- every
+Each quiz-ask line ends with the question's own numbers in brackets, [a=.. b=.. c=..], as
+the op stores them -- judge the QUIZ SPACE against THOSE, never against the order the
+numbers are spoken in. Do NOT report: a question whose numbers are not one of the lesson's own examples -- every
 quiz question is a new problem by design, and only the QUIZ SPACE says whether it is inside
 the lesson; a question marked "(the lesson's own example -- its op admits no more new
 problems; by design)" for being the lesson's own example -- the generator had nothing fresh
@@ -764,11 +781,13 @@ def quiz_transcript_for(lesson, L=None):
         D, units, shipped = None, [], set()
     for p in probs:
         board = (L.board_for(p, level) or "") + (L.choices_for(p) or "")
-        own = ""
+        # (yp) the question's own numbers, as the op stores them, so the reviewer judges the
+        # QUIZ SPACE against the right a, b and c -- "36 bottles in 9 hours" was read as a = 9
+        own = " [" + " ".join(f"{k}={p[k]}" for k in ("a", "b", "c") if isinstance(p.get(k), int) and not isinstance(p.get(k), bool) and (k == "a" or p[k])) + "]"
         if D is not None and (D._key(p) in shipped or D.demonstrated(lesson, p, units)):
             # (yo) a thin op: the generator had no fresh problem to offer, so this question is
             # one the lesson itself worked or practised -- the reviewer is told, not left to guess
-            own = " (the lesson's own example -- its op admits no more new problems; by design)"
+            own += " (the lesson's own example -- its op admits no more new problems; by design)"
         turns.append({"n": len(turns) + 1, "kind": "quiz-ask", "spoken": L.spoken_for(p, level),
                       "board": board, "op": p.get("op", ""), "own": own})
         turns.append({"n": len(turns) + 1, "kind": "student",

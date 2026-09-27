@@ -4,9 +4,19 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate`**
-(battery 13,251 passed, 0 failed, 3 skipped) — the second Entry quiz sweep, read on
-`yn`, went 102 → 25 (the reader behaves now), and the 25 were three classes: 18 quiz
+On Jim's disk: **`2026-09-27yp-the-facts-belong-to-their-op`** (battery 13,271 passed,
+0 failed, 3 skipped) — the first Basic quiz sweep (12 findings, 31 clean), read on `yo`: a
+shape fact measured on the wrong op ("the ones carry" by addition on 35 × 3) was printed
+and enforced — `_facts(p, op)` scopes the sum and carry to +, the borrow to −, and adds the
+tens-and-ones split to ÷ (56 ÷ 4 was real); percent-of asked 45% inside its 10..50 range
+with a halves board — `shape_of` keeps a LANDMARK value set (few values, far apart:
+10/25/50) and the page prints it; the number regex read "5." as nothing, hiding "2 and 5."
+as a demonstration. And the first Pre-Algebra sweep (6 findings, 30 clean), folded in:
+no quiz asks the same question twice — word for word (`asked_as`) or as a twin (`twin_key`:
+same op, numbers, answer); a proportion scales by a whole number (`b_divides_c`, an
+always-only rule); every ask on the sweep page carries its numbers `[a=.. b=.. c=..]`. 38
+quiz questions replaced. **Prewarm: 38 new asks.** Before it, `yo`
+(battery 13,251) — the second Entry quiz sweep, read on `yn`, went 102 → 25 (the reader behaves now), and the 25 were three classes: 18 quiz
 questions that were the very example the tutor worked on the board (`drillpool.demonstrated`
 reads it; 357 across the canon, 236 replaced where the op had a fresh problem, 121 thin ones
 stay and the quiz page marks them "the lesson's own example … by design"); five on making
@@ -490,8 +500,9 @@ What the third round leaves behind, as work — none of it a sweep:
 - ~~The quizsets sweep~~ — **the instrument is built (`yl`)**; the readings are Jim's to run,
   one per course, from the card. Its first reading gave `ym` (the quiz keeps the lesson's
   shape). ~~Held from `ym`: the drill pool~~ — **done in `yn`** on Jim's "GO". The second
-  Entry reading gave `yo` (the demonstrated example; the story wording; cnt's taps). **The
-  nine other quiz sweeps are still to read: whatever a reading raises that is not "outside
+  Entry reading gave `yo` (the demonstrated example; the story wording; cnt's taps); the
+  first Basic and Pre-Algebra readings gave `yp` (facts by op; landmark sets; the split;
+  no question twice). **The seven remaining quiz sweeps are still to read: whatever a reading raises that is not "outside
   the shape" or "the lesson's own example" is a new class — measure it across the canon
   before fixing the instances it quotes.**
 - **The 09-14 leftovers** #8 (tour first tap) and #12 (the prefetch-shelf counter; watch
@@ -500,11 +511,11 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `yo` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate`,
-   **prewarms (yo's 236 new quiz asks — Price it, render; ym's 214 are rendered)**, then runs
-   the nine other QUIZ sweeps from the card back to back (Entry a third time only for the
-   proof), pasting each — a quiz sweep report is read like a course sweep's: a finding
+1. The chain through `yp` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-27yp-the-facts-belong-to-their-op`, **prewarms (yp's 38 new
+   quiz asks — Price it, render; yo's 236 and ym's 214 are rendered)**, then runs the seven
+   remaining QUIZ sweeps (Algebra I through Prob/Stat; Entry, Basic and Pre-Algebra are
+   read) from the card back to back, pasting each — a quiz sweep report is read like a course sweep's: a finding
    on an ask is the op's words (generator) or the question's numbers (`quizsets.py`,
    regenerated with `tools/genquiz.py`, which keeps every question that keeps its shape and
    replaces only breakers; a finding that says "not one of the lesson's own examples" is

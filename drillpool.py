@@ -2,6 +2,33 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yp -- THE FACTS BELONG TO THEIR OP, AND A LANDMARK VALUE IS A LANDMARK.
+#               The first Basic quiz sweep (12 findings, 31 clean). (1) A fact measured on
+#               numbers that mean nothing for the op: "the ones carry" was read on 35 × 3
+#               (5 + 3 < 10, so the bank "never carried" -- and the reviewer, told so, flagged
+#               5 × 3 = 15); "the two numbers add past ten" on a factor pair. _facts(p, op)
+#               now: the sum passes ten and the ones carry are "+"'s; the ones borrow is
+#               "-"'s; NEW for "/": the tens and the ones each divide by b (the taught
+#               tens-and-ones split -- 56 ÷ 4 was quizzed where 50 ÷ 4 does not go); the
+#               rest (a bigger, a equals b, b divides a, zeros, the story) are every op's.
+#               (2) A LANDMARK VALUE SET: percent-of's bank is 10, 25 and 50 -- each its own
+#               method (a tenth, a quarter, a half) -- and the quiz asked 20%, 36% and 45%
+#               inside the floor-to-ceiling range, with a board that said "45% is one of 2
+#               equal parts". shape_of keeps a field's exact VALUE SET when it is sparse and
+#               spread: at most four distinct values across a span of at least ten times as
+#               many (10/25/50 over 41; 25/50/100; 90/180/270/360) -- a digit field's 1, 2, 8,
+#               9 over nine is not that. (3) _INT_RE read "5." as no number, so "2 and 5." in
+#               a worked line was never a demonstration; fixed (a trailing period is not a
+#               decimal point). (4) FROM THE FIRST PRE-ALGEBRA QUIZ SWEEP, folded in: a
+#               question's IDENTITY IN A QUIZ is what the child meets -- its spoken line and
+#               its board (asked_as): "how many factors of 9" was asked twice, told apart by a
+#               b the child never hears. A TWIN -- the same op, the same numbers and the same
+#               answer as another question of the set (76 and 104 on a line, then 104 and 76;
+#               4 groups of 2 and 2 groups of 4) -- is one question asked twice (twin_key).
+#               distinct_set() drops both kinds when a set is drawn; genquiz replaces them
+#               when the op has a fresh problem. And a NEW general fact for three-number
+#               problems, b divides c (a proportion's bank always scales by a whole number;
+#               6/9 = ?/21 did not).
 #   2026-09-27  BUILD yo -- THE QUIZ PREFERS A PROBLEM THE LESSON DID NOT DEMONSTRATE. The
 #               second Entry quiz sweep (25 findings, 18 of them "repeats"): a quiz question
 #               was the very example the tutor worked on the board in a teach beat -- 9 + 6,
@@ -429,12 +456,16 @@ def build(lessons=None, cap=_MAX_PER_LESSON):
 _QUIZ_CACHE = {}
 
 
-def _facts(p):
+def _facts(p, op="+"):
     """(ym) The yes/no facts a problem has, for shape_of to compare across a bank:
     the problem carries its own story (a story-problems lesson is spoken as stories, and a
-    generated bare fact is not one), the sum passes ten, the ones carry, the ones borrow,
-    a is bigger than b, a and b are equal, b divides a, b is zero, a is zero. Only fields that are whole numbers
-    are read; a fact that cannot be read is simply absent."""
+    generated bare fact is not one), a is bigger than b, a and b are equal, b divides a,
+    b is zero, a is zero -- every op's. (yp) And the facts that belong to ONE op: the sum
+    passes ten and the ones carry ("+"), the ones borrow ("-"), the tens and the ones each
+    divide by b ("/": the taught tens-and-ones split). A fact read on numbers that mean
+    nothing for the op ("the ones carry" on 35 × 3) was a fact the bank kept by accident
+    and the reviewer, told so, enforced. Only whole-number fields are read; a fact that
+    cannot be read is simply absent."""
     a, b = p.get("a"), p.get("b")
     out = {"has_story": bool(p.get("story"))}    # a story problem is spoken as its story
     ia, ib = isinstance(a, int) and not isinstance(a, bool), isinstance(b, int) and not isinstance(b, bool)
@@ -442,14 +473,27 @@ def _facts(p):
         out["a_zero"] = a == 0
     if ib:
         out["b_zero"] = b == 0
+    c = p.get("c")
+    ic = isinstance(c, int) and not isinstance(c, bool) and c != 0
+    if ib and ic:
+        out["b_divides_c"] = b != 0 and c % b == 0     # (yp) a proportion scales by a whole number
     if ia and ib:
-        out["sum_past_ten"] = a + b > 10
-        out["ones_carry"] = (abs(a) % 10 + abs(b) % 10) >= 10
-        out["ones_borrow"] = (abs(a) % 10) < (abs(b) % 10)
         out["a_bigger"] = a > b
         out["a_equals_b"] = a == b
         out["b_divides_a"] = b != 0 and a % b == 0
+        if op == "+":
+            out["sum_past_ten"] = a + b > 10
+            out["ones_carry"] = (abs(a) % 10 + abs(b) % 10) >= 10
+        elif op == "-":
+            out["ones_borrow"] = (abs(a) % 10) < (abs(b) % 10)
+        elif op == "/":
+            out["split_divides"] = b != 0 and (a - a % 10) % b == 0 and (a % 10) % b == 0
     return out
+
+
+_ALWAYS_ONLY = {"b_divides_c"}   # a fact that is a rule only when it always holds
+_LANDMARK_MAX = 4        # at most this many distinct values ...
+_LANDMARK_SPREAD = 10    # ... across a span at least this many times as many: 10 / 25 / 50, not 1 / 2 / 8 / 9
 
 
 def _digits(v):
@@ -469,20 +513,25 @@ def shape_of(les):
     for p in _shipped(les):
         by_op.setdefault(str(p.get("op", les.get("op", "+"))), []).append(p)
     for op, probs in by_op.items():
-        sh = {"n": len(probs), "min": {}, "max": {}, "digits": {}, "facts": {}}
+        sh = {"n": len(probs), "min": {}, "max": {}, "digits": {}, "facts": {}, "values": {}}
         for k in ("a", "b", "c"):
             vals = [p[k] for p in probs if isinstance(p.get(k), int) and not isinstance(p.get(k), bool)]
             if not vals:
                 continue
             sh["min"][k] = min(vals)
             sh["max"][k] = max(vals)
+            distinct = sorted(set(vals))
+            if len(distinct) <= _LANDMARK_MAX and (distinct[-1] - distinct[0] + 1) >= _LANDMARK_SPREAD * len(distinct):
+                sh["values"][k] = distinct          # (yp) a landmark set: 10 / 25 / 50, each its own method
             if k in ("a", "b"):
                 sh["digits"][k] = sorted({_digits(v) for v in vals})
-        facts = [_facts(p) for p in probs]
+        facts = [_facts(p, op) for p in probs]
         keys = set().union(*[set(f) for f in facts]) if facts else set()
         for key in keys:
             vals = {f.get(key) for f in facts}
             if len(vals) == 1 and None not in vals:
+                if key in _ALWAYS_ONLY and not next(iter(vals)):
+                    continue           # (yp) "never a whole-number scale" is no rule, only an accident
                 sh["facts"][key] = vals.pop()
         shapes[op] = sh
     return shapes
@@ -510,7 +559,11 @@ def keeps_shape(shapes, p, default_op="+", drill=False):
         v = p.get(k)
         if isinstance(v, int) and not isinstance(v, bool) and _digits(v) not in ds:
             return False, f"{k} has {_digits(v)} digit(s) (bank: {'/'.join(str(d) for d in ds)})"
-    have = _facts(p)
+    for k, allowed in sh.get("values", {}).items():
+        v = p.get(k)
+        if isinstance(v, int) and not isinstance(v, bool) and v not in allowed:
+            return False, f"{k}={v} not one of {', '.join(str(x) for x in allowed)}"
+    have = _facts(p, str(p.get("op", default_op)))
     for key, want in sh["facts"].items():
         if drill and key == "has_story":
             continue                       # (yn) drill practises the arithmetic; the quiz asks the story
@@ -574,7 +627,7 @@ def _scan(les, cap=_MAX_PER_LESSON, board_tags=None, drill=False):
 
 _TAG_RE = re.compile(r"\[\[(\w+)([^\]]*)\]\]")
 _ATTR_RE = re.compile(r'(\w+)="([^"]*)"')
-_INT_RE = re.compile(r"(?<![\w.])-?\d+(?![\w.])")
+_INT_RE = re.compile(r"(?<![\w.])-?\d+(?!\.?\d)(?!\w)")   # (yp) "5." is 5; "5.2" is not a whole number
 # A demonstration names the problem's numbers side by side ("9 + 6 = 15", "4 groups with
 # 2"): the numbers must be ADJACENT among the unit's numbers -- a window of exactly as many
 # numbers as the problem has. A wider window read counting sequences as demonstrations.
@@ -644,6 +697,56 @@ def fresh_first(les, pool):
     return fresh + shown
 
 
+def asked_as(les, p):
+    """(yp) A question as the child meets it: its spoken line and its board. Two problems
+    that differ only in a number the child never hears or sees are ONE question."""
+    level = (les.get("levels") or L.LEVELS)[-1]
+    return (L.spoken_for(p, level), L.board_for(p, level) or "")
+
+
+def twin_key(les, p):
+    """(yp) The op, the problem's numbers and its answer, as a multiset: 76 and 104 on a
+    straight line then 104 and 76; 4 groups of 2 then 2 groups of 4. Twins are one
+    question asked twice, and a quiz of five should not spend two of them on it."""
+    nums = [v for v in (p.get("a"), p.get("b"), p.get("c")) if isinstance(v, int) and not isinstance(v, bool) and v]
+    try:
+        ans = L.ans(p)
+        nums.append(int(ans) if ans is not None and float(ans) == int(ans) else ans)
+    except Exception:  # noqa: BLE001
+        pass
+    return (str(p.get("op", les.get("op", "+"))), tuple(sorted(nums, key=str)))
+
+
+def distinct_set(les, problems, want=None):
+    """(yp) The first `want` problems that are distinct as the child meets them -- no two
+    asked the same way, no twins -- in the order given."""
+    out, asked, twins = [], set(), set()
+    for p in problems:
+        a, t = asked_as(les, p), twin_key(les, p)
+        if a in asked or t in twins:
+            continue
+        asked.add(a)
+        twins.add(t)
+        out.append(p)
+        if want is not None and len(out) >= want:
+            break
+    return out
+
+
+def fresh_spares(les, held):
+    """(yp) The pool problems that could REPLACE a question of `held` (a quiz set): keep
+    the shape (the pool does), not demonstrated, not already in the set, and not asked
+    the same way as -- or a twin of -- a question already there. One owner of the rule:
+    tools/genquiz.py replaces from these, PART 3oi ratchets against them."""
+    units = demonstrated_units(les)
+    keys = {_key(q) for q in held}
+    asked = {asked_as(les, q) for q in held}
+    twins = {twin_key(les, q) for q in held}
+    return [c for c in quiz_pool(les)
+            if not demonstrated(les, c, units) and _key(c) not in keys
+            and asked_as(les, c) not in asked and twin_key(les, c) not in twins]
+
+
 def quiz_slots(n, want):
     """(ym) The indexes a quiz takes from a ramped pool of n: the MIDDLE of each of
     `want` equal strides -- never index 0, the easiest problem there is, which the
@@ -689,6 +792,9 @@ def quiz_problems(les):
         fresh = [p for p in fresh_first(les, pool) if not demonstrated(les, p)]
         pool = fresh if len(fresh) >= want else fresh_first(les, pool)   # (yo) new to the child, when the op allows
         out = [pool[j] for j in quiz_slots(len(pool), want)] if pool else []
+        # (yp) no two asked the same way, no twins: fill the slots the drop leaves from the
+        # rest of the pool, in its order
+        out = distinct_set(les, out + [p for p in pool if p not in out], want)
         if len(out) < want:
             seen = {_key(p) for p in out}
             for p in reversed(list(les.get("bank") or [])):
@@ -699,6 +805,7 @@ def quiz_problems(les):
                 out.append(p)
                 if len(out) >= want:
                     break
+            out = distinct_set(les, out, want)
         out = out if len(out) >= L.QUIZ_MIN else []
         _QUIZ_CACHE[key] = out
         return out
