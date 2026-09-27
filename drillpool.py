@@ -2,6 +2,21 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yo -- THE QUIZ PREFERS A PROBLEM THE LESSON DID NOT DEMONSTRATE. The
+#               second Entry quiz sweep (25 findings, 18 of them "repeats"): a quiz question
+#               was the very example the tutor worked on the board in a teach beat -- 9 + 6,
+#               "4 groups with 2", "12 stars shared into 4", "258". Not a bank problem, so the
+#               shape let it through; but a child graded on the example they just watched is
+#               a weaker test than a new problem. demonstrated(les, p): the problem's numbers
+#               appear as NEIGHBOURING numbers in one teaching sentence or one board tag of
+#               the lesson's why / picture / teach beats or its worked lines ("9 + 6 = 15",
+#               "4 groups with 2"); a single-number problem (count the stars) is demonstrated
+#               when a teaching tag carries that number as its own value. Measured over the
+#               canon: 357 pinned quiz questions were demonstrated; 236 had a fresh
+#               shape-keeping candidate and are replaced by tools/genquiz.py; 121 (thin ops:
+#               doubles, where every number was demonstrated) stay and the quiz page marks
+#               them as the lesson's own example by design. fresh_first(les, pool) orders a
+#               pool undemonstrated-first; quiz_problems' fallback lane uses it.
 #   2026-09-27  BUILD yn -- THE DRILL POOL KEEPS THE SHAPE TOO. ym held this for Jim; Jim: "GO".
 #               pool_for (Abrabot's lane, live from main.py) is the same scan quiz_pool was:
 #               from the shape's floor to its ceiling per op, the cap shared across ops, every
@@ -557,6 +572,78 @@ def _scan(les, cap=_MAX_PER_LESSON, board_tags=None, drill=False):
     return _ordered(out, les)
 
 
+_TAG_RE = re.compile(r"\[\[(\w+)([^\]]*)\]\]")
+_ATTR_RE = re.compile(r'(\w+)="([^"]*)"')
+_INT_RE = re.compile(r"(?<![\w.])-?\d+(?![\w.])")
+# A demonstration names the problem's numbers side by side ("9 + 6 = 15", "4 groups with
+# 2"): the numbers must be ADJACENT among the unit's numbers -- a window of exactly as many
+# numbers as the problem has. A wider window read counting sequences as demonstrations.
+
+
+_RANGE_ATTRS = {"to", "from", "max", "min", "range", "width", "height", "len", "span", "step"}
+
+
+def demonstrated_units(les):
+    """(yo) The units a demonstration lives in: each sentence of the lesson's why, picture
+    and teach beats and its worked lines, and each board tag of their boards."""
+    out = []
+    for f in ("why", "picture", "teach"):
+        for sp, bd in (les.get(f) or []):
+            out += re.split(r"(?<=[.!?])\s+", sp or "")
+            out += [m.group(0) for m in _TAG_RE.finditer(bd or "")]
+    for pr in (les.get("pairs") or []):
+        w = pr.get("worked") or ("", "")
+        out += re.split(r"(?<=[.!?])\s+", w[0] or "")
+        out += [m.group(0) for m in _TAG_RE.finditer(w[1] or "")]
+    return [u for u in out if u]
+
+
+def demonstrated(les, p, units=None):
+    """(yo) Is this problem one the lesson DEMONSTRATED -- its numbers shown together as an
+    example in a teaching sentence or on a teaching board? Two numbers or three: all of
+    them side by side among one unit's numbers ("9 + 6 = 15"; "4 groups with 2 stars";
+    "1 nickel and 2 pennies"). One number (count the stars, doubles): a
+    teaching TAG carries it as an attribute's own value or inside an eq= -- a passing
+    mention in a sentence is not a demonstration. A measured rule, not a perfect one: a
+    false hit costs one candidate; a miss is the reader's to catch."""
+    nums = {v for v in (p.get("a"), p.get("b"), p.get("c")) if isinstance(v, int) and not isinstance(v, bool) and v}
+    if not nums:
+        return False
+    units = demonstrated_units(les) if units is None else units
+    if len(nums) == 1:
+        n = next(iter(nums))
+        for u in units:
+            if not u.startswith("[["):
+                continue
+            for k, v in _ATTR_RE.findall(u):
+                if k in _RANGE_ATTRS:
+                    continue               # a figure's window is not the example drawn in it
+                if v.strip() == str(n) or (k == "eq" and re.search(rf"(?<![\w.]){n}(?![\w.])", v)):
+                    return True
+        return False
+    for u in units:
+        vals = [int(t) for t in _INT_RE.findall(u)]
+        if not nums <= set(vals):
+            continue
+        for i in range(len(vals)):
+            seen = set()
+            for j in range(i, min(len(vals), i + len(nums))):
+                if vals[j] in nums:
+                    seen.add(vals[j])
+                if seen == nums:
+                    return True
+    return False
+
+
+def fresh_first(les, pool):
+    """(yo) A pool with the problems the lesson did NOT demonstrate first (each half keeps
+    its ramp), so a quiz drawn from the front is new to the child."""
+    units = demonstrated_units(les)
+    fresh = [p for p in pool if not demonstrated(les, p, units)]
+    shown = [p for p in pool if demonstrated(les, p, units)]
+    return fresh + shown
+
+
 def quiz_slots(n, want):
     """(ym) The indexes a quiz takes from a ramped pool of n: the MIDDLE of each of
     `want` equal strides -- never index 0, the easiest problem there is, which the
@@ -599,6 +686,8 @@ def quiz_problems(les):
         # the shape the shipped bank keeps (floor, digit counts, the facts every bank
         # problem agrees on), taken from the middle of each stride, never the easiest.
         pool = quiz_pool(les)
+        fresh = [p for p in fresh_first(les, pool) if not demonstrated(les, p)]
+        pool = fresh if len(fresh) >= want else fresh_first(les, pool)   # (yo) new to the child, when the op allows
         out = [pool[j] for j in quiz_slots(len(pool), want)] if pool else []
         if len(out) < want:
             seen = {_key(p) for p in out}

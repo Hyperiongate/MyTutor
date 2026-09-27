@@ -3,6 +3,16 @@
 #                     --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yo -- THE PAGE SAYS WHICH QUESTION IS THE LESSON'S OWN, AND WHY. The second
+#               Entry quiz sweep (25 findings): 18 "repeats" -- a quiz question that was the
+#               very example the tutor worked on the board. yo replaces those where the op has
+#               a fresh problem to offer (drillpool.demonstrated); the ones that stay -- a thin
+#               op with nothing new left -- are marked on the quiz page: "(the lesson's own
+#               example -- its op admits no more new problems; by design)", and the charter's
+#               Do-NOT list names the marker. And five on making change: the QUIZ SPACE said
+#               "never -- the problem is told as a story" (the bank has no story FIELD) against
+#               an op whose spoken form is a little story; the page now says only "always --
+#               told as a story" when it is true, and nothing when it is not.
 #   2026-09-27  BUILD ym -- THE QUIZ PAGE SHOWS THE SHAPE, NOT THE LIST. The first quiz sweep
 #               (Entry, 102 findings) read the lesson's PROBLEM SPACE line -- which lists the
 #               bank's exact (a, b) pairs -- and called every quiz question that was not one
@@ -445,7 +455,7 @@ def quiz_space(lesson) -> str:
                 dg = sh.get("digits", {}).get(k)
                 bits.append(f"{k} from {lo} to {hi}" + (f" ({'/'.join(str(d) for d in dg)}-digit)" if dg else ""))
         facts = [(("" if v else "never: ") + _FACT_WORDS.get(key, key)) for key, v in sorted(sh.get("facts", {}).items())
-                 if key in _FACT_WORDS]
+                 if key in _FACT_WORDS and not (key == "has_story" and not v)]   # (yo) no story FIELD is not "never a story"
         line = f"op {op}: " + "; ".join(bits)
         if facts:
             line += "; always -- " + ", ".join(f for f in facts if not f.startswith("never: ")) if any(not f.startswith("never: ") for f in facts) else ""
@@ -481,7 +491,7 @@ def render_transcript(lesson, turns, kind="lesson") -> str:
             # transcript metadata spoken as a tutor line"). It was labelled TUTOR.
             lines.append(f"[{t['n']}] (transcript note -- never spoken, not the tutor's) {t['spoken']}")
         else:
-            lines.append(f"[{t['n']}] ({t['kind']}) TUTOR: {t['spoken']}")
+            lines.append(f"[{t['n']}] ({t['kind']}) TUTOR: {t['spoken']}" + (t.get("own") or ""))   # (yo) the marker, never spoken
         if t["board"]:
             lines.append(f"      BOARD: {t['board']}")
         lines.append("")
@@ -589,7 +599,10 @@ Report ONLY defects a careful teacher would flag, in this order of importance:
 
 Do NOT report: a question whose numbers are not one of the lesson's own examples -- every
 quiz question is a new problem by design, and only the QUIZ SPACE says whether it is inside
-the lesson; the choice of numbers when they are within that space; that the quiz
+the lesson; a question marked "(the lesson's own example -- its op admits no more new
+problems; by design)" for being the lesson's own example -- the generator had nothing fresh
+to offer that op, and the marker is not part of what the child hears; the choice of numbers
+when they are within that space; that the quiz
 does not teach or explain (by design -- it marks and moves on); "Right." after every answer
 (the child answered the key); the [[choices]] not being read aloud (tap buttons, by design);
 the same things the course sweep's charter excludes -- a [[numberline]]'s own ticks, a
@@ -743,10 +756,21 @@ def quiz_transcript_for(lesson, L=None):
         return []
     level = lesson.get("levels", L.LEVELS)[-1]
     turns = [{"n": 1, "kind": "quiz-intro", "spoken": L.LINE_QUIZ_INTRO[len(probs)], "board": "", "op": ""}]
+    try:
+        import drillpool as D
+        units = D.demonstrated_units(lesson)
+        shipped = {D._key(q) for q in D._shipped(lesson)}
+    except Exception:  # noqa: BLE001
+        D, units, shipped = None, [], set()
     for p in probs:
         board = (L.board_for(p, level) or "") + (L.choices_for(p) or "")
+        own = ""
+        if D is not None and (D._key(p) in shipped or D.demonstrated(lesson, p, units)):
+            # (yo) a thin op: the generator had no fresh problem to offer, so this question is
+            # one the lesson itself worked or practised -- the reviewer is told, not left to guess
+            own = " (the lesson's own example -- its op admits no more new problems; by design)"
         turns.append({"n": len(turns) + 1, "kind": "quiz-ask", "spoken": L.spoken_for(p, level),
-                      "board": board, "op": p.get("op", "")})
+                      "board": board, "op": p.get("op", ""), "own": own})
         turns.append({"n": len(turns) + 1, "kind": "student",
                       "spoken": f"answers {L.ans(p)} — the KEY (the answer the quiz marks right)", "board": "", "op": ""})
         turns.append({"n": len(turns) + 1, "kind": "quiz-mark", "spoken": L.LINE_QUIZ_RIGHT, "board": "", "op": ""})

@@ -4,8 +4,15 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-27yn-the-drill-pool-keeps-the-shape-too`** (battery 13,236
-passed, 0 failed, 3 skipped) — `ym`'s held item, on Jim's "GO": Abrabot's drill pool
+On Jim's disk: **`2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate`**
+(battery 13,251 passed, 0 failed, 3 skipped) — the second Entry quiz sweep, read on
+`yn`, went 102 → 25 (the reader behaves now), and the 25 were three classes: 18 quiz
+questions that were the very example the tutor worked on the board (`drillpool.demonstrated`
+reads it; 357 across the canon, 236 replaced where the op had a fresh problem, 121 thin ones
+stay and the quiz page marks them "the lesson's own example … by design"); five on making
+change from the QUIZ SPACE's "never told as a story" wording (fixed); counting to 10
+offering 11 as a tap (`cnt` choices capped). **Prewarm: 236 new asks.** Then the nine other
+quiz sweeps, back to back. Before it, `yn` (battery 13,236) — `ym`'s held item, on Jim's "GO": Abrabot's drill pool
 (`drillpool.pool_for`, live from `/api/drill`) is the same shape scan the quiz draws from
 (`_scan`: floor to ceiling per op, every candidate through `keeps_shape`), so Abrabot no
 longer drills 1 + 1 after adding past ten; the one difference is that drill forgives the
@@ -482,19 +489,22 @@ What the third round leaves behind, as work — none of it a sweep:
 - **The graph's grid numbers** (9.8px at full width — a one-number change if he wants 12).
 - ~~The quizsets sweep~~ — **the instrument is built (`yl`)**; the readings are Jim's to run,
   one per course, from the card. Its first reading gave `ym` (the quiz keeps the lesson's
-  shape). ~~Held from `ym`: the drill pool~~ — **done in `yn`** on Jim's "GO". **The quiz
-  sweeps still to read: whatever a second Entry reading raises that is not "outside the
-  shape" is a new class.**
+  shape). ~~Held from `ym`: the drill pool~~ — **done in `yn`** on Jim's "GO". The second
+  Entry reading gave `yo` (the demonstrated example; the story wording; cnt's taps). **The
+  nine other quiz sweeps are still to read: whatever a reading raises that is not "outside
+  the shape" or "the lesson's own example" is a new class — measure it across the canon
+  before fixing the instances it quotes.**
 - **The 09-14 leftovers** #8 (tour first tap) and #12 (the prefetch-shelf counter; watch
   `__open__`).
 - **The nightly `scripted` job's first reports** (ye) — open one; a red job names its lessons.
 
 ## What to do next
 
-1. The chain through `yn` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-27yn-the-drill-pool-keeps-the-shape-too`, **prewarms (ym's 214
-   new quiz asks — Price it, render; yn adds none)**, then re-runs the Entry QUIZ sweep from the card and the
-   other nine, pasting each — a quiz sweep report is read like a course sweep's: a finding
+1. The chain through `yo` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate`,
+   **prewarms (yo's 236 new quiz asks — Price it, render; ym's 214 are rendered)**, then runs
+   the nine other QUIZ sweeps from the card back to back (Entry a third time only for the
+   proof), pasting each — a quiz sweep report is read like a course sweep's: a finding
    on an ask is the op's words (generator) or the question's numbers (`quizsets.py`,
    regenerated with `tools/genquiz.py`, which keeps every question that keeps its shape and
    replaces only breakers; a finding that says "not one of the lesson's own examples" is

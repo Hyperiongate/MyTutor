@@ -2,6 +2,10 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yo -- cnt's taps never pass ten. The second Entry quiz sweep: counting
+#               to 10 offered "9 | 10 | 11" for ten stars, and 11 is a number the course has
+#               not reached. cnt declares its own choices now (1 < a < 10: the neighbours;
+#               a = 10: 8 | 9 | 10; a = 1: 1 | 2 | 3). Nothing spoken changes.
 #   2026-09-26  BUILD yi -- THE COURSE REVIEW, AND NO PLAN FOR THE YOUNGEST. bridge_steps(course,
 #               after_tour) turns lessons/bridges.py's review into `say` beats named "bridge"
 #               (main.py plays them before a student's first lesson in a course; every line in
@@ -8040,6 +8044,10 @@ OP_EXT = {
         "praise": lambda p: f"{_plural(p['a'], 'star')} — you counted every one.",
         "key": lambda p: p["a"],
         "check": lambda p: (1 <= p["a"] <= 10, "countable on one screen"),
+        # (yo) the taps never pass ten: counting to 10 offered 9 | 10 | 11 for ten stars,
+        # a number the course has not reached (the quiz sweep's finding on cnt).
+        "choices": lambda p: ([p["a"] - 1, p["a"], p["a"] + 1] if 1 < p["a"] < 10
+                              else [8, 9, 10] if p["a"] >= 10 else [1, 2, 3]),
         # rule 44's PURPOSE is "the child heard the whole problem" -- here the whole
         # problem is the picture, and SAYING the number would answer it.
         "speaks": lambda p, sp: True,

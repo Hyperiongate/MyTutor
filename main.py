@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-27  BUILD yo -- THE QUIZ PREFERS WHAT THE LESSON DID NOT DEMONSTRATE. The second
+#               Entry quiz sweep's three classes: 236 quiz questions that were the tutor's own
+#               worked example replaced (quizsets.py; drillpool.demonstrated); the quiz page
+#               marks the 121 that stay; the QUIZ SPACE's story wording; cnt's taps capped at
+#               ten. Nothing in this file but the stamp. APP_BUILD ->
+#               "2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate". PREWARM:
+#               236 replaced questions are 236 new spoken asks -- Price it, then render.
+#               PART 3oi.
 #   2026-09-27  BUILD yn -- THE DRILL POOL KEEPS THE SHAPE TOO (Jim: "GO" on ym's held item).
 #               drillpool.pool_for -- the pool /api/drill serves live -- is the shape scan now:
 #               Abrabot no longer drills 1 + 1 after adding past ten. Nothing in this file but
@@ -9596,7 +9604,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-27yn-the-drill-pool-keeps-the-shape-too"
+APP_BUILD = "2026-09-27yo-the-quiz-prefers-what-the-lesson-did-not-demonstrate"
 
 
 @app.get("/health")
