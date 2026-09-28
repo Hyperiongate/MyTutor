@@ -2,6 +2,9 @@
 # tools/genquiz.py  --  GENERATE quizsets.py, THE PINNED TOPIC-QUIZ QUESTIONS
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- no change to the generator; drillpool reads a demonstration a third
+#               way (the ask's own spoken run of three or more numbers, said in order by the
+#               tutor); regenerated: 1 replaced (Entry's "6, 8, 10, 12").
 #   2026-09-27  BUILD yq -- no change to the generator; drillpool reads a demonstration two
 #               more ways (a board tag the teaching drew; one stranger between the numbers)
 #               and "b divides a" is an always-only rule now; regenerated: 57 replaced.
@@ -200,6 +203,11 @@ def main():
 # quizsets.py  --  THE TOPIC QUIZ QUESTION SETS, PINNED  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- THE SECOND QUIZ READINGS: NINE CLEAN, ONE FINDING. One
+#               replaced: "The pattern is 6, 8, 10, 12" -- the ask's own spoken run,
+#               said in that order in the worked line; a third reading of a
+#               demonstration (drillpool). Every course's quiz has now been read
+#               twice.
 #   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS. 57 replaced: the
 #               tutor's own worked examples the number rule had missed (the
 #               scatter plot's own points; "the arc is 18 divided by 6" for a

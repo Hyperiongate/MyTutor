@@ -2,6 +2,14 @@
 # drillpool.py  --  EXTRA PRACTICE PROBLEMS, VETTED IN ADVANCE  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- THE SECOND QUIZ READINGS: NINE CLEAN, ONE FINDING. Entry's
+#               "The pattern is 6, 8, 10, 12. What comes next?" is the worked line's own run
+#               ("One more together. 6, 8, 10, 12. The jump is 2.") and the number rule could
+#               not see it: the problem is (a=6, b=2) and the 2 sits three numbers past the 6.
+#               A THIRD READING of a demonstration, generic: the ask's own SPOKEN LINE names a
+#               run of three or more numbers, and that run appears contiguously, in order,
+#               in a teaching sentence or board tag -- the words the child hears are the words
+#               the tutor said. Measured: a handful across the canon; replaced where fresh.
 #   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS (Algebra I 20, Geometry 6, Algebra II 2,
 #               Pre-Calc 9, Calculus 7, Diffeq 1, Prob/Stat 5 -- all read on yo). Three things.
 #               (1) "b divides a" is a rule only when it ALWAYS holds, like b divides c: nine
@@ -688,6 +696,16 @@ def demonstrated(les, p, units=None):
                 return True
     except Exception:  # noqa: BLE001
         pass
+    # (yr) the ask's own spoken run of numbers, three or more, said in that order by the tutor
+    try:
+        seq = [int(t) for t in _INT_RE.findall(L.spoken_for(p, (les.get("levels") or L.LEVELS)[-1]) or "")]
+        if len(seq) >= _DEMO_RUN:
+            for u in units:
+                vals = [int(t) for t in _INT_RE.findall(u)]
+                if any(vals[i:i + len(seq)] == seq for i in range(len(vals) - len(seq) + 1)):
+                    return True
+    except Exception:  # noqa: BLE001
+        pass
     if len(nums) == 1:
         n = next(iter(nums))
         for u in units:
@@ -714,6 +732,7 @@ def demonstrated(les, p, units=None):
 
 
 _DEMO_STRANGERS = 1     # (yq) "the arc is 18 divided by 6" for 60 degrees: one number may sit between
+_DEMO_RUN = 3           # (yr) a spoken run this long, said in order by the tutor, is the tutor's example
 
 
 def _tag_sig(unit_or_match):

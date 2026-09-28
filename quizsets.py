@@ -2,6 +2,11 @@
 # quizsets.py  --  THE TOPIC QUIZ QUESTION SETS, PINNED  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- THE SECOND QUIZ READINGS: NINE CLEAN, ONE FINDING. One
+#               replaced: "The pattern is 6, 8, 10, 12" -- the ask's own spoken run,
+#               said in that order in the worked line; a third reading of a
+#               demonstration (drillpool). Every course's quiz has now been read
+#               twice.
 #   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS. 57 replaced: the
 #               tutor's own worked examples the number rule had missed (the
 #               scatter plot's own points; "the arc is 18 divided by 6" for a
@@ -294,7 +299,7 @@ QUIZ_SETS = {
         {"op": 'cor', "a": 6, "b": 0},
     ],
     'entry-u9-what-comes-next': [
-        {"op": 'pat', "a": 6, "b": 2, "c": 0},
+        {"op": 'pat', "a": 3, "b": 5, "c": 0},
         {"op": 'pat', "a": 4, "b": 2, "c": 0},
         {"op": 'pat', "a": 2, "b": 3, "c": 0},
         {"op": 'pat', "a": 9, "b": 3, "c": 0},

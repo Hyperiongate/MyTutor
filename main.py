@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- THE SECOND QUIZ READINGS: NINE CLEAN, ONE FINDING. drillpool reads a
+#               demonstration a third way (the ask's own spoken run, said in order by the
+#               tutor); one quiz question replaced. Nothing in this file but the stamp.
+#               APP_BUILD -> "2026-09-28yr-the-second-quiz-readings". PREWARM: 1 new spoken
+#               ask. PART 3ol.
 #   2026-09-27  BUILD yq -- THE OTHER SEVEN QUIZ SWEEPS. "b divides a" is an always-only rule;
 #               a demonstration is read off a drawn board tag and across one stranger (57
 #               quiz questions replaced); cdmp asks in the lesson's own words (its 12 bank asks
@@ -9619,7 +9624,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-27yq-the-other-seven-quiz-sweeps"
+APP_BUILD = "2026-09-28yr-the-second-quiz-readings"
 
 
 @app.get("/health")

@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yr -- PART 3ol, THE SECOND QUIZ READINGS: a spoken run of three or more,
+#               said in order by the tutor, is a demonstration; Entry's pattern quiz no longer
+#               opens on the worked line's run. The blanket counts did not move (the new ask
+#               is a sentence the course already had).
 #   2026-09-27  BUILD yq -- PART 3ok, THE OTHER SEVEN QUIZ SWEEPS: "b divides a" always-only;
 #               a demonstration read off a drawn board tag and across one stranger; the named
 #               repeats gone or marked; cdmp's words; the misread-number findings inside their
@@ -25348,6 +25352,38 @@ def part3ok_the_other_seven_quiz_sweeps():
     check("  the changed files carry dated yq notes",
           all("2026-09-27" in notes(f) and "yq" in notes(f)
               for f in ("drillpool.py", "quizsets.py", "lessonscripts.py", _os.path.join("tools", "genquiz.py"), "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3ol_the_second_quiz_readings():
+    """PART 3ol (build yr, 2026-09-28) -- THE SECOND QUIZ READINGS: nine courses clean, one
+    finding (Entry: "The pattern is 6, 8, 10, 12" is the worked line's own run, and the
+    number rule could not see it -- the problem is (6, 2) and the 2 sits three numbers past
+    the 6). A THIRD reading of a demonstration: the ask's own spoken run of three or more
+    numbers, said in that order in a teaching sentence or board tag. One question replaced.
+    With this every course's quiz has been read twice; the quiz lane is closed unless a
+    reading reopens it."""
+    print("\nPART 3ol — the second quiz readings (build yr)")
+    import os as _os
+    try:
+        import drillpool as D
+        import lessonscripts as L
+        import quizsets as Q
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    by = {l["id"]: l for l in L.LESSONS}
+    les = by["entry-u9-what-comes-next"]
+    check("demonstrated: the pattern 6, 8, 10, 12 is the worked line's own run (a spoken run of three or more, in order)",
+          D.demonstrated(les, {"op": "pat", "a": 6, "b": 2, "c": 0}) and D._DEMO_RUN == 3, "")
+    fx = {"id": "fx-yr", "op": "pat", "max_value": 30, "bank": [], "pairs": [],
+          "teach": [("Count on: 3, 8, 13 and then 20.", "")]}
+    check("  a run must be contiguous and in order: 3, 8, 13, 18 is not in '3, 8, 13 and then 20'",
+          not D.demonstrated(fx, {"op": "pat", "a": 3, "b": 5, "c": 0}), "")
+    check("  Entry's what-comes-next quiz no longer opens on 6, 8, 10, 12; its replacement is fresh and inside the shape",
+          not any((p["a"], p["b"]) == (6, 2) for p in Q.QUIZ_SETS[les["id"]])
+          and all(D.keeps_shape(D.shape_of(les), p, "pat")[0] for p in Q.QUIZ_SETS[les["id"]]), str(Q.QUIZ_SETS[les["id"]]))
+    check("  the changed files carry dated yr notes",
+          all("2026-09-28" in notes(f) and "yr" in notes(f)
+              for f in ("drillpool.py", "quizsets.py", _os.path.join("tools", "genquiz.py"), "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -52313,6 +52349,7 @@ def main():
     part3oi_the_quiz_prefers_what_the_lesson_did_not_demonstrate()
     part3oj_the_facts_belong_to_their_op()
     part3ok_the_other_seven_quiz_sweeps()
+    part3ol_the_second_quiz_readings()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
