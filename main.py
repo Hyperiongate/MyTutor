@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD ys -- THE BUTTONS ANSWER THE QUESTION ASKED. Referee 60 reads the live
+#               reply's final spoken ask against its [[choices]] row (tutor.py); the spoken-
+#               ask grammar knows a plus/minus chain, so the streak's own grade (answer_slip,
+#               called from /api/chat above) knows "2 plus 1 plus 1" is 4; one prompt bullet.
+#               Nothing in this file but the stamp. APP_BUILD ->
+#               "2026-09-28ys-the-buttons-answer-the-question-asked". Nothing to prewarm.
+#               PART 3om.
 #   2026-09-28  BUILD yr -- THE SECOND QUIZ READINGS: NINE CLEAN, ONE FINDING. drillpool reads a
 #               demonstration a third way (the ask's own spoken run, said in order by the
 #               tutor); one quiz question replaced. Nothing in this file but the stamp.
@@ -9624,7 +9631,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-28yr-the-second-quiz-readings"
+APP_BUILD = "2026-09-28ys-the-buttons-answer-the-question-asked"
 
 
 @app.get("/health")

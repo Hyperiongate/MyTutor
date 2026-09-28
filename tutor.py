@@ -2,6 +2,24 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD ys -- THE BUTTONS ANSWER THE QUESTION ASKED. Jim's live flag on a
+#               Basic column-addition turn: the words asked "what is 2 plus 1 plus 1?"
+#               (the tens column) while the [[choices]] row offered 40 | 41 | 42 (the
+#               whole sum). He answered the words -- 4 -- was told "not quite", and the
+#               tutor then reversed itself. Two causes, both here. (1) Referee 60
+#               (unanswerable_choices_conflict) judged the buttons only against the
+#               BOARD's pending "= ?" line, never against the reply's final SPOKEN ask,
+#               so words and buttons could ask two different questions and nobody
+#               objected. It now reads the final spoken ask too (_uc_spoken_ask_value)
+#               and refuses an all-integer row that does not contain its answer; the
+#               nudge dictates ONE question (put the value among the options, or ask in
+#               words for what the buttons answer). (2) The spoken-ask grammar knew only
+#               "a op b"; a carried tens column is "a plus b plus c" and read as
+#               unknowable, so expected_answer_for/answer_slip (the streak's own grade)
+#               could not know 4 was right. _rb_chain_value parses a plus/minus chain of
+#               two to four terms, left to right; expected_answer_for uses it for three
+#               or more terms (two-term asks keep their old path, byte for byte). No
+#               referee added -- the count stays 101. Both fail open as before.
 #   2026-09-17  BUILD wt -- TWO REFEREE MISREADINGS, found by running the canon's referees
 #               over every scripted beat of all ten courses (56 refusals, 38 of them these
 #               two). (1) _FN_ASK read "What height?" as "what h(eight)" -- the letter
@@ -5357,8 +5375,89 @@ def _uc_tag_values(text: str, name: str):
     return out
 
 
+_UC_INT = re.compile(r"^\s*-?\d+\s*$")
+_UC_NOT_WHOLE = re.compile(
+    r"\b(?:half|halves|third|thirds|quarter|quarters|fourth|fourths|fifth|fifths|"
+    r"sixth|sixths|seventh|sevenths|eighth|eighths|ninth|ninths|tenth|tenths|"
+    r"twelfth|twelfths|hundredth|hundredths|thousandth|thousandths|percent|"
+    r"point|decimal|over)\b|\d\s*/\s*\d|\d\.\d|%", re.I)
+
+
+def _uc_spoken_ask_value(text: str):
+    """(ys) The integer answer to the reply's FINAL SPOKEN ask, or None. A plus/minus
+    chain of any length first ("what is 2 plus 1 plus 1?"), then the two-term a-op-b
+    grammar the streak's grader shares (plus, minus, times; an exact divided-by).
+    Comparison, one-more and what-comes-next asks are not this gate's to judge."""
+    try:
+        ask = _rb_final_ask(text)
+        if not ask:
+            return None
+        # a fraction, a decimal or a percent in words is not whole-number
+        # arithmetic: "9 divided by three fifths" is not 9 ÷ 3. Silence.
+        if _UC_NOT_WHOLE.search(ask):
+            return None
+        v = _rb_chain_value(ask, min_terms=2)
+        if v is not None:
+            return v
+        # a mixed ask ("3 plus 4 times 2") is not a two-term ask; the two-term
+        # grammar would read one pair of it and be confidently wrong. Silence.
+        if len(re.findall(r"\b(?:plus|minus|take\s+away|times|divided|multiplied)\b",
+                          ask, re.I)) != 1:
+            return None
+        pm = None
+        for pm in _RB_PROSE_RE.finditer(ask):
+            pass
+        # ...and the pair must be the WHOLE question: "5 times 10 to the power 3"
+        # is not 5 × 10.
+        if not pm or not _RB_ASK_TAIL.match(ask[pm.end():]):
+            return None
+        x, y = _rb_num(pm.group(1)), _rb_num(pm.group(3))
+        o = _RB_PROSE_OPS.get(" ".join(pm.group(2).lower().split()))
+        if x is None or y is None or not o:
+            return None
+        if o == "+":
+            return x + y
+        if o == "-":
+            return x - y
+        if o == "*":
+            return x * y
+        return x // y if y and x % y == 0 else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _uc_spoken_verdict(text: str, opts):
+    """(ys) The second half of referee 60: the words ask a question whose answer is not
+    among an all-integer [[choices]] row. Jim's flag, 2026-09-28: "what is 2 plus 1
+    plus 1?" over 40 | 41 | 42. Returns the nudge or ""."""
+    v = _uc_spoken_ask_value(text)
+    if v is None:
+        return ""
+    ask = " ".join(_rb_final_ask(text).split())[:60]
+    for o in opts:
+        parts = [p.strip() for p in o.split("|") if p.strip()]
+        # NARROW: only an all-integer row is judged against a spoken sum. A menu,
+        # a fraction row and a decimal row are left alone.
+        if len(parts) < 2 or not all(_UC_INT.match(p) for p in parts):
+            continue
+        if v in [int(p) for p in parts]:
+            continue
+        return ('your words ask "{q}" -- its answer is {v} -- but the buttons offer '
+                "{opts}: the words and the buttons ask two DIFFERENT questions, so "
+                "this child answers one and is graded on the other (Jim watched it "
+                "happen: he answered the words, was told 'not quite', and the tutor "
+                "reversed itself). Ask ONE question. Either re-issue the [[choices]] "
+                "row with {v} as one of the options, or change the spoken question so "
+                "it asks for exactly what the buttons answer (the whole sum, say) -- "
+                "never a column's total over the whole sum's buttons."
+                ).format(q=ask, v=v, opts=" | ".join(parts))
+    return ""
+
+
 def unanswerable_choices_conflict(reply: str):
     """Return a description of tap-buttons that do not contain the answer, or "".
+    Two readings since ys (2026-09-28): the BOARD's pending "= ?" line against the
+    row (build pt), then the reply's final SPOKEN ask against the row (Jim's flag).
     Never raises: any unexpected input yields "" (fail open)."""
     try:
         text = str(reply or "")
@@ -5368,7 +5467,7 @@ def unanswerable_choices_conflict(reply: str):
         pend = [v for a, v in _uc_tag_values(text, "step")
                 if a == "eq" and v.strip().endswith("?")]
         if not pend:
-            return ""
+            return _uc_spoken_verdict(text, opts)
         import mathcheck as _mc
         for o in opts:
             parts = [p.strip() for p in o.split("|") if p.strip()]
@@ -5407,7 +5506,8 @@ def unanswerable_choices_conflict(reply: str):
                         "[[choices]] row with the correct answer as one of the "
                         "options.").format(q=" ".join(p.split())[:40],
                                            opts=" | ".join(parts))
-        return ""
+        # (ys) the board's pending line agrees with the row -- now the WORDS must too
+        return _uc_spoken_verdict(text, opts)
     except Exception as exc:  # noqa: BLE001 -- referee crash = fail open, always
         print(f"[choicesanswer] crashed (fail open): {exc}")
         _event("referee_crash", "choicesanswer", str(exc))
@@ -8608,6 +8708,50 @@ def _rb_num(tok):
     return _NUMWORD.get(t)
 
 
+# (ys, 2026-09-28) THE CARRIED COLUMN IS THREE TERMS. "What is 2 plus 1 plus 1?" is
+# what a tutor asks about the tens column after a carry, and the a-op-b grammar above
+# read it as unknowable. A plus/minus chain of two to four small numbers, evaluated
+# left to right. Anything else in the ask that would change the value (times, divided
+# by) buys None, on purpose -- a wrong "known" answer is worse than an unknown one.
+_RB_TERM = (r"(?:\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|"
+            r"twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)")
+_RB_CHAIN_RE = re.compile(
+    r"\bwhat(?:\s+is|'s)\s+(" + _RB_TERM + r"(?:\s+(?:plus|minus|take\s+away)\s+"
+    + _RB_TERM + r"){1,3})\b(?!\s*(?:times|divided|multiplied|over|x\b))", re.I)
+_RB_CHAIN_SPLIT = re.compile(r"\s+(plus|minus|take\s+away)\s+", re.I)
+# what may follow the arithmetic and still leave it the WHOLE question: nothing, a
+# question mark, or a filler ("in all", "altogether", "then"). "to the power 3",
+# "fifths", "of them" and the like mean the phrase was more than a sum.
+_RB_ASK_TAIL = re.compile(r"^\s*(?:in\s+all|altogether|then|now)?\s*[?.!]*\s*$", re.I)
+
+
+def _rb_chain_value(ask: str, min_terms: int = 2):
+    """The value of the ask's plus/minus chain ("what is 2 plus 1 plus 1?" -> 4), or
+    None when there is no chain of at least `min_terms` terms, or when the ask also
+    carries a times/divided-by that the chain would not account for. Never raises."""
+    try:
+        text = str(ask or "")
+        if re.search(r"\b(?:times|divided|multiplied)\b", text, re.I):
+            return None
+        m = _RB_CHAIN_RE.search(text)
+        if not m or not _RB_ASK_TAIL.match(text[m.end():]):
+            return None
+        toks = _RB_CHAIN_SPLIT.split(m.group(1))
+        if len(toks) < 2 * min_terms - 1:
+            return None
+        total = _rb_num(toks[0])
+        if total is None:
+            return None
+        for i in range(1, len(toks) - 1, 2):
+            n = _rb_num(toks[i + 1])
+            if n is None:
+                return None
+            total = total + n if toks[i].lower() == "plus" else total - n
+        return total
+    except Exception:  # noqa: BLE001 -- a parser must never cost a turn
+        return None
+
+
 # =============================================================================
 # BUILD ra (2026-08-31) -- THE LEFTOVER GETS ITS BUTTONS.
 # -----------------------------------------------------------------------------
@@ -9086,9 +9230,19 @@ def expected_answer_for(reply):
         ask = _rb_final_ask(text)
         if not ask:
             return None
+        # (ys) a carried column: "what is 2 plus 1 plus 1?" -- three or more terms.
+        # Two-term asks keep the path below, byte for byte.
+        chain = _rb_chain_value(ask, min_terms=3)
+        if chain is not None:
+            return chain
         pm = None
         for pm in _RB_PROSE_RE.finditer(ask):
             pass
+        # (ys) ...and the pair must be the WHOLE question. "what is 2 plus 1 plus 1"
+        # used to grade as 3 here (the first pair, the rest ignored) -- a wrong
+        # "known" answer that could fell a star on a right one. Uncertain is None.
+        if pm and not _RB_ASK_TAIL.match(ask[pm.end():]):
+            pm = None
         if pm:
             x, y = _rb_num(pm.group(1)), _rb_num(pm.group(3))
             o = _RB_PROSE_OPS.get(" ".join(pm.group(2).lower().split()))

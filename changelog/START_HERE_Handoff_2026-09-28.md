@@ -4,7 +4,18 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-28yr-the-second-quiz-readings`** (battery 13,283 passed, 0
+On Jim's disk: **`2026-09-28ys-the-buttons-answer-the-question-asked`** (battery
+13,296 passed, 0 failed, 3 skipped) — Jim's live flag from a Basic column-addition turn: the words asked "what
+is 2 plus 1 plus 1?" (the tens column) while the buttons offered 40 | 41 | 42 (the whole
+sum); he answered the words, was told "not quite", and the tutor reversed itself. Two
+causes in `tutor.py`, both closed: referee 60 (`unanswerable_choices_conflict`) judged the
+row only against the BOARD's pending line and never the final SPOKEN ask — it reads both
+now; and the spoken-ask grammar knew only "a op b", so the streak's own grade
+(`expected_answer_for` / `answer_slip`) read "2 plus 1 plus 1" as **3** — a plus/minus
+chain of two to four terms parses now, and a pair with a tail ("to the power 3") is
+unknowable rather than wrong. One prompt bullet (THE BUTTONS ANSWER THE QUESTION YOUR
+WORDS ASK). No referee added (the count stays 101). PART 3om. **Nothing to prewarm.**
+Before it, `yr` (battery 13,283 passed, 0
 failed, 3 skipped) — the second quiz readings of all ten courses: **nine clean, Entry one**
 (the pattern quiz opened on the worked line's own run "6, 8, 10, 12"; a third reading of a
 demonstration — the ask's spoken run of three or more, said in order by the tutor — and
@@ -172,6 +183,17 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
 `Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`, `Build_yj_The_True_Distractor_2026-09-26.md`, `Build_yk_The_Three_Totals_Are_Drawn_2026-09-26.md`, `Build_yl_The_Quiz_Sweep_2026-09-26.md`.
+
+## Written to D:\MyTutor (ys, 2026-09-28) — Jim pushes
+
+- `tutor.py` (`_rb_chain_value`, `_RB_ASK_TAIL`; `expected_answer_for`'s chain and tail;
+  `_uc_spoken_ask_value`, `_uc_spoken_verdict`, referee 60's second reading), `prompts.py`
+  (one bullet in the choices block), `ruletests.py` (PART 3om), `main.py` (stamp
+  `2026-09-28ys-the-buttons-answer-the-question-asked`),
+  `changelog/Build_ys_The_Buttons_Answer_The_Question_Asked_2026-09-28.md`, this handoff.
+  **Nothing to prewarm.** The battery ran in the cloud workspace on a frozen copy staged
+  from `_to_delete/battery_ys.tar.gz` (gitignored; delete the folder when convenient).
+  To see it: a live Basic or Entry lesson that adds two two-digit numbers with a carry.
 
 ## Written to D:\MyTutor (yl, 2026-09-26) — Jim pushes
 
@@ -529,8 +551,13 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `yr` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-28yr-the-second-quiz-readings`, prewarms (1 line). **The quiz
+1. The chain through `ys` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-28ys-the-buttons-answer-the-question-asked`, prewarms (yr's 1
+   line if not yet done; ys adds none). **A live flag is the next build's source now** —
+   the sweeps are done; when Jim pastes a flag, read the reply's shape against the
+   referees first (which one should have refused it, and why it did not), then the
+   grader (`expected_answer_for`), then the prompt. ys's lesson: a referee that reads the
+   board must also read the words, or the two can ask different questions. **The quiz
    sweeps are done** (how a quiz report is read, should one be run again: a finding on an
    ask is the op's words — generator — or the question's numbers — `quizsets.py`,
    regenerated with `tools/genquiz.py`, which keeps every question that still passes and

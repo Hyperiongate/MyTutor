@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD ys -- PART 3om, THE BUTTONS ANSWER THE QUESTION ASKED: referee 60 reads
+#               the final spoken ask against an all-integer [[choices]] row (Jim's live flag:
+#               "what is 2 plus 1 plus 1?" over 40 | 41 | 42); the spoken-ask grammar knows a
+#               plus/minus chain, and a pair with a tail ("to the power 3") is unknowable, not
+#               a wrong "known" answer. No referee added (the count stays 101); no count moved.
 #   2026-09-28  BUILD yr -- PART 3ol, THE SECOND QUIZ READINGS: a spoken run of three or more,
 #               said in order by the tutor, is a demonstration; Entry's pattern quiz no longer
 #               opens on the worked line's run. The blanket counts did not move (the new ask
@@ -25384,6 +25389,83 @@ def part3ol_the_second_quiz_readings():
     check("  the changed files carry dated yr notes",
           all("2026-09-28" in notes(f) and "yr" in notes(f)
               for f in ("drillpool.py", "quizsets.py", _os.path.join("tools", "genquiz.py"), "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3om_the_buttons_answer_the_question_asked():
+    """PART 3om (build ys, 2026-09-28) -- THE BUTTONS ANSWER THE QUESTION ASKED. Jim's
+    live flag on a Basic column-addition turn: the words asked "what is 2 plus 1 plus 1?"
+    (the tens column) while the [[choices]] row offered 40 | 41 | 42 (the whole sum). He
+    answered the words -- 4 -- was told "not quite", and the tutor reversed itself.
+    Referee 60 judged the row only against the BOARD's pending line; it reads the final
+    SPOKEN ask now. And the spoken-ask grammar knew only "a op b": a carried column is
+    three terms, and the grader read "2 plus 1 plus 1" as 3 (the first pair), a wrong
+    "known" answer the streak could fall on. Both closed; no referee added."""
+    print("\nPART 3om — the buttons answer the question asked (build ys)")
+    try:
+        import tutor as T
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    JIM = ('[[column terms="23|18" op="+" carries="1_" result="41" '
+           'caption="3 + 8 = 11: write 1, carry one ten"]] '
+           "Look — the ones add up to over nine, so we write the 1 and carry a 1 to the "
+           "tens. Then 2 plus 1 plus 1 equals 4, giving 41. Now let's try it together: "
+           'what is 2 plus 1 plus 1? [[choices options="40 | 41 | 42"]]')
+    verdict = T.unanswerable_choices_conflict(JIM) or ""
+    check("⭐⭐ the flagged reply is refused: the words ask the tens column, the buttons answer the whole sum",
+          bool(verdict), "Jim answered the words (4), was told 'not quite', then 'that was right'")
+    check("  ...and the nudge names the value the words ask for and dictates ONE question",
+          "its answer is 4" in verdict and "as one of the options" in verdict
+          and "Ask ONE question" in verdict, verdict[:120])
+    check("  ...even when the board's own pending line agrees with the row (the first reading passes, the second refuses)",
+          bool(T.unanswerable_choices_conflict(JIM.replace('[[choices', '[[step eq="23 + 18 = ?"]][[choices'))), "")
+    check("  both of the nudge's fixes are accepted: 3 | 4 | 5 under the column ask; 'what is 23 plus 18?' over 40 | 41 | 42",
+          not T.unanswerable_choices_conflict(JIM.replace("40 | 41 | 42", "3 | 4 | 5"))
+          and not T.unanswerable_choices_conflict(JIM.replace("what is 2 plus 1 plus 1?", "what is 23 plus 18?")), "")
+    OK = ['What is 7 plus 5? [[choices options="11 | 12 | 13"]]',            # the answer is there
+          'What is 7 plus 5? [[choices options="Keep going | Stop"]]',        # a menu
+          'What is 3 minus 5? [[choices options="-2 | 2 | 0"]]',              # a negative answer, offered
+          'What is 3 plus 4 times 2? [[choices options="9 | 11 | 14"]]',      # a mixed ask: not this gate's
+          'What is 9 divided by three fifths? [[choices options="14 | 15 | 16"]]',   # a fraction in words
+          'What is 5 times 10 to the power 3? [[choices options="4999 | 5000 | 5001"]]',  # a tail
+          'What is 6 divided by 4? [[choices options="1 | 2 | 3"]]',           # uneven: unknowable
+          'What is 1 plus 2? Tap the answer. [[choices options="9 | 8"]]',    # no final ask
+          "What's 10 plus 10 plus 10? [[choices options=\"20 | 30 | 40\"]]",  # a chain, answered
+          'What is 2 point 5 plus 1? [[choices options="3 | 4 | 5"]]',        # a decimal in words
+          'Which is bigger, 7 or 4? [[choices options="7 | 4"]]',             # a comparison
+          '[[step eq="0.5 + 0.25 = ?"]] What is 0.5 plus 0.25? [[choices options="0.75 | 1 | 2"]]']
+    noisy = [c for c in OK if T.unanswerable_choices_conflict(c)]
+    check("  twelve honest replies stay silent (menus, negatives, mixed asks, fractions and decimals in words, tails, comparisons)",
+          not noisy, noisy)
+    check("⚠️ a two-term ask with a wrong row still fires, as since pt: 'what is 7 times 5?' over 30 | 36 | 40",
+          bool(T.unanswerable_choices_conflict('What is 7 times 5? [[choices options="30 | 36 | 40"]]')), "")
+    check("⭐ the chain grammar: 2 plus 1 plus 1 is 4; 20 minus 5 plus 3 is 18; two plus three plus four is 9; 9 take away 4 is 5",
+          T._rb_chain_value("what is 2 plus 1 plus 1?") == 4
+          and T._rb_chain_value("what is 20 minus 5 plus 3?") == 18
+          and T._rb_chain_value("what is two plus three plus four?") == 9
+          and T._rb_chain_value("what is 9 take away 4?") == 5, "")
+    check("  ...and it answers None to a bare number, a times, a tail and a fifth term",
+          T._rb_chain_value("what is 9?") is None
+          and T._rb_chain_value("what is 2 plus 3 times 4?") is None
+          and T._rb_chain_value("what is 2 plus 1 plus 1 to the power 2?") is None
+          and T._rb_chain_value("what is 1 plus 1 plus 1 plus 1 plus 1?") is None, "")
+    check("⭐ the streak's grader knows the carried column: expected_answer_for('what is 2 plus 1 plus 1?') is 4, and 4 is no slip while 5 is",
+          T.expected_answer_for("Now let's try it together: what is 2 plus 1 plus 1?") == 4
+          and not T.answer_slip("what is 2 plus 1 plus 1?", "4")
+          and T.answer_slip("what is 2 plus 1 plus 1?", "5"), "")
+    check("  ...and a pair with a tail is unknowable (None), never the first pair's value; two-term asks grade as before",
+          T.expected_answer_for("what is 2 plus 1 plus 1 to the power 2?") is None
+          and T.expected_answer_for("What is 7 plus 5?") == 12
+          and T.expected_answer_for("What is 7 plus 5 in all?") == 12
+          and T.expected_answer_for("What is 12 minus 4?") == 8, "")
+    check("  the referee count did not move: the helper is not a *_conflict",
+          "_uc_spoken_verdict" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"),
+                                        encoding="utf-8").read()
+          and not re.search(r"def _uc_spoken\w*_conflict\(", open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutor.py"), encoding="utf-8").read()), "")
+    check("  the prompt says it in words: the buttons answer the question the words ask",
+          "THE BUTTONS ANSWER THE QUESTION YOUR WORDS ASK" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts.py"), encoding="utf-8").read(), "")
+    check("  the changed files carry dated ys notes",
+          all("2026-09-28" in notes(f) and "ys" in notes(f)
+              for f in ("tutor.py", "prompts.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -52350,6 +52432,7 @@ def main():
     part3oj_the_facts_belong_to_their_op()
     part3ok_the_other_seven_quiz_sweeps()
     part3ol_the_second_quiz_readings()
+    part3om_the_buttons_answer_the_question_asked()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

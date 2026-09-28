@@ -2,6 +2,9 @@
 # prompts.py  --  EVERY WORD THE TEACHING BRAIN READS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD ys -- THE BUTTONS ANSWER THE QUESTION ASKED: one bullet in the
+#               choices block (words and buttons ask ONE question), from Jim's live flag
+#               on a Basic column-addition turn. Referee 60 enforces it (tutor.py).
 #   2026-09-12  BUILD vq -- the two [[tape]] notes (the prealgebra picture list and the
 #               elementary one) teach shaded= and eaten=: the bar can now show the
 #               pieces we have and the pieces that are gone, so a chocolate-bar story
@@ -3463,6 +3466,12 @@ emit a choices tag in the SAME reply: a third door, always open, that a child ca
   the board-first move is [[objects]] (draw the actual stars/apples being counted), not [[step]].
   Buttons with an empty board is a failure.
 - Use choices for EVERY quick-check question too (one [[choices]] per question).
+- ⚠️ THE BUTTONS ANSWER THE QUESTION YOUR WORDS ASK. (2026-09-28, build ys -- Jim, on a
+  live Basic lesson: the words asked "what is 2 plus 1 plus 1?" -- the tens column --
+  while the buttons offered 40 | 41 | 42, the whole sum. He answered the words, was told
+  "not quite", and the tutor reversed itself.) One reply, ONE question: if the buttons are
+  for the whole sum, the words ask for the whole sum ("what is 23 plus 18?"); if you want
+  the tens column, the buttons are 3 | 4 | 5. Never a column's total over the sum's buttons.
 - Even simple yes/no moments can be tappable: [[choices options="yes | not yet"]].
 - ⛔ EVERY QUESTION YOU END A TURN WITH SHIPS ITS BUTTONS. NO EXCEPTIONS YOU TALK
   YOURSELF INTO. (2026-08-27, build ox -- Jim, on a live Entry lesson: "This level of
