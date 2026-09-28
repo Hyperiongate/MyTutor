@@ -3,6 +3,9 @@
   MARKETING.md  --  rules of the road for the marketing clone  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-09-28  (build yt) the battery's size brought up to date (13,000+ checks, was
+    "6,000+"); the numbers a marketer might quote -- ten courses, 360 lessons -- added
+    to rule 3 so nobody writes "eight courses" from the old README.
   - 2026-08-26  NEW FILE (build oa). Jim shared the repo with marketing (HTML
     pages only, no backend). This is the one page they read before their first
     commit. Written to prevent the three real accidents: pushing straight to
@@ -35,12 +38,14 @@ courses.html · help.html · privacy.html
 `prompts.py`, `store.py`, any `.js` file, or the app pages
 (`session.html`, `practice.html`, `topic.html`, `drill.html`, `demo.html`,
 `admin.html`, `dashboard.html`, `methodology.html`). Those files are covered by
-an automated test battery (6,000+ checks) that runs on Jim's side; edits there
+an automated test battery (13,000+ checks) that runs on Jim's side; edits there
 will bounce.
 
 ## 3. House rules the tests enforce (yes, really)
 
 - The company's experience is always written **"Hundreds"** — never "300+".
+- The product is **ten courses** (Entry-Level Math through Differential Equations) and
+  **360 lessons**; an older README said eight. Quote these, not that.
 - Numbers on the methodology page (checks per release, checks per reply,
   problem counts) are **machine-counted** — never edit them by hand. (That page
   is off-limits per rule 2 anyway.)

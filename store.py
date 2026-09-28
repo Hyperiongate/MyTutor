@@ -6,6 +6,15 @@
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 61 entries; 5 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
 #               (notes_rollout.py) when this header passes ~100 KB.
+#   2026-09-28  BUILD yt -- lane_minutes(days): WHERE A CHILD'S MINUTES GO. The 09-28 deep
+#               dive's one unknown number: how much of a student's time is the live tutor
+#               (Lane B) against the scripted course (Lane A). Read-only, no schema change:
+#               script_answers (one row per graded scripted answer, with its seconds) against
+#               usage_log kind='brain' (one row per live model turn) and system_events
+#               kind='turn' (one row per live turn, named by its DOOR -- opener, seam,
+#               intervene, quiz, final, chat -- recorded by main.py since yt). Per course,
+#               per student (masked by the caller), and the doors by name. All-zeros with
+#               the DB off; any query error is swallowed.
 #   2026-09-12  BUILD vu -- usage_stats gains tts_serve_by_mode: for every non-build
 #               lane, requests, characters rendered live and characters served from
 #               the cache, so /admin can say WHICH page spends the serving-side voice
@@ -3631,6 +3640,80 @@ def record_event(kind: str, name: str, detail: str = "", code: str = "",
                 course=str(course or "")[:32], created_at=_now()))
     except Exception as exc:  # noqa: BLE001
         print(f"[events] could not record {kind}/{name}: {_redact(str(exc))}")
+
+
+def lane_minutes(days: int = 30) -> dict:
+    """(yt) Where a child's minutes go: scripted answers and their seconds (Lane A)
+    against live model turns (Lane B), per course and per student, plus the live
+    DOORS by name (system_events kind='turn'). Read-only; all-zeros when the DB is
+    off; any query error is swallowed (never 500s).
+      {"days", "courses": {course: {"scripted", "scripted_seconds", "scripted_students",
+                                    "live", "live_students", "doors": {name: n}}},
+       "students": [{"code", "course", "scripted", "scripted_seconds", "live"}],
+       "totals": {"scripted", "live", "scripted_seconds"}}"""
+    out = {"days": int(days), "courses": {}, "students": [], "doors": {},
+           "totals": {"scripted": 0, "live": 0, "scripted_seconds": 0}}
+    if not _ENABLED:
+        return out
+    from sqlalchemy import select, func
+    try:
+        cutoff = _now() - _dt.timedelta(days=int(days))
+        sa, ul, ev = _tables["script_answers"], _tables["usage_log"], _tables["system_events"]
+        per_student = {}
+
+        def course_row(c):
+            return out["courses"].setdefault(c or "", {
+                "scripted": 0, "scripted_seconds": 0, "scripted_students": 0,
+                "live": 0, "live_students": 0, "doors": {}})
+
+        with _engine.connect() as conn:
+            for c, n, ms, st in conn.execute(
+                    select(sa.c.course, func.count(), func.coalesce(func.sum(sa.c.ms), 0),
+                           func.count(func.distinct(sa.c.code)))
+                    .where(sa.c.created_at >= cutoff).group_by(sa.c.course)).fetchall():
+                r = course_row(c)
+                r["scripted"] = int(n or 0); r["scripted_seconds"] = int((ms or 0) // 1000)
+                r["scripted_students"] = int(st or 0)
+            for c, n, st in conn.execute(
+                    select(ul.c.course, func.count(), func.count(func.distinct(ul.c.code)))
+                    .where((ul.c.created_at >= cutoff) & (ul.c.kind == "brain")
+                           & (ul.c.mode == "lesson"))
+                    .group_by(ul.c.course)).fetchall():
+                r = course_row(c)
+                r["live"] = int(n or 0); r["live_students"] = int(st or 0)
+            for c, nm, n in conn.execute(
+                    select(ev.c.course, ev.c.name, func.count())
+                    .where((ev.c.created_at >= cutoff) & (ev.c.kind == "turn"))
+                    .group_by(ev.c.course, ev.c.name)).fetchall():
+                door = str(nm or "").replace("live:", "", 1) or "chat"
+                course_row(c)["doors"][door] = int(n or 0)
+                out["doors"][door] = out["doors"].get(door, 0) + int(n or 0)
+            for code, c, n, ms in conn.execute(
+                    select(sa.c.code, sa.c.course, func.count(),
+                           func.coalesce(func.sum(sa.c.ms), 0))
+                    .where(sa.c.created_at >= cutoff).group_by(sa.c.code, sa.c.course)).fetchall():
+                row = per_student.setdefault((code or "", c or ""), {
+                    "code": code or "", "course": c or "", "scripted": 0,
+                    "scripted_seconds": 0, "live": 0})
+                row["scripted"] = int(n or 0); row["scripted_seconds"] = int((ms or 0) // 1000)
+            for code, c, n in conn.execute(
+                    select(ul.c.code, ul.c.course, func.count())
+                    .where((ul.c.created_at >= cutoff) & (ul.c.kind == "brain")
+                           & (ul.c.mode == "lesson"))
+                    .group_by(ul.c.code, ul.c.course)).fetchall():
+                row = per_student.setdefault((code or "", c or ""), {
+                    "code": code or "", "course": c or "", "scripted": 0,
+                    "scripted_seconds": 0, "live": 0})
+                row["live"] = int(n or 0)
+        out["students"] = sorted(per_student.values(),
+                                 key=lambda r: -(r["scripted"] + r["live"]))[:60]
+        for r in out["courses"].values():
+            out["totals"]["scripted"] += r["scripted"]
+            out["totals"]["live"] += r["live"]
+            out["totals"]["scripted_seconds"] += r["scripted_seconds"]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[lanes] lane_minutes failed: {_redact(str(exc))}")
+    return out
 
 
 def event_stats(days: int = 7) -> dict:

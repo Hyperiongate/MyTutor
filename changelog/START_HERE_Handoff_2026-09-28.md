@@ -4,7 +4,26 @@ Read this first in a new chat. Then the build docs it points to, only as needed.
 
 ## Where things stand
 
-On Jim's disk: **`2026-09-28ys-the-buttons-answer-the-question-asked`** (battery
+**The 09-28 deep dive is the plan now:** `claude/Deep_Dive_2026-09-28_The_Road_To_Market.md`
+(also in `changelog/`). The 09-14 gate list is complete; the sweeps are done (three rounds,
+the quiz twice); the night watch is OFF (Jim, ~09-25). The list is three blocks — Block 1
+is the launch gate: (1) the persona codes retired in production, (2) Jim plays the product
+as a new family end to end, laptop and phone, through the Stripe upgrade, (3) a "where the
+minutes go" admin card, (4) close the seam door it names, (5) confirm `/health` and read the
+nightly `scripted` job's reports, (6) README/MARKETING truth. **`yt` did 1, 3 and 6.**
+Next: Jim's playthrough (2) and its fixes; then whichever door the minutes card names (4).
+
+On Jim's disk: **`2026-09-28yt-the-personas-are-the-owners`** (battery 13,315 passed, 0 failed, 3 skipped) — the
+first build off the deep dive: the four `students.json` persona codes answer only to the
+owner's browser in production (the middleware stamps each request's owner-ness into a
+ContextVar; `_lookup_student` reads it; open with no DB, a sqlite file, or PERSONAS_OPEN=1;
+`/health` says `personas`); **Jim unlocks once from /admin and plays as 1234 as before**;
+every live turn records a `turn` event named by its door (opener / seam / intervene /
+quiz / final / chat), `store.lane_minutes` reads it beside `script_answers` and
+`usage_log`, and `/admin` has a **Where the minutes go** card (live share per course and
+per student, doors by name, 7/30/90 days); the README and MARKETING.md tell the truth (ten
+courses, the two lanes, real accounts, 13,000+ checks). PART 3on. Nothing to prewarm.
+Before it, `ys` (battery
 13,296 passed, 0 failed, 3 skipped) — Jim's live flag from a Basic column-addition turn: the words asked "what
 is 2 plus 1 plus 1?" (the tens column) while the buttons offered 40 | 41 | 42 (the whole
 sum); he answered the words, was told "not quite", and the tutor reversed itself. Two
@@ -183,6 +202,20 @@ Docs: `claude/Build_wh_…`, `Build_wi_…`, `Triage_NightWatch_2026-09-15_Four_
 `Build_wk_…`, `Build_wl_…`, `Build_wm_…`, `Build_wn_…`, `Build_wo_…`, `Build_wp_…` (all
 `_2026-09-16.md`), `Build_wq_The_First_ProbStat_Sweep_2026-09-17.md`,
 `Build_wr_The_Second_Calculus_Sweep_2026-09-17.md`, `Build_ws_The_Second_Diffeq_Sweep_2026-09-17.md`, `Build_wt_The_Referee_Pile_2026-09-17.md`, `Build_wu_The_Second_PreCalc_Sweep_2026-09-17.md`, `Build_wv_The_Sweep_Says_Why_It_Stopped_2026-09-17.md`, `Build_ww_The_Third_PreCalc_Sweep_2026-09-17.md`, `Build_wx_The_Second_Algebra2_Sweep_2026-09-18.md`, `Build_wy_The_Fifth_Entry_Sweep_2026-09-18.md`, `Build_wz_The_Second_Basic_Sweep_2026-09-18.md`, `Build_xa_The_Second_PreAlgebra_Sweep_2026-09-18.md`, `Build_xb_The_Second_Algebra1_Sweep_2026-09-19.md`, `Build_xc_The_Second_Geometry_Sweep_2026-09-19.md`, `Build_xd_The_Colon_Is_Not_A_Ratio_2026-09-19.md`, `Build_xe_The_Pre_Sweep_2026-09-19.md`, `Build_xf_The_Pre_Sweep_The_Other_Eight_2026-09-19.md`, `Build_xg_The_Second_ProbStat_Sweep_2026-09-21.md`, `Build_xh_The_Credit_Line_Everywhere_2026-09-21.md`, `Build_xi_The_Second_Calculus_Sweep_2026-09-22.md`, `Build_xj_The_Spoken_Beat_Is_Short_Everywhere_2026-09-22.md`, `Pre_Sweep_Finding_2026-09-22_The_Law_Without_Its_Condition.md`, `Ruling_2026-09-22_When_The_Sweeps_Stop.md`, `Build_xk_The_Praise_Is_Not_The_Walk_Back_2026-09-22.md`, `Deep_Dive_2026-09-22_Eight_Days_Of_One_Project.md`, `Build_xl_The_Watch_Policy_2026-09-22.md`, `Build_xm_The_Angle_Carries_Its_Unit_2026-09-22.md`, `Build_xn_The_Miss_Has_A_Face_2026-09-22.md`, `Build_xo_The_Forty_Eight_Get_Their_Walk_Back_2026-09-22.md`, `Build_xp_The_Sweep_Survives_A_Restart_2026-09-23.md`, `Build_xq_The_Third_Algebra1_Sweep_2026-09-23.md`, `Build_xr_The_Pencil_In_The_Scripted_Lane_2026-09-23.md`, `Build_xs_The_Third_Diffeq_Sweep_2026-09-23.md`, `Build_xt_The_Voice_Cache_Reclaim_Card_2026-09-23.md`, `Build_xu_The_Third_ProbStat_Sweep_Part_One_2026-09-23.md`, `Build_xv_The_Third_Algebra2_Sweep_2026-09-24.md`, `Build_xw_The_Third_ProbStat_Sweep_Part_Two_2026-09-24.md`, `Build_xx_The_Child_Mode_Skin_2026-09-24.md`, `Build_xy_The_Two_Flags_Nobody_Could_Screenshot_2026-09-24.md`, `Build_xz_The_Third_Basic_Sweep_2026-09-24.md`, `Build_ya_The_Third_Geometry_Sweep_2026-09-24.md`, `Build_yb_The_Words_Grow_Back_On_A_Shrunk_Figure_2026-09-24.md`, `Build_yc_The_Redraw_Settles_2026-09-25.md`, `Build_yd_Every_Label_Goes_Through_The_Fit_2026-09-25.md`, `Build_ye_The_Scripted_Lane_Goes_Nightly_2026-09-25.md`, `Build_yf_The_Third_Calculus_Sweep_2026-09-25.md`, `Build_yg_The_Sixth_Entry_Sweep_2026-09-26.md`, `Build_yh_The_Fourth_PreCalc_Sweep_2026-09-26.md`, `Build_yi_The_Course_Review_2026-09-26.md`, `Build_yj_The_True_Distractor_2026-09-26.md`, `Build_yk_The_Three_Totals_Are_Drawn_2026-09-26.md`, `Build_yl_The_Quiz_Sweep_2026-09-26.md`.
+
+## Written to D:\MyTutor (yt, 2026-09-28) — Jim pushes
+
+- `main.py` (`_OWNER_REQ`, `_personas_open`, `_mark_owner_request`, the middleware line,
+  `_lookup_student`'s gate, `/health`'s `personas`; `_live_door`, the door events in
+  `/api/chat` and `/api/script/intervene`, `GET /api/admin/lanes`; stamp
+  `2026-09-28yt-the-personas-are-the-owners`), `store.py` (`lane_minutes`),
+  `static/admin.html` (the Where-the-minutes-go card), `README.md`, `MARKETING.md`,
+  `ruletests.py` (PART 3on), `changelog/Build_yt_The_Personas_Are_The_Owners_2026-09-28.md`,
+  `changelog/Deep_Dive_2026-09-28_The_Road_To_Market.md`, this handoff. **Nothing to
+  prewarm.** After the push: `/health` shows the stamp and `"personas": "owner-only"`;
+  `/admin` → unlock (the owner cookie) → the new card; then play as 1234 as before. The
+  battery ran in the cloud workspace from `_to_delete/battery_yt.tar.gz` (gitignored;
+  delete the folder when convenient).
 
 ## Written to D:\MyTutor (ys, 2026-09-28) — Jim pushes
 
@@ -551,9 +584,12 @@ What the third round leaves behind, as work — none of it a sweep:
 
 ## What to do next
 
-1. The chain through `ys` is on D:\MyTutor; Jim pushes once, confirms
-   `/health` shows `2026-09-28ys-the-buttons-answer-the-question-asked`, prewarms (yr's 1
-   line if not yet done; ys adds none). **A live flag is the next build's source now** —
+1. The chain through `yt` is on D:\MyTutor; Jim pushes once, confirms
+   `/health` shows `2026-09-28yt-the-personas-are-the-owners` and `personas: owner-only`,
+   unlocks from /admin, prewarms (yr's 1 line if not yet done; ys and yt add none). **Then
+   Block 1 of the deep dive continues:** Jim's end-to-end playthrough as a new family
+   (item 2) with its fixes, and the minutes card read after a few days of real turns —
+   the door it names is the next build (item 4). **A live flag is the next build's source now** —
    the sweeps are done; when Jim pastes a flag, read the reply's shape against the
    referees first (which one should have refused it, and why it did not), then the
    grader (`expected_answer_for`), then the prompt. ys's lesson: a referee that reads the

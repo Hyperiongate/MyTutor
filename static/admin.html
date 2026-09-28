@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (yt) 2026-09-28 -- WHERE THE MINUTES GO: a card under Telemetry reading
+    /api/admin/lanes -- scripted answers (Lane A) against live tutor turns (Lane B), per
+    course and per student (masked), and the live doors by name (opener, seam, intervene,
+    quiz, final, chat). The 09-28 deep dive's one unknown number. 7 / 30 / 90 days.
     (yl) 2026-09-26 -- THE QUIZ SWEEP on the course-sweep card: the menu lists "quiz · geometry"
     (value quizgeometry) beside each course; the same Price / Run / Resume / Read buttons.
     (xt) 2026-09-23 -- THE VOICE CACHE RECLAIM CARD (project 9 of the 09-14 deep dive).
@@ -881,6 +885,30 @@
       <b>crashes</b>, <b>client errors</b> and <b>pass-throughs</b> (a reply shipped WITH a known
       finding) should be zero &mdash; each one is a real event with its name and detail below.
       Rows age out after EVENTS_DAYS (default 90).</p>
+  </div></section>
+
+  <!-- Where the minutes go (build yt -- the 09-28 deep dive's one unknown number) -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#9201;&#65039; Where the minutes go</h2>
+      <span class="note">the scripted course (Lane A) against the live tutor (Lane B) &mdash;
+        and which door the live tutor came in by</span></div>
+    <div style="margin:6px 0 10px">
+      <button class="btn" id="lnDays7" type="button">7 days</button>
+      <button class="btn" id="lnDays30" type="button">30 days</button>
+      <button class="btn" id="lnDays90" type="button">90 days</button>
+    </div>
+    <div class="note" id="lnLine">reading the lanes&hellip;</div>
+    <div id="lnTiles" style="margin-top:10px"></div>
+    <div id="lnCourses" style="margin-top:6px"></div>
+    <div id="lnStudents" style="margin-top:6px"></div>
+    <p class="note" style="margin-top:12px">A <b>scripted answer</b> is one graded tap or typed
+      answer in an authored lesson (its seconds are the time from the question to the answer).
+      A <b>live turn</b> is one model reply in a lesson. <b>Doors:</b> <i>opener</i> = the page
+      opened with no scripted lesson left to play; <i>seam</i> = a scripted lesson ended with
+      nothing scripted after it (a course boundary, the end of the order, or a typed answer at
+      the go-on/review choice); <i>intervene</i> = a second miss in a row handed to the tutor;
+      <i>chat</i> = the student typed to the live tutor. Doors are counted from build yt on;
+      turns and answers reach back as far as the tables do.</p>
   </div></section>
 
   <!-- Brain seat check (build qi) -->
@@ -1834,6 +1862,97 @@
     }
     return out;
   }
+  // ---------- where the minutes go (build yt) ----------
+  var LN_DAYS = 30;
+  function lnPct(live, scripted) {
+    var t = live + scripted;
+    if (!t) return "\u2014";
+    var p = 100 * live / t;
+    return (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + "%";
+  }
+  function lnPctCls(live, scripted) {
+    var t = live + scripted;
+    if (!t) return "";
+    var p = 100 * live / t;
+    return p >= 25 ? "bad" : (p >= 10 ? "warn" : "good");
+  }
+  function lnCellCls(live, scripted) {            // table cells use the telemetry table's colours
+    var c = lnPctCls(live, scripted);
+    return c === "bad" ? "hot" : (c === "warn" ? "warm" : "");
+  }
+  function lnMins(sec) { return Math.round((sec || 0) / 60); }
+  async function lnStatus() {
+    try {
+      var d = await api("/api/admin/lanes?days=" + LN_DAYS);
+      if (!d.tracking) {
+        $("lnLine").textContent = "the database is off \u2014 nothing to measure here";
+        $("lnTiles").innerHTML = ""; $("lnCourses").innerHTML = ""; $("lnStudents").innerHTML = "";
+        return;
+      }
+      var t = d.totals || {scripted: 0, live: 0, scripted_seconds: 0};
+      var doors = d.doors || {};
+      var doorTotal = 0, k;
+      for (k in doors) doorTotal += doors[k];
+      $("lnLine").textContent = "last " + d.days + " days: " + num(t.scripted) + " scripted answers (" +
+        num(lnMins(t.scripted_seconds)) + " min of working) and " + num(t.live) + " live tutor turns";
+      $("lnTiles").innerHTML = tiles([
+        { l: "Live share of turns", v: lnPct(t.live, t.scripted), cls: lnPctCls(t.live, t.scripted),
+          s: "live turns over live + scripted" },
+        { l: "Scripted answers", v: num(t.scripted), cls: "", s: num(lnMins(t.scripted_seconds)) + " minutes of working" },
+        { l: "Live turns", v: num(t.live), cls: "", s: "model replies in lessons" },
+        { l: "Live doors named", v: num(doorTotal), cls: "", s: Object.keys(doors).sort(function (a, b) {
+            return doors[b] - doors[a]; }).map(function (n) { return n + " " + num(doors[n]); }).join(" \u00b7 ") || "none yet" }
+      ]);
+      var courses = d.courses || {}, names = Object.keys(courses).sort();
+      var out = '<div class="minihead">By course</div>';
+      if (!names.length) {
+        out += '<div class="note">No lesson activity in the window.</div>';
+      } else {
+        out += '<table class="mini"><tr><th>course</th><th class="numc">scripted answers</th>' +
+               '<th class="numc">minutes</th><th class="numc">students</th><th class="numc">live turns</th>' +
+               '<th class="numc">students</th><th class="numc">live share</th><th>doors</th></tr>';
+        names.forEach(function (c) {
+          var r = courses[c], ds = r.doors || {};
+          var dtxt = Object.keys(ds).sort(function (a, b) { return ds[b] - ds[a]; })
+                       .map(function (n) { return n + " " + num(ds[n]); }).join(" \u00b7 ");
+          out += "<tr><td class=\"nm\">" + esc(c || "?") + "</td>" +
+                 '<td class="numc">' + num(r.scripted) + "</td>" +
+                 '<td class="numc">' + num(lnMins(r.scripted_seconds)) + "</td>" +
+                 '<td class="numc">' + num(r.scripted_students) + "</td>" +
+                 '<td class="numc">' + num(r.live) + "</td>" +
+                 '<td class="numc">' + num(r.live_students) + "</td>" +
+                 '<td class="numc ' + lnCellCls(r.live, r.scripted) + '">' + lnPct(r.live, r.scripted) + "</td>" +
+                 "<td>" + esc(dtxt || "\u2014") + "</td></tr>";
+        });
+        out += "</table>";
+      }
+      $("lnCourses").innerHTML = out;
+      var studs = d.students || [];
+      out = '<div class="minihead">By student (busiest first, codes masked)</div>';
+      if (!studs.length) {
+        out += '<div class="note">No student activity in the window.</div>';
+      } else {
+        out += '<table class="mini"><tr><th>student</th><th>course</th><th class="numc">scripted answers</th>' +
+               '<th class="numc">minutes</th><th class="numc">live turns</th><th class="numc">live share</th></tr>';
+        studs.forEach(function (r) {
+          out += "<tr><td class=\"nm\">" + esc(r.code) + "</td><td>" + esc(r.course || "?") + "</td>" +
+                 '<td class="numc">' + num(r.scripted) + "</td>" +
+                 '<td class="numc">' + num(lnMins(r.scripted_seconds)) + "</td>" +
+                 '<td class="numc">' + num(r.live) + "</td>" +
+                 '<td class="numc ' + lnCellCls(r.live, r.scripted) + '">' + lnPct(r.live, r.scripted) + "</td></tr>";
+        });
+        out += "</table>";
+      }
+      $("lnStudents").innerHTML = out;
+    } catch (e) {
+      $("lnLine").textContent = "could not read the lanes: " + (e && e.message ? e.message : e);
+    }
+  }
+  ["7", "30", "90"].forEach(function (n) {
+    var b = $("lnDays" + n);
+    if (b) b.addEventListener("click", function () { LN_DAYS = Number(n); lnStatus(); });
+  });
+
   async function tmStatus() {
     try {
       var d = await api("/api/admin/events");
@@ -2743,7 +2862,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); nwStatus(); csStatus(); tmStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + wa course sweep + ha telemetry + nq flags
+      try { bkStatus(); nwStatus(); csStatus(); tmStatus(); lnStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + wa course sweep + ha telemetry + yt lanes + nq flags
       // BUILD kq: an interrupted render used to be invisible -- the page came back
       // clean and Jim had no way to know a job had died mid-way. Ask once, on load.
       try {

@@ -2,6 +2,28 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yt (2) -- WHERE THE MINUTES GO. GET /api/admin/lanes (store.lane_minutes):
+#               scripted answers against live model turns, per course and per student
+#               (masked), and the live DOORS by name -- every /api/chat turn records a
+#               "turn" event named by its door (_live_door: opener | seam | quiz | final |
+#               chat) and /api/script/intervene records "intervene". The admin card
+#               "Where the minutes go" reads it. The 09-28 deep dive's one unknown number.
+#   2026-09-28  BUILD yt -- THE PERSONAS ARE THE OWNER'S. The 09-28 deep dive's first finding:
+#               students.json's four persona codes (1234, 2345, 3456, 0000) logged in on
+#               mrcadabra.com in every environment -- guessable four-digit codes into the
+#               real database, running paid model calls. _lookup_student now resolves a
+#               persona only when PERSONAS ARE OPEN (no DATABASE_URL, a local sqlite
+#               file, or PERSONAS_OPEN=1: the dev box, the battery's drills, the headless
+#               drives, all unchanged; Render is Postgres) or when THIS REQUEST IS THE
+#               OWNER'S (the owner cookie from /admin's unlock, or X-Admin-Key) -- the
+#               request's owner-ness is stamped once per request by the http middleware into
+#               a ContextVar (_OWNER_REQ), so every endpoint that takes a code (chat,
+#               heartbeat, speak, dashboard ...) is gated in the one place, not thirty-eight.
+#               A stranger's persona code reads "That code was not recognized." Parent-made
+#               students, beta passes and the demo are untouched. /health says which mode
+#               ("personas": "open" | "owner-only"). Jim: unlock once from /admin (30 days)
+#               and play as 1234 exactly as before. APP_BUILD ->
+#               "2026-09-28yt-the-personas-are-the-owners". Nothing to prewarm. PART 3on.
 #   2026-09-28  BUILD ys -- THE BUTTONS ANSWER THE QUESTION ASKED. Referee 60 reads the live
 #               reply's final spoken ask against its [[choices]] row (tutor.py); the spoken-
 #               ask grammar knows a plus/minus chain, so the streak's own grade (answer_slip,
@@ -705,6 +727,7 @@
 # (vb) copy.deepcopy is used by _script_warm's speculative engine step -- the
 # look-ahead must never advance the real lesson state. Imported HERE with the
 # rest of the standard library, not beside its one caller (build kq's law).
+import contextvars
 import copy
 import gzip
 import hashlib
@@ -1761,8 +1784,41 @@ _SECURITY_HEADERS = {
 }
 
 
+# (yt) THE REQUEST KNOWS WHETHER IT IS THE OWNER'S. Set once per request by the
+# middleware below; read by _lookup_student so a persona code resolves only for the
+# owner in production. A ContextVar so the value follows the request into sync
+# endpoints (Starlette copies the context into its thread pool) and is absent --
+# False -- in background threads, where no persona is ever needed.
+_OWNER_REQ = contextvars.ContextVar("mt_owner_request", default=False)
+
+
+def _personas_open() -> bool:
+    """True when the persona codes are for everyone: no database (the dev box, the
+    headless drives), a LOCAL file database (sqlite -- the battery's fourteen drills;
+    production is Postgres on Render, never sqlite), or PERSONAS_OPEN=1 set on purpose.
+    Otherwise -- a real database -- they are the owner's only. Fails CLOSED."""
+    try:
+        if os.environ.get("PERSONAS_OPEN", "").strip().lower() in ("1", "true", "yes", "on"):
+            return True
+        if not store.enabled():
+            return True
+        eng = getattr(store, "_engine", None)
+        return bool(eng is not None and getattr(eng.dialect, "name", "") == "sqlite")
+    except Exception:  # noqa: BLE001 -- fail CLOSED: an unknown store is production
+        return False
+
+
+def _mark_owner_request(request: Request) -> None:
+    """Stamp this request's owner-ness for _lookup_student. Never raises."""
+    try:
+        _OWNER_REQ.set(bool(_is_owner(request)))
+    except Exception:  # noqa: BLE001
+        _OWNER_REQ.set(False)
+
+
 @app.middleware("http")
 async def _security_headers(request: Request, call_next):
+    _mark_owner_request(request)          # (yt) before the endpoint runs
     response = await call_next(request)
     for _h, _v in _SECURITY_HEADERS.items():
         response.headers.setdefault(_h, _v)
@@ -1796,7 +1852,10 @@ def _lookup_student(code: str):
         return None
     student = STUDENTS.get(code)
     if student:
-        return student
+        # (yt) a persona is everyone's on a dev box and the OWNER'S in production
+        if _personas_open() or _OWNER_REQ.get():
+            return student
+        return None
     if store.enabled():
         acct = store.get_account(code)
         if acct and acct.get("parent_id"):
@@ -4837,6 +4896,23 @@ def admin_events(key: str = "", kind: str = "", limit: int = 0,
     }
 
 
+@app.get("/api/admin/lanes")
+def admin_lanes(days: int = 30, key: str = "",
+                x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """(yt) WHERE THE MINUTES GO. Scripted answers (Lane A) against live model turns
+    (Lane B), per course and per student, and the live doors by name, over the last
+    `days` (7..90). Student codes are MASKED the roster's way. The 09-28 deep dive's
+    one unknown number, on the admin page."""
+    _require_admin(x_admin_key or key)
+    days = max(7, min(int(days or 30), 90))
+    data = store.lane_minutes(days)
+    for r in data.get("students", []):
+        r["code"] = _mask_code(r.get("code", ""))
+    data["ok"] = True
+    data["tracking"] = store.enabled()
+    return data
+
+
 @app.get("/api/admin/seat-check")
 def admin_seat_check(provider: str = "", model: str = "", effort: str = "",
                      size: str = "", course: str = "", key: str = "",
@@ -6117,6 +6193,8 @@ def script_intervene_run(body: ScriptInterveneIn):
             "No scripted lesson is running for this code -- POST /api/script/start."))
     if not sess.get("deferred"):
         raise HTTPException(status_code=409, detail="nothing is waiting to be taught")
+    _event_safe("turn", "live:intervene", "", code,
+                str((sess.get("lesson") or {}).get("course") or ""))   # (yt)
     out = _script_deferred_run(code, sess, sess["lesson"], t0)
     return {"ok": True, "steps": out or []}
 
@@ -9631,7 +9709,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-28ys-the-buttons-answer-the-question-asked"
+APP_BUILD = "2026-09-28yt-the-personas-are-the-owners"
 
 
 @app.get("/health")
@@ -9673,6 +9751,7 @@ def health():
         "status": "ok",
         "build": APP_BUILD,
         "students_loaded": len(STUDENTS),
+        "personas": "open" if _personas_open() else "owner-only",   # (yt)
         "model": tutor.active_brain()["model"],      # (qg) the seat that is teaching
         "brain": tutor.active_brain(),
         "storage": store.status(),
@@ -10620,6 +10699,20 @@ def _spec_take(code: str, course: str, history: list, message: str):
     return None
 
 
+def _live_door(message: str, final_mode: str = "") -> str:
+    """(yt) The name of the door a live turn came in by. Pure; never raises."""
+    m = (message or "").strip()
+    if final_mode:
+        return "final"
+    if m.startswith("__script_done"):
+        return "seam"
+    if m == "__unit_quiz__":
+        return "quiz"
+    if m.startswith("__"):
+        return "opener"
+    return "chat"
+
+
 def _event_safe(kind: str, name: str, detail: str, code: str = "", course: str = "") -> None:
     try:
         store.record_event(kind, name, detail, code, course)
@@ -10663,6 +10756,14 @@ def chat(req: ChatRequest):
 
     session = get_session(code, req.course)
     history = session.get("history", [])
+
+    # (yt) WHICH DOOR THE LIVE TUTOR CAME IN BY. One event per live turn, named by
+    # its entry: opener (a page open with no scripted lesson to play), seam (the end
+    # of a scripted lesson with nothing scripted after it), quiz, final, or chat (a
+    # typed message). With /api/script/intervene's "intervene" and usage_log's brain
+    # rows, /admin's "Where the minutes go" card can say how much of a child's time
+    # is Lane B and by which door -- the 09-28 deep dive's one unknown number.
+    _event_safe("turn", "live:" + _live_door(message, final_mode), "", code, req.course)
 
     # (rc, 2026-08-31) THE STAR FALLS WHEN THE CHILD SLIPS -- code's own grade, the
     # floor under the prompt's [[miss]] tag (a model tag is a nudge, never a

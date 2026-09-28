@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-28  BUILD yt -- PART 3on, THE PERSONAS ARE THE OWNER'S: with a database the four
+#               students.json codes resolve only for the owner's request (cookie or key),
+#               stamped by the middleware into a ContextVar; open on a dev box; parent-made
+#               students, beta passes and the demo untouched; /health names the mode. And
+#               WHERE THE MINUTES GO: store.lane_minutes drilled against a real sqlite
+#               database; the door event in /api/chat and intervene; /api/admin/lanes; the card.
 #   2026-09-28  BUILD ys -- PART 3om, THE BUTTONS ANSWER THE QUESTION ASKED: referee 60 reads
 #               the final spoken ask against an all-integer [[choices]] row (Jim's live flag:
 #               "what is 2 plus 1 plus 1?" over 40 | 41 | 42); the spoken-ask grammar knows a
@@ -25466,6 +25472,145 @@ def part3om_the_buttons_answer_the_question_asked():
     check("  the changed files carry dated ys notes",
           all("2026-09-28" in notes(f) and "ys" in notes(f)
               for f in ("tutor.py", "prompts.py", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3on_the_personas_are_the_owners():
+    """PART 3on (build yt, 2026-09-28) -- THE PERSONAS ARE THE OWNER'S. The 09-28 deep
+    dive's first finding: students.json's four persona codes logged in on mrcadabra.com
+    in every environment -- guessable four-digit codes into the real database, running
+    paid model calls. In production (a database) a persona resolves only for the owner's
+    request; on a dev box (no database) everything is as it was. Gated in _lookup_student,
+    the one place every code-taking endpoint goes through."""
+    print("\nPART 3on — the personas are the owner's (build yt)")
+    try:
+        import main as M
+        from fastapi.testclient import TestClient
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    import tempfile as _tf, subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    check("⭐ the battery runs with personas OPEN (no DATABASE_URL), and a persona resolves as before",
+          M._personas_open() and (M._lookup_student("1234") or {}).get("name") == "Alex", "")
+    # ---- production, simulated: the store says it is on ----
+    saved_open = M._personas_open
+    saved_owner = M._is_owner
+    try:
+        M._personas_open = lambda: False
+        tok = M._OWNER_REQ.set(False)
+        try:
+            check("⭐⭐ with a database, a stranger's persona code is not a student (1234, 2345, 3456, 0000 all None)",
+                  all(M._lookup_student(c) is None for c in ("1234", "2345", "3456", "0000")), "")
+            check("  ...and an unknown code is still None (no new path for it)",
+                  M._lookup_student("9999") is None, "")
+        finally:
+            M._OWNER_REQ.reset(tok)
+        tok = M._OWNER_REQ.set(True)
+        try:
+            check("⭐ ...but the OWNER'S request still gets the persona (Jim's playtest logins survive one /admin unlock)",
+                  (M._lookup_student("0000") or {}).get("name") == "Demo Student"
+                  and (M._lookup_student("1234") or {}).get("name") == "Alex", "")
+        finally:
+            M._OWNER_REQ.reset(tok)
+        check("  a background thread (no request) never sees a persona in production",
+              M._OWNER_REQ.get() is False and M._lookup_student("1234") is None, "")
+        # ---- the middleware stamps the request, and a sync endpoint reads it ----
+        client = TestClient(M.app)
+        M._is_owner = lambda request: False
+        r1 = client.get("/api/courses/1234")
+        M._is_owner = lambda request: bool(request.headers.get("x-admin-key"))
+        r2 = client.get("/api/courses/1234", headers={"X-Admin-Key": "test-key"})
+        r3 = client.get("/api/courses/1234")
+        check("⭐ through the app: a stranger's GET /api/courses/1234 is 404 'not recognized'; the owner's (header) is 200; the next stranger is 404 again (the stamp is per request)",
+              r1.status_code == 404 and "not recognized" in (r1.json().get("detail") or "")
+              and r2.status_code == 200 and r3.status_code == 404,
+              (r1.status_code, r2.status_code, r3.status_code))
+    finally:
+        M._personas_open = saved_open
+        M._is_owner = saved_owner
+    check("  the middleware stamps every request before the endpoint runs",
+          "_mark_owner_request(request)" in msrc.split("async def _security_headers(", 1)[1].split("\n\n", 1)[0]
+          and "_OWNER_REQ.set(" in msrc, "")
+    _po = msrc.split("def _personas_open(", 1)[1].split("\ndef ", 1)[0]
+    check("  _personas_open fails CLOSED (an unknown store is production); open with no store, a sqlite file (the battery's drills) or PERSONAS_OPEN=1",
+          "not store.enabled()" in _po and '== "sqlite"' in _po and "PERSONAS_OPEN" in _po
+          and "return False" in _po, "")
+    with _tf.TemporaryDirectory() as tmp:
+        drill = os.path.join(tmp, "persona_drill.py")
+        with open(drill, "w", encoding="utf-8") as fh:
+            fh.write("import main\n"
+                     "assert main.store.enabled() and main._personas_open(), 'a sqlite file is a dev box'\n"
+                     "assert (main._lookup_student('1234') or {}).get('name') == 'Alex'\n"
+                     "print('PERSONA-DRILL-OK')\n")
+        env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'p.db')}", PYTHONPATH=here)
+        r = _sp.run([sys.executable, drill], cwd=here, env=env, capture_output=True, text=True)
+        check("  ...and against a real sqlite file the personas ARE open (the fourteen drills that log in as 1234 keep working)",
+              r.returncode == 0 and "PERSONA-DRILL-OK" in r.stdout, (r.stdout + r.stderr)[-300:])
+    r = TestClient(M.app).get("/health").json()
+    check("  /health names the mode: 'open' here, 'owner-only' with a database",
+          r.get("personas") == "open" and '"open" if _personas_open() else "owner-only"' in msrc, r.get("personas"))
+    check("  the demo lesson takes no code and is untouched (no _lookup_student in its two endpoints)",
+          "_lookup_student" not in msrc.split('@app.post("/api/demo/lesson/start")', 1)[1].split('@app.post("/api/script/intervene")', 1)[0], "")
+    # ---- (yt, second half) WHERE THE MINUTES GO ------------------------------------
+    print("  -- where the minutes go --")
+    check("⭐ _live_door names the five doors: opener, seam, quiz, final, chat",
+          M._live_door("__open__") == "opener" and M._live_door("__tour_done__") == "opener"
+          and M._live_door("__script_done_mastered__") == "seam" and M._live_door("__script_done__") == "seam"
+          and M._live_door("__unit_quiz__") == "quiz" and M._live_door("4") == "chat"
+          and M._live_door("4", "exam") == "final", "")
+    chat_src = msrc.split('@app.post("/api/chat")', 1)[1].split("\n@app.", 1)[0]
+    check("  /api/chat records one 'turn' event per live turn, named by its door, after the gates and before the model",
+          '_event_safe("turn", "live:" + _live_door(message, final_mode)' in chat_src
+          and chat_src.index("_live_door(message, final_mode)") > chat_src.index("_free_gate(")
+          and chat_src.index("_live_door(message, final_mode)") < chat_src.index("get_tutor_reply("), "")
+    check("  /api/script/intervene records 'intervene' with the lesson's course",
+          '"live:intervene"' in msrc.split('@app.post("/api/script/intervene")', 1)[1].split("\n@app.", 1)[0], "")
+    with _tf.TemporaryDirectory() as tmp:
+        drill = os.path.join(tmp, "lanes_drill.py")
+        with open(drill, "w", encoding="utf-8") as fh:
+            fh.write(
+                "import store\n"
+                "store.init(); assert store.enabled()\n"
+                "store.record_script_answer('KID1', 'basic', 'basic-u1-x', 1, 'ask', '3 + 4 = ?', '7', '7', True, 1, 4000)\n"
+                "store.record_script_answer('KID1', 'basic', 'basic-u1-x', 1, 'ask', '3 + 5 = ?', '8', '8', True, 1, 6000)\n"
+                "store.record_script_answer('KID2', 'entry', 'entry-u1-x', 1, 'ask', '1 + 1 = ?', '3', '2', False, 1, 2000)\n"
+                "store.log_usage('brain', code='KID1', course='basic', mode='lesson', model='m', input_tokens=1, output_tokens=1)\n"
+                "store.log_usage('brain', code='KID1', course='basic', mode='practice', model='m', input_tokens=1, output_tokens=1)\n"
+                "store.record_event('turn', 'live:seam', '', 'KID1', 'basic')\n"
+                "store.record_event('turn', 'live:intervene', '', 'KID2', 'entry')\n"
+                "store.record_event('turn', 'live:opener', '', 'KID2', 'entry')\n"
+                "d = store.lane_minutes(30)\n"
+                "assert d['totals'] == {'scripted': 3, 'live': 1, 'scripted_seconds': 12}, d['totals']\n"
+                "b = d['courses']['basic']\n"
+                "assert (b['scripted'], b['scripted_seconds'], b['scripted_students'], b['live'], b['live_students'], b['doors']) == (2, 10, 1, 1, 1, {'seam': 1}), b\n"
+                "assert d['courses']['entry']['doors'] == {'intervene': 1, 'opener': 1}, d\n"
+                "assert d['doors'] == {'seam': 1, 'intervene': 1, 'opener': 1}, d['doors']\n"
+                "assert d['students'][0] == {'code': 'KID1', 'course': 'basic', 'scripted': 2, 'scripted_seconds': 10, 'live': 1}, d['students']\n"
+                "assert store.lane_minutes(7)['totals']['scripted'] == 3\n"
+                "print('LANES-DRILL-OK')\n")
+        env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'l.db')}", PYTHONPATH=here)
+        if dep_gate("⭐ lane_minutes against a real database: three answers, one lesson brain row (practice excluded), three doors -- totals, per course, per student, by door",
+                    "sqlalchemy", "the lanes read a real database"):
+            r = _sp.run([sys.executable, drill], cwd=here, env=env, capture_output=True, text=True)
+            check("⭐ lane_minutes against a real database: three answers, one lesson brain row (practice excluded), three doors -- totals, per course, per student, by door",
+                  r.returncode == 0 and "LANES-DRILL-OK" in r.stdout, (r.stdout + r.stderr)[-300:])
+    check("  with the database off, lane_minutes is all zeros and never raises",
+          M.store.lane_minutes(30)["totals"] == {"scripted": 0, "live": 0, "scripted_seconds": 0}, "")
+    os.environ.setdefault("FORUM_MOD_KEY", "battery-key")
+    client = TestClient(M.app)
+    r0 = client.get("/api/admin/lanes")
+    r1 = client.get("/api/admin/lanes?days=400", headers={"X-Admin-Key": os.environ["FORUM_MOD_KEY"]})
+    check("  GET /api/admin/lanes is admin-gated, clamps days to 90, masks codes and says tracking is off here",
+          r0.status_code in (401, 403) and r1.status_code == 200 and r1.json().get("days") == 90
+          and r1.json().get("tracking") is False and "_mask_code(r.get(" in msrc, (r0.status_code, r1.status_code))
+    asrc = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("  the admin page has the card: three windows, the tiles, by course, by student, the doors legend, loaded at start",
+          all(x in asrc for x in ('id="lnDays7"', 'id="lnDays30"', 'id="lnDays90"', 'id="lnTiles"',
+                                  'id="lnCourses"', 'id="lnStudents"', "/api/admin/lanes?days=",
+                                  "lnStatus();", "<i>opener</i>", "<i>seam</i>", "<i>intervene</i>"))
+          and "(yt) 2026-09-28" in asrc[:1500], "")
+    check("  the changed files carry dated yt notes",
+          all("2026-09-28" in notes(f) and "yt" in notes(f) for f in ("main.py", "store.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -52433,6 +52578,7 @@ def main():
     part3ok_the_other_seven_quiz_sweeps()
     part3ol_the_second_quiz_readings()
     part3om_the_buttons_answer_the_question_asked()
+    part3on_the_personas_are_the_owners()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
