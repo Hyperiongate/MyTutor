@@ -2,6 +2,8 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yv -- LINE_FREE_GATE: the Free plan's door, one authored line in the
+#               standalone set (course count 40,542 -> 40,543). Said by main.py's two gates.
 #   2026-09-29  BUILD yu -- LINE_UNSURE no longer says "tap the hand": session.html has no ✋
 #               (it stayed on pilot.html when the player was ported). "Ask me anything, or take a
 #               guess -- I will help either way." One line changed; prewarm it.
@@ -920,6 +922,16 @@ LINE_WHOLE = "That one wants a whole number. Have another go."
 # student can actually do. One authored line; prewarm it.
 LINE_UNSURE = ("Saying you are not sure is a good move. Ask me anything, "
                "or take a guess — I will help either way.")
+
+# (yv, 2026-09-29) THE FREE PLAN'S DOOR, SAID WARMLY. Spoken by the scripted lane
+# (main.py _free_unit_gate) when a free student opens a lesson outside the one unit
+# the Free plan gives them, and by the live lane's gate (_free_unit_gate_live). No
+# name in it, so it is ONE cached clip for every student; the page's card carries
+# the Family link the child cannot type. Two short sentences: a six-year-old hears
+# that they did well and what happens next, and nothing about money.
+LINE_FREE_GATE = ("You did it — you finished your free unit with me, and I would love to "
+                  "keep teaching you. Ask your parent to open the Family page, and we will "
+                  "pick up right here.")
 
 # (sp, 2026-09-05) THE REASON QUESTION'S TWO VERDICTS. "Say it" is beat six of the
 # shape: after the streak, one question that asks not WHAT the answer was but WHY --
@@ -17056,6 +17068,8 @@ STANDALONE_LINES = (tuple(ABRABOT_INTRO)
                     + (LINE_STILL_LEARNING_CHOICE,)
                     # build ou: the free-answer lines belong to no lesson
                     + (LINE_WHOLE, LINE_UNSURE)
+                    # (yv) the Free plan's door belongs to the course, not to any lesson
+                    + (LINE_FREE_GATE,)
                     # (ur) the wait lines belong to the lane, not to any lesson's closure
                     + (LINE_THINKING, LINE_THINKING_MORE)
                     # (us) the check after a beat

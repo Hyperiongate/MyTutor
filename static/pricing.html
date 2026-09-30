@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+  - 2026-09-29  BUILD yv -- THE FULL-ACCESS BUTTON TELLS THE TRUTH. Reads /api/billing/status:
+    payments closed (beta) -> "Free during beta -- join the beta" to /beta; payments open ->
+    "Get full access" to /family, and the beta ribbon + amber notice hide themselves. Jim's
+    playthrough: the $29 button landed on /family with nothing to buy. ids: betaRibbon,
+    betaNotice, fullAccessBtn.
   - 2026-08-07  VOICE-FIRST CLASSROOM (build ao, Jim): student voice input is restored, so the
     "no microphone, ever" claims on this page are replaced with the true new story: the student
     TALKS with Mr. Cadabra (speech transcribed to text, audio deleted immediately, never stored);
@@ -185,14 +190,14 @@
     <a href="/privacy">Privacy</a>
   </div>
 </div></nav>
-<div class="beta-ribbon"><a href="/beta">🧪 <b>We're in beta!</b> Want early access and a say in what we build? <u>Become a beta tester — 5 free sign-ins</u> →</a></div>
+<div class="beta-ribbon" id="betaRibbon"><a href="/beta">🧪 <b>We're in beta!</b> Want early access and a say in what we build? <u>Become a beta tester — 5 free sign-ins</u> →</a></div>
 <header class="page wrap">
   <span class="eyebrow">Simple, honest pricing</span>
   <h1>Start free. <span class="grad-text">Upgrade when you're ready.</span></h1>
   <p class="sub">One product: the warm talking tutor your student talks with, graph tools, all ten courses — Entry-Level Math (grade 1) through Differential Equations —
   and the honest dashboards. Cancel anytime.</p>
 </header>
-<section class="wrap" style="padding-bottom:0"><div style="max-width:680px;margin:0 auto;background:#fff7ea;border:1.5px solid #f3ddb5;border-radius:16px;padding:16px 22px;text-align:center;font-weight:600;color:#8a5a12">🧪 <b>Beta period:</b> we're not taking payments yet. These are the launch prices — right now, full access is free for approved beta testers. <a href="/beta" style="color:var(--purple);font-weight:800">Join the beta →</a></div></section>
+<section class="wrap" id="betaNotice" style="padding-bottom:0"><div style="max-width:680px;margin:0 auto;background:#fff7ea;border:1.5px solid #f3ddb5;border-radius:16px;padding:16px 22px;text-align:center;font-weight:600;color:#8a5a12">🧪 <b>Beta period:</b> we're not taking payments yet. These are the launch prices — right now, full access is free for approved beta testers. <a href="/beta" style="color:var(--purple);font-weight:800">Join the beta →</a></div></section>
 <section class="wrap"><div class="grid g2" style="max-width:680px;margin:0 auto">
   <div class="card" style="display:flex;flex-direction:column">
     <h3>Free</h3><p>Try it — no card needed</p>
@@ -218,7 +223,7 @@
       <li><b>✓</b> Progress dashboard, honest time-on-task</li>
       <li><b>✓</b> Parent-controlled account &amp; privacy</li>
     </ul>
-    <a class="btn btn-primary" style="text-align:center" href="/family">Get full access</a>
+    <a class="btn btn-primary" style="text-align:center" href="/family" id="fullAccessBtn">Get full access</a>
     <p class="cap" style="text-align:center;margin-top:8px">Want to see it first? <a href="/demo" style="color:var(--purple);font-weight:700">Try a lesson free →</a></p>
   </div>
 </div>
@@ -236,6 +241,30 @@
   </div>
   <div>© 2026 Mr. Cadabra's Classroom · mrcadabra.com · Made for families</div>
 </div></footer>
+<script>
+  // (yv, 2026-09-29) THE BUTTON TELLS THE TRUTH ABOUT PAYMENTS. Jim's playthrough: "Get full
+  // access" landed on /family with nothing to buy, because the site is in beta (no live
+  // Stripe key) and only the family page knew it. /api/billing/status is the one public
+  // fact: while payments are CLOSED the Full-access button says so and goes to /beta; when
+  // they OPEN (a live key, or PAYMENTS_OPEN=open) the beta ribbon and the amber notice leave
+  // this page on their own and the button goes to /family, where the Subscribe buttons are.
+  // The page's static text is the closed state, so a browser that runs no script sees the
+  // honest version too.
+  (function () {
+    var btn = document.getElementById("fullAccessBtn");
+    var ribbon = document.getElementById("betaRibbon"), notice = document.getElementById("betaNotice");
+    fetch("/api/billing/status").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || typeof j.payments_open !== "boolean") return;
+      if (j.payments_open) {
+        if (ribbon) ribbon.style.display = "none";
+        if (notice) notice.style.display = "none";
+        if (btn) { btn.textContent = "Get full access"; btn.setAttribute("href", "/family"); }
+      } else {
+        if (btn) { btn.textContent = "Free during beta \u2014 join the beta \u2192"; btn.setAttribute("href", "/beta"); }
+      }
+    }).catch(function () {});
+  })();
+</script>
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

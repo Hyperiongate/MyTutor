@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yv -- free_units: the (course, unit) of a free student's FIRST scripted
+#               lesson, written once (record_free_unit, first writer wins; free_unit reads it).
+#               The Free plan's "a first unit to try" is enforced on the scripted lane from
+#               this row (main.py _free_unit_gate). Joins _STUDENT_CODE_TABLES.
 #   2026-09-08  OLDER NOTES (before 2026-09-01) live in changelog/store.py.md
 #               -- moved out on 2026-09-08 (build ui) VERBATIM, 61 entries; 5 stay here.
 #               Keep adding new notes HERE, newest at top; roll them out again
@@ -550,6 +554,22 @@ def init():
         # un-masters a lesson (same never-regress law as unit checks). Brand-new
         # table -> create_all builds it; no migration. JOINS _STUDENT_CODE_TABLES on
         # day one (standing rule).
+        # (yv, 2026-09-29) THE FREE UNIT. The pricing page promises the Free plan "one
+        # placement check + a first unit to try". Jim's playthrough: he placed into
+        # Entry unit 2, finished all four of its lessons on a free account, and unit 3
+        # opened -- the only gate was on the LIVE lane and it counted the 90% Unit Quiz,
+        # which the scripted course never runs. One row per student: the (course, unit)
+        # of the FIRST scripted lesson they opened. First writer wins -- a later start
+        # in another unit never moves it. Brand-new table -> create_all builds it;
+        # joins _STUDENT_CODE_TABLES on day one (standing rule: a reset student is a
+        # new student and gets a fresh free unit).
+        _tables["free_units"] = Table(
+            "free_units", _meta,
+            Column("code", String(64), primary_key=True),
+            Column("course", String(32)),
+            Column("unit", Integer),
+            Column("opened_at", DateTime(timezone=True)),
+        )
         _tables["script_done"] = Table(
             "script_done", _meta,
             Column("code", String(64), primary_key=True),
@@ -1344,6 +1364,54 @@ def record_script_done(code: str, course: str, lesson_id: str,
             exprs={"runs": (1, _sql_counter("runs", 1)),
                    "mastered": (1 if mastered else 0,
                                 _sql_best("mastered", 1 if mastered else 0))})
+
+
+# ---- the free unit (2026-09-29, build yv) ------------------------------------
+def free_unit(code: str):
+    """The (course, unit) a free student's first scripted lesson opened in, or None
+    when nothing is recorded (or there is no store). Never raises."""
+    try:
+        code = str(code or "").strip()
+        if not code or not enabled():
+            return None
+        from sqlalchemy import select
+        t = _tables["free_units"]
+        with _engine.connect() as conn:
+            row = conn.execute(select(t.c.course, t.c.unit, t.c.opened_at)
+                               .where(t.c.code == code)).first()
+        if not row:
+            return None
+        return {"course": row[0], "unit": int(row[1] or 0),
+                "opened_at": row[2].isoformat() if row[2] else None}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[free_unit] read failed for {code}: {exc}")
+        return None
+
+
+def record_free_unit(code: str, course: str, unit: int):
+    """Write the free unit ONCE -- the first scripted lesson a student opens sets it,
+    and every later call returns the standing row unchanged (first writer wins).
+    Returns the standing {course, unit, opened_at}, or None when nothing could be
+    written (no store, a failure). Never raises."""
+    try:
+        code = str(code or "").strip()
+        if not code or not enabled():
+            return None
+        standing = free_unit(code)
+        if standing:
+            return standing
+        from sqlalchemy import insert
+        t = _tables["free_units"]
+        with _engine.begin() as conn:
+            try:
+                conn.execute(insert(t).values(code=code, course=str(course or "")[:32],
+                                              unit=int(unit or 0), opened_at=_now()))
+            except Exception:  # noqa: BLE001 -- a race: the other writer's row stands
+                pass
+        return free_unit(code)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[free_unit] write failed for {code}/{course}/{unit}: {exc}")
+        return None
 
 
 def get_script_done(code: str, course: str = DEFAULT_COURSE) -> list:
@@ -3049,6 +3117,9 @@ _STUDENT_CODE_TABLES = [
     # 2026-08-18 (build ik): the tour-seen fact, same rule -- a reset student is a
     # new student and gets the introduction again.
     ("tours_seen", "code"),
+    # 2026-09-29 (build yv): the free unit, same rule -- a reset student is a new
+    # student and gets a fresh "first unit to try".
+    ("free_units", "code"),
     # 2026-08-11 (build dd): sprint history, same rule -- a reset student starts with a
     # clean personal-best slate.
     ("sprints", "code"),

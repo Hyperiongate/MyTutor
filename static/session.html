@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (yv) 2026-09-29 -- THE FREE PLAN'S DOOR, ON THE BOARD. /api/script/start answers a free
+    student outside their first unit with one spoken line and `gated`; scriptStart shows the
+    Family card (showGateCard: a feedBlock like the Unit Quiz card, one link to /family, no
+    price on the child's screen) and plays the line. The live lane's upgrade_required reply
+    gets the same card. Jim's playthrough: four free lessons and unit 3 opened with no gate.
     (yu) 2026-09-29 -- AN ANSWER ENDS A PAUSE; IT IS NEVER THROWN AWAY. Jim's playthrough,
     Entry unit 2 lesson 4, "what is 2 + 4 + 6?": he tapped 12, the buttons vanished, nothing
     else happened, and the tutor sat waiting -- he had to turn the microphone on and SAY it.
@@ -919,6 +924,11 @@
     .feed .checkcard.keep { background:var(--bd-fff6e6); border:1px solid var(--bd-f2d59a); }
     .feed .checkcard .ck-top { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
     .feed .checkcard .ck-score { font-size:42px; font-weight:800; color:var(--ink); margin:2px 0 4px; }
+    /* (yv) the Family card: the free plan's door, on the board */
+    .feed .checkcard.gatecard { max-width:420px; }
+    .feed .checkcard .gate-text { font-size:17px; color:var(--ink); margin:8px 0 12px; line-height:1.4; }
+    .feed .checkcard .gate-link { display:inline-block; padding:12px 20px; border-radius:999px; font-weight:800; font-size:17px; text-decoration:none; background:var(--bd-5b5bd6); color:var(--bd-fff-text); }
+    .feed .checkcard .gate-cap { font-size:13px; color:var(--muted); margin:10px 0 0; }
     .feed .checkcard.pass .ck-badge { color:var(--bd-0e9f6e); font-weight:800; }
     .feed .checkcard.keep .ck-badge { color:var(--bd-a5741a); font-weight:800; }
     .feed .bubble { max-width: 96%; padding: 10px 14px; border-radius: 14px; font-size: 16px; line-height: 1.5; }   /* build oj: 80% wasted a fifth of the board (Jim) */
@@ -3997,9 +4007,28 @@
         SCR.on = true; SCR.id = j.id || les.id; SCR.lesson = j.lesson || les.topic;
         busy = true; setPhase("busy");
         renderRunDots(j.practice);     /* (xx) off at a lesson's start; hides any dots a last lesson left */
+        // (yv, 2026-09-29) THE FREE PLAN'S DOOR. The server sends one spoken line and
+        // `gated`; the card with the Family link goes on the board under it, because
+        // the student cannot type a URL and the parent is the one who will read it.
+        if (j.gated) showGateCard((j.upgrade || {}).family_url);
         scrIngest(j.steps);
         return true;
       } catch (e) { return false; }
+    }
+
+    // (yv) THE FAMILY CARD. Shown when a lesson is gated (scriptStart) or the live
+    // tutor answers with upgrade_required (runTutor): the same card either way, one
+    // link, no price on the student's screen. Rendered through feedBlock like the
+    // Unit Quiz card, so it sits on the board and scrolls with it.
+    function showGateCard(familyUrl) {
+      const host = feedBlock();
+      const url = familyUrl || "/family";
+      host.innerHTML = '<div class="checkcard pass gatecard">'
+        + '<div class="ck-top">Your free unit is done</div>'
+        + '<div class="ck-badge">★ Nice work!</div>'
+        + '<p class="gate-text">Ask your parent to open the Family page and upgrade — then we pick up right here.</p>'
+        + '<a class="btn gate-link" href="' + url + '" target="_blank" rel="noopener">Open the Family page →</a>'
+        + '<p class="gate-cap">Practice and Explore-a-topic still work any time.</p></div>';
     }
 
     // The student answered (typed, spoken, or tapped -- one door, as always).
@@ -4160,6 +4189,7 @@
         if (res === "__slow__") res = await chatFetch;
         const data = await res.json();
         let reply = res.ok ? data.reply : (data.detail || "Sorry, something went wrong.");
+        if (res.ok && data.upgrade_required) showGateCard();   /* (yv) the live lane's gate gets the same card */
         // The whiteboard KEEPS the current picture up across turns. Mr. Cadabra draws the
         // math he's discussing (and updates it as it changes); it only erases when he
         // moves on and sends [[clear]]. So we simply render whatever tags this reply has.

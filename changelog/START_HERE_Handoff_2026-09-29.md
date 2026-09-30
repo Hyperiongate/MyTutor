@@ -24,7 +24,22 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-29yu-an-answer-ends-a-pause`** (battery 13,334 passed, 0 failed, 3 skipped) — the first
+**On Jim's disk: `2026-09-29yv-the-free-unit-is-the-one-you-started`** (battery 13,343 passed, 0 failed, 3 skipped; see the
+yv section below) — the money path's two blockers. F26: the only free-plan gate sat on the
+LIVE lane and counted the Unit Quiz the scripted course never runs, so a free account could
+play every lesson in every course. Now the free unit is the (course, unit) of the FIRST
+scripted lesson a free student opens (`store.free_units`, first writer wins — the unit the
+placement sent them to, not unit 1); a lesson anywhere else is `LINE_FREE_GATE` plus the
+page's Family card, on both lanes; a subscribing parent opens it; a removed student takes it
+with them; personas untouched. PART 3op drills all of it through the real endpoints on a
+sqlite family. F27: the family page's Subscribe buttons were there all along, behind
+`_payments_open()` (a live Stripe key, or `PAYMENTS_OPEN=open`) — the site is in beta. What
+was wrong: `/pricing`'s "$29 Get full access" landed on /family with nothing to buy. Now
+`GET /api/billing/status` is public and the button reads it: closed → "Free during beta —
+join the beta" to /beta; open → the ribbon and the notice hide and it goes to /family.
+**The money path still has to be walked**: Jim sets `PAYMENTS_OPEN=open` in Render with the
+TEST Stripe key, redeploys, subscribes with 4242 4242 4242 4242, and sees the gated lesson
+open; then removes the override. **Prewarm: 1 line.** Before it, **On Jim's disk: `2026-09-29yu-an-answer-ends-a-pause`** (battery 13,334 passed, 0 failed, 3 skipped) — the first
 build off the playthrough. F23, the blocker inside a lesson: all three board pages'
 `sendToTutor` opened with `if (busy || paused) return;`, the page was paused, and
 `board.js`'s tap handler had already cleared the row — so a tap, a typed answer or a spoken
@@ -36,6 +51,20 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (yv, 2026-09-29) — Jim pushes (with yu; one push)
+
+- `main.py` (`_free_unit_gate`, `_free_unit_gate_live`, the gate in `_script_start_lesson`,
+  the live OR in `/api/chat`, `GET /api/billing/status`, stamp
+  `2026-09-29yv-the-free-unit-is-the-one-you-started`), `store.py` (`free_units`,
+  `free_unit`, `record_free_unit`, the reset registry), `lessonscripts.py`
+  (`LINE_FREE_GATE`), `static/session.html` (`showGateCard`, both lanes, CSS),
+  `static/pricing.html` (the button reads the status), `ruletests.py` (PART 3op; 46 count
+  pins 40,542 → 40,543), `speechmap.py` (regenerated),
+  `changelog/Build_yv_The_Free_Unit_Is_The_One_You_Started_2026-09-29.md`, this handoff.
+  After the push: `/health` shows the yv stamp; **prewarm 1 line**; `/pricing`'s Full-access
+  button reads "Free during beta"; then the money-path walk with `PAYMENTS_OPEN=open` (above).
+  The battery ran in the cloud workspace on the same staged copy as yu.
 
 ## Written to D:\MyTutor (yu, 2026-09-29) — Jim pushes
 
@@ -52,7 +81,7 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
 ## What to do next — the build order from the playthrough
 
 1. ~~`yu`~~ — done (above).
-2. **`yv` — the money path (F26 + F27).** Nobody can pay and nobody is gated. Find the
+2. ~~`yv`~~ — done (above). **Left for Jim: the walk with `PAYMENTS_OPEN=open`.** As planned: Nobody can pay and nobody is gated. Find the
    beta/billing switch in `main.py` (Jim's read: the site is in beta, checkout off); what it
    turns off; whether the free-tier gate is under it. `/family`'s plan box must carry the
    Upgrade button; `/pricing`'s Full-access button must start checkout for a signed-in parent

@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yv -- THE FREE UNIT IS THE ONE YOU STARTED. Jim's playthrough: a free
+#               account played four Entry lessons and opened unit 3 with no gate -- _free_gate
+#               sat on the LIVE lane only and counted the Unit Quiz the scripted course never
+#               runs. _free_unit_gate (scripted start) and _free_unit_gate_live (/api/chat):
+#               the free unit is the (course, unit) of the first scripted lesson opened
+#               (store.free_units, first writer wins); anything else is LINE_FREE_GATE and the
+#               page's Family card. GET /api/billing/status for /pricing. PART 3op.
 #   2026-09-29  BUILD yu -- AN ANSWER ENDS A PAUSE. Stamp only in this file: the fix is on the
 #               three board pages (sendToTutor no longer drops an answer sent while paused --
 #               Jim's vanished tap on "2 + 4 + 6"), board.js (a note) and lessonscripts.py
@@ -3439,6 +3446,67 @@ def _free_gate(code: str, student: dict, course: str):
             "anytime, free.)")
 
 
+def _free_unit_gate(code: str, student: dict, course: str, unit: int):
+    """(yv, 2026-09-29) THE FREE PLAN'S "A FIRST UNIT TO TRY", ENFORCED WHERE THE UNITS ARE.
+    Jim's first-family playthrough: on a free account he placed into Entry unit 2,
+    finished all four of its lessons, and unit 3 lesson 1 opened -- because the only
+    gate (_free_gate, above) sits on the LIVE lane and counts the 90% Unit Quiz, which
+    the scripted course never runs. This one sits on the scripted lane, where every
+    lesson knows its unit.
+
+    The rule, in the pricing page's own words: a free student's first unit is the
+    (course, unit) of the FIRST scripted lesson they open -- the unit the placement
+    sent them to, not unit 1 -- written once by store.record_free_unit. A lesson in
+    that unit is theirs; a lesson anywhere else is the gate. The placement check is
+    free on its own path; Practice and Explore-a-topic are untouched.
+
+    Returns None (allowed) or the warm spoken line (blocked). Fail-open in every
+    doubt -- no store, a pilot persona, a lookup error -- because a wrongly closed
+    door costs a paying family a lesson and a wrongly open one costs us a cent."""
+    try:
+        if _student_tier(code, student) != "free":
+            return None
+        if store is None or not store.enabled():
+            return None
+        unit = int(unit or 0)
+        fu = store.free_unit(code)
+        if fu is None:
+            fu = store.record_free_unit(code, course, unit)
+            if fu is None:
+                return None            # nothing could be written: do no harm, let it through
+        if (fu.get("course") or "") == (course or "") and int(fu.get("unit") or 0) == unit:
+            return None
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tier] free-unit lookup failed for {code}: {exc}")
+        return None
+    return lessonscripts.LINE_FREE_GATE
+
+
+def _free_unit_gate_live(code: str, student: dict, course: str, unit: int):
+    """(yv) The same promise on the LIVE lesson lane, where the unit is only sometimes
+    known (ChatRequest.unit is the dashboard's focus unit, 0 when none). A free
+    student whose free unit is recorded may use the live lesson tutor in that unit's
+    COURSE, and in that unit when a unit is named; any other course, or a named other
+    unit, is the gate. A student with no free unit yet is not gated here -- the
+    scripted lane records it on their first lesson. Never raises."""
+    try:
+        if _student_tier(code, student) != "free":
+            return None
+        if store is None or not store.enabled():
+            return None
+        fu = store.free_unit(code)
+        if not fu:
+            return None
+        if (fu.get("course") or "") != (course or ""):
+            return lessonscripts.LINE_FREE_GATE
+        unit = int(unit or 0)
+        if unit and unit != int(fu.get("unit") or 0):
+            return lessonscripts.LINE_FREE_GATE
+    except Exception as exc:  # noqa: BLE001
+        print(f"[tier] free-unit (live) lookup failed for {code}: {exc}")
+    return None
+
+
 @app.post("/api/parent/signup")
 def parent_signup(body: ParentSignupIn, request: Request):
     """Create a parent account. Free plan, no card, instant."""
@@ -6309,6 +6377,21 @@ def _script_start_lesson(body: ScriptStartIn):
     if lesson is None:
         raise HTTPException(status_code=404, detail=(
             "Unknown lesson id -- GET /api/script/lessons lists them."))
+    # (yv, 2026-09-29) THE FREE PLAN'S GATE, ON THE LANE THE CHILD USES. Before any
+    # state is built, any review is queued, or any line is spoken: a free student
+    # whose first unit is behind them hears the warm line and sees the Family card
+    # (session.html reads `gated`), and nothing else starts. The student record is
+    # looked up the same way every code-taking endpoint does it (_lookup_student:
+    # personas, families, beta passes); an unknown code is not this gate's business
+    # and falls through to the lesson exactly as before.
+    _stu = _lookup_student(code)
+    if _stu:
+        _gate = _free_unit_gate(code, _stu, lesson["course"], int(lesson.get("unit") or 0))
+        if _gate:
+            _event_safe("gate", "free_unit", f"{lesson['course']} u{lesson.get('unit')}", code, lesson["course"])
+            return {"ok": True, "gated": True, "id": lesson["id"], "lesson": lesson["topic"],
+                    "steps": [{"kind": "say", "spoken": _gate, "board": ""}],
+                    "upgrade": {"family_url": "/family"}}
     # (sz) the pass's shuffle seed: drawn here, once, so two students do not meet
     # the times table in the same order; a lesson without a table never reads it
     state = lessonscripts.start(lesson, seed=secrets.randbits(30))
@@ -8464,6 +8547,15 @@ def _payments_open() -> bool:
     return os.environ.get("STRIPE_SECRET_KEY", "").strip().startswith("sk_live_")
 
 
+@app.get("/api/billing/status")
+def billing_status():
+    """(yv, 2026-09-29) Are we taking payments? Public and boolean, nothing else:
+    /pricing reads it so a "$29 Get full access" button is never shown while the
+    answer is no (Jim's playthrough: it landed on /family with nothing to buy).
+    The family page has had the same fact as billing_ready since 08-01."""
+    return {"ok": True, "payments_open": _payments_open()}
+
+
 def _require_payments_open() -> None:
     if not _payments_open():
         raise HTTPException(status_code=503, detail=(
@@ -9713,7 +9805,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-29yu-an-answer-ends-a-pause"
+APP_BUILD = "2026-09-29yv-the-free-unit-is-the-one-you-started"
 
 
 @app.get("/health")
@@ -10742,7 +10834,7 @@ def chat(req: ChatRequest):
 
     # FREE PLAN GATE (2026-07-31): a free student who has mastered their first unit
     # gets a warm upgrade note instead of a lesson -- checked BEFORE the paid call.
-    gate = _free_gate(code, student, req.course)
+    gate = _free_gate(code, student, req.course) or _free_unit_gate_live(code, student, req.course, req.unit)   # (yv)
     if gate:
         return {"reply": gate, "upgrade_required": True}
 
