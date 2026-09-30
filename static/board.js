@@ -2,6 +2,9 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-29  BUILD yu -- a note on showChoices's tap handler: the row clears before the page
+                 accepts the answer, so sendToTutor may refuse only on `busy` (it refused a
+                 paused answer, silently, until yu). No logic change in this file.
      2026-09-25  BUILD yc -- THE REDRAW SETTLES. yb's redraw ran on every pass of the fitter --
                  a redraw is a DOM mutation, the feed's MutationObserver answers every
                  mutation with scrollFeed, and scrollFeed runs the fitter: a 60 fps loop for
@@ -600,6 +603,11 @@ function showChoices(a) {
     b.className = "choicebtn" + (extra ? " " + extra : ""); b.textContent = label;
     b.addEventListener("click", () => {
       if (busy) return;
+      // (yu, 2026-09-29) THIS ROW CLEARS ITSELF BEFORE THE PAGE HAS ACCEPTED THE ANSWER,
+      // so the page's sendToTutor must never refuse an answer this handler lets through.
+      // It refused a PAUSED one until yu (`if (busy || paused) return;`) and the tap
+      // vanished with nothing on screen -- Jim's "the bubbles all disappeared". The three
+      // pages now release the pause and send; `busy` is the one gate, checked here too.
       Array.prototype.forEach.call(row.querySelectorAll("button"), (x) => { x.disabled = true; });
       ensureAudioGraph(); clearChoices(); sendToTutor(message);
     });

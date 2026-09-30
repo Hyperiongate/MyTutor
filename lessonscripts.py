@@ -2,6 +2,9 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yu -- LINE_UNSURE no longer says "tap the hand": session.html has no ✋
+#               (it stayed on pilot.html when the player was ported). "Ask me anything, or take a
+#               guess -- I will help either way." One line changed; prewarm it.
 #   2026-09-27  BUILD yq -- cdmp asks in the lesson's own words. The Diffeq quiz sweep: the
 #               knife-edge lesson teaches "the middle squared must equal 4 times the last" and
 #               its ask said "on the y prime term ... the plain y term" -- two terms the lesson
@@ -908,8 +911,15 @@ LINE_QUIZ_FAIL = ("Not a pass this time, and that is useful to know. "
                   "We will practise this one again and you can retake it.")
 
 LINE_WHOLE = "That one wants a whole number. Have another go."
-LINE_UNSURE = ("Saying you are not sure is a good move. Tap the hand and ask me "
-               "anything — or take a guess, and I will help either way.")
+# (yu, 2026-09-29) "TAP THE HAND" NAMED A BUTTON THE LESSON PAGE DOES NOT HAVE. The ✋
+# lived on pilot.html (oq); the pb port of the player into session.html never carried
+# it, and Jim's playthrough heard the line and looked for a hand: "there is no hand
+# other than the hands associated with the pencil, and those aren't clickable." A
+# question still reaches the raised-hand door -- typed or spoken, scrAnswer routes a
+# "?" or a "what/why/how" opener to /api/script/ask -- so the line now says what a
+# student can actually do. One authored line; prewarm it.
+LINE_UNSURE = ("Saying you are not sure is a good move. Ask me anything, "
+               "or take a guess — I will help either way.")
 
 # (sp, 2026-09-05) THE REASON QUESTION'S TWO VERDICTS. "Say it" is beat six of the
 # shape: after the streak, one question that asks not WHAT the answer was but WHY --

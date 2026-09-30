@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!--
+    (yu) 2026-09-29 -- AN ANSWER ENDS A PAUSE; IT IS NEVER THROWN AWAY. Jim's playthrough,
+    Entry unit 2 lesson 4, "what is 2 + 4 + 6?": he tapped 12, the buttons vanished, nothing
+    else happened, and the tutor sat waiting -- he had to turn the microphone on and SAY it.
+    Cause: sendToTutor opened with `if (busy || paused) return;` and the page was paused (the
+    status line had read "Paused" since the lesson opened). board.js's tap handler checks
+    only `busy`, so it disabled the row, cleared it and called sendToTutor, which returned
+    without a word. The typed box (sendTyped empties the input first) and the microphone
+    (mic.js posts the transcript) dropped their answers the same silent way. Now: a pause
+    is released by the student's own answer -- releasePause() clears the flag, the button
+    and the status line without resuming the clip (scrSay's stopAllSpeech supersedes it,
+    exactly as when a student answers over a playing line) -- and the answer goes through.
+    Same fix on practice.html and topic.html. Pin: PART 3oo.
     (yi) 2026-09-26 -- THE BOARD CHIP. "🟦 Dark board / ⬜ White board" in the top bar, the
     lesson page's toggle (rp) on this page too, wired by board.js (MTBoard.wire); the choice
     is the same remembered one (mt_board). Jim: every course, every page, the same boards.
@@ -1356,6 +1368,16 @@
       }
     }
     if (pauseBtn) pauseBtn.addEventListener("click", () => setPaused(!paused));
+    // (yu, 2026-09-29) A PAUSE ENDS WHEN THE STUDENT ANSWERS. The flag, the button and
+    // the status line are put back; the clip is NOT resumed -- the next line's
+    // stopAllSpeech supersedes it, exactly as when a student answers over a playing
+    // line. Before this, an answer sent while paused was thrown away without a word
+    // (the choices row had already cleared itself; the typed box had already emptied).
+    function releasePause() {
+      paused = false;
+      if (pauseBtn) { pauseBtn.classList.remove("on"); pauseBtn.textContent = "\u23f8 Pause"; }
+      if (statusEl && statusEl.textContent === "Paused") statusEl.textContent = "";
+    }
 
     // ---------- Tap-to-talk ----------
     // 2026-08-07: VOICE INPUT RESTORED (Jim) -- canRecord is a real capability check again:
@@ -1412,7 +1434,8 @@
 
     // ---------- Talk to the tutor ----------
     async function sendToTutor(message) {
-      if (busy || paused) return;
+      if (busy) return;
+      if (paused) releasePause();   /* (yu) the student's answer ends the pause; it is never dropped */
       busy = true; setPhase("busy");
       addBubble("student", message);
       history.push({ role: "user", content: message });

@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yu -- AN ANSWER ENDS A PAUSE. Stamp only in this file: the fix is on the
+#               three board pages (sendToTutor no longer drops an answer sent while paused --
+#               Jim's vanished tap on "2 + 4 + 6"), board.js (a note) and lessonscripts.py
+#               (LINE_UNSURE names no hand the page does not have). PART 3oo.
 #   2026-09-28  BUILD yt (2) -- WHERE THE MINUTES GO. GET /api/admin/lanes (store.lane_minutes):
 #               scripted answers against live model turns, per course and per student
 #               (masked), and the live DOORS by name -- every /api/chat turn records a
@@ -9709,7 +9713,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-28yt-the-personas-are-the-owners"
+APP_BUILD = "2026-09-29yu-an-answer-ends-a-pause"
 
 
 @app.get("/health")

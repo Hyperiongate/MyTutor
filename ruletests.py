@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-29  BUILD yu -- PART 3oo, AN ANSWER ENDS A PAUSE: the three board pages' sendToTutor
+#               no longer drops an answer sent while paused (Jim's vanished tap on 2 + 4 + 6);
+#               releasePause beside setPaused; LINE_UNSURE names no hand.
 #   2026-09-28  BUILD yt -- PART 3on, THE PERSONAS ARE THE OWNER'S: with a database the four
 #               students.json codes resolve only for the owner's request (cookie or key),
 #               stamped by the middleware into a ContextVar; open on a dev box; parent-made
@@ -25611,6 +25614,74 @@ def part3on_the_personas_are_the_owners():
           and "(yt) 2026-09-28" in asrc[:1500], "")
     check("  the changed files carry dated yt notes",
           all("2026-09-28" in notes(f) and "yt" in notes(f) for f in ("main.py", "store.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3oo_an_answer_ends_a_pause():
+    """PART 3oo (build yu, 2026-09-29) -- AN ANSWER ENDS A PAUSE; IT IS NEVER THROWN AWAY.
+    Jim's first-family playthrough, Entry unit 2 lesson 4: he tapped 12 on "what is
+    2 + 4 + 6?", the buttons vanished, nothing else happened, and he had to turn the
+    microphone on and SAY it. sendToTutor opened with `if (busy || paused) return;` on all
+    three board pages, and the page was paused; board.js's tap handler gates only on
+    `busy`, so the row had already cleared itself when the page refused. The typed box
+    and the microphone dropped their answers the same silent way. Now the student's
+    answer releases the pause (flag, button, status line; the clip is left to the next
+    line's stopAllSpeech) and goes through. And LINE_UNSURE no longer says "tap the hand"
+    -- session.html has no hand; the ✋ stayed on pilot.html when the player was ported."""
+    print("\nPART 3oo — an answer ends a pause (build yu)")
+    import re as _re
+    here = os.path.dirname(os.path.abspath(__file__))
+    for page in ("session.html", "practice.html", "topic.html"):
+        src = open(os.path.join(here, "static", page), encoding="utf-8").read()
+        body = code_only(src)
+        i = body.find("async function sendToTutor(")
+        head = body[i:i + 400] if i >= 0 else ""
+        check("⭐ %s: sendToTutor refuses on busy alone, and releases a pause instead of dropping the answer" % page,
+              i >= 0 and "if (busy || paused) return;" not in body
+              and "if (busy) return;" in head and "if (paused) releasePause();" in head, head[:200])
+        j = body.find("function releasePause(")
+        rp = body[j:j + 400] if j >= 0 else ""
+        check("  %s: releasePause clears the flag, the button and the status line, and never calls play()" % page,
+              j >= 0 and "paused = false;" in rp and "\\u23f8 Pause" in rp
+              and "\"Paused\"" in rp and ".play(" not in rp, rp[:200])
+        check("  %s: releasePause is defined beside setPaused (the pause button's own handler)" % page,
+              j >= 0 and body.find("function setPaused(") >= 0 and abs(j - body.find("function setPaused(")) < 2500, "")
+        check("  %s carries a dated yu note" % page, "2026-09-29" in notes("static/" + page) and "yu" in notes("static/" + page), "Jim's rule 8")
+    bj = code_only(open(os.path.join(here, "static", "board.js"), encoding="utf-8").read())
+    k = bj.find("function showChoices(")
+    h = bj[k:k + 900]
+    check("  board.js: the tap handler still gates on busy alone and still clears the row before sendToTutor (the contract the pages now honour)",
+          k >= 0 and "if (busy) return;" in h and "clearChoices(); sendToTutor(message);" in h and "paused" not in h, "")
+    try:
+        import lessonscripts as LS
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    check("⭐ LINE_UNSURE names nothing the lesson page does not have (no hand, no ✋)",
+          "hand" not in LS.LINE_UNSURE.lower() and "✋" not in LS.LINE_UNSURE
+          and LS.LINE_UNSURE.startswith("Saying you are not sure is a good move.")
+          and "Ask me anything" in LS.LINE_UNSURE and "take a guess" in LS.LINE_UNSURE, LS.LINE_UNSURE)
+    ssrc = code_only(open(os.path.join(here, "static", "session.html"), encoding="utf-8").read())
+    check("  ...and the lesson page really has no raised-hand button (the day it gets one, say so in the line again)",
+          "✋" not in ssrc and 'id="raiseHand"' not in ssrc, "")
+    check("  LINE_UNSURE is under the credit-line cap and still in the standalone lines and the course closure",
+          len(LS.LINE_UNSURE.split()) <= 26 and LS.LINE_UNSURE in LS.STANDALONE_LINES and LS.LINE_UNSURE in LS.course_audio_lines(), "")
+    check("  the changed files carry dated yu notes",
+          all("2026-09-29" in notes(f) and "yu" in notes(f) for f in ("main.py", "lessonscripts.py", "static/board.js", "ruletests.py")), "Jim's rule 8")
+    # ---- the page, in a real browser (tools/yudrive.py) ------------------------------------
+    import subprocess as _sp, os as _os
+    NAME = "⭐ LIVE: the real Pause button pressed, a tap and a typed answer are both SENT, shown and release the pause; busy still gates"
+    if dep_gate(NAME, "playwright", "the fix is proved in a real browser"):
+        try:
+            r = _sp.run([sys.executable, _os.path.join(here, "tools", "yudrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=240,
+                        env=dict(_os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout,
+                  (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  tools/yudrive.py is in the repo and ends honestly",
+          _os.path.exists(_os.path.join(here, "tools", "yudrive.py"))
+          and open(_os.path.join(here, "tools", "yudrive.py"), encoding="utf-8").read().rstrip().endswith("# I did no harm and this file is not truncated."), "")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -52579,6 +52650,7 @@ def main():
     part3ol_the_second_quiz_readings()
     part3om_the_buttons_answer_the_question_asked()
     part3on_the_personas_are_the_owners()
+    part3oo_an_answer_ends_a_pause()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
