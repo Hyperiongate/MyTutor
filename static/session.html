@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <!--
+    (yy) 2026-09-30 -- THE TOUR, REWRITTEN AGAINST TODAY'S SCREEN. Jim's playthrough flagged it
+    five times: "that glowing face" (no face since rj -- the pencil is Mr. Cadabra; the glow and
+    the tag are on him now, and he waves), "the big whiteboard" (Entry's is cream: "the big
+    board"), the "look here" tag bobbing behind the taskbar (the hidden composer's 0x0 rect
+    dragged the group's top to 0; hidden nodes are dropped and the tag never leaves the
+    window), the tour played TWICE on one first visit (the seen-fact was only written by the
+    handoff, which the assessment's Yes never reached: markTourSeen at the tour's end,
+    keepalive), and the young tour showed talking and never tapping (TOUR_STEPS_ELEM has its
+    own buttons stop that draws real demo buttons -- uc's order kept, say first -- plus one
+    stop for the sidebar). The "How to answer" helper stays as uc wrote it. TOUR_LINES 29 -> 30.
     (yv) 2026-09-29 -- THE FREE PLAN'S DOOR, ON THE BOARD. /api/script/start answers a free
     student outside their first unit with one spoken line and `gated`; scriptStart shows the
     Family card (showGateCard: a feedBlock like the Unit Quiz card, one link to /family, no
@@ -1596,6 +1606,9 @@
       document.head.appendChild(est);
       const eh = document.createElement("div");
       eh.className = "elem-hint";
+      // (yy, 2026-09-30) READ AND LEFT: the playthrough's F13 wanted this line tap-first for
+      // Entry, but uc (above) is Jim's own ruling -- speak first, type, tap -- the same
+      // three doors in the same order in every course. The line stands as uc wrote it.
       eh.innerHTML = "🎙️ <b>How to answer:</b> tap the microphone and <b>say your answer out loud</b> — or tap <b>Type my answer</b> and write it instead. The answer buttons work too!";
       composer.parentNode.insertBefore(eh, composer);
     }
@@ -2125,6 +2138,10 @@
       // button — and the composer too, which covers the typing/elementary fallback where
       // the talk button is hidden and the type box is the visible answer spot.
       "answer":       ["talkBtn", "composer"],
+      // (yy, 2026-09-30) the young tour's own stops: the sidebar's door, and the demo
+      // tap buttons the stop draws (showChoices; "choiceRow" is the row's id since yy).
+      "sidebar":      "dashLink",
+      "taps":         "choiceRow",
     };
     // 2026-08-07 (build bi, Jim): if the TOUR opened the curriculum list, close it again
     // when the tour moves on — left open, it pushed Mr. Cadabra below the fold and the
@@ -2160,10 +2177,29 @@
       const key = String(id || "").toLowerCase();
       if (key === "none" || key === "clear" || key === "off") return;
       const targetId = TOUR_TARGETS[key];
-      if (!targetId) return;
-      // A stop may spotlight ONE element or SEVERAL (e.g. Practice + Course Assessment).
-      const ids = Array.isArray(targetId) ? targetId : [targetId];
-      const nodes = ids.map(el).filter(Boolean);
+      // (yy, 2026-09-30) "tutor" IS THE PENCIL. Since rj the pencil is Mr. Cadabra and
+      // no face is on the screen; the stop that said "that glowing face" glowed the
+      // name panel. The tag points at his body (an SVG group: measured, never boxed --
+      // a box-shadow does nothing on SVG, and the glow class is harmless there), and
+      // the name panel is the fallback when the pencil is not up (reduced motion, a
+      // page without him).
+      let nodes;
+      if (key === "tutor") {
+        const body = document.querySelector("#cadabra-layer .cd-body");
+        nodes = (body && body.getBoundingClientRect().width > 8) ? [body] : [el(targetId)].filter(Boolean);
+      } else {
+        if (!targetId) return;
+        // A stop may spotlight ONE element or SEVERAL (e.g. Practice + Course Assessment).
+        const ids = Array.isArray(targetId) ? targetId : [targetId];
+        nodes = ids.map(el).filter(Boolean);
+      }
+      // (yy) A HIDDEN NODE HAS NO PLACE ON THE SCREEN. The "answer" stop names the talk
+      // button AND the composer, and the composer is display:none until "Type my
+      // answer" is tapped -- its rect is 0,0,0,0, so the group's top read as 0 and the
+      // tag was placed BELOW the group, off the bottom of the window, bobbing behind
+      // the taskbar (Jim's F6: "in and out of sight ... behind my toolbar"). Only
+      // nodes with a size take part in the placing.
+      nodes = nodes.filter((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
       if (!nodes.length) return;
       // build or (2026-08-27): a glow target living in the COLLAPSED sidebar would glow
       // nothing -- open the sidebar first. It stays open (the student closes it with the
@@ -2199,7 +2235,13 @@
         const left = Math.min(...rects.map(r => r.left)), right = Math.max(...rects.map(r => r.right));
         const top = Math.min(...rects.map(r => r.top)), bottom = Math.max(...rects.map(r => r.bottom));
         tag.style.left = Math.max(8, Math.min(window.innerWidth - 130, (left + right) / 2 - 55)) + "px";
-        tag.style.top = (top > 60 ? top - 44 : bottom + 12) + "px";
+        // (yy) ABOVE the target when there is room above it; below it only when there is
+        // room BELOW it too (the tag is ~34px tall and bounces 7px) -- and never past
+        // the window's bottom edge, whatever the target's size.
+        const TAG_H = 34;
+        let ty = top > 60 ? top - 44 : bottom + 12;
+        if (ty + TAG_H + 8 > window.innerHeight) ty = Math.max(8, top - 44);
+        tag.style.top = ty + "px";
         tag.style.display = "block";
       }, 520);
     }
@@ -3294,16 +3336,24 @@
       { id: "bars",
         text: "Now look up top — that's your map, and it never lies. First it tells you in plain words what you're working on right now, and what's still to come today. Then your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. Below that is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour it tucks itself away behind the little Progress button, so the whole board is yours — tap it any time to peek at your map." },
       { id: "tutor",
-        text: "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go." },
+        // (yy, 2026-09-30) THE FACE IS GONE; THE PENCIL IS MR. CADABRA. Jim's playthrough:
+        // the tour said "that glowing face" and no face has been on the screen since rj
+        // retired the orb. The glow target is the pencil himself now (TOUR_TARGETS
+        // "tutor" -> the pencil's body), he waves on cue, and the board is "the big
+        // board" -- Entry's is cream, not white (xx).
+        text: "And that's me waving — Mr. Cadabra, the pencil with the hat! The big board is mine too: that's where I'll draw every step as we go." },
       { id: "answer",
         // (uc) the tour's last stop is the same stop in every course now: SAY it. The
         // elementary line used to open with the buttons; it opens with the microphone,
         // in words a young reader can follow, and the buttons come last, as a bonus.
-        text: (IS_ELEM && !canRecord)
-          ? "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out."
-          : (IS_ELEM
-              ? "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well."
-              : "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.") },
+        // (yy, 2026-09-30) ...FOR THE TYPING COURSES. Entry and Basic have their own
+        // answer stop again (TOUR_STEPS_ELEM "taps"): it keeps uc's order -- say first,
+        // then the buttons -- and SHOWS real buttons for the line. Jim: "we should see an
+        // example of them being able to tap a button." canRecord no longer picks a
+        // young student's line.
+        text: (canRecord
+              ? "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead."
+              : "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well.") },
     ];
     // (uh) THE SHORT TOUR FOR THE YOUNGEST. The grand tour is eleven stops and
     // about 500 words -- three minutes or more of listening before a first grader's
@@ -3316,12 +3366,26 @@
     // opener, the glow, the Skip pill, the __tour_done__ hand-off and the
     // recorded tour-seen fact are all the same code path: only the list is shorter.
     // ⚠️ NO LAYOUT WORDS here either (build in's phone rule: the glow is the pointer).
+    // (yy, 2026-09-30) FOUR STOPS NOW, REWRITTEN AGAINST TODAY'S SCREEN -- Jim played the
+    // tour as a new family and flagged it four times: "look at his glowing face" (no face
+    // on the screen since rj -- the pencil is Mr. Cadabra), "the big whiteboard is mine"
+    // (Entry's board is cream since xx), the tour showed talking back and never showed
+    // TAPPING ("tapping is how a six-year-old actually answers"), and it never named the
+    // sidebar's buttons. So: me and the board (the pencil waves, the glow is on him), the
+    // map, the sidebar in one breath ("a grown-up can show you those later"), and the
+    // buttons stop -- real tap buttons drawn on the screen for the line ("like these"),
+    // in uc's order: say first, then the taps. Still no Course Assessment, no Final Exam, no
+    // layout words. The sidebar stop's glow is the Progress button (the sidebar's own
+    // door), not a list of six.
     const TOUR_STEPS_ELEM = [
       { id: "tutor",
-        text: "See that glowing face? That's me, Mr. Cadabra! And the big whiteboard is mine — that's where I'll draw every step, so you can see it while I say it." },
+        text: "See me waving? I'm Mr. Cadabra — the pencil with the hat! And the big board is mine: that's where I'll draw every step, so you can see it while I say it." },
       { id: "bars",
         text: "Now look at the glowing map. It shows what we're learning today, and every piece turns gold as you learn it. After our tour it hides behind the little Progress button — tap that any time to peek." },
-      TOUR_STEPS.find(function (st) { return st.id === "answer"; }),
+      { id: "sidebar",
+        text: "Over here are the buttons for your lessons, your progress, and extra practice. A grown-up can show you those later — today, everything you need is right here on the board." },
+      { id: "taps",
+        text: "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right down here at the bottom — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you." },
     ];
     const tourSteps = () => (IS_ELEM ? TOUR_STEPS_ELEM : TOUR_STEPS);
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
@@ -3391,12 +3455,27 @@
       let _ti = 0;
       tourShelf(0);
       await tourLine(COURSE_OPENER);
-      for (const step of tourSteps()) {   // (uh) three stops for Entry and Basic, the grand tour for everyone else
+      for (const step of tourSteps()) {   // (uh) four stops for Entry and Basic since yy, the grand tour for everyone else
         if (skipped) break;
+        // (yy) THE BUTTONS STOP SHOWS REAL BUTTONS. The young tour's last stop draws a
+        // demo choices row -- the same showChoices, the same 72px young-student buttons --
+        // so "like these" points at something, and the row leaves with the stop. A tap
+        // on a demo button sends nothing: showChoices's handler gates on `busy`, and
+        // the tour runs busy from its first word.
+        if (step.id === "taps") { try { showChoices({ options: "3 | 4 | 5" }); } catch (e) {} }
         highlightEl(step.id);
+        cadFire("tour." + step.id);       // (yy) the pencil's part in each stop (cadabra-script.json: tour.tutor waves, tour.taps and tour.answer point)
         tourShelf(++_ti);                 // (vb) tourAll[0] is the opener, so a step's index is _ti
         await tourLine(step.text);
+        if (step.id === "taps") { try { clearChoices(); } catch (e) {} }
       }
+      // (yy, 2026-09-30) THE TOUR IS SEEN THE MOMENT IT ENDS -- not only when the
+      // handoff runs. Jim's playthrough: the tour played, the assessment invitation
+      // came up, he took the assessment, and on his return the WHOLE tour played again
+      // (F9). The seen-fact was written by tourHandoff, which the "Yes" button never
+      // reached (it navigates to /challenge). Written here, keepalive so the navigation
+      // cannot cancel it; tourHandoff's own write stays and is idempotent.
+      markTourSeen();
       if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
       document.body.classList.remove("touring");         // (ug)
       clearHighlight();
@@ -3445,11 +3524,19 @@
     // at all -- falls through to the live opener with the very message it always
     // sent, so the behaviour on that path is byte-for-byte what shipped before.
     // =====================================================================
+    // (yy) the one writer of the tour-seen fact: runTour's end and tourHandoff both call
+    // it; the server's row is idempotent (store.record_tour_seen upserts). keepalive lets
+    // the request outlive a navigation to /challenge.
+    function markTourSeen() {
+      try {
+        return fetch("/api/tour-seen", {
+          method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
+          body: JSON.stringify({ code: CODE, course: COURSE }) }).catch(() => {});
+      } catch (e) { return Promise.resolve(); }
+    }
     async function tourHandoff(openerMessage) {
       try {
-        await fetch("/api/tour-seen", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: CODE, course: COURSE }) });
+        await markTourSeen();
       } catch (e) {}       // the lesson must never wait on a bookkeeping row
       try {
         SCR.afterTour = true;          // (yi) the tour just welcomed them: the review opens "Now, before we get into..."

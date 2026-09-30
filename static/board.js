@@ -2,6 +2,8 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-30  BUILD yy -- showChoices gives the row id="choiceRow" so the young tour's buttons
+                 stop can glow the demo buttons it draws. One row exists at a time; no other change.
      2026-09-29  BUILD yu -- a note on showChoices's tap handler: the row clears before the page
                  accepts the answer, so sendToTutor may refuse only on `busy` (it refused a
                  paused answer, silently, until yu). No logic change in this file.
@@ -598,6 +600,7 @@ function showChoices(a) {
   if (!opts.length) return;
   ensureChoicesCSS(); clearChoices();
   const row = document.createElement("div"); row.className = "choicerow"; choicesRow = row;
+  row.id = "choiceRow";   // (yy) one row at a time (clearChoices removes the last); the tour's buttons stop points at it by id
   function choiceBtn(label, message, extra) {
     const b = document.createElement("button"); b.type = "button";
     b.className = "choicebtn" + (extra ? " " + extra : ""); b.textContent = label;

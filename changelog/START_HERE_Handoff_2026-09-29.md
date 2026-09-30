@@ -24,7 +24,15 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-30yx-trap-is-gone`** (battery 13,380 passed, 0 failed, 3 skipped) —
+**On Jim's disk: `2026-09-30yy-the-tour-reads-todays-screen`** (battery 13,394 passed, 0 failed, 3 skipped; the yy section
+below) — the tour, rewritten against the screen as it is: no "glowing face" (the pencil is
+Mr. Cadabra; the glow and the tag are on him and he waves), "the big board" not
+"whiteboard", the "look here" tag never behind the taskbar (hidden nodes no longer place
+it; it stays inside the window), the tour recorded as seen when it ENDS so it never plays
+twice on one first visit, and the young tour SHOWS the buttons — a real demo row drawn for
+the line, in uc's order (say first) — with one stop for the sidebar. F13 (the helper line's
+order) read and left: it is uc, Jim's own ruling. Proved in a real browser (`tools/yydrive.py`). **Prewarm 4
+lines.** Before it, **On Jim's disk: `2026-09-30yx-trap-is-gone`** (battery 13,380 passed, 0 failed, 3 skipped) —
 Jim's two rulings of the morning: **"trap" gone everywhere** (131 spoken lines in all ten
 courses say "a common mistake" now — "Here is a common mistake to look out for." in his
 words; `VOCABULARY` bans every spoken form; the elementary prompt says the same) and **the
@@ -52,9 +60,10 @@ sqlite family. F27: the family page's Subscribe buttons were there all along, be
 was wrong: `/pricing`'s "$29 Get full access" landed on /family with nothing to buy. Now
 `GET /api/billing/status` is public and the button reads it: closed → "Free during beta —
 join the beta" to /beta; open → the ribbon and the notice hide and it goes to /family.
-**The money path still has to be walked**: Jim sets `PAYMENTS_OPEN=open` in Render with the
-TEST Stripe key, redeploys, subscribes with 4242 4242 4242 4242, and sees the gated lesson
-open; then removes the override. **Prewarm: 1 line.** Before it, **On Jim's disk: `2026-09-29yu-an-answer-ends-a-pause`** (battery 13,334 passed, 0 failed, 3 skipped) — the first
+**The money path was walked on 09-30** (Jim: `PAYMENTS_OPEN=open` with the test key, the
+card in, Stripe back, "You're all set. Every covered student now has full access", the plan
+box Active — "it looks like it's all working"). The override comes out of Render when he is
+done testing; the live key goes in before a stranger pays. **Prewarm: 1 line.** Before it, **On Jim's disk: `2026-09-29yu-an-answer-ends-a-pause`** (battery 13,334 passed, 0 failed, 3 skipped) — the first
 build off the playthrough. F23, the blocker inside a lesson: all three board pages'
 `sendToTutor` opened with `if (busy || paused) return;`, the page was paused, and
 `board.js`'s tap handler had already cleared the row — so a tap, a typed answer or a spoken
@@ -66,6 +75,17 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (yy, 2026-09-30) — Jim pushes (with yu–yx; one push)
+
+- `static/session.html` (both tours, `TOUR_TARGETS`, `highlightEl`, `runTour`, `markTourSeen`),
+  `static/board.js` (the row's id), `lessonscripts.py` (`TOUR_LINES` 30),
+  `static/cadabra-script.json` + `.example.json` (three tour moments; version yy),
+  `tools/yydrive.py` (NEW), `ruletests.py` (PART 3os; counts 40,544), `main.py` (stamp
+  `2026-09-30yy-the-tour-reads-todays-screen`), `speechmap.py`,
+  `changelog/Build_yy_The_Tour_Reads_Todays_Screen_2026-09-30.md`, this handoff. After the
+  push: `/health` = the yy stamp; **prewarm 4 lines** (yx's ~134, yu's and yv's one each).
+  To see it: a new student's first Entry sign-in, or any lesson URL with `&tour=1`.
 
 ## Written to D:\MyTutor (yx, 2026-09-30) — Jim pushes (with yu, yv, yw; one push)
 
@@ -113,14 +133,14 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
 ## What to do next — the build order from the playthrough
 
 1. ~~`yu`~~ — done (above).
-2. ~~`yv`~~ — done (above). **Left for Jim: the walk with `PAYMENTS_OPEN=open`.** ~~`yw`~~ — the judge reads the ask, done (above; not in the original order). As planned for yv: Nobody can pay and nobody is gated. Find the
+2. ~~`yv`~~ — done, and the money path walked by Jim on 09-30 (test key; it works). ~~`yw`~~ — the judge reads the ask, done (above; not in the original order). As planned for yv: Nobody can pay and nobody is gated. Find the
    beta/billing switch in `main.py` (Jim's read: the site is in beta, checkout off); what it
    turns off; whether the free-tier gate is under it. `/family`'s plan box must carry the
    Upgrade button; `/pricing`'s Full-access button must start checkout for a signed-in parent
    (or say "free during beta" while the switch is off — never a $29 button that lands on
    /family); the gate must count "a first unit" as the unit the student was PLACED INTO, not
    unit 1. Then Jim walks it again with Stripe test keys — the paid path has never been walked.
-3. **`yy` — NEXT: the tour (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
+3. ~~`yy` — the tour~~ — done (above). As planned: (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
    pass over the tour script against today's screen: no glowing face, "the big board" not
    "whiteboard", a tap demonstrated, the pointer ABOVE its target (it bobbed behind the
    laptop's toolbar), the dashboard named once, played once per student (it played twice —
@@ -128,7 +148,7 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    once, not in the bubble and on the board.
 4. ~~`yy` — the words a child hears~~ — **done as `yx`** (F17 canon-wide, F22, F25, F29; F15
    read and left to Jim's ruling).
-5. **`yz` — the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
+5. **`yz` — NEXT: the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
    draws the bigger group FIRST with 7..11 under the added stars (the board drew 5 + 6 while
    the words said start at 6); the Geometry review draws its 24 squares (read the other
    eight reviews for the same — `bridges.py` has never been swept); the pencil goes idle or

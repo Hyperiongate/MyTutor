@@ -2,6 +2,11 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yy -- THE TOUR IS REWRITTEN AGAINST TODAY'S SCREEN (Jim's playthrough F4,
+#               F5, F10, F11): no "glowing face" (the pencil is Mr. Cadabra), "the big board"
+#               not "whiteboard" (Entry's is cream), the young tour gets a buttons stop that
+#               shows real tap buttons (uc's order kept: say first, then the taps), and one
+#               stop for the sidebar's buttons. TOUR_LINES 29 -> 30; four lines changed. Prewarm them.
 #   2026-09-30  BUILD yx -- "TRAP" IS GONE. Jim's ruling: a six-year-old does not know the word;
 #               "here's a very common mistake to look out for" is the meaning. 131 spoken lines in
 #               all ten courses (7 generated here: the two-clue "closing in", the table's "wrong
@@ -17018,11 +17023,12 @@ TOUR_LINES = (
     "And the Final Exam — that's the top of the mountain. It unlocks once you've mastered all nine units, and passing it makes you a Course Champion. Something to look forward to!",
     "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here.",
     "Now look up top — that's your map, and it never lies. First it tells you in plain words what you're working on right now, and what's still to come today. Then your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. Below that is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour it tucks itself away behind the little Progress button, so the whole board is yours — tap it any time to peek at your map.",
-    "And that glowing face — that's me, Mr. Cadabra! The big whiteboard is mine too: that's where I'll draw every step as we go.",
-    "Last one, and it's the important one: when I ask you a question, big answer buttons pop up right down here at the bottom. Just tap the answer you think is right! And if you're not sure, tap the 'I'm not sure' button and I'll help you figure it out.",
+    "And that's me waving — Mr. Cadabra, the pencil with the hat! The big board is mine too: that's where I'll draw every step as we go.",
+    "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right down here at the bottom — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you.",
     "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well.",
     "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.",
-    "See that glowing face? That's me, Mr. Cadabra! And the big whiteboard is mine — that's where I'll draw every step, so you can see it while I say it.",
+    "See me waving? I'm Mr. Cadabra — the pencil with the hat! And the big board is mine: that's where I'll draw every step, so you can see it while I say it.",
+    "Over here are the buttons for your lessons, your progress, and extra practice. A grown-up can show you those later — today, everything you need is right here on the board.",
     "Now look at the glowing map. It shows what we're learning today, and every piece turns gold as you learn it. After our tour it hides behind the little Progress button — tap that any time to peek.",
 )
 
