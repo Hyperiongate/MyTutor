@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx (2) -- NO AWARD INTERRUPTS A LESSON (Jim's ruling). _script_start_lesson
+#               no longer says a fresh award after the orientation; _script_finish's end-of-lesson
+#               announcement (vs) carries it instead. PART 3or pins the start clean.
 #   2026-09-30  BUILD yx -- "TRAP" IS GONE. Stamp only: 131 spoken lines in lessons/ and
 #               lessonscripts.py say "a common mistake" (Jim's ruling), VOCABULARY bans the word,
 #               prompts.py tells the elementary brain. Prewarm ~131 lines. PART 3or.
@@ -6429,14 +6432,17 @@ def _script_start_lesson(body: ScriptStartIn):
         steps.insert(1, {"kind": "say", "spoken": _osp, "board": _obd, "beat": "orientation"})
     except Exception as exc:  # noqa: BLE001 -- the orientation must never cost a lesson
         print(f"[script] orientation skipped (non-fatal): {exc}")
-    # (vs) AN AWARD EARNED SINCE LAST TIME IS SAID NOW -- a streak or minutes award
-    # lands between visits, and until this build the child found it on a page days
-    # later. After the orientation, before the lesson's first idea; spoken only (the
-    # orientation's card is already on the board). Fail-open: nothing on any error.
-    _aw = _fresh_award_steps(code, with_card=False)
-    if _aw:
-        _at = 2 if len(steps) >= 2 and (steps[1].get("beat") == "orientation") else 1
-        steps[_at:_at] = _aw
+    # (vs) AN AWARD EARNED SINCE LAST TIME used to be said HERE -- after the
+    # orientation, before the lesson's first idea -- so a streak or minutes award
+    # earned between visits was not left for the child to find on a page days later.
+    # (yx, 2026-09-30) JIM'S RULING: "I do not want the awards interrupting a lesson."
+    # His playthrough heard "Congratulations, you earned the Pathfinder award" land
+    # between "today we learn..." and the why beat of a first lesson. So nothing is
+    # said here any more. The award is not lost: _fresh_award_steps announces only
+    # what store.record_awards has not yet filed, and _script_finish calls it at the
+    # lesson's END (before the closing line, with its card), so an award earned between
+    # visits is said at the close of the next lesson -- after the teaching, never
+    # inside it. The Unit Quiz's own awards are placed the same way (before its last step).
     # (yi, 2026-09-26) THE COURSE REVIEW COMES FIRST. A student's FIRST scripted lesson
     # in a course -- no finished lesson on the record for it -- opens with the review
     # (lessons/bridges.py, via lessonscripts.bridge_steps): welcome, the few things

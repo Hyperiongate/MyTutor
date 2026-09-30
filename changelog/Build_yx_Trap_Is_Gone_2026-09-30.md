@@ -1,6 +1,6 @@
 # Build yx — "trap" is gone (2026-09-30)
 
-Stamp: `2026-09-30yx-trap-is-gone`. Battery: **13,377 passed · 0 failed · 3 skipped** (PART 3or added; two pins moved).
+Stamp: `2026-09-30yx-trap-is-gone`. Battery: **13,380 passed · 0 failed · 3 skipped** (PART 3or added; PART 3lo's drill and two pins moved).
 **Prewarm: ~134 lines** (131 rewritten, Entry u2 l4's two beats, Algebra II u3's split sentence).
 
 Jim's ruling from the first-family playthrough (F17), given twice on the day: "Here is the
@@ -59,18 +59,22 @@ One sentence grew past the 27-word cap under the longer phrase (Algebra II u3 de
   third. The beat now announces its numbers ("Look at a new one: six plus four plus three")
   and teaches only the mistake; the recap's make-ten line became "count your numbers before
   you stop … three numbers, so it takes two sums". Same board.
-- **F15 — the Pathfinder award mid-intro** was read, not changed: its words are true ("you
-  just earned the Pathfinder award — completed a course assessment"; Jim heard "for
-  completing a unit") and its timing is `vs`'s design (an award earned since last time is
-  said after the orientation, before the first idea). Whether a placement's award should wait
-  for the results screen instead is Jim's call — see the handoff's open questions.
+- **F15 — the award mid-intro.** Read first: its words were true ("you just earned the
+  Pathfinder award — completed a course assessment") and its timing was `vs`'s design — an
+  award earned between visits, said after the orientation and before the first idea. Then
+  Jim ruled: **"I do not want the awards interrupting a lesson."** So `_script_start_lesson`
+  says no award at all now; `_script_finish` already announces whatever the record has not
+  yet filed at the lesson's END, before the closing line and with the award's card, so an
+  award earned between visits is heard at the close of the next lesson — after the
+  teaching, never inside it. The Unit Quiz's awards were already placed the same way.
+  PART 3lo's live drill now proves the start is silent and the end speaks once.
 
 ## Files
 
 `lessons/entry.py`, `lessons/basic.py`, `lessons/prealgebra.py`, `lessons/algebra1.py`,
 `lessons/geometry.py`, `lessons/algebra2.py`, `lessons/precalc.py`, `lessons/calculus.py`,
-`lessons/diffeq.py`, `lessons/probstat.py` (the rewrite; dated notes), `lessonscripts.py`
+`lessons/diffeq.py`, `lessons/probstat.py` (the rewrite; dated notes), `main.py` (no award at a lesson's start; stamp), `lessonscripts.py`
 (7 generated lines; `VOCABULARY`), `prompts.py` (one bullet), `ruletests.py` (PART 3or; one
-pin moved), `main.py` (stamp), `speechmap.py` (regenerated; 941, unchanged), this doc.
+pin moved), `speechmap.py` (regenerated; 941, unchanged), this doc.
 
 I did no harm and this file is not truncated.

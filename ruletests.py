@@ -17335,7 +17335,8 @@ def part3lo_the_award_is_said_out_loud():
     byte-identical); store.record_awards returns the ids written for the first time;
     _fresh_award_steps turns them into "say" steps (beat "award", the award's card on
     the board) and _with_awards places them BEFORE the end / qend step. Spoken at
-    /api/script/start (after the orientation, spoken only), at every lesson end (five
+    at every lesson end -- and, until yx (2026-09-30, Jim: no award interrupts a lesson),
+    at /api/script/start after the orientation too -- (five
     call sites through _script_finish) and at a topic quiz's end. The AUDIT lane, a
     blank code and a store that is off all hear nothing. Proven on a real sqlite store
     through the real route."""
@@ -17374,8 +17375,8 @@ def part3lo_the_award_is_said_out_loud():
           and M._with_awards([{"kind": "say"}, {"kind": "qend"}], []) == [{"kind": "say"}, {"kind": "qend"}], "")
     check("  the AUDIT lane, a blank code and a demo hear no award",
           M._fresh_award_steps("AUDIT") == [] and M._fresh_award_steps("") == [] and M._fresh_award_steps("audit") == [], "")
-    check("  wired at start (after the orientation, spoken only), at the five lesson ends and at the quiz end",
-          "_aw = _fresh_award_steps(code, with_card=False)" in msrc
+    check("  wired at the five lesson ends and at the quiz end -- and NOT at a lesson's start any more (yx: Jim, no award interrupts a lesson)",
+          "_aw = _fresh_award_steps(code, with_card=False)" not in msrc
           and msrc.count("_script_finish(code, sess, s)") == 5
           and msrc.count("_aw += _script_finish(code, sess, s)") == 3
           and msrc.count("out = _with_awards(out, _script_finish(code, sess, s))") == 2
@@ -17404,12 +17405,17 @@ ids = [l["id"] for l in main.lessonscripts.LESSONS if l["course"] == "basic"]
 r = c.post("/api/script/start", json={"code": "AWD1", "course": "basic", "lesson": ids[0]})
 assert r.status_code == 200, r.text
 steps = [s for s in r.json()["steps"] if s.get("beat") != "bridge"]   # (yi) the course review rides ahead of the lesson (this is a DB run: no finished lesson yet)
-aw = [s for s in steps if s.get("beat") == "award"]
-assert len(aw) == 1 and "Spark award" in aw[0]["spoken"] and aw[0]["board"] == "", steps[:4]
-assert steps.index(aw[0]) == 2 and steps[1].get("beat") == "orientation", [s.get("beat") for s in steps[:4]]
+# (yx, 2026-09-30) JIM: "I do not want the awards interrupting a lesson." The start says
+# NOTHING about the award and files nothing; the lesson's END says it, with its card.
+assert not [s for s in steps if s.get("beat") == "award"], [s.get("beat") for s in steps[:4]]
+assert not store.get_awards("AWD1").get("streak3"), "filed at the start -- it must wait for the end"
+sess = main._SCRIPT_SESSIONS["AWD1"]
+aw = main._script_finish("AWD1", sess, {"kind": "end", "mastered": True})
+assert len(aw) == 1 and "Spark award" in aw[0]["spoken"] and aw[0]["beat"] == "award" and 'card title="' in aw[0]["board"], aw
 assert store.get_awards("AWD1").get("streak3")
 r2 = c.post("/api/script/start", json={"code": "AWD1", "course": "basic", "lesson": ids[0]})
 assert not [s for s in r2.json()["steps"] if s.get("beat") == "award"], "said twice"
+assert main._fresh_award_steps("AWD1") == [], "said twice (the end)"
 r3 = c.get("/api/awards/AWD1"); assert r3.status_code == 200, r3.text
 j = r3.json(); got = [a for a in j["awards"] if a["id"] == "streak3"]
 assert j["tracking"] and got and got[0]["new"] and "next_up" in j and j["badges"], j
@@ -17426,10 +17432,10 @@ print("AWARD-DRILL-OK")
             fh.write(DRILL)
         env = dict(_os.environ, DATABASE_URL=f"sqlite:///{_os.path.join(tmp, 'a.db')}",
                    PYTHONPATH=here)
-        if dep_gate("⭐⭐ LIVE: a 3-day streak hears Spark ONCE at /api/script/start; the dashboard agrees; Blaze rides with its card",
+        if dep_gate("⭐⭐ LIVE: a 3-day streak hears Spark ONCE, at the lesson's END (never at its start, since yx); the dashboard agrees; Blaze rides with its card",
                     "sqlalchemy", "the drill runs a real sqlite store through the real route"):
             r = _sp.run([sys.executable, drill], cwd=here, env=env, capture_output=True, text=True)
-            check("⭐⭐ LIVE: a 3-day streak hears Spark ONCE at /api/script/start; the dashboard agrees; Blaze rides with its card",
+            check("⭐⭐ LIVE: a 3-day streak hears Spark ONCE, at the lesson's END (never at its start, since yx); the dashboard agrees; Blaze rides with its card",
                   r.returncode == 0 and "AWARD-DRILL-OK" in r.stdout, (r.stdout + r.stderr)[-400:])
     check("  the dated notes are in (Jim's rule 8)",
           "2026-09-12  BUILD vs" in notes("lessonscripts.py") and "2026-09-12  BUILD vs" in notes("main.py")
@@ -25903,6 +25909,33 @@ def part3or_trap_is_gone():
           and "sticks" not in comp and "you met 180" not in comp, comp)
     check("  the elementary brain is told the same word (prompts.py)",
           "a common mistake to look out for" in P.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE and "Never call it a \"trap\"" in P.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE, "")
+    # ---- (yx 2) NO AWARD INTERRUPTS A LESSON -- Jim's ruling ------------------------
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    i0 = msrc.find("def _script_start_lesson(")
+    i1 = msrc.find("\ndef ", i0 + 10)
+    start_body = code_only_py(msrc[i0:i1]) if "code_only_py" in globals() else "\n".join(
+        ln for ln in msrc[i0:i1].split("\n") if not ln.lstrip().startswith("#"))
+    check("⭐ a lesson's start says no award: _script_start_lesson never calls _fresh_award_steps (Jim: \"I do not want the awards interrupting a lesson\")",
+          "_fresh_award_steps(" not in start_body and "steps[_at:_at] = _aw" not in start_body, "")
+    check("  ...and the end still does: _script_finish announces what the record has not yet filed, before the closing line",
+          "return _fresh_award_steps(code)" in msrc[msrc.find("def _script_finish("):msrc.find("\ndef ", msrc.find("def _script_finish(") + 10)]
+          and "if s.get(\"kind\") in (\"end\", \"qend\"):" in msrc, "")
+    try:
+        import main as M
+        M._SCRIPT_SESSIONS.pop("3or-award", None)
+        _saved = M._fresh_award_steps
+        _calls = []
+        M._fresh_award_steps = lambda code, with_card=True: (_calls.append(code) or [{"kind": "say", "spoken": "AWARD", "board": ""}])
+        try:
+            r = M._script_start_lesson(M.ScriptStartIn(code="3or-award", course="entry", lesson="entry-u2-doubles"))
+        finally:
+            M._fresh_award_steps = _saved
+            M._SCRIPT_SESSIONS.pop("3or-award", None)
+        check("  LIVE: a start with a fresh award pending opens with no award beat in it (the award waits for the lesson's end)",
+              r.get("ok") and not _calls and not any(s.get("spoken") == "AWARD" or s.get("beat") == "award" for s in r["steps"]),
+              (len(_calls), [s.get("beat") for s in r["steps"][:4]]))
+    except Exception as exc:  # noqa: BLE001
+        check("  LIVE: a start with a fresh award pending opens with no award beat in it", False, str(exc))
     check("  the changed files carry dated yx notes",
           all("2026-09-30" in notes(f) and "yx" in notes(f)
               for f in ("lessonscripts.py", "prompts.py", "ruletests.py", "main.py") + tuple("lessons/%s.py" % c for c in

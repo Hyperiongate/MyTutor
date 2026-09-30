@@ -24,15 +24,15 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-30yx-trap-is-gone`** (battery 13,377 passed, 0 failed, 3 skipped) —
+**On Jim's disk: `2026-09-30yx-trap-is-gone`** (battery 13,380 passed, 0 failed, 3 skipped) —
 Jim's two rulings of the morning: **"trap" gone everywhere** (131 spoken lines in all ten
 courses say "a common mistake" now — "Here is a common mistake to look out for." in his
 words; `VOCABULARY` bans every spoken form; the elementary prompt says the same) and **the
 live-lane tiles stay** on every course's hub (F30 closed as a ruling, no change). Rode
 along: Geometry u1's complementary beat rewritten plainly (F29), Entry u2 l4's mistake beat
-honest about its numbers and its trick (F22, F25). F15 (the award mid-intro) read: the
-words are true and the timing is `vs`'s design — Jim's call whether a placement's award
-should wait for the results screen. **Prewarm ~134 lines.** Before it, **On Jim's disk: `2026-09-30yw-the-judge-reads-the-ask`** (battery 13,349 passed, 0 failed, 3 skipped; the yw section
+honest about its numbers and its trick (F22, F25). F15 (the award mid-intro): Jim ruled "I do not
+want the awards interrupting a lesson" — a lesson's start says no award; the lesson's end
+announces whatever is newly earned (it already did), so nothing is lost. **Prewarm ~134 lines.** Before it, **On Jim's disk: `2026-09-30yw-the-judge-reads-the-ask`** (battery 13,349 passed, 0 failed, 3 skipped; the yw section
 below) — the first `scripted` night read (item 5 of the deep dive). GitHub mailed a red job
 for the morning of 09-30; day 273 (Entry u7 l1–4, u8 l1–4) re-run by hand gave one S5 HIGH:
 "Which clock number is the minute hand pointing to?" over the caption "the long hand is the
@@ -143,9 +143,8 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    steps 1-2-3 for a first visit; "every student", not "every kid".
 
 **Open for Jim:** F20 (the voice said "is" as "eyes" — need the sentence); the placement's
-length (45 taps); F15 — should a placement's Pathfinder award be said on the results screen
-instead of at the first lesson's opening? (Ruled 09-30: "trap" gone everywhere; the hub
-keeps its live-lane tiles.)
+length (45 taps); (Ruled 09-30: "trap" gone everywhere; the hub keeps its live-lane tiles; no award
+interrupts a lesson.)
 
 ## House decisions added today
 
