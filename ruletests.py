@@ -2,6 +2,8 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yw -- PART 3oq, THE JUDGE READS THE ASK: S5's day-273 false HIGH (the clock's
+#               'is the minute hand pointing to?') is a silent fixture; a real give-away still fires.
 #   2026-09-29  BUILD yv -- PART 3op, THE FREE UNIT IS THE ONE YOU STARTED: the Free plan's gate
 #               drilled through the real endpoints on a sqlite family (first unit free, next unit
 #               and another course gated, live lane agrees, a subscription opens, a reset clears,
@@ -25824,6 +25826,35 @@ def part3op_the_free_unit_is_the_one_you_started():
     check("  the changed files carry dated yv notes",
           all("2026-09-29" in notes(f) and "yv" in notes(f)
               for f in ("main.py", "store.py", "lessonscripts.py", "static/session.html", "static/pricing.html", "ruletests.py")), "Jim's rule 8")
+
+
+def part3oq_the_judge_reads_the_ask():
+    """PART 3oq (build yw, 2026-09-30) -- THE JUDGE READS THE ASK, NOT THE SUBJECT. The
+    scripted job's first red night (day 273, Entry unit 8 minutes-past-the-hour): S5
+    called "Which clock number is the minute hand pointing to?" over "the long hand is
+    the minute hand" a HIGH -- a shared "is the minute" that answered nothing (the
+    caption names no number). S5 now requires the question's "is the <term>" to CLOSE
+    the question; the night's own turn is a fixture that must stay silent, and a real
+    give-away ("which hand is the minute hand?") is a fixture that must still fire."""
+    print("\nPART 3oq — the judge reads the ask, not the subject (build yw)")
+    try:
+        import screencheck as S
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    res = {n: [f.check for f in found] for n, _e, found in S.fixture_results()}
+    check("⭐ day 273's clock turn is silent under S5 (the question's 'is the minute hand' is its subject)",
+          "S5 silent when the question's 'is the' is what is asked about, not the ask (day 273's clock)" in res
+          and not [c for c in res["S5 silent when the question's 'is the' is what is asked about, not the ask (day 273's clock)"] if c.startswith("S5")], res)
+    check("  ...and a caption that names the very thing a question closes on still fires",
+          res.get("S5 still fires when the term closes the question and the caption names it") == ["S5 the caption does not answer"]
+          and res.get("S5 fires when the caption answers the question") == ["S5 the caption does not answer"], res)
+    check("  S5 reads the question with _IS_THE_ASK_RE (the term closes the question) and the caption with _IS_THE_RE",
+          "_IS_THE_ASK_RE.finditer(text)" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "screencheck.py"), encoding="utf-8").read()
+          and S._IS_THE_ASK_RE.search("Which clock number is the minute hand pointing to?") is None
+          and S._IS_THE_ASK_RE.search("Which hand is the minute hand?") is not None
+          and S._IS_THE_ASK_RE.search("Which side in that triangle is the hypotenuse?") is not None, "")
+    check("  the changed files carry dated yw notes",
+          all("2026-09-30" in notes(f) and "yw" in notes(f) for f in ("screencheck.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -52794,6 +52825,7 @@ def main():
     part3on_the_personas_are_the_owners()
     part3oo_an_answer_ends_a_pause()
     part3op_the_free_unit_is_the_one_you_started()
+    part3oq_the_judge_reads_the_ask()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

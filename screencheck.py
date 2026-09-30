@@ -17,6 +17,12 @@
 #                                 scripted lane uses MEDIUM: the over-tall beat's S9 LOW is
 #                                 the pu rule working (253 of them in the yd survey, by
 #                                 design) and must not fail a night.
+#   2026-09-30  BUILD yw -- S5 READS THE ASK, NOT THE SUBJECT. The scripted job's first red
+#               night (day 273, Entry unit 8): "Which clock number is the minute hand pointing
+#               to?" over "the long hand is the minute hand" was a HIGH -- a shared "is the
+#               minute" that answered nothing. S5 now requires the question's "is the <term>"
+#               to CLOSE the question (_IS_THE_ASK_RE); two fixtures (the clock, silent; "which
+#               hand is the minute hand?", still fires).
 #   2026-09-25  BUILD yd -- TWO OLD CHECKS TAUGHT BY THE SURVEY. S5 skips a caption that is
 #               itself a question (14 false hits, all "... how much longer is the pencil?");
 #               S1 leaves the imaginary unit alone on a board that carries i² = −1 or the
@@ -451,6 +457,11 @@ def check_s4_every_figure_is_captioned(snap):
 
 
 _IS_THE_RE = re.compile(r"\bis\s+the\s+([a-z][a-z\-]{3,})", re.I)
+# (yw) the question's form: "is the <term>" that CLOSES the question -- the term, at most
+# two more words (a noun's second word: "minute hand"; "here", "then"), then the question
+# mark. "is the minute hand pointing to?" runs three words past the term and is not an ask
+# about "the minute"; "which hand is the minute hand?" is.
+_IS_THE_ASK_RE = re.compile(r"\bis\s+the\s+([a-z][a-z\-]{3,})(?:\s+[a-z][a-z\-]*){0,2}\s*\?", re.I)
 
 
 def check_s5_caption_does_not_answer(snap):
@@ -468,7 +479,16 @@ def check_s5_caption_does_not_answer(snap):
     text = strip_html(snap.bubble_html)
     if "?" not in text:
         return []
-    q_terms = {m.group(1).lower() for m in _IS_THE_RE.finditer(text)}
+    # (yw, 2026-09-30) THE TERM MUST BE WHAT THE QUESTION ASKS. The first red night of the
+    # scripted job (day 273): Entry's minutes-past-the-hour asked "Which clock number is
+    # the minute hand pointing to?" over a clock captioned "the long hand is the minute
+    # hand -- from 12 to 1 is five minutes", and S5 called it a HIGH: both carry "is the
+    # minute". But the question asks for a NUMBER; "the minute hand" is its subject, not
+    # its answer, and the caption names no number. A caption spoils a question only when
+    # the question's "is the <term>" IS the ask -- the term closes the question ("which
+    # side ... is the hypotenuse?"). A term the question goes on past (pointing to?) is
+    # the thing being asked ABOUT, and sharing it with a caption is teaching, not telling.
+    q_terms = {m.group(1).lower() for m in _IS_THE_ASK_RE.finditer(text)}
     if not q_terms:
         return []
     out = []
@@ -1438,6 +1458,17 @@ FIXTURES = [
     ("S5 silent when nothing was asked", None,
      {"turn": 1, "bubble_html": "That missing side is the hypotenuse.",
       "board_html": _JIM_TRIANGLE_SVG}),
+    # (yw) the first red night, day 273: the question's "is the minute hand" is its SUBJECT
+    ("S5 silent when the question's 'is the' is what is asked about, not the ask (day 273's clock)", None,
+     {"turn": 2, "bubble_html": "It is 55 minutes past the hour. Which clock number is the minute hand pointing to?",
+      "board_html": '<div class="mfig pop"><svg class="geofig"><text font-size="15" '
+                    'font-weight="600">12</text></svg><div class="cap">the long hand is the minute '
+                    'hand \u2014 from 12 to 1 is five minutes</div></div>'}),
+    ("S5 still fires when the term closes the question and the caption names it", "S5 the caption does not answer",
+     {"turn": 1, "bubble_html": "Look at the clock. Which hand is the minute hand?",
+      "board_html": '<div class="mfig pop"><svg class="geofig"><text font-size="15" '
+                    'font-weight="600">12</text></svg><div class="cap">the long hand is the minute '
+                    'hand</div></div>'}),
     # ---- S7: fires / silent (the text is Jim's real console line, 2026-08-17) ----
     ("S7 fires on the CSP violation from Jim's own lesson", "S7 the console is clean",
      {"turn": 1, "console": [{"level": "warning", "text":

@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yw -- THE JUDGE READS THE ASK. Stamp only: screencheck.py's S5 no longer
+#               calls a question's SUBJECT ('is the minute hand pointing to?') an answered ask --
+#               the scripted job's first red night (day 273) was this false HIGH. PART 3oq.
 #   2026-09-29  BUILD yv -- THE FREE UNIT IS THE ONE YOU STARTED. Jim's playthrough: a free
 #               account played four Entry lessons and opened unit 3 with no gate -- _free_gate
 #               sat on the LIVE lane only and counted the Unit Quiz the scripted course never
@@ -9805,7 +9808,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-29yv-the-free-unit-is-the-one-you-started"
+APP_BUILD = "2026-09-30yw-the-judge-reads-the-ask"
 
 
 @app.get("/health")

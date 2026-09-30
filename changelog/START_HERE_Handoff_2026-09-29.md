@@ -24,7 +24,14 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-29yv-the-free-unit-is-the-one-you-started`** (battery 13,343 passed, 0 failed, 3 skipped; see the
+**On Jim's disk: `2026-09-30yw-the-judge-reads-the-ask`** (battery 13,349 passed, 0 failed, 3 skipped; the yw section
+below) — the first `scripted` night read (item 5 of the deep dive). GitHub mailed a red job
+for the morning of 09-30; day 273 (Entry u7 l1–4, u8 l1–4) re-run by hand gave one S5 HIGH:
+"Which clock number is the minute hand pointing to?" over the caption "the long hand is the
+minute hand" — a shared "is the minute" that answered nothing. S5 reads the ask now (the
+"is the <term>" must close the question); the night's turn is a silent fixture, a real
+give-away still fires, day 273 passes. A tool fix, not a lesson edit. Nothing to prewarm.
+Before it, **On Jim's disk: `2026-09-29yv-the-free-unit-is-the-one-you-started`** (battery 13,343 passed, 0 failed, 3 skipped; see the
 yv section below) — the money path's two blockers. F26: the only free-plan gate sat on the
 LIVE lane and counted the Unit Quiz the scripted course never runs, so a free account could
 play every lesson in every course. Now the free unit is the (course, unit) of the FIRST
@@ -51,6 +58,14 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (yw, 2026-09-30) — Jim pushes (with yu and yv; one push)
+
+- `screencheck.py` (`_IS_THE_ASK_RE`, S5, two fixtures), `ruletests.py` (PART 3oq), `main.py`
+  (stamp `2026-09-30yw-the-judge-reads-the-ask`),
+  `changelog/Build_yw_The_Judge_Reads_The_Ask_2026-09-30.md`, this handoff. After the push:
+  `/health` = the yw stamp; nothing to prewarm (yu's and yv's one line each still stand).
+  The next `scripted` night runs day 274's slice on the fixed judge.
 
 ## Written to D:\MyTutor (yv, 2026-09-29) — Jim pushes (with yu; one push)
 
@@ -81,20 +96,20 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
 ## What to do next — the build order from the playthrough
 
 1. ~~`yu`~~ — done (above).
-2. ~~`yv`~~ — done (above). **Left for Jim: the walk with `PAYMENTS_OPEN=open`.** As planned: Nobody can pay and nobody is gated. Find the
+2. ~~`yv`~~ — done (above). **Left for Jim: the walk with `PAYMENTS_OPEN=open`.** ~~`yw`~~ — the judge reads the ask, done (above; not in the original order). As planned for yv: Nobody can pay and nobody is gated. Find the
    beta/billing switch in `main.py` (Jim's read: the site is in beta, checkout off); what it
    turns off; whether the free-tier gate is under it. `/family`'s plan box must carry the
    Upgrade button; `/pricing`'s Full-access button must start checkout for a signed-in parent
    (or say "free during beta" while the switch is off — never a $29 button that lands on
    /family); the gate must count "a first unit" as the unit the student was PLACED INTO, not
    unit 1. Then Jim walks it again with Stripe test keys — the paid path has never been walked.
-3. **`yw` — the tour (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
+3. **`yx` — the tour (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
    pass over the tour script against today's screen: no glowing face, "the big board" not
    "whiteboard", a tap demonstrated, the pointer ABOVE its target (it bobbed behind the
    laptop's toolbar), the dashboard named once, played once per student (it played twice —
    after sign-in and again after placement). Tap-first helper line in child mode; the title
    once, not in the bubble and on the board.
-4. **`yx` — the words a child hears (F17, F22, F25, F29, F15).** Measure "trap" canon-wide;
+4. **`yy` — the words a child hears (F17, F22, F25, F29, F15).** Measure "trap" canon-wide;
    Jim's ruling: "trap has to go", the meaning to keep is "here's a very common mistake to
    look out for" (ask whether the upper courses change too). Entry u2 l4: the make-ten idea
    is claimed in the trap beat and the recap and taught nowhere — teach it or drop the
@@ -102,7 +117,7 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    numbers or announces its own. Geometry u1 l1's complementary beat rewritten plainly,
    pointing at the review's 90/180/360 a minute earlier. The Pathfinder award: never
    mid-intro, never "for completing a unit" the placement skipped.
-5. **`yy` — the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
+5. **`yz` — the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
    draws the bigger group FIRST with 7..11 under the added stars (the board drew 5 + 6 while
    the words said start at 6); the Geometry review draws its 24 squares (read the other
    eight reviews for the same — `bridges.py` has never been swept); the pencil goes idle or
@@ -110,7 +125,7 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    key's position is shuffled and pinned (Jim tapped choice 2 throughout and "did pretty
    well"; choice 4 was never right — scan the quiz and reason choices too); 45 questions for
    a six-year-old's first sitting is Jim's call.
-6. **`yz` — the topic page and the parent pages (F31, F32, F33, F34, F1, F2, F3).** The
+6. **`za` — the topic page and the parent pages (F31, F32, F33, F34, F1, F2, F3).** The
    topic page's board width with the sidebar open; the symbol strip by course (π, θ, |x| on
    Basic); the child skin on every board page; the code out of the URL. Front page: a signup
    button in the first screen and the free box highlighted for a stranger; `/family` as
