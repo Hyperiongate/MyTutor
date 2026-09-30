@@ -2,6 +2,8 @@
 # lessons/precalc.py  --  TRIG / PRE-CALC: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 20 beats.
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -169,7 +171,7 @@ _PRECALC_U1 = [
              "feed 5 to f of g. Inside first: g of 5 is 10. Then the outer machine: f "
              "of 10 is 13. The parentheses are a map: whatever sits deepest goes first.",
              '[[machine input="5" rule="2x" output="10" fname="g" caption="g(5) = 10"]][[machine input="10" rule="x + 3" output="13" fname="f" caption="f(10) = 13"]][[step eq="g(5) = 10"]][[step eq="f(10) = 13"]]'),
-            ("The trap is running f first: f of 5 is 8, then g gives 16 — a different number entirely. These machines give different answers when you switch the order. Order is "
+            ("The common mistake is running f first: f of 5 is 8, then g gives 16 — a different number entirely. These machines give different answers when you switch the order. Order is "
              "everything in a kitchen and in a composition: the INSIDE machine cooks "
              "first.",
              # (uq) Jim's flag 21:56: "without being able to see the original functions
@@ -252,7 +254,7 @@ _PRECALC_U1 = [
              "and the old curve at 4 was 2. The height stays; x moves. New x equals old "
              "x plus 3: 4 plus 3 is 7.",
              '[[step eq="new curve at x = 7: f(7 − 3) = f(4) = 2"]][[step eq="new x = old x + 3 = 4 + 3 = 7"]]'),
-            ("The trap is reading the minus literally and sliding LEFT — landing at "
+            ("The common mistake is reading the minus literally and sliding LEFT — landing at "
              "(1, 2). But the minus inside is a delay, not a direction: x has to grow "
              "by 3 before the rule sees what it saw before. The arrow "
              "says where the point goes: (4, 2) becomes (7, 2), the check mark — not "
@@ -332,7 +334,7 @@ _PRECALC_U1 = [
              '[[graph func="sqrt(x-13)" points="(13,0)" range="10..22" yrange="0..4" caption="the door at 13 — the root of zero is zero, welcome"]][[step eq="x − 13 ≥ 0 → x ≥ 13"]][[step eq="√0 = 0 · the door is open"]]'),
             ("Remember division\'s forbidden x? The bottom\'s zero was BANNED. The "
              "root\'s edge is the opposite: zero under a root is WELCOME — the "
-             "boundary belongs. And the flip trap still lurks: the door is at 13, never "
+             "boundary belongs. And the flip mistake still lurks: the door is at 13, never "
              "negative 13. Doors sit where the inside hits zero.",
              '[[step eq="door at 13, allowed ✓"]][[step eq="−13 ✗ the flip · division banned its zero; the root keeps it"]]'),
         ],
@@ -411,7 +413,7 @@ _PRECALC_U1 = [
              "6: it is 5 or more, so 3 times 6 — 18. Same function, different "
              "sides of the border.",
              '[[numberline min="0" max="10" points="2,5,6" caption="2 is below the border; 6 is past it"]][[step eq="2 < 5 → 2 + 4 = 6"]][[step eq="6 ≥ 5 → 3 × 6 = 18"]]'),
-            ("The trap is running the wrong rule — feeding 6 into x plus 4 and getting "
+            ("The common mistake is running the wrong rule — feeding 6 into x plus 4 and getting "
              "10, a number the function never says at 6. The border matters too: "
              "exactly 5 belongs to the 5-or-more side; read the border\'s owner from "
              "the words. Check the side, then compute.",
@@ -642,7 +644,7 @@ _PRECALC_U2 = [
              '[[areamodel rows="x,-2" cols="x,-6" caption="x² − 8x + 12"]][[step eq="(x − 2)(x − 6) = x² − 8x + 12"]][[step eq="2 + 6 = 8"]][[step eq="2 × 6 = 12"]]'),
             ("So a puzzle that starts with a plain x squared hands over its numbers "
              "without any solving. The end number is the roots\' product, and their sum "
-             "is the middle number, worn with a minus. The trap runs backwards "
+             "is the middle number, worn with a minus. The common mistake runs backwards "
              "too — asked for the end number, do not ADD the roots. Sum sits in the "
              "middle; product sits at the end.",
              '[[step eq="end = product ✓ · sum ✗ — that is the middle"]]'),
@@ -805,7 +807,7 @@ _PRECALC_U3 = [
              "Done, and no giant number was ever built.",
              '[[bars data="log 1024:10 | log 1024²:20" caption="log 1024² = 2 × 10 = 20"]][[step eq="log 1024^2 = 2 × 10 = 20"]]'),
             ("Feel the size of the shortcut: 1024 to the power 2 is past a MILLION, and "
-             "you never touched it. The trap: the exponent TIMES the log, never the log "
+             "you never touched it. The common mistake: the exponent TIMES the log, never the log "
              "raised to the exponent — that would say 100, wildly wrong.",
              '[[step eq="1024² = 1,048,576 — past a million"]][[step eq="2 × 10 = 20 ✓"]][[step eq="10^2 = 100 ✗"]]'),
         ],
@@ -880,7 +882,7 @@ _PRECALC_U3 = [
              "confirmed.",
              '[[bars data="2¹:2 | 2²:4 | 2³:8 | 2⁴:16 | 2⁵:32 | 2⁶:64 | 2⁷:128 | 2⁸:256 | 2⁹:512 | 2¹⁰:1024" caption="10 layers of 2 — the mystery number is 1024"]][[step eq="? = 2 stacked 10 times = 1024"]][[step eq="log₂ 1024 = 10 ✓"]]'),
             ("The base matters: log base 10 of the mystery equals 4 rebuilds to 10 "
-             "thousand — never 40. The trap is timesing base and answer when the base must STACK: layers power upward. A single times is not the method — here it lands on 40, not 10 thousand.",
+             "thousand — never 40. The common mistake is timesing base and answer when the base must STACK: layers power upward. A single times is not the method — here it lands on 40, not 10 thousand.",
              '[[step eq="log₁₀ ? = 4"]][[step eq="? = 10000 ✓"]][[step eq="10 × 4 = 40 ✗"]]'),
         ],
         "pairs": [
@@ -952,7 +954,7 @@ _PRECALC_U3 = [
              "halvings — three days went by. You rode the halving down and counted the "
              "steps.",
              '[[bars data="day 0:56 | day 1:28 | day 2:14 | day 3:7" caption="three halvings — three days"]][[step eq="56 → 28 → 14 → 7 · 3 days"]]'),
-            ("The trap: 56 divided by 7 equals 8, and 8 is NOT the answer — 8 says how "
+            ("The common mistake: 56 divided by 7 equals 8, and 8 is NOT the answer — 8 says how "
              "many times bigger, never how many halvings. Each halving divides by 2, "
              "so ask instead: how many 2s multiply up to 8? Three. The ratio hides the "
              "count.",
@@ -1028,7 +1030,7 @@ _PRECALC_U3 = [
              "twice: 4, then 8, then 16. Sixteen dollars — the years only matter "
              "through the COUNT of doublings.",
              '[[bars data="year 0:4 | year 3:8 | year 6:16" caption="6 ÷ 3 = 2 doublings: 4 → 8 → 16"]][[step eq="6 ÷ 3 = 2 doublings"]][[step eq="4 → 8 → 16"]]'),
-            ("The trap is thinking in plain adding: up 4, up 4 — that reaches 12 and "
+            ("The common mistake is thinking in plain adding: up 4, up 4 — that reaches 12 and "
              "stalls. Doubling reaches 16, then 32, then 64, pulling away faster every "
              "step. Exponential growth beats steady adding every time, given enough "
              "years.",
@@ -1118,7 +1120,7 @@ _PRECALC_U4 = [
              "itself is one half turn: 1 pi. The number of pi's IS the number of half "
              "turns; nothing else to it.",
              '[[bars data="a half turn:180 | 3600°:3600" caption="20 half turns of 180 fit — 3600° = 20π rad"]][[step eq="3600 ÷ 180 = 20"]][[step eq="3600° = 20π rad"]]'),
-            ("Two traps. Counting QUARTER turns says twice too many pi's — 90 degrees "
+            ("Two common mistakes. Counting QUARTER turns says twice too many pi's — 90 degrees "
              "is not one pi, it is half of one. And handing the degrees back unchanged "
              "is no translation at all. Divide by 180; the count of half turns is the "
              "answer.",
@@ -1196,7 +1198,7 @@ _PRECALC_U4 = [
              "way around — the SAME arrow. One direction, two names, and the positive "
              "name is 360 take away the backwards amount, 45.",
              '[[unitcircle angle="315" values="0" caption="315° — the same arrow, named forwards"]][[step eq="−45° + 360° = 315°"]]'),
-            ("Two traps. Dropping the minus says 45 — the mirror image, above the line "
+            ("Two common mistakes. Dropping the minus says 45 — the mirror image, above the line "
              "when the arrow hangs below. And adding only a half turn — 135 here — parks "
              "the arrow on the wrong side entirely. A full turn, 360, always.",
              '[[step eq="315° ✓"]][[step eq="45 ✗ mirror · 135 ✗ half turn"]]'),
@@ -1269,7 +1271,7 @@ _PRECALC_U4 = [
              "reference angle is why the trig values at 175 are the same size as the ones at 5. Only the sign can differ, by quarter. The "
              "circle reuses its first quarter, everywhere.",
              '[[angle deg="180" split="175,5" caption="180 − 175 = 5° — the gap to flat left"]][[step eq="175° → 180 − 175 = 5°"]]'),
-            ("Now 135: the gap to flat left is 45. The trap is measuring from straight "
+            ("Now 135: the gap to flat left is 45. The common mistake is measuring from straight "
              "up — that says 45 too here, by coincidence, but at 135 only! Measure from "
              "straight up at 145 and you get 55; the true reference is 35. Hug the FLAT "
              "line, never the top.",
@@ -1346,7 +1348,7 @@ _PRECALC_U4 = [
              "30 x races thirty times faster, so it repeats every 360 divided by 30 — "
              "12 degrees. The whole rise-and-fall, squeezed into 12.",
              '[[graph func="sin(30*x*pi/180)" names="sin 30x" lines="x=12" range="0..360" yrange="-1.5..1.5" caption="the sine of 30x — one full story by x = 12°"]][[step eq="period = 360 ÷ 30 = 12°"]]'),
-            ("Two traps. Faster does NOT stretch the wave: 360 times the multiplier "
+            ("Two common mistakes. Faster does NOT stretch the wave: 360 times the multiplier "
              "points the wrong way — a faster wave repeats SOONER. And 360 unchanged "
              "is the plain sine's habit; the multiplier is standing right there. "
              "Divide, always.",
@@ -1436,7 +1438,7 @@ _PRECALC_U5 = [
              "— 100 take away 20 is 80. The pair splits one whole between them, "
              "whatever the angle.",
              '[[hundredgrid shaded="20" eq="20 + 80 = 100" caption="sin² 20 shaded, cos² 80 left"]][[step eq="sin² = 20/100"]] [[step eq="cos² = 80/100"]]'),
-            ("Two traps. Copying sine's share hands back the number you were given — "
+            ("Two common mistakes. Copying sine's share hands back the number you were given — "
              "the question asked for the PARTNER. And answering 100 forgets that sine "
              "already claimed its part. Take the given share away from 100; what is "
              "left is cosine's.",
@@ -1514,7 +1516,7 @@ _PRECALC_U5 = [
              "corners; the side opposite one corner sits beside the other. Swap the "
              "corner, swap the name — across 90.",
              '[[triangle v="A,B,C" right="B" angles="35,90,55" caption="35 + 55 = 90 — sin 35° = cos 55°"]][[step eq="sin 35° = cos 55°"]][[step eq="35 + 55 = 90"]]'),
-            ("Two traps. Keeping the SAME angle — the sine of 35 does not equal the "
+            ("Two common mistakes. Keeping the SAME angle — the sine of 35 does not equal the "
              "cosine of 35. And adding 90 overshoots: the partner of 35 is 55, never "
              "125. Partners share the 90; together they finish it.",
              '[[step eq="35 → partner 55 ✓"]][[step eq="35 ✗ same angle · 125 ✗ added 90"]]'),
@@ -1666,7 +1668,7 @@ _PRECALC_U5 = [
              "equals 0 six times. The middle value gets hit going up AND coming down.",
              '[[graph func="sin(x*pi/180)" names="sine" lines="y=0" points="(180,0),(360,0),(540,0),(720,0),(900,0),(1080,0)" range="0..1080" yrange="-1.5..1.5" caption="6 touches after the start — twice each turn"]][[step eq="3 turns · sin = 0"]][[step eq="2 × 3 = 6"]]'),
             ("Now sine equal 1 across the same three turns: only straight up, once a "
-             "turn — 3. The ends of the swing get touched once each. The trap answers "
+             "turn — 3. The ends of the swing get touched once each. The common mistake answers "
              "4 per turn, one per quarter — but the ends of the swing live in ONE spot "
              "each. Count the true touches — a crossing or a graze — then times the "
              "turns.",
@@ -1832,7 +1834,7 @@ _PRECALC_U6 = [
              "smaller number — you travel farther than you rise, on every ramp ever "
              "built.",
              '[[triangle v="A,B,C" right="B" sides=",11,22" angles="30,," caption="a 22-foot ramp at 30° — 11 feet up"]][[step eq="½ · 22 = 11 ft"]]'),
-            ("That is the whole trap: the length is how far you WALK, and it never "
+            ("That is the whole mistake: the length is how far you WALK, and it never "
              "doubles as the height. A 40-foot ramp rises 20 — not 40, which is the "
              "walk, and certainly not 80, which would stand higher than the ramp is "
              "long.",
@@ -1905,7 +1907,7 @@ _PRECALC_U6 = [
              "bearing is 30: the ship has swung around through north and is heading "
              "nearly north again.",
              '[[unitcircle bearing="30" caption="350 + 40 = 390, past 360 — bearing 30°"]][[step eq="350 + 40 = 390"]] [[step eq="390 − 360 = 30"]]'),
-            ("Two traps live here. Leaving 390 on the compass names a bearing no "
+            ("Two common mistakes live here. Leaving 390 on the compass names a bearing no "
              "compass carries. And turning the other way — 350 take away 40 — points "
              "at 310, a heading the ship never took. Add the turn first, then wrap.",
              '[[step eq="30 ✓"]][[step eq="390 ✗ no such bearing"]][[step eq="350 − 40 = 310 ✗ turned the wrong way"]]'),
@@ -1980,7 +1982,7 @@ _PRECALC_U6 = [
              "5 times 5 squares back to it. The arrow is 5 long — farther than either "
              "step on its own, and shorter than walking 3 and then 4, which is 7.",
              '[[triangle v="A,B,C" right="B" sides="3,4,5" caption="the two steps and the arrow: 3, 4, 5"]][[step eq="3² + 4² = 25"]] [[step eq="√25 = 5"]][[step eq="5 > 4 and 5 > 3"]][[step eq="5 < 3 + 4"]]'),
-            ("Those two bounds catch both traps. An arrow is never as long as its "
+            ("Those two bounds catch both mistakes. An arrow is never as long as its "
              "steps added, and never as short as its biggest step alone. Right 5 and "
              "up 12 — 25 plus 144 is 169, and 13 squares back to it. So 13, not 17, and "
              "not 12.",
@@ -2389,7 +2391,7 @@ _PRECALC_U8 = [
              "sums to 31. The "
              "whole run adds up to a little less than double its biggest piece.",
              '[[bars data="1:1 | 2:2 | 4:4 | 8:8 | 16:16" caption="1 + 2 + 4 + 8 + 16 = 31 — one short of 32"]][[step eq="1+2+4+8+16 = 31 — one short of 32"]]'),
-            ("Two traps. The last term alone — 8 in that first run — is the biggest "
+            ("Two common mistakes. The last term alone — 8 in that first run — is the biggest "
              "piece, never the sum. And counting the start over and over, four 1s for "
              "4, is what a pattern that never grew would give. Add the terms as they "
              "actually stand.",

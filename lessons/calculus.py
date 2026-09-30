@@ -2,6 +2,8 @@
 # lessons/calculus.py  --  CALCULUS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 4 beats (the op named "trap" is a trapezium and an identifier, untouched).
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -2157,7 +2159,7 @@ _CALCULUS_U8 = [
     {
         "id": "calc-u8-a-speed-that-climbs",
         "course": "calculus", "unit": 8,
-        "topic": "The trapezium rule",
+        "topic": "The common mistakeezium rule",
         "op": "trap", "max_value": 320,
         "levels": ("abstract",),
         "symbols": ("trapezium", "halfway"),
@@ -2210,7 +2212,7 @@ _CALCULUS_U8 = [
             ("So, here it is again. Under a speed that climbs steadily the shape is a trapezium. Its area is the halfway speed held for the whole time: average the two speeds, then multiply by the seconds. Never hold both "
              "speeds at once, and never the top speed alone.",
              '[[graph func="4 + 6*x/5" names="speed; the halfway speed, 7" lines="y=7" shade="0..5" label="35" range="0..7" yrange="0..14" caption="a speed that climbs"]]'),
-            ("And that is the trapezium under a climbing speed: 4 plus 10, halved, "
+            ("And that is the common mistakeezium under a climbing speed: 4 plus 10, halved, "
              "times 5 — 35.",
              '[[step eq="(4 + 10) ÷ 2 × 5 = 35"]]'),
         ],

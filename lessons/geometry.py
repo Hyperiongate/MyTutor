@@ -2,6 +2,8 @@
 # lessons/geometry.py  --  GEOMETRY: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 29 beats, and u1's complementary-angles beat rewritten plainly (Jim's F29: "this makes no sense") -- a straight line is 180, a square corner is only 90, look at which corner the angles fill.
 #   2026-09-26  BUILD yk -- lesson one's why beat draws the two totals it names ("a right angle
 #               is 90 degrees, and the angles along a straight line make 180") beside its goal
 #               card: the corner and the straight line with its arc. Jim: shown early on.
@@ -142,9 +144,10 @@ _GEOMETRY_U1 = [
              "make 90. One of them is 30, so the other is 90 take away 30, which "
              "equals 60.",
              '[[angle deg="90" split="30" caption="a square corner split — 30° and the rest"]][[step eq="90° − 30° = 60°"]]'),
-            ("Angles that pair up to 90 have a name: complementary. And here is the "
-             "trap — you met 180 first, with the angles along a straight line, and 180 sticks. "
-             "Ask which corner you are inside. A square corner is 90.",
+            ("Angles that pair up to 90 have a name: complementary. A straight line is 180, "
+             "and a square corner is only 90. The common mistake is using 180 when the two "
+             "angles sit inside a square corner. Look at which corner the two angles fill "
+             "before you take away.",
              '[[angle deg="90" split="30" caption="inside a square corner"]][[step eq="90 − 30 = 60 ✓"]][[step eq="180 − 30 = 150 ✗ — that is a straight line, not a corner"]]'),
         ],
         "pairs": [
@@ -456,7 +459,7 @@ _GEOMETRY_U2 = [
              "the right. Only the ACROSS number changes: x goes from 3 to 3 plus 4, "
              "which equals 7. The point lands at 7 across, 5 up.",
              '[[graph points="(3,5),(7,5)" range="0..14" yrange="0..10" caption="from (3, 5) to (7, 5)"]][[step eq="x: 3 + 4 = 7 · y stays 5"]]'),
-            ("Here is the trap: a slide to the RIGHT touches only x. The y number "
+            ("Here is the common mistake: a slide to the RIGHT touches only x. The y number "
              "never hears about it. Adding the slide to y — or sliding x the wrong "
              "way — puts the point in the wrong place. Say the move out loud first: "
              "right means x grows.",
@@ -531,7 +534,7 @@ _GEOMETRY_U2 = [
              "mirror does not change — only the SIDE changes. New x: the sign flips, "
              "and 4 becomes negative 4. The point lands at negative 4 across, 6 up.",
              '[[graph lines="x=0" points="(4,6),(-4,6)" range="-9..9" yrange="0..10" caption="from (4, 6) to (−4, 6)"]][[step eq="x: 4 → −4 · y stays 6"]]'),
-            ("The trap is flipping the wrong number. Across the y line it is x that "
+            ("The common mistake is flipping the wrong number. Across the y line it is x that "
              "crosses over — y is the height, and a mirror standing on the floor "
              "does not change heights. Ask yourself: which side am I on now? After "
              "the flip, the other one.",
@@ -607,7 +610,7 @@ _GEOMETRY_U2 = [
             ("Compare the moves you know. The slides we used changed a number by "
              "adding. A flip across an axis changes ONE sign. The half turn changes BOTH signs — x and y each "
              "cross to the other side. Changing only one sign is a flip, not a turn "
-             "— that is the trap.",
+             "— that is the common mistake.",
              '[[step eq="half turn: both signs change ✓"]][[step eq="only one sign ✗ — that is a flip"]]'),
         ],
         "pairs": [
@@ -678,7 +681,7 @@ _GEOMETRY_U2 = [
         "teach": [
             ("That is the method. One full turn is 360 degrees. A wheel cut into 6 equal parts lands on itself 6 times in one full turn. So the smallest working turn is 360 divided by 6, which equals 60 degrees.",
              '[[pie parts="6" caption="6 equal parts"]][[step eq="360° ÷ 6 = 60°"]]'),
-            ("Two traps. Half a turn, 180, feels safe — but a wheel with 12 equal parts lands on itself long before 180. Only the sharing rule finds the smallest turn, 30. And the number of parts is a COUNT, not an angle — "
+            ("Two common mistakes. Half a turn, 180, feels safe — but a wheel with 12 equal parts lands on itself long before 180. Only the sharing rule finds the smallest turn, 30. And the number of parts is a COUNT, not an angle — "
              "12 parts is an answer in pieces, not in degrees.",
              '[[pie parts="12" caption="12 equal parts"]][[step eq="360° ÷ 12 = 30° ✓ · 180° ✗ · 12 ✗"]]'),
         ],
@@ -768,7 +771,7 @@ _GEOMETRY_U3 = [
              "AB matches side DE, side BC matches side EF, and side CA matches side "
              "FD.",
              '[[triangle v="A,B,C" sides="4,7,5" caption="ABC"]][[step eq="A↔D · B↔E · C↔F"]][[step eq="AB↔DE · BC↔EF · CA↔FD"]]'),
-            ("The trap is matching by eye. The copy may be turned or flipped on the page — Unit 2 taught you exactly those moves. So the side that LOOKS right is often wrong. Trust the letters, never the picture: spell the "
+            ("The common mistake is matching by eye. The copy may be turned or flipped on the page — Unit 2 taught you exactly those moves. So the side that LOOKS right is often wrong. Trust the letters, never the picture: spell the "
              "side you want, then swap each letter for its partner.",
              '[[step eq="FD → swap F for C, D for A → CA ✓"]][[step eq="by eye ✗ — the copy may be turned"]]'),
         ],
@@ -847,7 +850,7 @@ _GEOMETRY_U3 = [
              "52, the two of them use 104. The top angle gets what is left over: "
              "180 take away 104 equals 76 degrees.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles="52,52," caption="base angles 52° — the top is waiting"]][[step eq="52° + 52° + ? = 180°"]][[step eq="180° − 104° = 76°"]]'),
-            ("The trap is forgetting there are TWO base angles. Take away only one 52 "
+            ("The common mistake is forgetting there are TWO base angles. Take away only one 52 "
              "and you get 128 — too big, because its twin is still sitting inside "
              "the triangle. Both base angles go in before the top angle comes out.",
              '[[step eq="180 − 52 − 52 = 76 ✓"]][[step eq="180 − 52 = 128 ✗ — the twin is still inside"]]'),
@@ -932,7 +935,7 @@ _GEOMETRY_U3 = [
             ("That is the shortcut, and the proof works for every triangle. The "
              "inside corner and the exterior fill a straight line: 180. The inside "
              "corner and the two far angles fill 180 too. So the exterior angle "
-             "equals the two FAR angles put together. The trap is answering "
+             "equals the two FAR angles put together. The common mistake is answering "
              "with the inside corner instead — 80 sits inside the triangle, and the "
              "question points outside.",
              '[[step eq="exterior = the two far angles put together"]][[step eq="the inside corner ✗ — that is the exterior\'s neighbour"]]'),
@@ -1006,7 +1009,7 @@ _GEOMETRY_U3 = [
              "take away 40 is 140. They are equal, so they split it evenly — 140 "
              "divided by 2 equals 70 degrees each.",
              '[[triangle v="A,B,C" ticks="BC,CA" angles=",,40" caption="apex 40° — the base angles share the rest"]][[step eq="180° − 40° = 140°"]][[step eq="140° ÷ 2 = 70°"]]'),
-            ("Two traps, and both are about order. Stop at 140 and you have the "
+            ("Two common mistakes, and both are about order. Stop at 140 and you have the "
              "PAIR\'s share, not one angle — it still belongs to two corners. And "
              "halving 180 first gives 90 take away 40 — 50 — which shares the "
              "triangle out before the apex took its part. Take the apex out first, "
@@ -1100,7 +1103,7 @@ _GEOMETRY_U4 = [
              "3 becomes 3 times 2 — 6. The side of 5 becomes 10, and the side of 4 "
              "becomes 8. Every side, the same times.",
              '[[triangle v="A,B,C" sides="3,5,4" caption="sides 3, 5, 4"]][[step eq="× 2: 3 → 6 · 5 → 10 · 4 → 8"]]'),
-            ("The trap: scale factor 2 does not ADD 2. Adding 2 turns the 3 into a 5 and the 5 into a 7. The copy comes out the WRONG shape, squashed where the short sides grew too much. Scaling is times.",
+            ("The common mistake: scale factor 2 does not ADD 2. Adding 2 turns the 3 into a 5 and the 5 into a 7. The copy comes out the WRONG shape, squashed where the short sides grew too much. Scaling is times.",
              '[[step eq="3 × 2 = 6 ✓"]][[step eq="3 + 2 = 5 ✗ — adding bends the shape"]][[step eq="5 + 2 = 7 ✗ — the long side grew too little"]]'),
         ],
         "pairs": [
@@ -1174,7 +1177,7 @@ _GEOMETRY_U4 = [
              "other way: 4 times 3 equals 12. When the shapes are similar, one "
              "matching pair of sides is all it takes.",
              '[[bars data="small:4 | big:12" caption="matching sides: 4 and 12"]][[step eq="12 ÷ 4 = 3"]]'),
-            ("The trap is the difference. From 4 to 12 is 8 more. But 8 is not the "
+            ("The common mistake is the difference. From 4 to 12 is 8 more. But 8 is not the "
              "factor, because a scale factor is a times, not an add. Every side is "
              "timesed by 3. Similar shapes share a times, never an add.",
              '[[step eq="12 ÷ 4 = 3 ✓"]][[step eq="12 − 4 = 8 ✗ — a difference, not a factor"]]'),
@@ -1328,7 +1331,7 @@ _GEOMETRY_U4 = [
              "handles one direction — the other direction is still waiting. 5 times "
              "2 times 2 equals 20. Length pays the factor once; area pays it twice.",
              '[[rectangle w="2" h="2" caption="every square becomes 4"]][[step eq="5 × 2 × 2 = 20"]]'),
-            ("Watch the one-direction trap. 5 times 2 is 10 — that is a length\'s "
+            ("Watch for the one-direction mistake. 5 times 2 is 10 — that is a length\'s "
              "answer, and area is not a length. The second times is not optional; "
              "the across and the up both grew.",
              '[[step eq="5 × 2 × 2 = 20 ✓"]][[step eq="5 × 2 = 10 ✗ — one direction is still waiting"]]'),
@@ -1417,7 +1420,7 @@ _GEOMETRY_U5 = [
              "is 144. Put together: 169. Now, which number times itself equals 169? "
              "13 — so the hypotenuse is 13.",
              '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="5² + 12² = 25 + 144 = 169"]][[step eq="13 × 13 = 169"]][[step eq="hyp = 13"]]'),
-            ("Two traps. Adding the legs — 5 plus 12 equals 17 — walks AROUND the corner. The straight path is always shorter than the walk around: 13, not 17. And 169 is the SQUARE of the answer, not the answer — the "
+            ("Two common mistakes. Adding the legs — 5 plus 12 equals 17 — walks AROUND the corner. The straight path is always shorter than the walk around: 13, not 17. And 169 is the SQUARE of the answer, not the answer — the "
              "rule speaks in squares, so the last step is always to square back.",
              '[[step eq="5 + 12 = 17 ✗ — the walk around the corner"]][[step eq="169 ✗ — the square, not the side"]]'),
         ],
@@ -1493,7 +1496,7 @@ _GEOMETRY_U5 = [
              "is 169; 5 squared is 25. Take away: 144. Which number times itself "
              "equals 144? 12 — the missing leg is 12.",
              '[[righttriangle adj="12" opp="5" hyp="13" caption="legs 5 and 12, hypotenuse 13"]][[step eq="13² − 5² = 169 − 25 = 144"]][[step eq="12 × 12 = 144"]][[step eq="leg = 12"]]'),
-            ("The trap is taking away the LENGTHS instead of the squares. 13 take "
+            ("The common mistake is taking away the LENGTHS instead of the squares. 13 take "
              "away 5 equals 8, and 8 is wrong. The rule speaks in squares, never in "
              "plain sides. Square first, then take away, then find the number whose "
              "square is the result.",
@@ -1646,7 +1649,7 @@ _GEOMETRY_U5 = [
              "tangent of 4 climbs 4 for every 1 across. Walk 5 across and it climbs "
              "4, five times over: 5 times 4 equals 20. The opposite side is 20.",
              '[[righttriangle adj="5" opp="20" caption="legs 20 and 5"]][[step eq="opposite = 5 × 4 = 20"]]'),
-            ("The trap is the same one from the similarity unit: ADDING when the "
+            ("The common mistake is the same one from the similarity unit: ADDING when the "
              "number is a times. A tangent of 4 does not add 4 to the side — it "
              "times it. And the tangent itself is never the answer: 4 is a "
              "steepness, not a side.",
@@ -1741,7 +1744,7 @@ _GEOMETRY_U6 = [
              "degrees. Check by putting the two arcs back: 60 plus 300 equals 360 — "
              "the whole circle again.",
              '[[circle center="O" caption="the circle — a full turn of 360°"]][[step eq="360° − 60° = 300°"]][[step eq="60° + 300° = 360° ✓"]]'),
-            ("The trap comes from an old friend. Angles on a straight line share 180 — "
+            ("The common mistake comes from an old friend. Angles on a straight line share 180 — "
              "and after three units of triangles, 180 leaps to mind first. But a "
              "circle is not a line: it is a FULL turn, and full turns share 360. Ask "
              "which shape you are inside before you take away.",
@@ -1815,7 +1818,7 @@ _GEOMETRY_U6 = [
              "angle is half of that: 80 divided by 2, which equals 40 degrees. From "
              "the rim, an arc of 80 looks like 40.",
              '[[circle center="O" inscribed="80" caption="arc 80°, inscribed angle 40°"]][[step eq="80° ÷ 2 = 40°"]]'),
-            ("The trap is treating them as twins. The angle at the MIDDLE equals its "
+            ("The common mistake is treating them as twins. The angle at the MIDDLE equals its "
              "arc — but an angle on the RIM, opening onto the same arc, is exactly "
              "half of it. Same arc, two views: from the middle, 80; from the rim, 40.",
              '[[step eq="from the middle: 80°"]][[step eq="from the rim: 80° ÷ 2 = 40°"]]'),
@@ -2063,7 +2066,7 @@ _GEOMETRY_U7 = [
              "length is the gap between the heights: 8 take away 3, which equals 5. "
              "Count the steps to check: 3 to 4, to 5, to 6, to 7, to 8 — five steps.",
              '[[graph segments="(1,3)-(1,8)" points="(1,3),(1,8)" range="0..10" yrange="0..10" caption="8 − 3 = 5 steps"]][[step eq="8 − 3 = 5"]]'),
-            ("The trap is counting DOTS instead of steps. From 3 to 8 there are six "
+            ("The common mistake is counting DOTS instead of steps. From 3 to 8 there are six "
              "dots but only five steps — a fence with six posts has five rails. Length "
              "is the steps. Do the take away, and trust it over your counting finger.",
              '[[step eq="8 − 3 = 5 ✓ steps"]][[step eq="6 ✗ — that counts the dots, posts instead of rails"]]'),
@@ -2139,7 +2142,7 @@ _GEOMETRY_U7 = [
              "squared plus 4 squared is 9 plus 16 — 25. Which number times itself "
              "equals 25? 5. The straight distance is 5.",
              '[[righttriangle adj="3" opp="4" hyp="5" caption="across 3, up 4 — straight 5"]][[step eq="across 3 · up 4"]][[step eq="3² + 4² = 25 = 5²"]]'),
-            ("So a grid holds two distances, and the trap is mixing them. Walking the "
+            ("So a grid holds two distances, and the common mistake is mixing them. Walking the "
              "lines — across, then up — costs 7 here. Cutting straight costs 5. For a slant like this — an across AND an up — the straight path is shorter than the walk around. If your answer is the two counts put together, you walked.",
              '[[step eq="straight: 5 ✓"]][[step eq="3 + 4 = 7 ✗ — that walks the grid"]]'),
         ],
@@ -2217,7 +2220,7 @@ _GEOMETRY_U7 = [
              "same way: 3 and 7 land on 5. The middle sits at (5, 5), balanced both "
              "ways.",
              '[[graph points="(2,3),(5,5),(8,7)" range="0..12" yrange="0..12" caption="x: (2 + 8) ÷ 2 = 5 · y: (3 + 7) ÷ 2 = 5"]][[step eq="x: (2 + 8) ÷ 2 = 5"]]'),
-            ("Two traps. Answer the coordinate you were ASKED for. The x and the y "
+            ("Two common mistakes. Answer the coordinate you were ASKED for. The x and the y "
              "each have their own middle, and handing back the y is the grid\'s "
              "oldest mix-up. And the RUN — 8 take away 2, six — is how far the segment "
              "reaches, not where its middle sits.",
@@ -2299,7 +2302,7 @@ _GEOMETRY_U7 = [
              "It sits level with (2, 6), so its y is 6. The fourth corner is "
              "(7, 6).",
              '[[graph points="(2,2),(7,2),(2,6),(7,6)" range="0..12" yrange="0..12" caption="the four corners"]][[step eq="x from (7, 2) · y from (2, 6) → (7, 6)"]]'),
-            ("The trap is grabbing a number from the wrong corner — or the wrong "
+            ("The common mistake is grabbing a number from the wrong corner — or the wrong "
              "coordinate. The new corner never gets its x from the corner diagonal to "
              "it, and an x question is never answered with a y. Say it in words first: "
              "straight above which corner? Level with which?",
@@ -2391,7 +2394,7 @@ _GEOMETRY_U8 = [
              "stack straight and it becomes a rectangle 6 long and 4 tall — the 5 was "
              "never how tall it stood.",
              '[[rectangle w="6" h="4" caption="pushed straight: a 6 by 4 rectangle — area 24"]][[step eq="6 × 4 = 24"]]'),
-            ("The trap always looks generous: the slant is longer than the height, because leaning wastes some length. So grabbing the slanted 5 gets 30, too big. "
+            ("The common mistake always looks generous: the slant is longer than the height, because leaning wastes some length. So grabbing the slanted 5 gets 30, too big. "
              "Ask of every length: is this how tall it STANDS, or just how long its "
              "side is?",
              '[[step eq="6 × 4 = 24 ✓"]][[step eq="6 × 5 = 30 ✗ — the slant is not the height"]]'),
@@ -2469,7 +2472,7 @@ _GEOMETRY_U8 = [
              "— cut, measure, put together. Any shape cut into rectangles that do "
              "not overlap gives in to this.",
              '[[rectangle w="5" h="3" caption="5 × 3 = 15"]][[rectangle w="2" h="3" caption="2 × 3 = 6"]][[step eq="15 + 6 = 21"]]'),
-            ("Two traps. Stopping after one rectangle — 15 is only part of the floor. "
+            ("Two common mistakes. Stopping after one rectangle — 15 is only part of the floor. "
              "And adding the LENGTHS — 5 plus 3 plus 2 is 10, but lengths added give "
              "edges, not floor. Areas add to areas; lengths add to lengths, never to "
              "areas.",
@@ -2542,7 +2545,7 @@ _GEOMETRY_U8 = [
              "faces just like it, so the surface area is 6 times 7, which equals 42 "
              "square units. One face, times six — that is the whole trick.",
              '[[bars data="top:7 | bottom:7 | front:7 | back:7 | left:7 | right:7" caption="six faces of 7 — 6 × 7 = 42"]][[step eq="6 × 7 = 42"]]'),
-            ("The trap is forgetting the floor and the ceiling. Four faces stand "
+            ("The common mistake is forgetting the floor and the ceiling. Four faces stand "
              "around the sides, and counting only them is 4 times 7 — 28 — but that "
              "box is still open. The top and the bottom are faces too: six, always "
              "six.",
@@ -2617,7 +2620,7 @@ _GEOMETRY_U8 = [
         "teach": [
             ("That is the method. A box holds 9 cubic units. Scale every edge by factor 2: the box grows twice as long, twice as wide, twice as tall. 2 times 2 times 2 is 8 times the room. 9 times 8 equals 72 cubic units.",
              '[[solid kind="prism" w="×2" d="×2" h="×2" caption="2 × 2 × 2 = 8 times the room"]][[step eq="9 × 8 = 72"]]'),
-            ("The traps are the course\'s own history. Times 2 once — 18 — is the "
+            ("The common mistakes are the course\'s own history. Times 2 once — 18 — is the "
              "LENGTH habit. Times 2 twice — 36 — is the AREA habit from the similarity "
              "unit. Volume has one more direction waiting: times 2 three times, 72. "
              "Count the directions before you scale.",
@@ -2709,7 +2712,7 @@ _GEOMETRY_U9 = [
              "— it lands on one of ALL the marbles. 3 reds plus 2 blues is 5 marbles, "
              "so red\'s chance is 3 out of 5, and blue\'s is 2 out of 5. When the chance is a count from the bag, the out-of number is the whole bag.",
              '[[bars data="red:3 | blue:2" caption="red 3 and blue 2"]][[step eq="3 + 2 = 5 in the bag"]][[step eq="red: 3 out of 5 · blue: 2 out of 5"]]'),
-            ("The trap is saying 3 out of 2 — the reds against the blues. That "
+            ("The common mistake is saying 3 out of 2 — the reds against the blues. That "
              "compares the two teams, but a chance is not a comparison between "
              "teams: it is one team out of the WHOLE bag. Out of means out of "
              "everything.",
@@ -2788,7 +2791,7 @@ _GEOMETRY_U9 = [
              "rain is 7 out of 10. Check: 3 plus 7 equals 10, every chance spoken "
              "for.",
              '[[bars data="rain:3 | no rain:7" caption="3 + 7 = 10 — every chance spoken for"]][[step eq="10 − 3 = 7"]][[step eq="3 + 7 = 10 ✓"]]'),
-            ("Two traps. The other chance is usually NOT the same number — 3 out of "
+            ("Two common mistakes. The other chance is usually NOT the same number — 3 out of "
              "10 for rain leaves 7 for no-rain, not 3. And it is never the whole 10 — "
              "that would call no-rain certain while rain still holds its 3. Take "
              "away, then check the two put the whole back.",
@@ -2866,7 +2869,7 @@ _GEOMETRY_U9 = [
              "each hat. 2 rows of 3 boxes is 2 times 3, which equals 6 outfits. When "
              "choices stack, times.",
              '[[array rows="2" cols="3" caption="2 × 3 = 6 outfits"]][[step eq="2 × 3 = 6 outfits"]]'),
-            ("The trap is adding: 2 shirts plus 3 hats is 5 THINGS, but things are "
+            ("The common mistake is adding: 2 shirts plus 3 hats is 5 THINGS, but things are "
              "not outfits — each outfit uses one of each. And do not stop at the "
              "shirts: 2 counts shirts, not outfits. When choices stack, times; "
              "when piles pour into one pile, add.",
@@ -2939,7 +2942,7 @@ _GEOMETRY_U9 = [
              "cross holds 2: two girls chose soccer. Row first, then column — an "
              "address, like a point on the grid.",
              '[[twoway rowlabels="boys,girls" collabels="soccer,art" data="4,3|2,6" caption="girls row, soccer column — the crossing holds 2"]][[step eq="girls row → soccer column → 2"]]'),
-            ("The traps are the next-door boxes. Stay in the soccer column but drift "
+            ("The common mistakes are the next-door boxes. Stay in the soccer column but drift "
              "to the boys row: 4 — right activity, wrong students. Stay with the girls but "
              "slide to art: 6 — right students, wrong activity. Cross the RIGHT row with "
              "the RIGHT column, every time.",

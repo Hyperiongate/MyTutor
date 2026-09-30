@@ -2,6 +2,8 @@
 # lessons/diffeq.py  --  DIFFERENTIAL EQUATIONS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 1 beat.
 #   2026-09-23  BUILD xs -- THE THIRD DIFFEQ SWEEP (39 findings, 34 authored, 13 of 36
 #               lessons clean; the second was 62 and 8, the first 119 and 0). The first
 #               reading that saw the miss path, and the count still fell. THE CLASS,
@@ -318,7 +320,7 @@ _DIFFEQ_U2 = [
              '[[goal text="When the y is underneath"]][[step eq="dy/dx = 3/y"]] [[step eq="y dy = 3 dx"]]'],
             ["Integrating gives y squared over 2 equals 3 x plus a constant. Double everything, and y squared equals 6 x plus C. Start the curve at height 4 when x is zero and C is 16. At x equals 8: 48 plus 16 is 64, and y is the square root of that — 8.",
              '[[step eq="y²/2 = 3x + c"]][[step eq="y² = 6x + C"]][[step eq="y(0) = 4, so C = 16"]][[step eq="at x = 8: 48 + 16 = 64"]][[step eq="y = 8"]]'],
-            ["Two traps sit here. Stopping at 64 answers y SQUARED where a height was asked for. Guessing a straight climb from 4 gives 28. But the curve does not climb in a straight line, and separating shows you why.",
+            ["Two common mistakes sit here. Stopping at 64 answers y SQUARED where a height was asked for. Guessing a straight climb from 4 gives 28. But the curve does not climb in a straight line, and separating shows you why.",
              '[[step eq="8 ✓"]][[step eq="64 ✗ that is y² · 28 ✗ a straight guess"]]'],
         ],
         "pairs": [

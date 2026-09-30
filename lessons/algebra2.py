@@ -2,6 +2,8 @@
 # lessons/algebra2.py  --  ALGEBRA II: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 33 beats, plus one sentence split in u3 degrees-add to keep the 27-word cap.
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -257,7 +259,7 @@ _ALGEBRA2_U1 = [
              "zero: 1, 2, 3, 4 — four more. And zero itself, in the middle — one. Four "
              "plus four plus one: nine integers.",
              '''[[numberline min="-5" max="5" points="-4,-3,-2,-1,0,1,2,3,4" caption="4 on the left + 4 on the right + zero = 9"]][[step eq="4 + 4 + 1 = 9"]]'''),
-            ("Two traps, both one short. Skip zero and you get 8 — but zero's distance "
+            ("Two common mistakes, both one short. Skip zero and you get 8 — but zero's distance "
              "from zero is 0, and 0 is less than 5, so zero is inside the fence. Count "
              "only the right side and you get 4 — half the fence. Both sides, and "
              "zero in the middle.",
@@ -337,7 +339,7 @@ _ALGEBRA2_U1 = [
         "teach": [
             ("That is the method. Take the small trip away: the bananas vanish, and 3 apples take away 1 apple leaves 2 apples. They cost 14 take away 8, which is 6. Two apples for 6: one apple is 3.",
              '[[tape parts="apple | apple" total="6" caption="left standing: 2 apples = 14 − 8 = 6"]][[step eq="2 apples = 14 − 8 = 6"]][[step eq="1 apple = 6 ÷ 2 = 3"]]'),
-            ("The trap is stopping early. 6 is real — it is what TWO apples cost — but "
+            ("The common mistake is stopping early. 6 is real — it is what TWO apples cost — but "
              "the question asked for one. After the vanishing, look at what is left "
              "standing: if a pair stands there, share before you answer. Vanish, then "
              "share.",
@@ -414,7 +416,7 @@ _ALGEBRA2_U1 = [
              "others — so 26 counts everybody two times. Halve it: all three friends "
              "together weigh 13.",
              '[[bars data="all three clues:26 | everyone once:13" caption="26 counts everyone twice — halve it: 13"]][[step eq="7 + 10 + 9 = 26"]][[step eq="everyone counted twice → 26 ÷ 2 = 13"]]'),
-            ("The trap is trusting the big sum. 26 is not a weight anyone felt — it is "
+            ("The common mistake is trusting the big sum. 26 is not a weight anyone felt — it is "
              "every friend counted twice. And averaging the three clues tells you "
              "about a typical PAIR, not about the trio. Add the clues, then halve — "
              "everyone was there twice.",
@@ -503,7 +505,7 @@ _ALGEBRA2_U2 = [
              "In this form — a squared bracket plus a number — the vertex\'s x hides behind the opposite sign: take away 3 "
              "turns at plus 3.",
              '[[graph func="(x-3)^2+2" points="(3,2)" range="-1..7" caption="x − 3 = 0 at x = 3"]][[step eq="x − 3 = 0"]][[step eq="x = 3"]]'),
-            ("Two traps. The minus begs you to answer negative 3 — but at x equals "
+            ("Two common mistakes. The minus begs you to answer negative 3 — but at x equals "
              "negative 3, x take away 3 is negative 6, nowhere near zero. And the plus "
              "2 is a different fact: how HIGH the turn floats — Algebra One\'s "
              "question. WHERE is 3; how high is 2. Keep them apart.",
@@ -581,7 +583,7 @@ _ALGEBRA2_U2 = [
              "together with 5 is 7. Simple — but only if you remember BOTH answers "
              "exist. One crossing is half the story.",
              '[[graph func="(x-2)*(x-5)" points="(2,0),(5,0)" range="-1..8" caption="roots 2 and 5 — 2 + 5 = 7"]][[step eq="roots 2 and 5"]][[step eq="2 + 5 = 7"]]'),
-            ("Two traps. 2 times 5 is 10 — a real number, and famous later — but it "
+            ("Two common mistakes. 2 times 5 is 10 — a real number, and famous later — but it "
              "is the product, not the sum. And answering 2 alone forgets the second "
              "crossing entirely. A curve that touches zero twice has two answers; "
              "questions about THE answers mean both.",
@@ -656,7 +658,7 @@ _ALGEBRA2_U2 = [
              "the x line at all: zero crossings. Positive would mean two. And exactly "
              "zero means one perfect touch.",
              '[[bars data="2²:4 | 4 · 7:28" caption="below zero → 0 crossings"]][[step eq="2² − 4·7 → below zero"]][[step eq="below zero → 0 · zero → 1 · above zero → 2"]]'),
-            ("The trap is answering with the test number itself — or fearing the "
+            ("The common mistake is answering with the test number itself — or fearing the "
              "negative. The test number is a MESSENGER: you never report it; its sign "
              "tells you how many times the curve meets the x line. Below zero does not break the mathematics; it simply says no "
              "crossing here. And soon, a new number will live down there.",
@@ -821,7 +823,7 @@ _ALGEBRA2_U3 = [
              "x cubed. When they meet, the piles join: x to the 4 times x cubed is x to "
              "the 7. Degree 4 times degree 3 lands on degree 7.",
              '[[bars data="x⁴:4 | x³:3 | joined x⁷:7" caption="4 + 3 = 7"]][[step eq="x⁴ · x³ = x⁷"]][[step eq="degree 4 × degree 3 → degree 7"]]'),
-            ("The trap is multiplying: 4 times 3 is 12, but degrees do not times — "
+            ("The common mistake is multiplying: 4 times 3 is 12. But degrees do not times — "
              "the powers INSIDE do the timesing, and powers add their counts. And do "
              "not just keep the bigger degree: that is addition\'s rule. Adding "
              "polynomials usually lets the biggest survive; timesing builds something "
@@ -969,7 +971,7 @@ _ALGEBRA2_U3 = [
              "together? Their sum is 1 put together with 3 with 5 — 9. Simple — but "
              "only if you count all three. One crossing is a third of the story.",
              '[[graph func="(x-1)*(x-3)*(x-5)" points="(1,0),(3,0),(5,0)" range="0..6" caption="1 + 3 + 5 = 9"]][[step eq="1 + 3 + 5 = 9"]]'),
-            ("Two traps. 1 times 3 times 5 is 15 — the product, the roots\' OTHER "
+            ("Two common mistakes. 1 times 3 times 5 is 15 — the product, the roots\' OTHER "
              "shared secret, not their sum. And 1 plus 3 is 4 — this cubic has THREE answers, one for each of its three different factors. Questions about the answers mean all of them. Count your crossings before you add.",
              '[[step eq="1 + 3 + 5 = 9 ✓"]][[step eq="15 ✗ the product · 4 ✗ forgot the third"]]'),
         ],
@@ -1041,7 +1043,7 @@ _ALGEBRA2_U3 = [
              "— 10 — leaves 115; plus 3 is 118. Watch the first step: 5 CUBED, 125. "
              "The whole tower stands on reading that power right.",
              '[[machine input="5" rule="x³ − 2x + 3" output="118" caption="5³ − 2·5 + 3 = 118"]][[step eq="5³ = 125"]][[step eq="125 − 10 + 3 = 118"]]'),
-            ("The trap you met in Algebra One returns taller: x cubed does not mean 3 "
+            ("The mistake you met in Algebra One returns taller: x cubed does not mean 3 "
              "times x. Feed 5: cubed is 125, but 3 times 5 is only 15 — a different "
              "world. And carry the minus with you: take away 10, never plus 10. Read "
              "the power, keep the sign.",
@@ -1129,7 +1131,7 @@ _ALGEBRA2_U4 = [
              "among 2 is 7. At x equals 7, 14 shared among 7 is 2. Each point is just a "
              "division done.",
              '[[graph func="14/x" points="(2,7),(7,2)" range="0..15" caption="14 ÷ 2 = 7 · 14 ÷ 7 = 2"]][[step eq="14 ÷ 2 = 7"]][[step eq="14 ÷ 7 = 2"]]'),
-            ("The traps are the other operations wearing masks. 14 divided by 2 is 7 — "
+            ("The common mistakes are the other operations wearing masks. 14 divided by 2 is 7 — "
              "but take away gives 12, and times gives 28, and a hurried hand reaches "
              "for both. The word is DIVIDED: sharing, not taking away, not growing. Say "
              "the operation out loud before you tap.",
@@ -1206,7 +1208,7 @@ _ALGEBRA2_U4 = [
              "True. The undo of being divided by x turns out to be one more divide, "
              "because the x sits after the divide sign.",
              '[[machine input="4" rule="20 ÷ x" output="5" caption="x = 20 ÷ 5 = 4 — check: 20 ÷ 4 = 5"]][[step eq="x · 5 = 20"]][[step eq="x = 20 ÷ 5 = 4"]][[step eq="check: 20 ÷ 4 = 5 ✓"]]'),
-            ("The trap is grabbing times: 20 times 5 is 100, far off. And 20 take away "
+            ("The common mistake is grabbing times: 20 times 5 is 100, far off. And 20 take away "
              "5 is 15 — a different operation\'s answer entirely. The x sits after the divide sign, and freeing it costs one more divide. Rebuild, then divide.",
              '[[step eq="x = 20 ÷ 5 = 4 ✓"]][[step eq="100 ✗ times is not this undo · 15 ✗"]]'),
         ],
@@ -1279,7 +1281,7 @@ _ALGEBRA2_U4 = [
              "negative 7 — and the function answers happily. One forbidden x on an "
              "endless road.",
              '[[machine input="4" rule="5 ÷ (x − 4)" output="jammed" caption="x = 4 turns the bottom to zero — forbidden"]][[step eq="x − 4 = 0"]][[step eq="x = 4 forbidden"]]'),
-            ("Two traps, both old friends. The minus begs for negative 4 — but feed negative 4 and the bottom is negative 8, alive and well. The vertex lesson's flip does not belong here. And zero is not automatically dangerous — feed x "
+            ("Two common mistakes, both old friends. The minus begs for negative 4 — but feed negative 4 and the bottom is negative 8, alive and well. The vertex lesson's flip does not belong here. And zero is not automatically dangerous — feed x "
              "equals 0 and the bottom is negative 4, fine. The danger is where the "
              "BOTTOM is zero, not where x is.",
              '[[step eq="x = 4 forbidden ✓"]][[step eq="−4 ✗ the flip · 0 ✗ the bottom there is −4, alive"]]'),
@@ -1357,7 +1359,7 @@ _ALGEBRA2_U4 = [
              "huge: the fading part dies toward zero, the 2 stands untouched — y "
              "settles toward 2.",
              '[[graph func="(2*x+6)/x" lines="y=2" range="0..20" caption="y = 2 + 6 ÷ x — the 6 ÷ x dies, the 2 survives"]][[step eq="y = 2 + 6 ÷ x"]][[step eq="settles at 2"]]'),
-            ("The traps are the two other numbers in the room. Zero was plain "
+            ("The common mistakes are the two other numbers in the room. Zero was plain "
              "division\'s answer — 6 over x alone dies — but today\'s function keeps "
              "a survivor, and tapping 0 forgets him. And 6 is the fading part\'s number "
              "— the part that dies. The survivor is the number riding on x. Find who "
@@ -1447,7 +1449,7 @@ _ALGEBRA2_U5 = [
              "perfect square! Twelve times twelve. Two messy roots, one clean answer: "
              "12.",
              '[[rectangle w="12" h="12" caption="144 = 12 × 12"]][[step eq="√3 · √48 = √144"]][[step eq="12 × 12 = 144"]][[step eq="√144 = 12"]]'),
-            ("Two traps. 144 is what sits UNDER the roof — the root still has to be taken. Stopping there is the same slip as stopping at the square back in Pythagoras. And the numbers under different roots never ADD: root 3 plus root 48 is not root 51, and not 51. Adding under roots is the famous illegal move.",
+            ("Two common mistakes. 144 is what sits UNDER the roof — the root still has to be taken. Stopping there is the same slip as stopping at the square back in Pythagoras. And the numbers under different roots never ADD: root 3 plus root 48 is not root 51, and not 51. Adding under roots is the famous illegal move.",
              '[[step eq="√3 · √48 = 12 ✓"]][[step eq="144 ✗ still under the roof · 51 ✗ roots never add"]]'),
         ],
         "pairs": [
@@ -1512,14 +1514,14 @@ _ALGEBRA2_U5 = [
             ("Here are the two numbers side by side: the square root of 25, which is 5, "
              "and half of 25, which is 12 and a half. They are nowhere near each other. "
              "The one-half power is the small one — the root.",
-             '[[bars data="√25 = 5:5 | half of 25:12.5" caption="the root, 5, beside the halving trap, 12.5"]]'),
+             '[[bars data="√25 = 5:5 | half of 25:12.5" caption="the root, 5, beside the halving mistake, 12.5"]]'),
         ],
         "teach": [
             ("That is the method. 25 to the one-half power is the square root of 25 — "
              "which is 5. Check it: 5 times 5 is 25. The fraction in the exponent is "
              "not arithmetic waiting to happen; it is a costume the root wears.",
              '[[array rows="5" cols="5" caption="5 × 5 = 25 — so 25^½ = 5"]][[step eq="25^½ = √25 = 5"]][[step eq="5 × 5 = 25 ✓"]]'),
-            ("The trap reads the costume literally: one-half power, so take half — half "
+            ("The common mistake reads the costume literally: one-half power, so take half — half "
              "of 25 is 12 and a half. But 12.5 times 12.5 is over 156, nowhere near 25. "
              "Halving splits a number; the one-half power UNBUILDS a square. A root, "
              "never a halving.",
@@ -1593,7 +1595,7 @@ _ALGEBRA2_U5 = [
              "— and 15 squared is 225. So x is 225. Check by rooting it forward: the "
              "square root of 225 is 15. True.",
              '[[machine input="225" rule="√x" output="15" caption="x = 15² = 225 — check: √225 = 15"]][[step eq="x = 15² = 225"]][[step eq="check: √225 = 15 ✓"]]'),
-            ("The trap is the halving family again, inverted: if root felt like half, "
+            ("The common mistake is the halving family again, inverted: if root felt like half, "
              "its undo feels like DOUBLE — 30. But the root of 30 is between 5 and 6, "
              "nowhere near 15. And x is not just 15 handed back: the root already "
              "changed it. Undo with the square, then check forward.",
@@ -1670,8 +1672,8 @@ _ALGEBRA2_U5 = [
              "the root of 40 is closest to 6. Square the neighbours, then see who is "
              "nearer.",
              '[[numberline min="36" max="49" points="40" hops="36,40" caption="40 − 36 = 4 and 49 − 40 = 9 — nearer 36, so √40 → 6"]][[step eq="40 − 36 = 4"]][[step eq="49 − 40 = 9"]][[step eq="√40 → closest to 6"]]'),
-            ("Two traps. First, leaning the wrong way: 7 is a neighbour, but it is the "
-             "far one here. Second, the oldest trap in the unit, halving. Half of 40 is "
+            ("Two common mistakes. First, leaning the wrong way: 7 is a neighbour, but it is the "
+             "far one here. Second, the oldest mistake in the unit, halving. Half of 40 is "
              "20, and 20 times 20 is 400, absurdly far. The root of a number near 40 "
              "is small — squares grow FAST. Neighbours first, half never.",
              '[[step eq="√40 → 6 ✓"]][[step eq="20 × 20 = 400"]][[step eq="7 ✗ the far neighbour · 20 ✗ the halving habit"]]'),
@@ -1760,7 +1762,7 @@ _ALGEBRA2_U6 = [
              "to 12, 12 to 6. Three days, three divides — and dividing by 2 three times "
              "is dividing by 8. Big numbers fall FAST when the fall is a times.",
              '[[bars data="day 0:48 | day 1:24 | day 2:12 | day 3:6" caption="three divides: 48 ÷ 8 = 6"]][[step eq="48 → 24 → 12 → 6"]][[step eq="48 ÷ 8 = 6"]]'),
-            ("The trap is the linear faller — the doubling pond\'s old enemy, walking "
+            ("The common mistake is the linear faller — the doubling pond\'s old enemy, walking "
              "downhill. Down by 2 each day gives 48, 46, 44: after 3 days, 42 — barely a "
              "dent. Halving is a DIVIDE each day, never a take away. And one halving is "
              "not three: one day alone gives 24; keep dividing until the days run out.",
@@ -1835,7 +1837,7 @@ _ALGEBRA2_U6 = [
              "be enormous while the logarithm stays tiny; that smallness is its whole "
              "power, and why earthquakes and sound are measured in logs.",
              '[[bars data="10¹:10 | 10²:100" caption="two layers of 10 reach 100 — the logarithm is 2"]][[step eq="10^? = 100"]][[step eq="? = 2"]][[step eq="the log counts the layers"]]'),
-            ("Two traps. Dividing by the base — 27 divided by 3 is 9 — peels ONE "
+            ("Two common mistakes. Dividing by the base — 27 divided by 3 is 9 — peels ONE "
              "layer, then stops; the logarithm counts ALL the layers. And the base "
              "itself — the 3 you were handed — is the brick, not the count of bricks. "
              "Count how many times the base stacks, and answer with the count.",
@@ -1907,7 +1909,7 @@ _ALGEBRA2_U6 = [
              "doublings is five doublings, so the log of 32 is 1 plus 4 — 5. Check: 2 "
              "to the 5 is 32. True.",
              '[[bars data="log 2:1 | log 16:4 | log 32:5" caption="1 + 4 = 5"]][[step eq="log 2 = 1"]][[step eq="log 16 = 4"]][[step eq="log 32 = 1 + 4 = 5 ✓"]]'),
-            ("Two traps. Multiplying the logs — 1 times 4 — treats the counts like "
+            ("Two common mistakes. Multiplying the logs — 1 times 4 — treats the counts like "
              "values; but logs are COUNTS of layers, and joined stacks add their "
              "counts. And adding the values — 2 plus 16 is 18 — mixes the two worlds "
              "entirely. Values times; logs add. Never both at once.",
@@ -1981,7 +1983,7 @@ _ALGEBRA2_U6 = [
         "teach": [
             ("That is the method. Which is it closer to? 18 sits 2 past 16, and 14 short of 32 — it leans hard toward 16, so the log of 18 is closest to 4. That is an estimate, and a fair one: the exact log is a little past 4. Same move as the squares: power the neighbours, then see who is nearer.",
              '[[bars data="2⁴:16 | 18:18 | 2⁵:32" caption="18 − 16 = 2 and 32 − 18 = 14 — nearer 16, so log 18 → 4"]][[step eq="18 − 16 = 2"]][[step eq="32 − 18 = 14"]][[step eq="log 18 → closest to 4"]]'),
-            ("The traps repeat their old shapes: 5 is the far neighbour here. And "
+            ("The common mistakes repeat their old shapes: 5 is the far neighbour here. And "
              "halving — 18 divided by 2 is 9 — is not a logarithm; 2 to the 9 is 512, "
              "absurdly past 18. Logs count layers, and layers pile up FAST. Neighbours "
              "first, half never.",
@@ -2065,7 +2067,7 @@ _ALGEBRA2_U7 = [
              '[[bars data="term 1:4 | term 2:7 | term 3:10 | term 4:13" caption="start 4, step 3 — from term 1 to term 4 is three steps"]]'),
         ],
         "teach": [
-            ("That is the method. How far is term 10? Careful — the famous trap lives "
+            ("That is the method. How far is term 10? Careful — the famous mistake lives "
              "right here. Term 1 is already standing at the start; walking from term 1 "
              "to term 10 crosses NINE steps, not ten. So term 10 is 4 plus 9 steps of 3 "
              "— 4 plus 27 — 31.",
@@ -2143,7 +2145,7 @@ _ALGEBRA2_U7 = [
              "ratio 3 is four leaps — times 3, four times over. 2 times 81 is 162. The "
              "step-counting rule survives: one fewer leap than the term number.",
              '[[bars data="term 1:2 | term 2:6 | term 3:18 | term 4:54 | term 5:162" caption="four leaps of × 3 from 2 — term 5 is 162"]][[step eq="term 5: 4 leaps of × 3"]][[step eq="2 × 81 = 162"]]'),
-            ("The trap is the old similarity mistake in a new coat: treating the ratio "
+            ("The common mistake is the old similarity mistake in a new coat: treating the ratio "
              "as a step. ADDING 3 four times gives 14 — a stroll, while the true "
              "pattern has already leapt past 150. When each term is TIMES the one "
              "before, adding is not slow — it is wrong.",
@@ -2219,7 +2221,7 @@ _ALGEBRA2_U7 = [
              "ten numbers make five pairs. Five 11s: 55. In general: the last number, "
              "times one more than it, halved.",
              '[[rectangle w="11" h="10" half="1" caption="10 × 11 = 110, halved: 55"]][[step eq="1 + 10, 2 + 9, 3 + 8, 4 + 7, 5 + 6"]][[step eq="every pair is 11"]][[step eq="5 pairs of 11 = 55"]]'),
-            ("The traps: 10 times 10 is 100 — but the numbers being added are mostly "
+            ("The common mistakes: 10 times 10 is 100 — but the numbers being added are mostly "
              "SMALLER than 10, so squaring overshoots. And 10 alone is just the last "
              "footstep of the walk. Pair the ends, times, halve — and in a moment, you "
              "will do what Gauss did.",
@@ -2293,7 +2295,7 @@ _ALGEBRA2_U7 = [
              "away 1 — 9. Term 3: 2 times 9 is 18, take away 1 — 17. Each answer feeds "
              "back in; that is why it is a walk and not a jump.",
              '[[machine input="5" rule="2x − 1" output="9" caption="term 2: 2 × 5 − 1 = 9"]][[machine input="9" rule="2x − 1" output="17" caption="term 3: 2 × 9 − 1 = 17"]][[step eq="5 → 9 → 17"]]'),
-            ("Two traps, both about not finishing. Stopping at term 2 answers a "
+            ("Two common mistakes, both about not finishing. Stopping at term 2 answers a "
              "different question — count your arrivals. And applying only HALF the "
              "rule, doubling without taking away, walks a different pattern entirely: "
              "5, 10, 20. The rule is a package: all of it, every term.",
@@ -2534,7 +2536,7 @@ _ALGEBRA2_U8 = [
              "direction, same height, same across. The wave repeats forever because "
              "the circle does.",
              '[[unitcircle angle="405" values="0" caption="45° + 360° = 405° — same arrow"]][[step eq="45° + 360° = 405°"]]'),
-            ("Two traps. A HALF turn — adding 180 — is real spinning but lands "
+            ("Two common mistakes. A HALF turn — adding 180 — is real spinning but lands "
              "opposite: sine and cosine flip sign. And 360 take away the angle is the "
              "mirror angle, not a full turn added — a different arrow entirely. The "
              "turn that changes nothing is the whole 360, added on.",
@@ -2608,7 +2610,7 @@ _ALGEBRA2_U8 = [
              "amplitude is 20. The number out front IS the crest; no computation, just "
              "recognition.",
              '[[graph func="20*sin(x)" lines="y=20" range="-7..7" caption="crest 20, trough −20 — amplitude 20"]][[step eq="y = 20·sin x"]][[step eq="crest 20, trough −20"]]'),
-            ("Two traps. Crest to trough is DOUBLE the amplitude — 40 for our wave — "
+            ("Two common mistakes. Crest to trough is DOUBLE the amplitude — 40 for our wave — "
              "but amplitude measures from the middle, not the bottom. And the plain "
              "sine\'s crest of 1 is gone the moment a number stands out front: the "
              "stretch happened. Read the front number; that is the top.",
@@ -2699,7 +2701,7 @@ _ALGEBRA2_U9 = [
              "mean is 8. Notice where 8 sits: closer to 10 than to 5, dragged by the "
              "heavier side.",
              '[[bars data="quiz 1:10 | quiz 2:10 | quiz 3:10 | quiz 4:5 | quiz 5:5 | mean:8" caption="(30 + 10) ÷ 5 = 8"]][[step eq="30 + 10 = 40"]][[step eq="40 ÷ 5 = 8"]][[step eq="8 sits nearer the three 10s"]]'),
-            ("The trap is averaging the two NUMBERS and forgetting how often each "
+            ("The common mistake is averaging the two NUMBERS and forgetting how often each "
              "happened. 10 and 5 average to 7 and a half. But that treats a three-time "
              "score and a two-time score as equals. Count the repeats. Every score "
              "goes in as many times as it happened.",
@@ -2773,7 +2775,7 @@ _ALGEBRA2_U9 = [
              "each pair takes any of 3 hats: 10 times 3 is 30 outfits. Slot by slot, "
              "left to right — the times just keeps rolling.",
              '[[array rows="2" cols="5" caption="2 × 5 = 10 pairs — each with 3 hats: 30"]][[step eq="2 × 5 = 10"]][[step eq="10 × 3 = 30"]]'),
-            ("Two traps, both old friends grown taller. Adding — 2 plus 5 plus 3 is 10 "
+            ("Two common mistakes, both old friends grown taller. Adding — 2 plus 5 plus 3 is 10 "
              "THINGS, not outfits. And stopping after two slots — 10 — forgets the hats "
              "entirely. However many slots there are: times every one, skip none.",
              '[[step eq="2 × 5 × 3 = 30 ✓"]][[step eq="10 ✗ added, or stopped early"]]'),
@@ -2846,7 +2848,7 @@ _ALGEBRA2_U9 = [
              "about 10 tokens over the 6 plays. Not a promise; a long-run average. "
              "Casinos, insurers and weather planners live on exactly this number.",
              '[[array rows="2" cols="5" caption="2 wins of 5 tokens — 2 × 5 = 10"]][[step eq="2 wins × 5 tokens = 10 expected"]]'),
-            ("Two traps. 6 times 5 — 30 — pretends EVERY play pays, but four of the "
+            ("Two common mistakes. 6 times 5 — 30 — pretends EVERY play pays, but four of the "
              "six pay nothing. And plain 5 counts a single win, as if the other winning "
              "play never came. Count the paying plays first; then times by the prize.",
              '[[step eq="2 × 5 = 10 ✓"]][[step eq="30 ✗ every play paid · 5 ✗ one win only"]]'),
@@ -2924,7 +2926,7 @@ _ALGEBRA2_U9 = [
              "about 5 pizza-lovers: 5 times 3 — about 15 in the school. The similarity "
              "unit\'s factor thinking, aimed at people.",
              '[[bars data="one sample:5 | the school, 3 samples wide:15" caption="5 × 3 = about 15"]][[step eq="60 = 3 × 20"]][[step eq="5 × 3 = about 15"]]'),
-            ("Two traps. Answering 5 stops at the sample — the question asked about "
+            ("Two common mistakes. Answering 5 stops at the sample — the question asked about "
              "the school. And guessing half — 30 — ignores the sample entirely; we "
              "ASKED, and the sample said one in four, not one in two. Scale what the "
              "sample said, and keep the word about: samples estimate, never promise.",

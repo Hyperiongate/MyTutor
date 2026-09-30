@@ -2,6 +2,9 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone from every beat (Jim's ruling); unit 2's adding-three-
+#               numbers beat announces its own numbers and no longer claims a make-ten trick the
+#               lesson never teaches (F22, F25); the recap matches.
 #   2026-09-26  BUILD yg -- THE SIXTH ENTRY SWEEP (6 findings on all 36, 31 clean; 19 at wy). One
 #               authored edit: "hundreds of pages in a book" said as if every book -- "a big book
 #               has hundreds of pages, a big school has hundreds of students, and a jar can hold
@@ -220,7 +223,7 @@ _ENTRY_PILOT = [
              "equals sign, and we say it equals — it means both sides are the same "
              "amount. Four plus four equals eight.",
              '[[objects emoji="⭐" groups="4" add="4" count="1" caption="four stars and four more"]][[step eq="4 + 4 = 8"]]'),
-            ("Here is the trap. Count every star in both groups, not only the new "
+            ("Here is a common mistake to look out for. Count every star in both groups, not only the new "
              "ones. Five stars and three more is eight, not three. Today's way is to "
              "start at one and keep going until you have touched every star on the "
              "board.",
@@ -283,7 +286,7 @@ _ENTRY_PILOT = [
              "away is written with a minus sign, and we say it minus. You already know "
              "the equals sign. Six minus four equals two.",
              '[[objects emoji="⭐" groups="6" take="4" caption="six, take four away"]][[step eq="6 − 4 = 2"]]'),
-            ("Here is the trap. Your answer is what is LEFT, not what went away. Eight "
+            ("Here is a common mistake to look out for. Your answer is what is LEFT, not what went away. Eight "
              "stars, take two away, and six are left — the answer is six, not two. "
              "Count the ones still standing, never the ones you crossed off.",
              '[[objects emoji="⭐" groups="8" take="2" caption="eight, take two away — six still standing"]]'
@@ -347,7 +350,7 @@ _ENTRY_PILOT = [
              "are the same, start with either one. Eight plus three: start at eight, "
              "then nine, ten, eleven. Eight plus three equals eleven.",
              '[[objects emoji="⭐" groups="8" add="3" count="1" caption="start at eight — nine, ten, eleven"]][[step eq="8 + 3 = 11"]]'),
-            ("Here is the trap. When you count on, do not say the starting number "
+            ("Here is a common mistake to look out for. When you count on, do not say the starting number "
              "again. Seven plus five: start at seven — eight, nine, ten, eleven, "
              "twelve. Twelve. Say seven again — seven, eight, nine, ten, eleven — and "
              "you land on eleven, because seven was counted twice.",
@@ -414,10 +417,10 @@ _ENTRY_PILOT = [
              "eight. Eleven minus three equals eight. It works for any take away, "
              "however big the start.",
              '[[objects emoji="⭐" groups="11" take="3" caption="start at eleven — ten, nine, eight"]][[step eq="11 − 3 = 8"]]'),
-            ("Here is the trap. When you count back, do not say the starting number as "
+            ("Here is a common mistake to look out for. When you count back, do not say the starting number as "
              "one of your counts. Sixteen minus three: fifteen, fourteen, thirteen — "
              "sixteen minus three equals thirteen. Count sixteen as one of the three "
-             "and you land on fourteen, and that is the trap.",
+             "and you land on fourteen, and that is the common mistake.",
              '[[step eq="16 − 3 = 13 ✓"]][[step eq="14 ✗ sixteen was counted as one of the three"]]'),
         ],
         "pairs": [
@@ -481,7 +484,7 @@ _ENTRY_PILOT = [
              "One ten, four ones. The two digits are not just marks — each one says "
              "how many of its own kind there are.",
              '[[objects emoji="⭐" groups="10" add="4" caption="1 ten and 4 ones"]][[step eq="14 = 1 ten and 4 ones"]]'),
-            ("Here is the trap. The order of the digits is the whole meaning. One ten "
+            ("Here is a common mistake to look out for. The order of the digits is the whole meaning. One ten "
              "and nine ones is nineteen, not ninety-one. In a two-digit number the "
              "tens digit is written first, because a ten is the bigger bundle.",
              '[[step eq="1 ten and 9 ones = 19 ✓"]][[step eq="91 ✗ the digits were swapped"]]'),
@@ -667,7 +670,7 @@ _ENTRY_MORE = [
              '[[step eq="ones: 8 − 3 = 5"]]'
              '[[step eq="tens: 5 − 2 = 3"]]'
              '[[step eq="58 − 23 = 35"]]'),
-            ("Here is the trap. Taking away has a direction. The top number goes "
+            ("Here is a common mistake to look out for. Taking away has a direction. The top number goes "
              "first every time. In the ones column of 58 take away 23 it is 8 take "
              "away 3, never 3 take away 8.",
              '[[step eq="58 − 23 = 35 ✓"]]'
@@ -707,7 +710,7 @@ _ENTRY_MORE = [
              '[[step eq="tens: 7 − 2 = 5"]]'
              '[[step eq="hundreds: 8 − 3 = 5"]]'
              '[[step eq="876 − 321 = 555"]]'),
-            ("Here is the trap, and it is a quiet one. Do not skip a column just "
+            ("Here is a common mistake, and it is a quiet one. Do not skip a column just "
              "because it looks easy. In 574 take away 302 the tens are 7 take away "
              "0. That is still 7. Write the 7 in the tens place. Skip it, and the "
              "answer is missing its tens digit.",
@@ -748,7 +751,7 @@ _ENTRY_MORE = [
              "answer back: 35 plus 23 equals 58. That is exactly where we started, "
              "so the take away was right.",
              '[[step eq="35 + 23 = 58 ✓ back where we started"]]'),
-            ("Here is the trap. Add the ANSWER to the number you took away. Do not "
+            ("Here is a common mistake to look out for. Add the ANSWER to the number you took away. Do not "
              "add the two numbers from the question. In 58 take away 23, the check "
              "is 35 plus 23, not 58 plus 23.",
              '[[step eq="35 + 23 = 58 ✓"]]'
@@ -788,7 +791,7 @@ _ENTRY_MORE = [
              '[[step eq="10, 20, 30 — then 31, 32, 33, 34"]]'
              '[[step eq="3 dimes = 30 cents"]]'
              '[[step eq="30 + 4 pennies = 34 cents"]]'),
-            ("Here is the trap. Do not count a dime as one. It is one coin, but it "
+            ("Here is a common mistake to look out for. Do not count a dime as one. It is one coin, but it "
              "is worth ten cents. Count the coins that are worth more first, then "
              "count the pennies on the end.",
              '[[step eq="3 dimes 4 pennies = 34 cents ✓"]]'
@@ -827,7 +830,7 @@ _ENTRY_MORE = [
              "79. That is 79 cents.",
              '[[step eq="3 quarters = 75 cents"]]'
              '[[step eq="75 + 4 pennies = 79 cents"]]'),
-            ("Here is the trap. Two quarters is 50 cents, not 2 cents and not 20 "
+            ("Here is a common mistake to look out for. Two quarters is 50 cents, not 2 cents and not 20 "
              "cents. Count quarters in jumps of twenty-five, and say each jump out "
              "loud: twenty-five, fifty, seventy-five, one hundred.",
              '[[step eq="25, 50, 75, 100 — the four quarters"]]'
@@ -863,7 +866,7 @@ _ENTRY_MORE = [
              "15 cents.",
              '[[step eq="you pay 50, it costs 35"]]'
              '[[step eq="50 − 35 = 15 cents change"]]'),
-            ("Here is the trap. Do not add the two amounts. You are not spending "
+            ("Here is a common mistake to look out for. Do not add the two amounts. You are not spending "
              "85 cents. The price came out of your money, so the change is SMALLER "
              "than what you handed over. If your change is bigger than what you "
              "paid, something has gone wrong.",
@@ -912,7 +915,7 @@ _ENTRY_MORE = [
              "— forty-six. Three hundred forty-six. Each digit counts its own place: "
              "a hundred is ten tens, and a ten is ten ones.",
              '[[placevalue h="3" t="4" o="6" caption="biggest place first"]][[step eq="300 + 40 + 6 = 346"]]'),
-            ("Here is the trap. Read the digits left to right, in the order they "
+            ("Here is a common mistake to look out for. Read the digits left to right, in the order they "
              "stand. Three hundreds, four tens and six ones is three hundred "
              "forty-six, not six hundred forty-three. Read them backwards and you have a "
              "completely different number.",
@@ -979,7 +982,7 @@ _ENTRY_MORE = [
              "a hundred, so the four stays a four and the tens digit goes up by one. "
              "Thirty-four plus ten is forty-four, with no counting at all.",
              '[[step eq="3 tens 4 ones → 4 tens 4 ones"]][[step eq="34 + 10 = 44"]]'),
-            ("Here is the trap. Adding ten is not adding one. Ten more than "
+            ("Here is a common mistake to look out for. Adding ten is not adding one. Ten more than "
              "fifty-seven is sixty-seven, not fifty-eight. Check yourself by looking "
              "at the ones digit: it should be exactly the digit you started with.",
              '[[step eq="57 + 10 = 67 ✓ the 7 did not move"]][[step eq="58 ✗ that is one more, not ten more"]]'),
@@ -1045,7 +1048,7 @@ _ENTRY_MORE = [
              "that many of THAT place is worth. In three hundred seventy-four, the "
              "seven is in the tens place, so it is worth seventy.",
              '[[placevalue h="3" t="7" o="4" caption="ones, tens, hundreds — from the right"]][[step eq="the 7 in 374 is worth 70"]]'),
-            ("Here is the trap. Do not answer with the digit by itself unless it "
+            ("Here is a common mistake to look out for. Do not answer with the digit by itself unless it "
              "stands in the ones place. In three hundred seventy-four the seven is in "
              "the tens place, so it is not worth seven. Find its place first, and then "
              "say the whole amount that place is worth.",
@@ -1108,7 +1111,7 @@ _ENTRY_MORE = [
              '[[step eq="tens: 4 + 2 = 6"]]'
              '[[step eq="hundreds: 2 + 1 = 3"]]'
              '[[step eq="243 + 125 = 368"]]'),
-            ("Here is the trap. No column goes over nine today, so each answer keeps "
+            ("Here is a common mistake to look out for. No column goes over nine today, so each answer keeps "
              "to its own column. Ones under the ones, tens under the tens, hundreds "
              "under the hundreds. Write a digit in the wrong column and the whole "
              "number reads wrong — 638 instead of 368.",
@@ -1151,7 +1154,7 @@ _ENTRY_MORE = [
              '[[step eq="ones: 8 + 7 = 15, carry 1"]]'
              '[[step eq="tens: 6 + 4 + 1 = 11 tens"]]'
              '[[step eq="68 + 47 = 115"]]'),
-            ("Here is the trap. Eleven tens is not written as 11 in the tens "
+            ("Here is a common mistake to look out for. Eleven tens is not written as 11 in the tens "
              "place. Ten of those tens become one hundred, so the 1 moves to the "
              "front and one ten stays behind.",
              '[[step eq="68 + 47 = 115 ✓ one hundred, one ten, five"]]'
@@ -1272,7 +1275,7 @@ _ENTRY_MORE = [
              "you reach later when you count.",
              '[[numberline min="1" max="10" points="3,8" caption="8 comes later than 3"]]'
              '[[step eq="8 is bigger than 3"]]'),
-            ("Here is the trap. Do not add the two numbers. The question is not "
+            ("Here is a common mistake to look out for. Do not add the two numbers. The question is not "
              "how many in all. It only asks which one is bigger, so your "
              "answer is always one of the two numbers you were given.",
              '[[step eq="3 or 8 → 8 ✓"]]'
@@ -1324,7 +1327,7 @@ _ENTRY_MORE = [
              "eleven, twelve. Six plus six equals twelve. Say a double out loud twice "
              "and you will start to remember it.",
              '[[objects emoji="⭐" groups="6" add="6" count="1" caption="six and six more"]][[step eq="6 + 6 = 12"]]'),
-            ("Here is the trap. A double adds the same number again. It does not add "
+            ("Here is a common mistake to look out for. A double adds the same number again. It does not add "
              "one more. Seven plus seven is fourteen, not fifteen. Look at the number "
              "you were given, and use that very number twice.",
              '[[step eq="7 + 7 = 14 ✓"]][[step eq="15 ✗ that is 7 + 8, not a double"]]'),
@@ -1378,10 +1381,15 @@ _ENTRY_MORE = [
              "two plus three plus four equals nine. Two small sums instead of one big "
              "one.",
              '[[tape parts="2|3|4" total="9 in all" caption="two and three joined make five, then the four goes on"]][[step eq="2 + 3 = 5"]][[step eq="5 + 4 = 9"]]'),
-            ("Here is the trap, and here is a trick. The trap is stopping after two "
-             "numbers and leaving the third one out. The trick: look for two numbers "
-             "that make ten, and add those first. In six plus four plus three, six and "
-             "four make ten. Then ten plus three is thirteen.",
+            # (yx, 2026-09-30) Jim's playthrough, F22 + F25: this beat arrived with its own
+            # numbers straight after a generated worked example ("came out of the blue"),
+            # and it claimed a make-ten trick the lesson never teaches -- the method here
+            # is add the first two, then the third. Now it announces its own numbers and
+            # teaches only the mistake; the trick is gone from here and from the recap.
+            ("Here is a common mistake to look out for: stopping after two numbers and "
+             "leaving the third one out. Look at a new one: six plus four plus three. "
+             "Six plus four equals ten, but ten is not the answer yet. Then ten plus "
+             "three equals thirteen. Three numbers, two sums.",
              '[[step eq="6 + 4 = 10, then 10 + 3 = 13 ✓"]][[step eq="10 ✗ the third number was left out"]]'),
         ],
         "pairs": [
@@ -1402,8 +1410,9 @@ _ENTRY_MORE = [
              "then add the third to what you got — and never stop before the third one "
              "is in.",
              '[[tape parts="2|3|4" total="9 in all" caption="add the first two, then the third"]]'),
-            ("And if two of them make ten, start with those — six and four make ten, "
-             "then ten plus three equals thirteen. Ten is an easy number to add to.",
+            ("And count your numbers before you stop. Six plus four plus three has three "
+             "numbers, so it takes two sums: six plus four equals ten, then ten plus three "
+             "equals thirteen.",
              '[[step eq="6 + 4 = 10, then 10 + 3 = 13"]]'),
         ],
         # (va) the walk-back is ON: this lesson's op draws a picture after a
@@ -1435,7 +1444,7 @@ _ENTRY_MORE = [
              "seven; count eight, nine, ten — three counts. The size of the hop is the "
              "missing part.",
              '[[numberline min="0" max="10" hops="7,10" caption="count the steps in the hop — three"]][[step eq="7 + 3 = 10"]]'),
-            ("Here is the trap. Do not answer with the finish. The question is not what "
+            ("Here is a common mistake to look out for. Do not answer with the finish. The question is not what "
              "number we end on. It asks how many MORE, so your answer is the size of "
              "the jump, not the number you landed on.",
              '[[step eq="7 + 3 = 10 ✓ the jump is 3"]][[step eq="10 ✗ that is where we finished, not how many more"]]'),
@@ -1656,7 +1665,7 @@ _ENTRY_MORE = [
              "shrink — some were eaten, lost, given away, flew off? Then it is minus. "
              "Decide which, then do the sum.",
              '[[step eq="the pile grew → +"]][[step eq="the pile shrank → −"]]'),
-            ("Here is the trap. Do not add just because there are two numbers in the "
+            ("Here is a common mistake to look out for. Do not add just because there are two numbers in the "
              "story. Ben has nine grapes and eats three: he does not have twelve, he "
              "has six. Ask yourself whether the story made the pile bigger or smaller.",
              '[[step eq="9 − 3 = 6 ✓ he ate three"]][[step eq="12 ✗ that is nine and three put together"]]'),

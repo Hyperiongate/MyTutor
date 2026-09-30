@@ -2,6 +2,10 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "TRAP" IS GONE. Jim's ruling: a six-year-old does not know the word;
+#               "here's a very common mistake to look out for" is the meaning. 131 spoken lines in
+#               all ten courses (7 generated here: the two-clue "closing in", the table's "wrong
+#               boxes", the halving-mistake captions) rewritten; VOCABULARY bans every spoken form.
 #   2026-09-29  BUILD yv -- LINE_FREE_GATE: the Free plan's door, one authored line in the
 #               standalone set (course count 40,542 -> 40,543). Said by main.py's two gates.
 #   2026-09-29  BUILD yu -- LINE_UNSURE no longer says "tap the hand": session.html has no ✋
@@ -778,6 +782,16 @@ VOCABULARY = {
     "regroup": ("borrow",),
     "too small": ("not big enough",),
     "times": ("multiplied by",),
+    # (yx, 2026-09-30) JIM'S RULING FROM THE FIRST-FAMILY PLAYTHROUGH: "trap has to go" --
+    # everywhere, every course. A six-year-old does not know "trap" in the sense the
+    # lessons used it -- "Here is the ... Count every star..." -- and the meaning to keep is
+    # "here's a very common mistake to look out for". 131 spoken lines and a handful of
+    # board captions were rewritten in yx; these substrings keep it from coming back.
+    # (The calculus op named "trap" is a trapezium and an identifier, never spoken;
+    # "trapezium" contains none of these.)
+    "common mistake": ("the trap ", "the trap.", "the trap:", "the trap,", "the trap —", "a trap ",
+                       "a trap.", "traps ", "traps.", "traps,", "traps:", " trap.", " trap:", " trap,",
+                       " trap —", " trap -", "trap is ", "trap you ", "whole trap", "famous trap"),
 }
 
 # ---- PRAISE (rotated deterministically by problem index; all pre-renderable) ------
@@ -3994,7 +4008,7 @@ def _twop_worked(p):
     a, b, c = p["a"], p["b"], p["c"]
     return (f"Here it is, step by step: the girls row is the second row. Slide along to the art "
             f"column, and the box where they cross holds {c + 2}. The next-door boxes were "
-            f"the traps — {b} is the boys with art, {c} is the girls with soccer.",
+            f"the wrong boxes — {b} is the boys with art, {c} is the girls with soccer.",
             f'[[twoway rowlabels="boys,girls" collabels="soccer,art" data="{a},{b}|{c},{c + 2}" caption="girls row, art column — the crossing holds {c + 2}"]]'
             f'[[step eq="girls row → art column → {c + 2}"]]')
 
@@ -4305,7 +4319,7 @@ def _rpow_worked(p):
     return (f"Here it is, step by step: a one-half power is a square root, never a halving. The "
             f"root of {a} is {k}, because {k} times {k} is {a}. Half of {a} would be "
             f"{a // 2} — and {a // 2} times itself is nowhere near {a}.",
-            f'[[bars data="√{a} = {k}:{k} | half of {a}:{a // 2}" caption="the root, {k}, beside the halving trap, {a // 2}"]]'
+            f'[[bars data="√{a} = {k}:{k} | half of {a}:{a // 2}" caption="the root, {k}, beside the halving mistake, {a // 2}"]]'
             f'[[step eq="{a}^½ = √{a} = {k}"]]')
 
 
@@ -7591,7 +7605,7 @@ OP_EXT = {
                             and (p["a"] * p["b"]) % 100 == 0,
                             "a whole-dollar discount off a whole-dollar price -- and "
                             "never 50 percent, where the saving and the price you pay "
-                            "are the same number and the lesson's own trap vanishes"),
+                            "are the same number and the lesson's own mistake vanishes"),
         # THE trap of the whole lesson: answering the discount instead of the price
         "choices": lambda p: [p["a"] * p["b"] // 100,
                               p["a"] - p["a"] * p["b"] // 100, p["a"]],
@@ -10418,7 +10432,7 @@ OP_EXT = {
                             and len({p["b"] * p["c"],
                                      p["b"] + p["a"] * (p["c"] - 1),
                                      p["b"]}) == 3,
-                            "the two small sides differ (so the additive trap is "
+                            "the two small sides differ (so the additive mistake is "
                             "a different number than the answer), and the three "
                             "taps differ"),
     },
@@ -11427,7 +11441,7 @@ OP_EXT = {
         # RAW givens only: translating the fraction power into a root IS the
         # skill -- the board must not translate it.
         "board": lambda p: (f'[[step eq="{p["a"]} to the ½ power = ?"]]'),
-        "worked": _rpow_worked,       # (tm) the root beside the halving trap, as bars
+        "worked": _rpow_worked,       # (tm) the root beside the halving mistake, as bars
         "praise": lambda p: (f"A one-half power is a square root, never a "
                              f"halving: the root of {p['a']} is "
                              f"{round(p['a'] ** 0.5)}."),
@@ -13092,7 +13106,7 @@ OP_EXT = {
                             "and three distinct taps"),
     },
     # ---- build lr: Prob & Stats U3 Scatterplots & Correlation ------------
-    "spnt": {  # read ONE dot off a scatterplot -- the axes are the trap
+    "spnt": {  # read ONE dot off a scatterplot -- the axes are the mistake
         "ans": lambda p: _scat_at(p),
         "spoken": lambda p: (f"On this scatterplot each dot is one child: "
                              f"hours practiced across the bottom, points "

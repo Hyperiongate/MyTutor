@@ -24,7 +24,15 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-30yw-the-judge-reads-the-ask`** (battery 13,349 passed, 0 failed, 3 skipped; the yw section
+**On Jim's disk: `2026-09-30yx-trap-is-gone`** (battery 13,377 passed, 0 failed, 3 skipped) —
+Jim's two rulings of the morning: **"trap" gone everywhere** (131 spoken lines in all ten
+courses say "a common mistake" now — "Here is a common mistake to look out for." in his
+words; `VOCABULARY` bans every spoken form; the elementary prompt says the same) and **the
+live-lane tiles stay** on every course's hub (F30 closed as a ruling, no change). Rode
+along: Geometry u1's complementary beat rewritten plainly (F29), Entry u2 l4's mistake beat
+honest about its numbers and its trick (F22, F25). F15 (the award mid-intro) read: the
+words are true and the timing is `vs`'s design — Jim's call whether a placement's award
+should wait for the results screen. **Prewarm ~134 lines.** Before it, **On Jim's disk: `2026-09-30yw-the-judge-reads-the-ask`** (battery 13,349 passed, 0 failed, 3 skipped; the yw section
 below) — the first `scripted` night read (item 5 of the deep dive). GitHub mailed a red job
 for the morning of 09-30; day 273 (Entry u7 l1–4, u8 l1–4) re-run by hand gave one S5 HIGH:
 "Which clock number is the minute hand pointing to?" over the caption "the long hand is the
@@ -58,6 +66,15 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (yx, 2026-09-30) — Jim pushes (with yu, yv, yw; one push)
+
+- `lessons/*.py` (all ten courses; the rewrite), `lessonscripts.py` (7 generated lines;
+  `VOCABULARY`), `prompts.py` (one bullet in the elementary template), `ruletests.py` (PART
+  3or; one pin moved), `main.py` (stamp `2026-09-30yx-trap-is-gone`), `speechmap.py`
+  (regenerated), `changelog/Build_yx_Trap_Is_Gone_2026-09-30.md`, this handoff. After the
+  push: `/health` = the yx stamp; **prewarm ~134 lines** (plus yu's and yv's one each).
+  To hear it: Entry unit 2 lesson 1's second teach beat.
 
 ## Written to D:\MyTutor (yw, 2026-09-30) — Jim pushes (with yu and yv; one push)
 
@@ -103,20 +120,14 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    (or say "free during beta" while the switch is off — never a $29 button that lands on
    /family); the gate must count "a first unit" as the unit the student was PLACED INTO, not
    unit 1. Then Jim walks it again with Stripe test keys — the paid path has never been walked.
-3. **`yx` — the tour (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
+3. **`yy` — NEXT: the tour (F4, F5, F6, F9, F10, F11) + the first-minute words (F13, F14).** One
    pass over the tour script against today's screen: no glowing face, "the big board" not
    "whiteboard", a tap demonstrated, the pointer ABOVE its target (it bobbed behind the
    laptop's toolbar), the dashboard named once, played once per student (it played twice —
    after sign-in and again after placement). Tap-first helper line in child mode; the title
    once, not in the bubble and on the board.
-4. **`yy` — the words a child hears (F17, F22, F25, F29, F15).** Measure "trap" canon-wide;
-   Jim's ruling: "trap has to go", the meaning to keep is "here's a very common mistake to
-   look out for" (ask whether the upper courses change too). Entry u2 l4: the make-ten idea
-   is claimed in the trap beat and the recap and taught nowhere — teach it or drop the
-   claim; the fixed-number trap beat after a generated worked example reads the worked
-   numbers or announces its own. Geometry u1 l1's complementary beat rewritten plainly,
-   pointing at the review's 90/180/360 a minute earlier. The Pathfinder award: never
-   mid-intro, never "for completing a unit" the placement skipped.
+4. ~~`yy` — the words a child hears~~ — **done as `yx`** (F17 canon-wide, F22, F25, F29; F15
+   read and left to Jim's ruling).
 5. **`yz` — the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
    draws the bigger group FIRST with 7..11 under the added stars (the board drew 5 + 6 while
    the words said start at 6); the Geometry review draws its 24 squares (read the other
@@ -131,10 +142,10 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    button in the first screen and the free box highlighted for a stranger; `/family` as
    steps 1-2-3 for a first visit; "every student", not "every kid".
 
-**Open for Jim:** F20 (the voice said "is" as "eyes" — need the sentence); "trap" canon-wide
-or the two child courses only; the placement's length; and **the hub question from F30** —
-should the Entry and Basic hubs show a six-year-old the two live-lane tiles ("Get help with
-a problem", "Explore a topic") beside the lesson at all?
+**Open for Jim:** F20 (the voice said "is" as "eyes" — need the sentence); the placement's
+length (45 taps); F15 — should a placement's Pathfinder award be said on the results screen
+instead of at the first lesson's opening? (Ruled 09-30: "trap" gone everywhere; the hub
+keeps its live-lane tiles.)
 
 ## House decisions added today
 

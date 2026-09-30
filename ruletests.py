@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- PART 3or, "TRAP" IS GONE: zero spoken trap/traps in all ten courses,
+#               VOCABULARY bans the forms, the plain complementary beat, Entry u2 l4's honest mistake
+#               beat, the prompt bullet. One pin moved (the table's "wrong boxes").
 #   2026-09-30  BUILD yw -- PART 3oq, THE JUDGE READS THE ASK: S5's day-273 false HIGH (the clock's
 #               'is the minute hand pointing to?') is a silent fixture; a real give-away still fires.
 #   2026-09-29  BUILD yv -- PART 3op, THE FREE UNIT IS THE ONE YOU STARTED: the Free plan's gate
@@ -25857,6 +25860,55 @@ def part3oq_the_judge_reads_the_ask():
           all("2026-09-30" in notes(f) and "yw" in notes(f) for f in ("screencheck.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
+def part3or_trap_is_gone():
+    """PART 3or (build yx, 2026-09-30) -- "TRAP" IS GONE. Jim's ruling from the first-family
+    playthrough: "Here is the trap" was the tutor's phrase for a common mistake, several
+    times in one Entry unit, and a six-year-old does not know "trap" in that sense --
+    "trap has to go", every course; the meaning to keep is "here's a very common mistake
+    to look out for". 131 spoken lines across all ten courses (7 of them generated in
+    lessonscripts.py) were rewritten, VOCABULARY bans every spoken form so it cannot
+    return, the elementary brain's prompt says the same, and two of the playthrough's
+    other flags rode along: Geometry u1's complementary beat is written plainly (F29),
+    and Entry u2's adding-three-numbers beat announces its own numbers and stops
+    claiming a make-ten trick the lesson never teaches (F22, F25)."""
+    print("\nPART 3or — \"trap\" is gone (build yx)")
+    import re as _re
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import lessonscripts as LS
+        import prompts as P
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    lines = LS.course_audio_lines()
+    hits = [l for l in lines if _re.search(r"\btraps?\b", l, _re.I)]
+    check("⭐ no spoken line in any course says trap or traps (131 did on 2026-09-29; the trapezium keeps its name)",
+          not hits and len(lines) == 40543, (len(hits), [h[:80] for h in hits[:3]]))
+    check("  every spoken form of the word is banned by VOCABULARY under the canon phrase, with its own boundary (\"a trapezium\" is not \"a trap\")",
+          "common mistake" in LS.VOCABULARY and "the trap " in LS.VOCABULARY["common mistake"] and "a trap " in LS.VOCABULARY["common mistake"]
+          and "traps " in LS.VOCABULARY["common mistake"] and all(t != "trap" and t != "a trap" for t in LS.VOCABULARY["common mistake"]), "")
+    check("  ...and the validator passes every lesson under it (calculus's trapezium lessons included)",
+          all(ok for les in LS.LESSONS for ok, _l, _d in LS.validate(les)), "")
+    ent = LS.LESSON_BY_ID["entry-u2-add-single-digit"]
+    check("  Entry u2 l1 says it Jim's way: \"Here is a common mistake to look out for.\"",
+          any(sp.startswith("Here is a common mistake to look out for.") for sp, _b in ent["teach"]), "")
+    a3 = LS.LESSON_BY_ID["entry-u2-adding-three-numbers"]
+    t2 = a3["teach"][-1][0]
+    check("  Entry u2 l4's mistake beat announces its own numbers and teaches no make-ten trick (F22, F25)",
+          "Look at a new one: six plus four plus three." in t2 and "trick" not in t2.lower() and "make ten" not in t2
+          and not any("make ten" in sp or "trick" in sp.lower() for sp, _b in a3["recap"]), t2[:120])
+    geo = LS.LESSON_BY_ID["geo-u1-two-make-a-corner"]
+    comp = next(sp for sp, _b in geo["teach"] if "complementary" in sp)
+    check("  Geometry u1's complementary beat reads plainly (F29): a straight line is 180, a square corner is only 90, look at which corner the angles fill",
+          "A straight line is 180" in comp and "a square corner is only 90" in comp and "which corner the two angles fill" in comp
+          and "sticks" not in comp and "you met 180" not in comp, comp)
+    check("  the elementary brain is told the same word (prompts.py)",
+          "a common mistake to look out for" in P.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE and "Never call it a \"trap\"" in P.ELEMENTARY_SYSTEM_PROMPT_TEMPLATE, "")
+    check("  the changed files carry dated yx notes",
+          all("2026-09-30" in notes(f) and "yx" in notes(f)
+              for f in ("lessonscripts.py", "prompts.py", "ruletests.py", "main.py") + tuple("lessons/%s.py" % c for c in
+                  ("entry", "basic", "prealgebra", "algebra1", "geometry", "algebra2", "precalc", "calculus", "diffeq", "probstat"))), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -39600,7 +39652,7 @@ def part3jg_geometry_units_seven_to_nine_to_the_shape():
     check("  reading the table: the table captioned on the ask; the crossing named in the walk-back",
           'data="5,6|2,4" caption="rows and columns of counts — find the girls row, then the art column"' in L.board_for(twop, "abstract")
           and 'caption="girls row, art column — the crossing holds 4"' in _W(twop)[1]
-          and "The next-door boxes were the traps" in _W(twop)[0], "")
+          and "The next-door boxes were the wrong boxes" in _W(twop)[0], "")   # (yx) "the traps" -> "the wrong boxes"
 
     # ---- the giveaway audit, captions, spoken pending lines, the notes ----------------
     check("  nothing the twelve lessons demonstrate is later asked (the old straight-up teach was a bank ask)",
@@ -42980,9 +43032,13 @@ def part3ib_five_flags_from_jims_queue():
           '             "Twenty stars.",' in lsrc
           and "The trap is starting again at one after ten" not in lsrc,
           "Jim: drop the term 'trap' and everything after it")
-    check("  ...the other courses' 'Here is the trap' lines are untouched",
-          lsrc.count("Here is the trap") >= 20,   # 27 on ship day
-          "his flag was ONE line; a wider ruling is his to make, not mine")
+    # (yx, 2026-09-30) THE WIDER RULING CAME. This pin held the other courses' "Here is the
+    # trap" lines untouched because Jim's flag that day was ONE line ("a wider ruling is his
+    # to make, not mine"). On 2026-09-30 he made it -- "trap has to go", everywhere -- so
+    # the pin turns over: none left, and PART 3or holds the whole canon to it.
+    check("  ...the other courses' 'Here is the trap' lines are gone too, since Jim's 09-30 ruling (27 on ship day; 20+ until yx)",
+          lsrc.count('("Here is the trap') == 0 and lsrc.count('("Here is a common mistake to look out for') >= 20,   # a beat's opening quote: a spoken line, not a note that remembers one
+          str(lsrc.count('("Here is the trap')))
 
     # ② rounding is taught line-first
     psed = open(os.path.join(here, "pedagogy.py"), encoding="utf-8").read()
@@ -52826,6 +52882,7 @@ def main():
     part3oo_an_answer_ends_a_pause()
     part3op_the_free_unit_is_the_one_you_started()
     part3oq_the_judge_reads_the_ask()
+    part3or_trap_is_gone()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

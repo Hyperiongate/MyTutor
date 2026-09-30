@@ -2,6 +2,8 @@
 # lessons/algebra1.py  --  ALGEBRA I: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 4 beats: the two-clue puzzle now "pins the answer down" / "the two clues closing in".
 #   2026-09-26  BUILD yi -- THE WELCOME LEAVES THE WHY BEAT. Lesson one's why beat said
 #               "Welcome to <course>" AFTER the lesson had already introduced itself (the
 #               intro line and the Today card) -- Jim heard the order as wrong. The course
@@ -597,7 +599,7 @@ _ALGEBRA1_U2 = [
              "one x, and the right drops to 12 shared between 3, which equals 4. So "
              "x is equal to 4.",
              '[[balance left="3x" right="12" caption="share both sides between 3"]][[balance left="x" right="4" caption="x = 4"]][[step eq="x = 12 ÷ 3 = 4"]]'),
-            ("The trap is undoing the WRONG operation. 12 take away 3 equals 9 — but "
+            ("The common mistake is undoing the WRONG operation. 12 take away 3 equals 9 — but "
              "nothing here was added, so there is nothing to take away. Ask what "
              "happened to x. It was timesed, so it gets shared. Check: 3 times 4 "
              "equals 12. Level.",
@@ -1630,7 +1632,7 @@ _ALGEBRA1_U5 = [
             ("Why two clues? Because this is the oldest puzzle with two unknowns: two "
              "secret numbers, and two clues. Put together they equal 10. Their "
              "difference — the bigger take away the smaller — equals 4. Neither clue "
-             "alone is enough; together they trap the answer completely.",
+             "alone is enough; together they pin the answer down completely.",
              '[[goal text="The sum and the difference"]]'),
         ],
         "picture": [
@@ -1642,7 +1644,7 @@ _ALGEBRA1_U5 = [
              '[[tape parts="bigger | smaller" total="10" caption="together 10"]][[tape parts="3 | 4 | 3" total="10" caption="the bigger is the smaller and 4 more: 7 and 3"]]'),
         ],
         "teach": [
-            ("That is the method — the trap closing. Add the two clues: big plus "
+            ("That is the method — the two clues closing in. Add the two clues: big plus "
              "small, plus big take away small — the small cancels itself away, leaving "
              "two bigs. 10 plus 4 equals 14, so two bigs equal 14, and the big one is "
              "7. The small one is what is left: 3.",
@@ -1967,7 +1969,7 @@ _ALGEBRA1_U6 = [
         "teach": [
             ("That is the method. Put a digit in front of a power of ten. 6 times 10 to the power 2 is 6 times 100, which equals 600 — the 6 with two zeros behind it. The power says how many places the digit moves.",
              '[[placevalue n="600" caption="6 × 10² = 600"]][[step eq="6 × 10² = 6 × 100 = 600"]]'),
-            ("The trap is reading the power as a TIMES: 6 times 10 times 2 equals "
+            ("The common mistake is reading the power as a TIMES: 6 times 10 times 2 equals "
              "120, and 120 is nowhere near 600. The 2 up there is not a number to "
              "times by — it is a count of how many times the ten itself appears.",
              '[[step eq="6 × 10² = 600 ✓"]][[step eq="6 × 10 × 2 = 120 ✗"]]'),

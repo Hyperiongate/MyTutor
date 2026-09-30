@@ -2,6 +2,8 @@
 # lessons/basic.py  --  BASIC MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 7 beats.
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -142,7 +144,7 @@ _BASIC_MORE = [
              "places, and two zeros hold the tens and the ones. 46 times 100 is "
              "4,600.",
              '[[placevalue n="4600" caption="46 × 100 = 4600: every digit up two places"]]'),
-            ("Here is the trap. The zeros are not copied from the ten — they hold "
+            ("Here is a common mistake to look out for. The zeros are not copied from the ten — they hold "
              "the empty places. Times ten moves every digit up one place, so one "
              "zero holds the ones. Times a hundred moves them up two, so two zeros "
              "hold the places. An extra zero leaves the answer ten times too big.",
@@ -204,7 +206,7 @@ _BASIC_MORE = [
             ("So: 18 is 2 times what? Share 18 into 2 rows — 9 in each. 2 and 9 "
              "are a factor pair of 18, and finding one handed me the other.",
              '[[array rows="2" cols="9" view="groups" eq="18 ÷ 2 = 9" caption="2 and 9 are a pair"]]'),
-            ("Here is the trap. The partner is what you GET when you divide, not "
+            ("Here is a common mistake to look out for. The partner is what you GET when you divide, not "
              "what you get when you take away. For 18 and 2 the partner is 9, not 16. "
              "Check yourself every time: your answer times the factor should come "
              "straight back to the number you started with.",
@@ -267,7 +269,7 @@ _BASIC_MORE = [
              "divide both by 3: 9 becomes 3 and 12 becomes 4. Nothing but 1 "
              "divides 3 and 4 together, so 3 out of 4 is as short as it goes.",
              '[[pie parts="12" shaded="9" caption="9/12"]][[pie parts="4" shaded="3" caption="÷ 3 top and bottom → 3/4"]]'),
-            ("Here is the trap. Whatever you divide the top by, divide the bottom by too. "
+            ("Here is a common mistake to look out for. Whatever you divide the top by, divide the bottom by too. "
              "Halving only the top turns the fraction into a different amount "
              "entirely. Simplest form renames the fraction. It never changes how "
              "much it is worth.",
@@ -331,7 +333,7 @@ _BASIC_MORE = [
              "8 divided by 2 is 4. Now both are eighths: 4 eighths take away 1 "
              "eighth leaves 3 eighths.",
              '[[step eq="1/2 = 4/8"]][[numberline min="0" max="1" denom="8" hops="0.5,0.375" points="0.375" caption="4/8 − 1/8 = 3/8"]]'),
-            ("Here is the trap. Once both bottoms MATCH, the bottom stops "
+            ("Here is a common mistake to look out for. Once both bottoms MATCH, the bottom stops "
              "changing: eighths take away eighths leaves eighths, and only the top "
              "numbers do the taking away. Take the bottoms away too and you land "
              "on 3 sevenths — a different fraction. That holds only after they "
@@ -396,7 +398,7 @@ _BASIC_MORE = [
              "stand, so change the tenths first: 4 tenths is 40 hundredths. Now "
              "both are hundredths. 40 plus 3 is 43 hundredths.",
              '[[step eq="4 tenths = 40 hundredths"]][[hundredgrid shaded="40" plus="3" caption="40 + 3 = 43 hundredths"]]'),
-            ("Here is the trap, and it is the same one place value always sets. Do "
+            ("Here is a common mistake, and it is the same one place value always sets. Do "
              "not add the digits as though they were the same size. 4 tenths plus "
              "3 hundredths is not 7 tenths and not 7 hundredths. A tenth is the "
              "bigger coin — ten times a hundredth.",
@@ -462,7 +464,7 @@ _BASIC_MORE = [
              "percent.",
              '[[step eq="4 × 25 = 100"]][[step eq="3 × 25 = 75, so 75 percent"]]'
              '[[hundredgrid shaded="75" unit="percent" caption="75 out of 100"]]'),
-            ("Here is the trap. Do not read the top number as the percent. 3 out "
+            ("Here is a common mistake to look out for. Do not read the top number as the percent. 3 out "
              "of 4 is not 3 percent — 3 percent would be almost nothing, and 3 out "
              "of 4 is most of it. Change the bottom to a hundred first, every "
              "time.",
@@ -529,7 +531,7 @@ _BASIC_MORE = [
              "price. A coat costs 60 dollars with 25 percent off. 25 percent of 60 "
              "is 15. 60 take away 15 is 45. You pay 45 dollars.",
              '[[step eq="25% of 60 = 15"]][[step eq="60 − 15 = 45"]][[tape parts="15 | 45" total="60" caption="discount 15 — you pay 45"]]'),
-            ("Here is the trap, and shops rely on it. The discount is not the "
+            ("Here is a common mistake, and shops rely on it. The discount is not the "
              "answer. 15 is what you SAVE. The question asks what you pay, so the "
              "second step is the one that matters. Your answer is always smaller "
              "than the price, but bigger than the discount.",

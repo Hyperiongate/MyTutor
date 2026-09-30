@@ -2,6 +2,8 @@
 # lessons/probstat.py  --  PROBABILITY & STATISTICS: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 2 beats.
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -240,7 +242,7 @@ _PROBSTAT_U1 = [
              "11 — four dots to the right of 8. Work left to right and touch each dot "
              "once; a count you cannot repeat exactly is a count you should do again.",
              '[[dotplot values="6,7,7,8,9,9,10,11" mark="8" caption="four dots to the right of the line at 8"]][[step eq="more than 8 → 9, 9, 10, 11 → 4"]]'),
-            ("The dot standing exactly ON 8 is the whole trap. More than 8 does not "
+            ("The dot standing exactly ON 8 is the whole mistake. More than 8 does not "
              "include 8 itself, so that dot stays out and the answer is 4, not 5. And "
              "counting the other side answers a question nobody asked. Read the word, "
              "then count.",
@@ -2118,7 +2120,7 @@ _PROBSTAT_U7 = [
              "Share 1100 across 100 plays and one play is worth 11. That is a weighted "
              "average: each prize weighed by how often it comes.",
              '[[bars data="40 plays × 20:800 | 60 plays × 5:300" caption="two piles of tokens — 800 and 300, 1100 together"]][[step eq="800 + 300 = 1100"]][[step eq="1100 ÷ 100 = 11 a play"]]'),
-            ("The trap is averaging the two prizes and stopping. 20 and 5 average to 12 "
+            ("The common mistake is averaging the two prizes and stopping. 20 and 5 average to 12 "
              "and a half, which is only right if both come up equally often — and they do "
              "not. And 20 alone is the big prize, not what a play is worth.",
              '[[step eq="11 ✓"]][[step eq="12½ ✗ the prizes averaged · 20 ✗ the big prize"]]'),

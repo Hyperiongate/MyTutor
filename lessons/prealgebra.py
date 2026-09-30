@@ -2,6 +2,8 @@
 # lessons/prealgebra.py  --  PRE-ALGEBRA: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yx -- "trap" is gone (Jim's ruling: a six-year-old does not know the word; the
+#               meaning kept is "a common mistake to look out for"): 4 beats.
 #   2026-09-26  BUILD yj -- THE TRUE DISTRACTOR. A reason question's wrong choice that was right
 #               by the example's numbers (tools/distractorscan.py, yh's class canon-wide) is
 #               false now; the choice still names a real misconception. PART 3od.
@@ -151,7 +153,7 @@ _PREALGEBRA_MORE = [
              "1, divide by it, and the biggest factor below the number arrives in "
              "one step.",
              '[[step eq="45 = 3 × 15"]][[step eq="smallest factor 3 → biggest factor 15"]]'),
-            ("Here is the trap. Do not hand back the number just below. For 45 the "
+            ("Here is a common mistake to look out for. Do not hand back the number just below. For 45 the "
              "answer is not 44, and it is not 9 either — 9 divides 45, but 15 is "
              "bigger. Find the smallest factor above 1, divide by it, and the biggest one "
              "arrives in a single step. A prime number has no factor below it at all "
@@ -2032,7 +2034,7 @@ _PREALGEBRA_U7 = [
              "a tenth. Then count how many tens the percent is, and times. 30 percent "
              "of 40: ten percent is 4, 30 is three tens, 3 times 4 equals 12.",
              '[[tape parts="4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4" total="40" caption="10% of 40 is one part — 4"]][[step eq="10% of 40 = 4"]][[step eq="30% is 3 tens"]][[step eq="3 × 4 = 12"]]'),
-            ("One more, and the trap. 70 percent of 20. Ten percent of 20 is 2. "
+            ("One more, and the common mistake. 70 percent of 20. Ten percent of 20 is 2. "
              "Seventy percent is seven tens, so 7 times 2 equals 14. Careful — the "
              "answer is not 2. Finding ten percent is only the first of the two steps.",
              '[[tape parts="2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2" total="20" caption="ten parts of 2"]][[step eq="10% of 20 = 2"]][[step eq="7 × 2 = 14 ✓"]][[step eq="2 ✗ — that is only ten percent"]]'),
@@ -2262,7 +2264,7 @@ _PREALGEBRA_U7 = [
              "way you know — ten percent of 60 is 6. Then the move: the price goes UP, "
              "so put the 6 on. 60 plus 6 equals 66 dollars.",
              '[[tape parts="60 | 6" total="66" caption="the price and the change"]][[step eq="10% of 60 = 6"]][[step eq="60 + 6 = 66"]]'),
-            ("Here is the trap. The new price is NOT 70 dollars. Ten is a percent, "
+            ("Here is a common mistake to look out for. The new price is NOT 70 dollars. Ten is a percent, "
              "not ten dollars — you cannot put it straight onto the price. And when "
              "the price goes DOWN instead, the same 6 comes off: 60 take away 6 "
              "equals 54 dollars.",
@@ -2774,7 +2776,7 @@ _PREALGEBRA_U9 = [
              "against the letter means times. Then take what x is equal to: 9. So it is 3 "
              "times 9, which equals 27.",
              '[[tape parts="x | x | x" total="?" caption="3x — 3 copies of x"]][[step eq="x = 9"]][[tape parts="9 | 9 | 9" total="27" caption="3x = 3 × 9 = 27"]]'),
-            ("The trap is reading it as a plus — as if the number is just standing "
+            ("The common mistake is reading it as a plus — as if the number is just standing "
              "near the x. It is not standing near it; it is timesing it. 3 x "
              "with x equal to 9 equals 27, never 12. One more: 2 x, with x equal to 5, "
              "is 2 times 5, which equals 10.",
