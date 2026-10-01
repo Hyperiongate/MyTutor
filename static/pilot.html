@@ -2,6 +2,9 @@
 <!--
     pilot.html  --  THE SCRIPTED LESSON PILOT PAGE  --  Hyperion Shift LLC
     =========================================================================
+    (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR. student-code.js in <head>; the code
+    comes from the mt_student cookie (an arriving ?code= is stored and stripped), a typed
+    code becomes the cookie, the way-home link carries the course and never the code.
     (sp) 2026-09-05 -- THE REASON QUESTION TAPS TEXT. A reason ask (step.reason,
     build sp) carries text options; its buttons send the label as `said` instead of
     parseInt'ing it to NaN. One branch, nothing else touched.
@@ -206,6 +209,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Mr. Cadabra's Classroom — My Lessons</title>
+<script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
 <style>
   :root{--purple:#6d5ae6;--teal:#0aa5a0;--ink:#232336;--muted:#6b6b80;
         --card:#ffffff;--line:#e6e4f2;--bg:#f7f6fc;--good:#177a52;--warn:#8a5a12}
@@ -421,7 +425,8 @@
   var DEV = qs.get("dev") === "1";
   var FCOURSE = (qs.get("course") || "").trim();   // (op) the pilot lens
   var FUNIT = parseInt(qs.get("unit") || "", 10) || 0;
-  CODE = (qs.get("code") || "").trim();       // (ki) the global voice.js reads
+  // (zb, 2026-10-01) the cookie, not the address bar (student-code.js); sessionStorage stays the fallback
+  CODE = (window.MTStudent ? MTStudent.code() : (qs.get("code") || "")).trim();       // (ki) the global voice.js reads
   try { CODE = CODE || sessionStorage.getItem("mt_pilot_code") || ""; } catch (e) {}
   if (CODE) $("code").value = CODE;
   if (DEV) $("devbar").style.display = "block";
@@ -438,6 +443,7 @@
       return;
     }
     try { sessionStorage.setItem("mt_pilot_code", CODE); } catch (e) {}
+    try { if (window.MTStudent) MTStudent.set(CODE); } catch (e) {}   // (zb)
     // (ki) we are inside a REAL TAP -- the only moment a browser lets us open the
     // audio pipeline early. voice.js's warmUpAudio also starts the build-cb keep-alive.
     try { warmUpAudio(); } catch (e) {}
@@ -787,8 +793,8 @@
     home.onclick = function () {
       // (pa) back to THIS course's hub, not the subject picker -- the lessons
       // door is the main road now, so its exit must land where the student was.
-      location.href = "/home?code=" + encodeURIComponent(CODE)
-        + (window.COURSE ? "&course=" + encodeURIComponent(window.COURSE) : "");
+      location.href = "/home" + (window.MTStudent ? MTStudent.q({ course: window.COURSE || "" })   // (zb) no code in the link
+        : ("?code=" + encodeURIComponent(CODE) + (window.COURSE ? "&course=" + encodeURIComponent(window.COURSE) : "")));
     };
     ctl.appendChild(home);
     var again = document.createElement("button");

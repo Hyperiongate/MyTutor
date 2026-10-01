@@ -4,6 +4,10 @@
   records.html  --  MyTutor  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    2026-10-01  (build zb) THE CODE LEAVES THE ADDRESS BAR, elsewhere: this is the parent's
+                printable report, so a code in ITS URL stays (used, never stored, never
+                stripped -- the parent reads one student, then another); the student's own
+                dashboard links here without a code now and the mt_student cookie answers.
     2026-09-07  (build ue, P2 of the deep look) THE STATUS COLUMN SPEAKS PLAINLY, AND
                 LESSONS DONE GET A COLUMN. The Status column printed the raw status word,
                 so a finished lesson read "mastered" beside a Mastery column that said
@@ -32,6 +36,7 @@
   ============================================================================= -->
 <html lang="en">
 <head>
+<script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -134,7 +139,10 @@
 (function () {
   "use strict";
   const params = new URLSearchParams(location.search);
-  const CODE = (params.get("code") || "").trim();
+  // (zb, 2026-10-01) a parent's page: a code in the URL is used as-is, never stored, never stripped
+  // ({ keep: true }); the mt_student cookie answers when the student opened this from their own
+  // dashboard (its link carries no code now). A stale cache without the script reads the URL.
+  const CODE = (window.MTStudent ? MTStudent.code({ keep: true }) : (params.get("code") || "")).trim();
   const el = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const fmtMin = (m) => { m = m | 0; return m < 60 ? (m + "m") : (Math.floor(m / 60) + "h " + String(m % 60).padStart(2, "0") + "m"); };

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; his 08-18 bookmark
+    ruling kept). student-code.js in <head>: an arriving ?code= -- a bookmark, the login hand-off --
+    is stored in the mt_student cookie and taken out of the URL in place; a page without one reads
+    the cookie; every link this page builds to another student page carries the course and never
+    the code (MTStudent.q). The API never saw it in a URL (hs). PART 3ov.
     (za) 2026-09-30 -- THE SYMBOL STRIP FOLLOWS THE COURSE. One line: body data-course is
     set from COURSE before math-keyboard.js runs, so the strip under "Type my answer" is
     + - x divide for Entry and Basic, everything but theta for Pre-Algebra and Algebra I,
@@ -305,6 +310,7 @@
 <html lang="en">
 <head>
   <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
+  <script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <script src="/static/speech-text.js"></script>  <!-- build hc: ONE copy of the spoken-text transforms -->
   <script src="/static/board-text.js"></script>   <!-- build hc: ONE copy of the board/variable renderer -->
   <script src="/static/voice.js"></script>        <!-- build hd: ONE copy of the voice pipeline + its state -->
@@ -1524,7 +1530,10 @@
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
-    const CODE = (params.get("code") || "").trim();
+    // (zb, 2026-10-01) THE CODE LEAVES THE ADDRESS BAR: student-code.js stores an arriving ?code= in the
+    // mt_student cookie and takes it out of the URL; a page without one reads the cookie. The guard
+    // keeps a stale cache that lacks the script working exactly as before (the URL).
+    const CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();
     // 2026-08-07 (build au): `let`, not const — the welcome overlay's "start at my next
     // unmastered unit" choice retargets it before the opener is sent.
     let FOCUS_UNIT = parseInt(params.get("unit"), 10) || 0;   // from the dashboard "Work on it" link
@@ -1959,7 +1968,9 @@
     };
     const CURRICULUM = CURRICULUM_BY_COURSE[COURSE] || CURRICULUM_BY_COURSE.algebra1;
     const curriculumBtn = el("curriculumBtn"), curriculumList = el("curriculumList"), unitModal = el("unitModal");
-    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    // (zb) links between the student pages carry the course, never the code; a stale cache without
+    // student-code.js keeps the old form so nothing breaks across the deploy
+    const cq = window.MTStudent ? MTStudent.q({ course: COURSE }) : ("?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE));
     el("dashLink").href = "/dashboard" + cq;
     el("practiceLink").href = "/practice" + cq;
     el("drillLink").href = "/drill" + cq;         // (mu) Abrabot's room
@@ -2849,7 +2860,7 @@
             + "<b>preparation session</b> walks through what's on it and reviews your weakest spots. It's not required.";
         if (passed) {
           const d = document.createElement("a");
-          d.href = "/dashboard" + "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+          d.href = "/dashboard" + cq;   // (zb) no code in the link
           d.className = "welcome-go"; d.style.display = "block"; d.style.textDecoration = "none"; d.style.textAlign = "center";
           d.textContent = "🏅 See it in my trophy case";
           btns.appendChild(d);
@@ -2857,12 +2868,12 @@
         const prep = document.createElement("button");
         prep.className = "welcome-go"; prep.style.marginTop = "10px";
         prep.textContent = "📖 Prepare for the Final Exam (optional)";
-        prep.addEventListener("click", () => { window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE) + "&final=prep"; });
+        prep.addEventListener("click", () => { window.location.href = "/session" + cq + "&final=prep"; });
         btns.appendChild(prep);
         const take = document.createElement("button");
         take.className = "welcome-go"; take.style.marginTop = "10px";
         take.textContent = passed ? "🎓 Take a fresh Final Exam" : "🎓 Take the Final Exam";
-        take.addEventListener("click", () => { window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE) + "&final=exam"; });
+        take.addEventListener("click", () => { window.location.href = "/session" + cq + "&final=exam"; });
         btns.appendChild(take);
       }
       el("finalOverlay").classList.add("show");
@@ -2881,7 +2892,7 @@
     el("foClose").addEventListener("click", () => {
       el("finalOverlay").classList.remove("show");
       // Leaving a final-mode page via the overlay returns to the normal lesson.
-      if (FINAL_MODE) window.location.href = "/session?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+      if (FINAL_MODE) window.location.href = "/session" + cq;
     });
 
     async function showFinalExam(a) {
@@ -2899,7 +2910,7 @@
             ? "★ PASSED — you've completed the whole course!"
             : "Not this time — and that's okay. Let's shore up the shaky spots and take a fresh one.") + '</div>'
         + (passed ? '<div style="margin-top:10px;font-size:14.5px;font-weight:700;color:var(--bd-7a5c00)">🏅 The <b>Course Champion</b> medal just landed in your trophy case!</div>'
-                    + '<a class="fc-link" href="/dashboard?code=' + encodeURIComponent(CODE) + '&course=' + encodeURIComponent(COURSE) + '">🏆 See my trophy case</a>' : '')
+                    + '<a class="fc-link" href="/dashboard' + cq + '">🏆 See my trophy case</a>' : '')
         + '</div>';
       scrollFeed();
       try {
@@ -4224,8 +4235,7 @@
       inv.classList.add("show");
       el("aiYes").onclick = () => {
         inv.classList.remove("show");
-        window.location.href = "/challenge?code=" + encodeURIComponent(CODE) +
-          "&course=" + encodeURIComponent(COURSE);
+        window.location.href = "/challenge" + cq;   // (zb) no code in the link
       };
       el("aiSkip").onclick = () => { inv.classList.remove("show"); next(); };
     }

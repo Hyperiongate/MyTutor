@@ -24,6 +24,16 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
+**On Jim's disk: `2026-10-01zb-the-code-leaves-the-address-bar`** (battery 13,493 passed, 0 failed, 3 skipped; the zb section
+below) — F34, ruled by Jim on 10-01 ("go"), built so the 08-18 bookmark ruling still holds. One
+shared script, `static/student-code.js`: a page that arrives with `?code=` (a bookmark, the login
+hand-off) stores it in the `mt_student` cookie and takes it out of the address bar in place (no
+reload, Back untouched); a page without one reads the cookie; every link between the student
+pages carries the course and never the code; the login lands on /home clean. The PARENT'S doors
+(/dashboard?view=parent, /records) keep the code in their own URL, used and never stored, so a
+parent reading a sibling never changes which student the laptop is signed in as. Eleven pages,
+three shared scripts, each with the URL as its fallback for a stale cache; the server unchanged.
+Proved in a real browser (`tools/zbdrive.py`, PART 3ov). **Nothing to prewarm.** Before it,
 **On Jim's disk: `2026-09-30za-the-same-screen-as-the-lesson`** (battery 13,461 passed, 0 failed, 3 skipped; the za
 section below) — the sixth and last build off the playthrough: the topic page and the parent
 pages. F31: /topic and /practice get the lesson page's screen node for node (the sidebar
@@ -100,6 +110,18 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (zb, 2026-10-01) — Jim pushes (with yu–za; one push)
+
+- `static/student-code.js` (NEW), `static/index.html`, `static/home.html`, `static/session.html`,
+  `static/practice.html`, `static/topic.html`, `static/challenge.html`, `static/dashboard.html`,
+  `static/records.html`, `static/drill.html`, `static/pilot.html`, `static/app-nav.js`,
+  `static/library.js`, `static/time-tracker.js`, `tools/zbdrive.py` (NEW), `ruletests.py` (PART
+  3ov; 3ou's F34 pin), `main.py` (stamp `2026-10-01zb-the-code-leaves-the-address-bar`;
+  `_code_dep`'s docstring), `changelog/Build_zb_The_Code_Leaves_The_Address_Bar_2026-10-01.md`,
+  this handoff. After the push: `/health` = the zb stamp; nothing new to prewarm. To see it: sign
+  a student in — the address bar reads /home, not /home?code=…; open an old bookmark with the
+  code — it signs in and the bar cleans itself.
 
 ## Written to D:\MyTutor (za, 2026-09-30) — Jim pushes (with yu–yz; one push)
 
@@ -209,27 +231,21 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    well"; choice 4 was never right — scan the quiz and reason choices too); 45 questions for
    a six-year-old's first sitting is Jim's call.
 6. ~~`za` — the topic page and the parent pages~~ — done (above): F31, F32, F1, F2, F3 built;
-   F33 read and left; **F34 NOT built — needs Jim's ruling (below)**. As planned: (F31, F32, F33, F34, F1, F2, F3). The
+   F33 read and left; F34 built the next morning as ~~`zb`~~ on Jim's ruling. As planned: (F31, F32, F33, F34, F1, F2, F3). The
    topic page's board width with the sidebar open; the symbol strip by course (π, θ, |x| on
    Basic); the child skin on every board page; the code out of the URL. Front page: a signup
    button in the first screen and the free box highlighted for a stranger; `/family` as
    steps 1-2-3 for a first visit; "every student", not "every kid".
 
-**All six playthrough builds are done (yu, yv, yw, yx, yy, yz, za).** What is left from the
+**All the playthrough builds are done (yu, yv, yw, yx, yy, yz, za, zb — F34 built on Jim's 10-01 ruling).** What is left from the
 playthrough is Jim's: the questions below, then the next sitting (the phone pass, Basic u3
 l4, Pre-Calc u2 l3, a graph lesson, the parent's email and dashboard, /admin's minutes card,
 the nightly reports, the money path with the switch on — and `PAYMENTS_OPEN` out of Render
 when the testing is done, the live Stripe key in before launch).
 
 **Open for Jim:**
-- **F34 — the student's code in the URL.** Jim flagged it 09-29 ("security-ish… move it to
-  the session cookie"). It conflicts with his own ruling of 08-18 in `main.py`'s
-  `_code_dep`: "Do not kill the bookmark login" — a family bookmark with the code is how a
-  young student signs in, and the code says a NEW ruling is needed before this changes.
-  Twelve files read the code from the URL. A design that honours both: a session cookie set
-  at sign-in and whenever a page arrives with `?code=`; every page reads the cookie when the
-  URL has none; the in-app links between pages drop the code. A bookmark still signs in;
-  nothing tapped inside the app carries the code. A build of its own (`zb`) once he rules.
+- ~~F34~~ — built as `zb` on 10-01 (above). The 08-18 bookmark ruling stands beside it in
+  `main.py`'s `_code_dep` docstring: a bookmark with the code still signs in.
 - F20 (the voice said "is" as "eyes" — need the sentence); the placement's length (45 taps).
 - Seen on a 390×844 phone while proving za, not built: /topic for Basic with three 72px
   child-mode buttons in the dock leaves the board a few pixels tall — identical before and
@@ -258,8 +274,10 @@ when the testing is done, the live Stripe key in before launch).
   `#ctrlBar`, `placeCtrls`, `mt_sb_open`) rather than inventing a layout. And anything the
   page offers by course — the symbol strip, the child skin — keys off `body data-course` /
   `body.elem-mode`, set by the page script before the shared scripts run.
-- **A ruling is amended by Jim, not by a flag (za).** F34 and the 08-18 bookmark ruling
-  conflict; the flag is brought to him with a design, not built over the ruling. F1 was the
+- **A ruling is amended by Jim, not by a flag (za, zb).** F34 and the 08-18 bookmark ruling
+  conflicted; the flag was brought to him with a design, not built over the ruling — and the
+  next morning he ruled, and `zb` built the design that keeps both (the cookie takes an
+  arriving bookmark's code; the parent's doors keep theirs). F1 was the
   reverse — Jim's own words on 09-29 amended his 09-09 three-door ruling — and PART 3kq's pin
   now says which ruling it carries and why.
 - **The picture starts where the words start (yz).** When a spoken line says "start at six"

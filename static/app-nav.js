@@ -1,6 +1,11 @@
 /* =============================================================================
  * app-nav.js  --  MyTutor  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-10-01  (build zb) THE CODE LEAVES THE ADDRESS BAR. This script runs at DOMContentLoaded,
+ *               AFTER the page's own script has stored an arriving ?code= in the mt_student
+ *               cookie and taken it out of the URL (student-code.js), so it reads the code
+ *               from MTStudent, not the URL -- the URL is the fallback for a cache that lacks
+ *               the shared script. The links it builds carry the course, never the code.
  *   2026-08-11  ❓ HELP REPLACES THE DEAD MAILTO (build ds -- Four-Lens Review, student
  *               lens item 3). The Contact pill was mailto:support@mrcadabra.com on every
  *               app page -- dead on a school Chromebook with no mail app, useless to an
@@ -34,13 +39,16 @@
     if (!bar) return;
 
     var params = new URLSearchParams(window.location.search);
-    var CODE = (params.get("code") || "").trim();
+    // (zb) the parent/teacher views keep their URL as-is ({ keep: true }); a student page reads the cookie
+    var VIEW0 = (params.get("view") || "").toLowerCase();
+    var CODE = (window.MTStudent ? MTStudent.code({ keep: (VIEW0 === "parent" || VIEW0 === "teacher") }) : (params.get("code") || "")).trim();
     var COURSE = (params.get("course") || "").trim();
     var VIEW = (params.get("view") || "").toLowerCase();
     var readOnly = (VIEW === "parent" || VIEW === "teacher") || !!params.get("teacher");
     var page = window.location.pathname.replace(/\.html$/, "").replace(/^\/static/, "") || "/";
     if (page === "/") page = "/home";
-    var q = CODE ? ("?code=" + encodeURIComponent(CODE) + (COURSE ? "&course=" + encodeURIComponent(COURSE) : "")) : "";
+    var q = CODE ? (window.MTStudent ? MTStudent.q({ course: COURSE })
+                    : ("?code=" + encodeURIComponent(CODE) + (COURSE ? "&course=" + encodeURIComponent(COURSE) : ""))) : "";
 
     var css = document.createElement("style");
     css.textContent =
@@ -73,7 +81,7 @@
       // problem", which is homework help -- a different feature entirely. Abrabot
       // wears his own face on his own button so the two are never one thing.
       if (page !== "/drill") add("/drill" + q, "🤖", "Practice");
-      add("/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");
+      add(window.MTStudent ? "/home" : "/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");   // (zb) no code in the link
     }
     // ds: /help, not mailto -- a kid on a school Chromebook has no mail app.
     add("/help", "❓", "Help");

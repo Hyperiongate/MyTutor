@@ -1,6 +1,11 @@
 /* =============================================================================
  * library.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-10-01  (build zb) THE CODE LEAVES THE ADDRESS BAR. This script runs at DOMContentLoaded,
+ *               AFTER the page's own script has stored an arriving ?code= in the mt_student
+ *               cookie and taken it out of the URL (student-code.js), so it reads the code
+ *               from MTStudent, not the URL -- the URL is the fallback for a cache that lacks
+ *               the shared script.
  *   2026-08-18  (build hs, Phase 5) THE CREDENTIAL LEAVES THE URL: /api/library is
  *               called with the X-Student-Code header instead of &code=.
  *   2026-08-07  CONTEXT CHOICES FIRST (build aw, Jim: "students often don't know exactly
@@ -41,7 +46,7 @@
     var nav = document.querySelector(".leftnav");
     if (!nav) return;
     var params = new URLSearchParams(window.location.search);
-    var CODE = (params.get("code") || "").trim();
+    var CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();   // (zb) the cookie, not the URL
     var COURSE = (params.get("course") || "algebra1").trim();
     if (!CODE) return;
 

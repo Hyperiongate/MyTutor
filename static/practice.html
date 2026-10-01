@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; his 08-18 bookmark
+    ruling kept). student-code.js in <head>: an arriving ?code= -- a bookmark, the login hand-off --
+    is stored in the mt_student cookie and taken out of the URL in place; a page without one reads
+    the cookie; every link this page builds to another student page carries the course and never
+    the code (MTStudent.q). The API never saw it in a URL (hs). PART 3ov.
     (za) 2026-09-30 -- THE SAME SCREEN AS THE LESSON. Jim's playthrough (F31), on this page
     for Basic: "the whiteboard doesn't hold all of his words because the sidebar is wide
     open" -- and the answer buttons (72px in child mode) landed in the 308px sidebar, cut
@@ -131,6 +136,7 @@
 <html lang="en">
 <head>
   <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
+  <script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <script src="/static/speech-text.js"></script>  <!-- build hc: ONE copy of the spoken-text transforms -->
   <script src="/static/board-text.js"></script>   <!-- build hc: ONE copy of the board/variable renderer -->
   <script src="/static/voice.js"></script>        <!-- build hd: ONE copy of the voice pipeline + its state -->
@@ -922,7 +928,10 @@
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(window.location.search);
-    const CODE = (params.get("code") || "").trim();
+    // (zb, 2026-10-01) THE CODE LEAVES THE ADDRESS BAR: student-code.js stores an arriving ?code= in the
+    // mt_student cookie and takes it out of the URL; a page without one reads the cookie. The guard
+    // keeps a stale cache that lacks the script working exactly as before (the URL).
+    const CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();
     const COURSE = (params.get("course") || "algebra1").trim(); // which course this practice is for (multi-course)
     // (uc, 2026-09-07) The two youngest courses answer the way every other course does
     // -- say it, type it, or tap a button. This flag hides the two symbol pads and
@@ -934,7 +943,9 @@
     document.body.setAttribute("data-course", COURSE);
 
     if (!CODE) { window.location.href = "/login"; }
-    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    // (zb) links between the student pages carry the course, never the code; a stale cache without
+    // student-code.js keeps the old form so nothing breaks across the deploy
+    const cq = window.MTStudent ? MTStudent.q({ course: COURSE }) : ("?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE));
     el("lessonLink").href = "/home" + cq;
     el("entryBack").href = "/home" + cq;
 

@@ -2,6 +2,11 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-01  BUILD zb -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; the 08-18 bookmark
+#               ruling kept). Stamp + _code_dep's docstring: static/student-code.js (NEW) stores an arriving
+#               ?code= in the mt_student cookie and strips it from the URL; eleven pages and three shared
+#               scripts read the cookie and build code-free links; the parent's doors keep their URL.
+#               The server's own code resolution is unchanged (header, then path). PART 3ov.
 #   2026-09-30  BUILD za -- THE SAME SCREEN AS THE LESSON. Stamp only: topic.html + practice.html (the
 #               lesson page's collapsed sidebar and control strip; the buttons under the board), session.html
 #               + math-keyboard.js (the symbol strip follows body data-course), landing.html + pricing.html (the
@@ -2116,13 +2121,22 @@ def _code_dep(code: str, request: Request) -> str:
     stale cached page keeps functioning across the deploy -- it is the PAGES that
     stopped putting the credential in the URL, the server merely stopped requiring
     them to. (The dg precedent: the admin key made this exact move to X-Admin-Key.)
-    Page-NAVIGATION links (/session?code=...) still carry the code BY JIM'S RULING
+    Page-NAVIGATION links (/session?code=...) carried the code BY JIM'S RULING
     (2026-08-18, same day: "Do not kill the bookmark login") -- a family bookmark
     is how a young student signs in, and that convenience is the product. The
     compensating controls are real: API calls never carry the code (this
     dependency), the read-guard throttles code enumeration, and a parent can mint
-    a new code in one tap if one leaks (build dy). Do not "fix" this without a
-    NEW ruling from Jim."""
+    a new code in one tap if one leaks (build dy).
+    (zb, 2026-10-01) JIM'S NEW RULING, his playthrough's F34 ("the code is in the
+    URL... move it to the session cookie"), honours the 08-18 one: a page that
+    ARRIVES with ?code= (a bookmark, the login hand-off) still signs the student in
+    -- static/student-code.js stores it in the mt_student cookie (this origin,
+    SameSite=Lax, 30 days) and takes it out of the address bar in place -- and
+    every link the student pages build between themselves carries the course and
+    never the code. The parent's doors (/dashboard?view=parent, /records) keep the
+    code in their own URL, used and never stored, so a parent reading a sibling's
+    progress never changes which student the family laptop is signed in as. This
+    dependency is unchanged: the header, then the path form for a stale page."""
     try:
         h = (request.headers.get("X-Student-Code") or "").strip()
     except Exception:  # noqa: BLE001
@@ -9828,7 +9842,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-30za-the-same-screen-as-the-lesson"
+APP_BUILD = "2026-10-01zb-the-code-leaves-the-address-bar"
 
 
 @app.get("/health")

@@ -4,6 +4,10 @@
   home.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-10-01  (zb) THE CODE LEAVES THE ADDRESS BAR (Jim's F34; his 08-18 bookmark ruling kept).
+    student-code.js in <head>: an arriving ?code= (a bookmark, the login hand-off) is stored in the
+    mt_student cookie and taken out of the URL in place; without one the cookie answers; every tile
+    and chip link carries the course and never the code (sq / MTStudent.q). PART 3ov.
   - 2026-08-27  (build oq) THE PILOT DOOR WIDENS. Jim's verdict on Unit 1:
     "I'm satisfied. Start expanding this." The prealgebra tile now carries the
     whole course into the authored lane (no unit filter) and mentions the new
@@ -70,6 +74,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — Home</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
@@ -268,14 +273,18 @@
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
-    const CODE = (params.get("code") || "").trim();
+    // (zb, 2026-10-01) THE CODE LEAVES THE ADDRESS BAR: student-code.js stores an arriving ?code= in the
+    // mt_student cookie and takes it out of the URL; a page without one reads the cookie. The guard
+    // keeps a stale cache that lacks the script working exactly as before (the URL).
+    const CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();
     if (!CODE) { location.href = "/login"; }
+    // links between the student pages carry the course, never the code (zb)
+    const sq = (o) => (window.MTStudent ? MTStudent.q(o) : (function () { const p = new URLSearchParams(); p.set("code", CODE); for (const k in o) if (o[k]) p.set(k, o[k]); return "?" + p.toString(); })());
 
     // The courses the picker offers. (Kept in step with curriculum.py's catalog.)
     const COURSE_TITLES = { entry: "Entry-Level Math", basic: "Basic Math", prealgebra: "Pre-Algebra", algebra1: "Algebra I", geometry: "Geometry", algebra2: "Algebra II", precalc: "Trig / Pre-Calc", calculus: "Calculus", diffeq: "Differential Equations", probstat: "Probability & Statistics" };
     let COURSE = (params.get("course") || "").trim();
 
-    const codeQ = "?code=" + encodeURIComponent(CODE);
 
     if (!COURSE_TITLES[COURSE]) {
       // -------- STAGE 1: subject picker --------
@@ -284,16 +293,16 @@
       el("hubView").classList.add("hidden");
       el("hubSecondary").classList.add("hidden");
       el("subtitle").textContent = "What would you like to work on today?";
-      el("subjEntry").href = "/home" + codeQ + "&course=entry";
-      el("subjBasic").href = "/home" + codeQ + "&course=basic";
-      el("subjPrealgebra").href = "/home" + codeQ + "&course=prealgebra";
-      el("subjAlgebra").href = "/home" + codeQ + "&course=algebra1";
-      el("subjGeometry").href = "/home" + codeQ + "&course=geometry";
-      el("subjAlgebra2").href = "/home" + codeQ + "&course=algebra2";
-      el("subjPrecalc").href = "/home" + codeQ + "&course=precalc";
-      el("subjCalculus").href = "/home" + codeQ + "&course=calculus";
-      el("subjDiffeq").href = "/home" + codeQ + "&course=diffeq";
-      el("subjProbstat").href = "/home" + codeQ + "&course=probstat";
+      el("subjEntry").href = "/home" + sq({ course: "entry" });
+      el("subjBasic").href = "/home" + sq({ course: "basic" });
+      el("subjPrealgebra").href = "/home" + sq({ course: "prealgebra" });
+      el("subjAlgebra").href = "/home" + sq({ course: "algebra1" });
+      el("subjGeometry").href = "/home" + sq({ course: "geometry" });
+      el("subjAlgebra2").href = "/home" + sq({ course: "algebra2" });
+      el("subjPrecalc").href = "/home" + sq({ course: "precalc" });
+      el("subjCalculus").href = "/home" + sq({ course: "calculus" });
+      el("subjDiffeq").href = "/home" + sq({ course: "diffeq" });
+      el("subjProbstat").href = "/home" + sq({ course: "probstat" });
       // Still greet by name if we can.
       (async () => {
         try {
@@ -311,7 +320,7 @@
       el("courseTitle").textContent = "Continue my " + title + " course";
       el("courseBlurb").textContent = "Pick up your start-to-finish " + title + " lessons right where you left off.";
 
-      const q = codeQ + "&course=" + encodeURIComponent(COURSE);
+      const q = sq({ course: COURSE });
       // (pb, 2026-08-27) THE DOOR IS THE CLASSROOM AGAIN. Build pa sent this tile
       // to the scripted PAGE, and that was me answering the wrong question. Jim:
       // "I want a student to have the original layout with the whiteboard, with
@@ -323,7 +332,7 @@
       el("topicTile").href = "/topic" + q;
       el("dashChip").href = "/dashboard" + q;
       el("levelChip").href = "/challenge" + q;
-      el("changeChip").href = "/home" + codeQ;   // back to the subject picker
+      el("changeChip").href = "/home" + sq({});   // back to the subject picker
 
       // Personalize the COURSE tile. The assessment is now VOLUNTARY (2026-07-28): the course
       // tile always goes straight into the lesson (Unit 1 for a first-timer). The comprehensive

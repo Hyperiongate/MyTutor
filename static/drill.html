@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR. student-code.js in <head>; an arriving
+    ?code= goes into the mt_student cookie and out of the URL, the cookie fills the code box
+    on a return, a typed code becomes the cookie, and the way-out links carry the course and
+    never the code. The box, the gate and the sessionStorage memory are untouched. PART 3ov.
     (nm) 2026-08-25 -- TEN DOORS, NOT A WALL, AND ANSWERS AT THE FINGER. Jim: "it
     shows all of the different things you can practice on, and it's huge... if I'm in
     geometry I have to scroll down half a page. What would be great is if each of the
@@ -179,6 +183,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Abrabot — Extra Practice</title>
+<script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
 <style>
   :root{--purple:#6d5ae6;--teal:#0aa5a0;--ink:#232336;--muted:#6b6b80;
         --card:#ffffff;--line:#e6e4f2;--bg:#f4f8fb;--good:#177a52;--warn:#8a5a12;
@@ -392,7 +397,10 @@
   var $ = function (id) { return document.getElementById(id); };
   var qs = new URLSearchParams(location.search);
   var DEV = qs.get("dev") === "1";
-  CODE = (qs.get("code") || "").trim();
+  // (zb, 2026-10-01) an arriving ?code= is stored in the mt_student cookie and taken out of the
+  // address bar (student-code.js); the cookie fills the box on the next visit. The old
+  // sessionStorage memory stays as the fallback for a cache that lacks the script.
+  CODE = (window.MTStudent ? MTStudent.code() : (qs.get("code") || "")).trim();
   try { CODE = CODE || sessionStorage.getItem("mt_drill_code") || ""; } catch (e) {}
   if (CODE) $("code").value = CODE;
   if (DEV) $("devbar").style.display = "block";
@@ -606,6 +614,7 @@
       return;
     }
     try { sessionStorage.setItem("mt_drill_code", CODE); } catch (e) {}
+    try { if (window.MTStudent) MTStudent.set(CODE); } catch (e) {}   // (zb) the typed code is the signed-in student now
     // A REAL TAP: the only moment a browser lets us open the audio pipeline early.
     // The browser voice needs the gesture as much as the natural one does.
     try { warmUpAudio(); } catch (e) {}
@@ -832,8 +841,9 @@
       // another lesson (reload the picker), back to the lesson (session, same
       // code+course), done for now (the student's home menu).
       var _co = (new URLSearchParams(location.search).get("course") || "").trim();
-      var cq = "?code=" + encodeURIComponent(CODE) +
-               (_co ? "&course=" + encodeURIComponent(_co) : "");
+      // (zb) the links carry the course, never the code (a stale cache keeps the old form)
+      var cq = window.MTStudent ? MTStudent.q({ course: _co })
+             : ("?code=" + encodeURIComponent(CODE) + (_co ? "&course=" + encodeURIComponent(_co) : ""));
       var done = document.createElement("button");
       done.className = "opt"; done.textContent = "Pick another lesson";
       done.onclick = function () { location.reload(); };

@@ -1,6 +1,11 @@
 /* =============================================================================
  * time-tracker.js  --  MyTutor  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-10-01  (build zb) THE CODE LEAVES THE ADDRESS BAR. This script runs at DOMContentLoaded,
+ *               AFTER the page's own script has stored an arriving ?code= in the mt_student
+ *               cookie and taken it out of the URL (student-code.js), so it reads the code
+ *               from MTStudent, not the URL -- the URL is the fallback for a cache that lacks
+ *               the shared script. (It runs at load, after the page script.)
  *   2026-07-30  NEW shared component: ENGAGED-TIME tracking ("how long did my kid
  *               actually work?"). Included on the four learning pages (session,
  *               practice, topic, challenge). Once a minute it posts /api/heartbeat
@@ -18,7 +23,7 @@
   window.__mtTime = true;
 
   var params = new URLSearchParams(window.location.search);
-  var CODE = (params.get("code") || "").trim();
+  var CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();   // (zb) the cookie, not the URL
   var COURSE = (params.get("course") || "algebra1").trim();
   if (!CODE) return;   // demo pages / logged-out views: track nothing
 

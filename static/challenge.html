@@ -4,6 +4,11 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; his 08-18 bookmark
+    ruling kept). student-code.js in <head>: an arriving ?code= -- a bookmark, the login hand-off --
+    is stored in the mt_student cookie and taken out of the URL in place; a page without one reads
+    the cookie; every link this page builds to another student page carries the course and never
+    the code (MTStudent.q). The API never saw it in a URL (hs). PART 3ov.
     (yz) 2026-09-30 -- THE RIGHT ANSWER SITS ANYWHERE. Jim tapped the second choice on all 45
     Entry questions and scored well: the banks put the key at index 1 in 28 of Entry's 45 and
     at index 3 in none. nextQuestion() deals the four choices in a fresh random order every
@@ -154,6 +159,7 @@
 <html lang="en">
 <head>
   <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
+  <script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — Course Assessment</title>
@@ -366,10 +372,15 @@
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
-    const CODE = (params.get("code") || "").trim();
+    // (zb, 2026-10-01) THE CODE LEAVES THE ADDRESS BAR: student-code.js stores an arriving ?code= in the
+    // mt_student cookie and takes it out of the URL; a page without one reads the cookie. The guard
+    // keeps a stale cache that lacks the script working exactly as before (the URL).
+    const CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();
     if (!CODE) location.href = "/login";
     const COURSE = (params.get("course") || "algebra1").trim();  // which course we're placing for
-    const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
+    // (zb) links between the student pages carry the course, never the code; a stale cache without
+    // student-code.js keeps the old form so nothing breaks across the deploy
+    const cq = window.MTStudent ? MTStudent.q({ course: COURSE }) : ("?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE));
     el("exitLink").href = CODE ? ("/home" + cq) : "/";
     // (The result-screen buttons — recommended path / choose-your-own / dashboard — are wired
     //  up in finish() once the per-unit scores exist.)

@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-01  BUILD zb -- PART 3ov, THE CODE LEAVES THE ADDRESS BAR: student-code.js (the cookie, the strip
+#               in place, the code-free links), every page reads it with the URL as the fallback, the parent's
+#               doors keep their code, the login lands clean; tools/zbdrive.py. 3ou's F34 pin reads both rulings.
 #   2026-09-30  BUILD za -- PART 3ou, THE TOPIC PAGE AND THE PARENT PAGES: /topic and /practice carry
 #               the lesson page's collapsed sidebar and control strip (the buttons under the board), the
 #               symbol strip follows body data-course, the front page's fourth door and the featured FREE
@@ -26253,8 +26256,11 @@ def part3ou_the_topic_page_and_the_parent_pages():
           all(s in fam for s in ('id="authForm"', 'id="addForm"', 'login code · tap to copy', "manageLink", 'id="attachLink"',
                                  "function renderPlan(me)", 'id="mailToggle"', "Remove forever", "goCheckout(")), "")
     # ---- F34: read, not built -----------------------------------------------------------------
-    check("  F34 (the code in the URL) is NOT built here: main.py's _code_dep still carries Jim's 08-18 bookmark ruling",
-          'Page-NAVIGATION links (/session?code=...) still carry the code BY JIM\'S RULING' in rd("main.py"), "a new ruling is needed first")
+    # (zb, 2026-10-01) F34 WAS built the next day, on Jim's "go" -- PART 3ov. _code_dep's docstring
+    # carries both rulings now; this pin reads the 08-18 one is still there beside the new one.
+    check("  F34 (the code in the URL) was not built in za: main.py's _code_dep carries Jim's 08-18 bookmark ruling (and, since zb, the 10-01 one beside it)",
+          'carried the code BY JIM\'S RULING' in rd("main.py") and "Do not kill the bookmark login" in rd("main.py")
+          and "(zb, 2026-10-01) JIM'S NEW RULING" in rd("main.py"), "")
     # ---- the pages, in a real browser (tools/zadrive.py) --------------------------------------
     NAME = "⭐ LIVE: /topic and /practice are the lesson page's screen (collapsed sidebar, buttons whole under the board, the phone dock untouched), the strip follows the course, the feed is cream on Basic, /family walks its three steps in all three states, the front page's four doors fit the first screen"
     if dep_gate(NAME, "playwright", "the two board pages and the parent pages are proved in a real browser"):
@@ -26269,6 +26275,119 @@ def part3ou_the_topic_page_and_the_parent_pages():
           all("2026-09-30" in notes(f) and "za" in notes(f) for f in ("static/topic.html", "static/practice.html", "static/session.html",
                                                                        "static/math-keyboard.js", "static/landing.html", "static/pricing.html",
                                                                        "static/family.html", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3ov_the_code_leaves_the_address_bar():
+    """PART 3ov (build zb, 2026-10-01) -- THE CODE LEAVES THE ADDRESS BAR. Jim's playthrough
+    F34 ("the student's sign-in code is in the URL... move it to the session cookie"), ruled
+    10-01 ("go"), built so that his 08-18 ruling ("do not kill the bookmark login") still
+    holds: static/student-code.js stores an arriving ?code= in the mt_student cookie and
+    takes it out of the address in place; a page without one reads the cookie; every link
+    between the student pages carries the course and never the code; the login page sends
+    the student on with a clean address. The parent's doors (/dashboard?view=parent,
+    /records) keep the code in their own URL, used and never stored. Eleven pages and three
+    shared scripts; every one keeps the URL as its fallback for a stale cache that lacks the
+    script. tools/zbdrive.py proves it in a real browser."""
+    print("\nPART 3ov — the code leaves the address bar (build zb)")
+    import subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    sc = rd("static/student-code.js")
+    # ---- the shared script ------------------------------------------------------------------
+    check("⭐ student-code.js: the cookie (this origin, SameSite=Lax, 30 days, Secure on https), the strip in place, the memo, the code-free query",
+          'var KEY = "mt_student";' in sc and "var MAX_AGE = 30 * 24 * 3600;" in sc
+          and '"; SameSite=Lax" + (window.location.protocol === "https:" ? "; Secure" : "");' in sc
+          and 'url.searchParams.delete("code");' in sc and 'window.history.replaceState(window.history.state, "", clean);' in sc
+          and "if (opts.keep) return u;" in sc and "write(u); strip();" in sc
+          and 'if (k === "code") continue;' in sc
+          and "window.MTStudent = { code: code, set: write, clear: clear, q: q, strip: strip, KEY: KEY };" in sc, "")
+    check("  ...the strip keeps every other param and the hash, and never adds a history entry",
+          'var clean = url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "") + url.hash;' in sc
+          and "history.pushState" not in sc, "")
+    # ---- every page loads it in <head>, before its own script ---------------------------------
+    PAGES = ("home.html", "session.html", "practice.html", "topic.html", "challenge.html", "dashboard.html",
+             "records.html", "drill.html", "pilot.html", "index.html")
+    for p in PAGES:
+        s = rd("static/" + p); c = code_only(s)
+        i = c.find('<script src="/static/student-code.js"></script>')
+        check("  static/%s loads student-code.js in <head>, before its own script and before the shared scripts" % p,
+              i > 0 and i < c.find("<script>") and i < c.find("</head>")
+              and (p == "index.html" or i < c.find('<script src="/static/app-nav.js"></script>') or "app-nav.js" not in c), p)
+    # ---- the pages read MTStudent and build code-free links ----------------------------------
+    for p in ("home.html", "session.html", "practice.html", "topic.html", "challenge.html"):
+        c = code_only(rd("static/" + p))
+        check("  %s: CODE comes from MTStudent.code() (the URL as the fallback) and no link it builds carries the code" % p,
+              'const CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();' in c
+              and 'code=" + encodeURIComponent(CODE)' not in c.replace('("?code=" + encodeURIComponent(CODE) + "&course="', "")
+              and "?code=" not in c.replace('("?code=" + encodeURIComponent(CODE) + "&course="', "").replace('p.set("code", CODE)', ""), p)
+    for p in ("session.html", "practice.html", "topic.html", "challenge.html"):
+        c = code_only(rd("static/" + p))
+        check("  %s: cq is MTStudent.q({ course }) with the old form as the fallback" % p,
+              'const cq = window.MTStudent ? MTStudent.q({ course: COURSE }) : ("?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE));' in c, p)
+    hm = code_only(rd("static/home.html"))
+    check("  home.html: every tile and chip goes through sq(); codeQ is gone",
+          "codeQ" not in hm and hm.count("sq({ course:") >= 11 and 'el("changeChip").href = "/home" + sq({});' in hm, "")
+    ix = code_only(rd("static/index.html"))
+    check("⭐ index.html: a verified code becomes the cookie and the student lands on /home with a clean address; the parent door is unchanged",
+          'if (window.MTStudent) { MTStudent.set(dest); window.location.href = "/home"; }' in ix
+          and 'else window.location.href = "/home?code=" + encodeURIComponent(dest);' in ix
+          and 'window.location.href = "/dashboard?code=" + encodeURIComponent(code) + "&view=parent";' in ix, "")
+    db = code_only(rd("static/dashboard.html"))
+    check("⭐ dashboard.html: the student view reads the cookie, the parent/teacher view keeps its URL ({ keep: isTeacher }) and its links keep the code",
+          'const CODE = (window.MTStudent ? MTStudent.code({ keep: isTeacher }) : (params.get("code") || "")).trim();' in db
+          and "if (!isTeacher && window.MTStudent) return MTStudent.q(o);" in db
+          and 'const u = new URLSearchParams(); u.set("code", CODE);' in db
+          and db.count("sq(") >= 8 and 'code=" + encodeURIComponent(CODE)' not in db
+          and db.find("const isTeacher =") < db.find("const CODE ="),
+          (len(db), db.count("sq("), 'code=" + encodeURIComponent(CODE)' in db, "keep: isTeacher" in db, db.find("const isTeacher ="), db.find("const CODE =")))
+    rc = code_only(rd("static/records.html"))
+    check("  records.html (the parent's report): the URL's code is used and kept ({ keep: true }); the cookie is the fallback",
+          'const CODE = (window.MTStudent ? MTStudent.code({ keep: true }) : (params.get("code") || "")).trim();' in rc, "")
+    dr = code_only(rd("static/drill.html")); pl = code_only(rd("static/pilot.html"))
+    check("  drill.html and pilot.html: the cookie fills the box, a typed code becomes the cookie, the way-out links carry no code",
+          'CODE = (window.MTStudent ? MTStudent.code() : (qs.get("code") || "")).trim();' in dr
+          and "try { if (window.MTStudent) MTStudent.set(CODE); } catch (e) {}" in dr
+          and "var cq = window.MTStudent ? MTStudent.q({ course: _co })" in dr
+          and 'CODE = (window.MTStudent ? MTStudent.code() : (qs.get("code") || "")).trim();' in pl
+          and "try { if (window.MTStudent) MTStudent.set(CODE); } catch (e) {}" in pl
+          and 'location.href = "/home" + (window.MTStudent ? MTStudent.q({ course: window.COURSE || "" })' in pl, "")
+    # ---- the three shared scripts run AFTER the strip, so they read the cookie ---------------
+    an = rd("static/app-nav.js"); lb = rd("static/library.js"); tt = rd("static/time-tracker.js")
+    check("⭐ app-nav.js reads MTStudent (keeping the parent/teacher view's URL), builds code-free links, Switch course is /home",
+          'var CODE = (window.MTStudent ? MTStudent.code({ keep: (VIEW0 === "parent" || VIEW0 === "teacher") }) : (params.get("code") || "")).trim();' in an
+          and "var q = CODE ? (window.MTStudent ? MTStudent.q({ course: COURSE })" in an
+          and 'add(window.MTStudent ? "/home" : "/home?code=" + encodeURIComponent(CODE), "🔄", "Switch course");' in an, "")
+    check("  library.js and time-tracker.js read MTStudent (the URL as the fallback)",
+          'var CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();' in lb
+          and 'var CODE = (window.MTStudent ? MTStudent.code() : (params.get("code") || "")).trim();' in tt, "")
+    # ---- the server: unchanged, and the two rulings stand side by side --------------------------
+    m = rd("main.py")
+    check("  main.py's _code_dep is unchanged in behaviour (the header, then the path) and its docstring carries the 08-18 ruling and the 10-01 one",
+          'h = (request.headers.get("X-Student-Code") or "").strip()' in m and 'return "" if c.lower() in ("me", "-") else c' in m
+          and "Do not kill the bookmark login" in m and "(zb, 2026-10-01) JIM'S NEW RULING" in m, "")
+    check("  the family page's links to the parent's doors still carry the code (the parent holds no cookie)",
+          '<a href="/dashboard?code=\' + encodeURIComponent(k.code) + \'&view=parent">Progress' in rd("static/family.html")
+          and '<a href="/records?code=\' + encodeURIComponent(k.code) + \'">Records' in rd("static/family.html"),
+          (len(rd("static/family.html")), "dashboard?code=" in rd("static/family.html"), "records?code=" in rd("static/family.html")))
+    # ---- the pages, in a real browser (tools/zbdrive.py) --------------------------------------
+    NAME = "⭐ LIVE: the login lands clean with the cookie set, a bookmark still signs in and is cleaned in place (Back untouched), a code-less page reads the cookie (and app-nav/library do too), the other params survive, the parent's door and /records keep their code, Abrabot's room"
+    if dep_gate(NAME, "playwright", "the cookie and the clean address are proved in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "zbdrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=400, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated zb notes and end whole",
+          all("2026-10-01" in notes(f) and "zb" in notes(f) for f in ("static/student-code.js", "static/home.html", "static/session.html",
+                                                                       "static/practice.html", "static/topic.html", "static/challenge.html",
+                                                                       "static/dashboard.html", "static/records.html", "static/drill.html",
+                                                                       "static/pilot.html", "static/index.html", "static/app-nav.js",
+                                                                       "static/library.js", "static/time-tracker.js", "main.py", "ruletests.py"))
+          and all(rd(f).rstrip().endswith("I did no harm and this file is not truncated.") or rd(f).rstrip().endswith("I did no harm and this file is not truncated. -->")
+                  or rd(f).rstrip().endswith("I did no harm and this file is not truncated. */")
+                  for f in ("static/student-code.js", "static/home.html", "static/index.html", "static/drill.html", "static/pilot.html", "static/records.html")), "Jim's rules 8 and 9")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -29683,8 +29802,9 @@ def part3ex_the_raised_hand():
     hc = code_only(open(os.path.join(here, "static", "home.html"), encoding="utf-8").read())
     # (pb) the hub builds every door from its own course; the authored lane is
     # reached by BEING in the classroom now, not by a separate tile.
+    # (zb, 2026-10-01) the query is built by sq() now -- the course, never the code
     check("⭐ the hub's doors all carry the course it is showing",
-          'const q = codeQ + "&course=" + encodeURIComponent(COURSE);' in hc
+          'const q = sq({ course: COURSE });' in hc
           and '"/practice" + q' in hc and '"/topic" + q' in hc,
           "a door that drops the course logs the child out of their subject")
 
@@ -32298,8 +32418,9 @@ def part3gq_the_parent_reads_the_right_course():
                        ("Print homeschool records", "the records link"),
                        ("Explore another subject", "the add-a-course tile")):
         check("  do no harm: %s survives" % what, keep in html, keep)
+    # (zb, 2026-10-01) the view rides sq()'s params now; the parent/teacher view also keeps its code there
     check("  do no harm: switching course still keeps the visitor's own view",
-          'isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : ""' in html,
+          'view: (isTeacher ? (VIEW || "teacher") : "")' in html,
           "a parent must never be quietly promoted into the teacher view")
     check("  the file is whole", html.rstrip().endswith(
           "<!-- I did no harm and this file is not truncated. -->"), "")
@@ -32390,8 +32511,9 @@ def part3gr_every_course_he_is_actually_in():
           "build dr's rule; qo re-orders WHICH are shown, never what counts as weak")
     check("  ...and the note says how many courses it just read",
           '("all " + nCourses + " courses")' in html, "")
+    # (zb, 2026-10-01) the row's query comes from sq() -- the row's course, never the code
     check("  ...a course-switching link on a row goes to THAT row's course",
-          '"code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(w.course)' in html,
+          'const q = sq({ course: w.course }).slice(1);' in html,
           "a cross-course list whose buttons all point at one course would be a trap")
 
     # ---- 3. one writer for every heading note ---------------------------------
@@ -53267,6 +53389,7 @@ def main():
     part3os_the_tour_reads_todays_screen()
     part3ot_the_picture_starts_where_the_words_start()
     part3ou_the_topic_page_and_the_parent_pages()
+    part3ov_the_code_leaves_the_address_bar()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

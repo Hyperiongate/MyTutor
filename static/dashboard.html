@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <!--
+    2026-10-01  THE CODE LEAVES THE ADDRESS BAR -- FOR THE STUDENT (build zb, Jim's first-
+                family playthrough F34). student-code.js in <head>; the student view reads
+                MTStudent.code() (an arriving ?code= is stored in the mt_student cookie and
+                taken out of the URL) and every link it builds carries the course, never the
+                code (sq()). The parent and teacher views are untouched in behaviour: their
+                URL keeps the code ({ keep: true }), their links keep it, and nothing they do
+                changes which student the family laptop is signed in as. PART 3ov.
     2026-09-07  TWO WORDS, TWO MEANINGS (build ue, P2 of the deep look). The review
                 showed this page saying "★ Mastered" in the journey for a unit whose tile
                 said "0 of 9 mastered": a finished authored lesson wrote status
@@ -256,6 +263,7 @@
 <html lang="en">
 <head>
   <script src="/static/client-log.js"></script>  <!-- build ha: FIRST, so it hears every later script's failure -->
+  <script src="/static/student-code.js"></script>  <!-- build zb: the student's code -- cookie, not address bar; before the page script -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mr. Cadabra's Classroom — My Progress</title>
@@ -651,9 +659,22 @@
   <script>
     const el = (id) => document.getElementById(id);
     const params = new URLSearchParams(location.search);
-    const CODE = (params.get("code") || "").trim();
     const VIEW = (params.get("view") || "").toLowerCase();
     const isTeacher = (VIEW === "teacher" || VIEW === "parent");
+    // (zb, 2026-10-01) THE CODE LEAVES THE ADDRESS BAR -- for the STUDENT. A student arriving with
+    // ?code= has it stored in the mt_student cookie and taken out of the URL (student-code.js);
+    // without one the cookie answers. The PARENT and TEACHER views keep the code in their URL
+    // ({ keep: true }): a parent reads one student, then a sibling, on the family's laptop, and
+    // that must never change which student the laptop is signed in as. The guard keeps a stale
+    // cache that lacks the script working as before.
+    const CODE = (window.MTStudent ? MTStudent.code({ keep: isTeacher }) : (params.get("code") || "")).trim();
+    // links: a student's carry the course and never the code; the parent/teacher view's own links keep it
+    const sq = (o) => {
+      if (!isTeacher && window.MTStudent) return MTStudent.q(o);
+      const u = new URLSearchParams(); u.set("code", CODE);
+      for (const k in (o || {})) if (o[k]) u.set(k, o[k]);
+      return "?" + u.toString();
+    };
 
     // ===== WHICH COURSE IS THIS PAGE ABOUT? (build qn) ==========================
     // The parent's door is /dashboard?code=..&view=parent -- no &course= on it -- so the
@@ -753,8 +774,7 @@
     else {
       // build qn: Home carries the RESOLVED course, so "← Home" lands where they left off.
       COURSE_READY.then(() => {
-        el("homeLink").href = "/home?code=" + encodeURIComponent(CODE)
-                            + "&course=" + encodeURIComponent(COURSE);
+        el("homeLink").href = "/home" + sq({ course: COURSE });   // (zb)
       });
     }
 
@@ -1080,7 +1100,7 @@
           const meta = u.checks_taken
             ? ("Unit Quiz best: " + u.best_pct + "% · " + (isTeacher ? "90% is mastery" : "let's get it to 90%"))
             : "No Unit Quiz yet — pass the topic quizzes, then take it";
-          const q = "code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(w.course);
+          const q = sq({ course: w.course }).slice(1);   // (zb) the query without its "?" -- the links below add it
           return `
             <div class="weak">
               <div class="n">${u.unit}</div>
@@ -1101,7 +1121,7 @@
         el("strengthen").innerHTML = isTeacher
           ? `<div class="allgood">Nothing outstanding — <b>${esc(subjHas())} mastered every unit ${esc(subj())} started.</b></div>`
           : `<div class="allgood">Nice — you've <b>mastered every unit you've started.</b> `
-            + `Ready to open up a new one? <a href="/session?code=${encodeURIComponent(CODE)}&course=${encodeURIComponent(COURSE)}">Keep going →</a></div>`;
+            + `Ready to open up a new one? <a href="/session${sq({ course: COURSE })}">Keep going →</a></div>`;
       }
 
 
@@ -1243,7 +1263,7 @@
           + " <span style=\"opacity:.75\">(streak, accuracy and practice count every course)</span>.</div>"
           + "<div style=\"margin-top:6px\"><b>Where to help next:</b> " + esc(weakTxt) + ".</div>"
           + (str2.length ? "<div style=\"margin-top:6px\"><b>Strengths:</b> " + str2.map(esc).join(", ") + ".</div>" : "")
-          + "<div style=\"margin-top:8px\">🖨 <a href=\"/records?code=" + encodeURIComponent(CODE)
+          + "<div style=\"margin-top:8px\">🖨 <a href=\"/records" + sq({})
           + "\" style=\"font-weight:700\">Print homeschool records</a> — hours log, mastery evidence, and awards, ready for portfolios and filings.</div>";
         // 2026-08-11 (build du, parent lens item 6): the question every parent asks --
         // "what did she struggle with?" -- answered with the ACTUAL problems (rule 55's
@@ -1264,7 +1284,7 @@
       if (!isTeacher && !anyStarted && data.tracking) {
         el("foot").innerHTML = "You haven't worked on anything yet — that's the perfect place to start! "
           + "Head back and take a lesson, practice a problem, or try a quiz. "
-          + '<a class="cta" href="/home?code=' + encodeURIComponent(CODE) + '">Let\'s go →</a>';
+          + '<a class="cta" href="/home' + sq({}) + '">Let\'s go →</a>';
       }
     })();
 
@@ -1293,8 +1313,7 @@
             '<span class="note" style="margin-left:8px">' + esc(where) + (r.when ? " · " + esc(r.when) : "") + '</span></div>';
         }).join("");
         el("missNote").textContent = "— " + rows.length + " from your quizzes · newest first · beating one feels great";
-        el("missPractice").href = "/practice?code=" + encodeURIComponent(CODE) +
-                                  "&course=" + encodeURIComponent(COURSE);
+        el("missPractice").href = "/practice" + sq({ course: COURSE });   // (zb)
         el("missWrap").style.display = "block";
       } catch (e) { /* the card is a bonus -- never block the dashboard */ }
     }
@@ -1345,8 +1364,7 @@
           const here = (c.course === COURSE);
           // Keep the SAME read-only view we arrived in (parent stays parent, teacher stays
           // teacher) so switching courses never quietly promotes a parent into the teacher view.
-          const q = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(c.course)
-                  + (isTeacher ? "&view=" + encodeURIComponent(VIEW || "teacher") : "");
+          const q = sq({ course: c.course, view: (isTeacher ? (VIEW || "teacher") : "") });   // (zb) the parent/teacher view keeps its code
           return '<a class="mc' + (here ? " current" : "") + '" href="/dashboard' + q + '">'
             + '<div class="nm">' + esc(c.title) + (here ? '<span class="here">HERE</span>' : "") + '</div>'
             + '<div class="cnt">' + esc(bits.join(" · ")) + '</div>'
@@ -1354,7 +1372,7 @@
             + (pctInShown ? '<u style="width:' + pctInShown + '%"></u>' : "")
             + '</div></a>';
         }).join("") + (isTeacher ? "" :
-          '<a class="mc add" href="/home?code=' + encodeURIComponent(CODE) + '">+ Explore another subject</a>');
+          '<a class="mc add" href="/home' + sq({}) + '">+ Explore another subject</a>');
         el("myCoursesWrap").style.display = "block";
       } catch (e) { /* strip is a bonus -- never block the dashboard */ }
     }
