@@ -4,6 +4,11 @@
   challenge.html  --  Math Tutor MVP  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+    (yz) 2026-09-30 -- THE RIGHT ANSWER SITS ANYWHERE. Jim tapped the second choice on all 45
+    Entry questions and scored well: the banks put the key at index 1 in 28 of Entry's 45 and
+    at index 3 in none. nextQuestion() deals the four choices in a fresh random order every
+    time and answer() grades against where the key landed (`ans`); the banks' verified `a`
+    is untouched. PART 3ot measures the banks' bias and pins the deal.
     (uz) 2026-09-10 -- THE ASSESSMENT DOES NOT SPEAK. Rule 18 gives the character no
     part in a quiz, a test or a timed challenge, and this page is the Course
     Assessment -- it had a voice anyway. voiceclosure.py (build uy) is what finally
@@ -1203,15 +1208,26 @@
       el("qprompt").textContent = q.p;
       el("qexpr").textContent = q.e;
       const box = el("choices"); box.innerHTML = "";
-      q.c.forEach((choice, i) => {
-        const d = document.createElement("div"); d.className = "choice"; d.textContent = choice;
-        d.onclick = () => answer(i, q, u, d); box.appendChild(d);
+      // (yz, 2026-09-30) THE RIGHT ANSWER SITS ANYWHERE. Jim's playthrough (F7): he tapped
+      // the second choice on all 45 Entry questions and "did pretty well" -- the bank
+      // put the key at index 1 in 28 of 45, and at index 3 in none. A placement a
+      // fixed tap can game measures tap habit, not math. The choices are dealt in a
+      // fresh random order every time a question is shown (Fisher-Yates), and the key
+      // follows its text: `ans` is where the right answer landed THIS time. The bank's
+      // own `a` is untouched and still verified.
+      const perm = q.c.map((_, k) => k);
+      for (let k = perm.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const t = perm[k]; perm[k] = perm[j]; perm[j] = t; }
+      const ans = perm.indexOf(q.a);
+      perm.forEach((k, i) => {
+        const d = document.createElement("div"); d.className = "choice"; d.textContent = q.c[k];
+        d.onclick = () => answer(i, q, u, d, ans); box.appendChild(d);
       });
     }
 
-    function answer(i, q, u, node) {
+    function answer(i, q, u, node, ans) {
       if (locked) return; locked = true;
-      const correct = (i === q.a);
+      if (ans === undefined) ans = q.a;     // (yz) the dealt position of the key; the bank's index when not dealt
+      const correct = (i === ans);
       const nodes = el("choices").children;
       for (const n of nodes) n.classList.add("dim");
       node.classList.remove("dim");
@@ -1221,7 +1237,7 @@
         el("pts").textContent = points; el("streak").textContent = (points / 100);
       } else {
         node.classList.add("wrong");
-        for (let k = 0; k < nodes.length; k++) if (k === q.a) nodes[k].classList.add("correct");
+        for (let k = 0; k < nodes.length; k++) if (k === ans) nodes[k].classList.add("correct");
         orbState = "idle";
       }
       answered++;

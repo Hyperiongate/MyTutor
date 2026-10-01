@@ -24,7 +24,19 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-30yy-the-tour-reads-todays-screen`** (battery 13,394 passed, 0 failed, 3 skipped; the yy section
+**On Jim's disk: `2026-09-30yz-the-picture-starts-where-the-words-start`** (battery 13,408 passed,
+0 failed, 3 skipped; the yz section below) — four flags of one shape: the words were right and
+the screen was not what they described. F21: count-on draws the BIGGER group first, says the
+swap ("five plus six equals six plus five"), and `[[objects counton="1"]]` lands the counted
+group plain and numbers only the added stars (✓7 ✓8 ✓9 ✓10 ✓11) — the generator's walk-backs
+and Entry u2's add-past-ten. F28: `[[rectangle]]` draws its unit squares, numbered in area
+mode (never on an ask). F24: the pencil's mouth closes when nothing is sounding (the frame
+loop reads the audio element and the synth; 600 ms). F7: the assessment deals its four choices
+fresh on every render (the Entry bank had the key at index 1 in 28 of 45, never at 3), and
+`choices_for`'s own 43%-first-button tilt is an even deal. F8 read and left (foundation-first
+is the 07-28 design; the 45-tap length stays Jim's call). Proved in a real browser
+(`tools/yzdrive.py`, PART 3ot). **Prewarm: the count-on walk-backs (b > a) and the worked
+example** — the prewarm lists them. Before it, **On Jim's disk: `2026-09-30yy-the-tour-reads-todays-screen`** (battery 13,394 passed, 0 failed, 3 skipped; the yy section
 below) — the tour, rewritten against the screen as it is: no "glowing face" (the pencil is
 Mr. Cadabra; the glow and the tag are on him and he waves), "the big board" not
 "whiteboard", the "look here" tag never behind the taskbar (hidden nodes no longer place
@@ -75,6 +87,18 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (yz, 2026-09-30) — Jim pushes (with yu–yy; one push)
+
+- `static/board.js` (`counton`, `.objhad`), `static/math-figures.js` (`rectangle()` cells),
+  `static/cadabra.js` (the sound check, `Cadabra.speaking()`, VERSION `2026-09-30yz`),
+  `static/challenge.html` (the deal), `lessonscripts.py` (`_col_add` count-on; `choices_for`),
+  `lessons/entry.py` (u2 add-past-ten), `tools/yzdrive.py` (NEW), `ruletests.py` (PART 3ot;
+  3gw's count; pins), `main.py` (stamp `2026-09-30yz-the-picture-starts-where-the-words-start`),
+  `speechmap.py`, `changelog/Build_yz_The_Picture_Starts_Where_The_Words_Start_2026-09-30.md`,
+  this handoff. After the push: `/health` = the yz stamp; **prewarm** (yx's ~134, yy's 4, yu's
+  and yv's one, and yz's count-on lines). To see it: Entry u2 lesson 3 (add past ten), the
+  Geometry review, and the Course Assessment on Entry.
 
 ## Written to D:\MyTutor (yy, 2026-09-30) — Jim pushes (with yu–yx; one push)
 
@@ -148,7 +172,9 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    once, not in the bubble and on the board.
 4. ~~`yy` — the words a child hears~~ — **done as `yx`** (F17 canon-wide, F22, F25, F29; F15
    read and left to Jim's ruling).
-5. **`yz` — NEXT: the pictures (F21, F28) + the pencil (F24) + placement (F7, F8).** Count-on
+5. ~~`yz` — the pictures, the pencil, the deal~~ — done (above; F8 read and left; any review that
+   draws `[[rectangle show="area"]]` gets the squares by the same figure code — the other
+   eight reviews were NOT read line by line for F28's class; still owed). As planned: the pictures (F21, F28) + the pencil (F24) + placement (F7, F8). Count-on
    draws the bigger group FIRST with 7..11 under the added stars (the board drew 5 + 6 while
    the words said start at 6); the Geometry review draws its 24 squares (read the other
    eight reviews for the same — `bridges.py` has never been swept); the pencil goes idle or
@@ -156,7 +182,7 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    key's position is shuffled and pinned (Jim tapped choice 2 throughout and "did pretty
    well"; choice 4 was never right — scan the quiz and reason choices too); 45 questions for
    a six-year-old's first sitting is Jim's call.
-6. **`za` — the topic page and the parent pages (F31, F32, F33, F34, F1, F2, F3).** The
+6. **`za` — NEXT: the topic page and the parent pages (F31, F32, F33, F34, F1, F2, F3).** The
    topic page's board width with the sidebar open; the symbol strip by course (π, θ, |x| on
    Basic); the child skin on every board page; the code out of the URL. Front page: a signup
    button in the first screen and the free box highlighted for a stranger; `/family` as
@@ -180,6 +206,12 @@ interrupts a lesson.)
 - **The first miss is the engine's, the second is the model's (vz, confirmed today).** When
   Jim says "he took a long time to think" after a miss, ask whether it was the second miss
   in a row before reading anything else.
+- **The picture starts where the words start (yz).** When a spoken line says "start at six"
+  the board draws six first; when it says "24 squares" there are 24 squares to count; when
+  the voice stops, the mouth stops. A board tag that cannot draw what the words say is a
+  defect in the tag, not in the lesson — fix the tag (`counton`, the rectangle's cells), then
+  the authored lines. And a key that sits in one seat is a tilt: deal choices at render,
+  never trust an authored order.
 - **A playthrough flag is read against the code before it is built (yu).** Three of
   today's five flags in this build were settled by reading (F18, F12, F30) — one was by
   design, one was the student's own button, one was a tile Jim chose. The ledger records the

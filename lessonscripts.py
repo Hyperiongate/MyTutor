@@ -2,6 +2,12 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yz (2) -- choices_for deals the key evenly: the old (3a + b + c) % 3 put it on the
+#               first button 43% of the time (a never counted). Fixed per problem still.
+#   2026-09-30  BUILD yz -- _col_add's count-on walk-back draws the BIGGER group first with
+#               counton="1" (the added stars numbered from big + 1) and says the swap when the
+#               numbers came the other way round (Jim's F21: the picture started at five while
+#               the words started at six).
 #   2026-09-30  BUILD yy -- THE TOUR IS REWRITTEN AGAINST TODAY'S SCREEN (Jim's playthrough F4,
 #               F5, F10, F11): no "glowing face" (the pencil is Mr. Cadabra), "the big board"
 #               not "whiteboard" (Entry's is cream), the young tour gets a buttons stop that
@@ -1345,10 +1351,17 @@ def _col_add(a, b, noun=""):
                 f"both groups — {counts}. {a} plus {b} equals {total}.", board)
     if 1 <= small <= 9:
         counts = ", ".join(str(big + i) for i in range(1, small + 1))
-        board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" '
+        # (yz, 2026-09-30) THE PICTURE STARTS WHERE THE WORDS START. Jim's playthrough
+        # (F21): "start at six, the bigger one, and count on" over a board that drew
+        # FIVE stars first -- "it looks like we're starting at the number five." The
+        # bigger group is drawn first now, counton="1" numbers the added stars from
+        # big + 1 (board.js), and when the numbers were swapped the words say so.
+        swap = (f"{a} plus {b} equals {b} plus {a}, so " if b > a else "")
+        board = (f'[[objects emoji="⭐" groups="{big}" add="{small}" counton="1" '
                  f'caption="start at {big} and count on: {counts}"]]'
-                 f'[[step eq="{a} + {b} = {total}"]]')
-        return (f"Here it is, step by step: {_stars_stand_for(noun, f'start at {big} and ')}"
+                 + (f'[[step eq="{a} + {b} = {big} + {small}"]]' if b > a else "")
+                 + f'[[step eq="{a} + {b} = {total}"]]')
+        return (f"Here it is, step by step: {_stars_stand_for(noun, swap + f'start at {big} and ')}"
                 f"count on {small} more: {counts}. {a} plus {b} equals {total}.", board)
     board = (f'[[objects emoji="⭐" groups="{a}" add="{b}" caption="{a} + {b} = {total}"]]'
              f'[[step eq="{a} + {b} = {total}"]]')
@@ -15900,7 +15913,12 @@ def choices_for(p):
         opts = list(ext["choices"](p))
     else:
         opts = [v - 1, v, v + 1] if v > 1 else [v, v + 1, v + 2]
-    k = (p["a"] * 3 + p["b"] + p.get("c", 0)) % 3
+    # (yz, 2026-09-30) AN EVEN DEAL. The rotation was (3a + b + c) % 3 -- and 3a is 0 mod 3,
+    # so `a` never counted and small b's tilted the key to the first button in 43% of
+    # the canon's asks (1,537 / 1,165 / 887 over 3,589; Jim's F7 was the placement's
+    # version of the same tilt). Weighted by three primes and the op's letters it deals
+    # 1,190 / 1,164 / 1,235 -- still fixed per problem, so a replay renders identically.
+    k = (p["a"] * 7 + p["b"] * 5 + p.get("c", 0) * 11 + len(str(p.get("op", "+")))) % 3
     opts = opts[k:] + opts[:k]
     return "[[choices options=\"" + " | ".join(str(o) for o in opts) + "\"]]"
 

@@ -2,6 +2,9 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-30  BUILD yz -- [[objects counton="1"]]: the first group lands plain (already counted),
+                 the added stars land one at a time numbered from the group's size + 1 -- the
+                 count-on picture the words describe (Jim's F21). count="1" is unchanged.
      2026-09-30  BUILD yy -- showChoices gives the row id="choiceRow" so the young tour's buttons
                  stop can glow the demo buttons it draws. One row exists at a time; no other change.
      2026-09-29  BUILD yu -- a note on showChoices's tap handler: the row clears before the page
@@ -660,6 +663,10 @@ function ensureObjectsCSS() {
     ".objcount{letter-spacing:0;display:flex;flex-wrap:wrap;justify-content:center;" +
     "align-items:flex-start;gap:8px;line-height:1.2}" +
     ".objone{display:inline-flex;flex-direction:column;align-items:center}" +
+    // (yz) the counted-already group in a count-on row: a plain string of stars at the
+    // countable size, letter-spaced like .objline, sitting on the same baseline as the
+    // numbered ones (their tick hangs below; this span has none).
+    ".objhad{font-size:36px;line-height:1.1;letter-spacing:9px;align-self:flex-start}" +
     ".objemj{font-size:36px;line-height:1.1}" +
     ".objplus{font-size:30px;font-weight:800;color:var(--bd-5b6079);align-self:center;padding:0 2px}" +
     // the tick a child can read at a glance: green, round, and the number is the
@@ -789,12 +796,33 @@ function showObjects(a) {
   const counting = /^(1|true|yes|on)$/i.test(String(a.count || "").trim())
     && !takeN && groups.length === 1
     && drawnTotal > 0 && drawnTotal <= OBJ_COUNT_MAX;
+  // (yz, 2026-09-30) counton="1" -- COUNTING ON. The first group is ALREADY counted and
+  // lands plain; only the added stars land one at a time, each carrying the number the
+  // child says next: groups[0]+1, +2, ... Jim's playthrough (F21), on "five plus six":
+  // the words said "start at six, the bigger one, and count on: seven, eight..." while
+  // the board drew five stars first and numbered nothing -- "it looks like we're
+  // starting at the number five." The generator draws the bigger group first now and
+  // asks for this; the added stars carry 7, 8, 9, 10, 11 under them. Refused (and the
+  // plain drawing made instead) for a take-away, for two rows, for no added stars, and
+  // past twenty things -- and count="1" wins where both are asked for.
+  const countOn = /^(1|true|yes|on)$/i.test(String(a.counton || "").trim())
+    && !counting && !takeN && groups.length === 1 && addN > 0 && drawnTotal <= 20;
   const stage = feedBlock();
   const box = document.createElement("div"); box.className = "objwrap pop";
   groups.forEach((g, gi) => {
     const row = document.createElement("div");
-    row.className = "objline" + (counting ? " objcount" : "");
-    if (counting) {
+    row.className = "objline" + ((counting || countOn) ? " objcount" : "");
+    if (countOn) {
+      // (yz) the counted-already group as one plain span (never a step: it is not
+      // said), then "+" and the added stars, numbered from where the count starts.
+      const had = document.createElement("span");
+      had.className = "objhad"; had.textContent = emoji.repeat(Math.min(g, 20));
+      row.appendChild(had);
+      const plus = document.createElement("span");
+      plus.className = "objplus objstep"; plus.textContent = "+";
+      row.appendChild(plus);
+      for (let k = 1; k <= addN; k++) row.appendChild(objCountOne(emoji, g + k));
+    } else if (counting) {
       // ONE ELEMENT PER THING, because a string of emoji cannot be counted one at a
       // time and cannot carry a number underneath any of them.
       let n = 0;
@@ -841,7 +869,7 @@ function showObjects(a) {
   // ⚠️ AFTER IT IS ON THE PAGE, NEVER BEFORE. runCountAlong hides what it is about to
   // reveal, so it must run on a board the child is already looking at -- and only
   // when this tag actually asked to be counted.
-  if (counting) runCountAlong(box);
+  if (counting || countOn) runCountAlong(box);
 }
 
 // The summary line's equation, read from the FIRST board row of the folded problem.

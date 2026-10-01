@@ -2,6 +2,9 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yz -- unit 2 add-past-ten: the worked example draws the bigger group first
+#               and says the swap (Jim's F21); the picture and teach beats ask for counton="1", so
+#               the added stars carry the numbers the words say.
 #   2026-09-30  BUILD yx -- "trap" is gone from every beat (Jim's ruling); unit 2's adding-three-
 #               numbers beat announces its own numbers and no longer claims a make-ten trick the
 #               lesson never teaches (F22, F25); the recap matches.
@@ -342,14 +345,14 @@ _ENTRY_PILOT = [
             ("Here are nine stars, and here are four more. You do not have to go back "
              "to one. Start at nine and count on for each new star: ten, eleven, "
              "twelve, thirteen. Nine plus four equals thirteen.",
-             '[[objects emoji="⭐" groups="9" add="4" caption="start at nine and count on — ten, eleven, twelve, thirteen"]]'),
+             '[[objects emoji="⭐" groups="9" add="4" counton="1" caption="start at nine and count on — ten, eleven, twelve, thirteen"]]'),
         ],
         "teach": [
             ("That is the method, and it has a shortcut. Start with the bigger number "
              "and count on from there — it is fewer numbers to say. If the two numbers "
              "are the same, start with either one. Eight plus three: start at eight, "
              "then nine, ten, eleven. Eight plus three equals eleven.",
-             '[[objects emoji="⭐" groups="8" add="3" count="1" caption="start at eight — nine, ten, eleven"]][[step eq="8 + 3 = 11"]]'),
+             '[[objects emoji="⭐" groups="8" add="3" counton="1" caption="start at eight — nine, ten, eleven"]][[step eq="8 + 3 = 11"]]'),
             ("Here is a common mistake to look out for. When you count on, do not say the starting number "
              "again. Seven plus five: start at seven — eight, nine, ten, eleven, "
              "twelve. Twelve. Say seven again — seven, eight, nine, ten, eleven — and "
@@ -357,10 +360,13 @@ _ENTRY_PILOT = [
              '[[step eq="7 — 8, 9, 10, 11, 12: 7 + 5 = 12 ✓"]][[step eq="7, 8, 9, 10, 11 → 11 ✗ seven was counted twice"]]'),
         ],
         "pairs": [
-            {"worked": ("Here is one more, done for you. Five stars, and six more. "
-                        "Start at the bigger number, six, and count on: seven, eight, "
-                        "nine, ten, eleven. Five plus six equals eleven.",
-                        '[[objects emoji="⭐" groups="5" add="6" count="1" caption="start at six and count on: 7, 8, 9, 10, 11"]][[step eq="5 + 6 = 11"]]'),
+            # (yz, 2026-09-30) Jim's F21: the words started at six and the picture started at
+            # five. The bigger group is drawn first, the swap is said, and counton="1"
+            # numbers the added stars 7, 8, 9, 10, 11 (board.js).
+            {"worked": ("Here is one more, done for you. Five plus six. The bigger number is six, "
+                        "so start there — five plus six equals six plus five. Six stars, "
+                        "and five more: seven, eight, nine, ten, eleven. Five plus six equals eleven.",
+                        '[[step eq="5 + 6 = 6 + 5"]][[objects emoji="⭐" groups="6" add="5" counton="1" caption="start at six and count on: 7, 8, 9, 10, 11"]][[step eq="5 + 6 = 11"]]'),
              "ask": {'a': 7, 'b': 6, 'op': '+'}},
             {"worked": ("One more together. Nine stars, and six more. Start at nine and "
                         "count on — ten, eleven, twelve, thirteen, fourteen, fifteen. "

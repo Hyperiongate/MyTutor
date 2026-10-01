@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yz -- THE PICTURE STARTS WHERE THE WORDS START. Stamp only: board.js (counton),
+#               math-figures.js (the rectangle's squares), cadabra.js (the mouth), challenge.html (the
+#               deal), lessonscripts.py (the count-on walk-back; choices_for), lessons/entry.py. PART 3ot.
 #   2026-09-30  BUILD yy -- THE TOUR READS TODAY'S SCREEN. Stamp only: session.html (the tour), board.js
 #               (the row's id), lessonscripts.py (TOUR_LINES), the pencil's menu. Prewarm 4 lines. PART 3os.
 #   2026-09-30  BUILD yx (2) -- NO AWARD INTERRUPTS A LESSON (Jim's ruling). _script_start_lesson
@@ -9819,7 +9822,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-30yy-the-tour-reads-todays-screen"
+APP_BUILD = "2026-09-30yz-the-picture-starts-where-the-words-start"
 
 
 @app.get("/health")

@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD yz -- PART 3ot, THE PICTURE STARTS WHERE THE WORDS START: the count-on picture
+#               (bigger group first, counton="1"), the rectangle's visible numbered squares, the mouth
+#               that closes on silence, the assessment's dealt choices and choices_for's even deal.
+#               Two pins moved (the cnt choices' set; cadabra's version).
 #   2026-09-30  BUILD yy -- PART 3os, THE TOUR READS TODAY'S SCREEN: no face, no whiteboard, the pencil
 #               is the glow's target, hidden nodes never place the tag, the tag stays in the window, the
 #               tour is seen when it ends (never twice), the young tour shows real buttons (uc's order
@@ -22974,7 +22978,7 @@ def part3nm_the_pencil_in_the_scripted_lane():
           and "drift = (isPhone() || docked()) ? 0 : effective().drift;" in cad
           and "if (isPhone()) {" in cad and 'var main = document.querySelector("[data-cad-home]")' in cad, "")
     check("  pointing up at a high block he stands a little lower (his hat brushed the bubble at 200px); the version is xr",
-          "wantY = r.bottom + heightPx() * 1.0; below = true;" in cad and 'var VERSION    = "2026-09-23xr";' in cad, "")
+          "wantY = r.bottom + heightPx() * 1.0; below = true;" in cad and 'var VERSION    = "' in cad and cad[cad.index('var VERSION    = "') + 18:cad.index('var VERSION    = "') + 30] >= "2026-09-23xr", "")   # (yz) the version moved on
 
     # ---- the menu --------------------------------------------------------------------------
     present = {"do": "present", "target": "board.latest", "hold": "voice", "ms": 1400, "maxMs": 14000}
@@ -25231,7 +25235,7 @@ def part3oi_the_quiz_prefers_what_the_lesson_did_not_demonstrate():
     check("the QUIZ SPACE never says 'never -- told as a story' (no story FIELD is not 'never a story'); a story lesson says 'always'",
           "told as a story" not in qs and "the problem is told as a story" in C.quiz_space(by["entry-u3-story-problems"]).split("never --")[0], qs[:200])
     check("cnt's taps never pass ten: 10 stars -> 8 | 9 | 10; 5 stars -> 4 | 5 | 6; 1 star -> 1 | 2 | 3",
-          'options="8 | 9 | 10"' in L.choices_for({"op": "cnt", "a": 10, "b": 0})
+          sorted(int(x) for x in L.choices_for({"op": "cnt", "a": 10, "b": 0}).split('"')[1].split(" | ")) == [8, 9, 10]   # (yz) the deal's order moved; the set is the pin
           and sorted(int(x) for x in L.choices_for({"op": "cnt", "a": 5, "b": 0}).split('"')[1].split(" | ")) == [4, 5, 6]
           and sorted(int(x) for x in L.choices_for({"op": "cnt", "a": 1, "b": 0}).split('"')[1].split(" | ")) == [1, 2, 3], "")
     gq = rd(_os.path.join("tools", "genquiz.py"))
@@ -26022,6 +26026,103 @@ def part3os_the_tour_reads_todays_screen():
     check("  the changed files carry dated yy notes",
           all("2026-09-30" in notes(f) and "yy" in notes(f) for f in ("static/session.html", "static/board.js", "lessonscripts.py", "main.py", "ruletests.py"))
           and any("2026-09-30 (yy)" in n for n in _json.loads(open(os.path.join(here, "static", "cadabra-script.json"), encoding="utf-8").read())["_CHANGE_NOTES"]), "Jim's rule 8")
+
+
+def part3ot_the_picture_starts_where_the_words_start():
+    """PART 3ot (build yz, 2026-09-30) -- THE PICTURE STARTS WHERE THE WORDS START. Four of
+    Jim's first-family flags. F21: "start at six, the bigger one, and count on" over a
+    board that drew five stars first -- the count-on generator and Entry u2's worked
+    example draw the bigger group first, say the swap, and [[objects counton="1"]]
+    numbers only the added stars from the group's size + 1. F28: the Geometry review's
+    "24 squares" over one plain rectangle -- [[rectangle]]'s cells are visible now and
+    numbered in area mode (never on an ask). F24: the pencil's mouth moving with nothing
+    playing -- the frame loop reads the audio element and the synth and closes it. F7:
+    the assessment's key sat at index 1 in 28 of Entry's 45 and at index 3 in none --
+    the choices are dealt at render; and choices_for's own tilt (43% first button, `a`
+    never counted) is an even deal now."""
+    print("\nPART 3ot — the picture starts where the words start (build yz)")
+    import re as _re, subprocess as _sp, collections as _co
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import lessonscripts as LS
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    # ---- F21: the count-on walk-back and the worked example -------------------------------
+    w = LS._worked_for({"a": 5, "b": 8, "op": "+"})
+    check("⭐ the count-on walk-back draws the BIGGER group first, numbers the added stars, and says the swap when the numbers came the other way",
+          'groups="8" add="5" counton="1"' in w[1] and '[[step eq="5 + 8 = 8 + 5"]]' in w[1]
+          and w[0].startswith("Here it is, step by step: 5 plus 8 equals 8 plus 5, so start at 8 and count on 5 more: 9, 10, 11, 12, 13."), w)
+    w2 = LS._worked_for({"a": 9, "b": 2, "op": "+"})
+    check("  ...and says no swap when the bigger number was already first",
+          'groups="9" add="2" counton="1"' in w2[1] and "= 9 + 2" not in w2[1] and w2[0].startswith("Here it is, step by step: start at 9 and count on 2 more: 10, 11."), w2)
+    les = LS.LESSON_BY_ID["entry-u2-add-past-ten"]
+    wk = les["pairs"][0]["worked"]
+    check("  Entry u2's worked example: five plus six starts at six -- the swap said, six stars drawn first, the added five numbered",
+          "five plus six equals six plus five" in wk[0] and '[[step eq="5 + 6 = 6 + 5"]]' in wk[1] and 'groups="6" add="5" counton="1"' in wk[1], wk)
+    check("  ...and the lesson's picture and teach beats ask for counton too (count=\"1\" numbered every star from one)",
+          all('counton="1"' in b for _s, b in les["picture"]) and any('counton="1"' in b for _s, b in les["teach"])
+          and not any('count="1"' in b for _s, b in les["picture"] + les["teach"]), "")
+    bj = code_only(open(os.path.join(here, "static", "board.js"), encoding="utf-8").read())
+    check("  board.js: counton draws the counted group plain (.objhad) and objCountOne(emoji, g + k) for the added; refused for a take-away, two rows, no adds; count=\"1\" wins",
+          'const countOn = /^(1|true|yes|on)$/i.test(String(a.counton || "").trim())' in bj
+          and "&& !counting && !takeN && groups.length === 1 && addN > 0 && drawnTotal <= 20;" in bj
+          and 'had.className = "objhad";' in bj and "row.appendChild(objCountOne(emoji, g + k));" in bj
+          and "if (counting || countOn) runCountAlong(box);" in bj, "")
+    # ---- F28: the rectangle's squares -------------------------------------------------------
+    mf = code_only(open(os.path.join(here, "static", "math-figures.js"), encoding="utf-8").read())
+    rect = mf[mf.find("function rectangle(a) {"):mf.find("function clock(a) {")]
+    check("⭐ [[rectangle]]: the cells alternate two shades, their lines are the figure's colour at 1.4px, and area mode numbers them 1..w*h (thirty or fewer) -- never on an ask, never on the half",
+          'var numbered = (mode === "area" && !half && !ask && w * h <= 30);' in rect
+          and 'stroke="var(--bd-5b5bd6)" stroke-width="1.4"' in rect and 'var shade = ((r + c) % 2 === 0) ? ".24" : ".12";' in rect
+          and "String(r * w + c + 1)" in rect and "var(--bd-c8d0da)" not in rect, "")
+    br = LS.LESSON_BY_ID.get("bridge-geometry") or next((l for l in getattr(LS, "BRIDGES", {}).values() if False), None)
+    bsrc = open(os.path.join(here, "lessons", "bridges.py"), encoding="utf-8").read()
+    check("  the Geometry review's area beat still draws the 6 by 4 rectangle in area mode (the squares are the figure's now)",
+          '[[rectangle w="6" h="4" show="area" caption="6 × 4 = 24 squares"]]' in bsrc, "")
+    # ---- F24: the mouth ---------------------------------------------------------------------
+    cad = open(os.path.join(here, "static", "cadabra.js"), encoding="utf-8").read()
+    check("⭐ cadabra.js: once a page has announced mt:silent, a voice with nothing sounding (audio element paused or ended, synth silent) closes the mouth within 600 ms",
+          "if (S.voiceOn && S.silentSeen) {" in cad and "!ttsAudio.paused && !ttsAudio.ended) sounding = true;" in cad
+          and "speechSynthesis.speaking) sounding = true;" in cad and "if (S.stillMs > 600) { S.voiceOn = false; S.stillMs = 0; }" in cad
+          and "speaking:    function () { return !!(S && S.speaking); }," in cad, "")
+    # ---- F7: the deal -----------------------------------------------------------------------
+    ch = open(os.path.join(here, "static", "challenge.html"), encoding="utf-8").read()
+    check("⭐ challenge.html deals the four choices in a fresh order on every render and grades against where the key landed",
+          "const perm = q.c.map((_, k) => k);" in ch and "const ans = perm.indexOf(q.a);" in ch
+          and "d.onclick = () => answer(i, q, u, d, ans); box.appendChild(d);" in ch
+          and "function answer(i, q, u, node, ans) {" in ch and "const correct = (i === ans);" in ch
+          and "if (k === ans) nodes[k].classList.add(\"correct\");" in ch, "")
+    ent = ch[ch.find("const ENTRY_BANK = {"):ch.find("const BASIC_BANK = {")]
+    hist = _co.Counter(_re.findall(r"a:(\d)\}", ent))
+    check("  the Entry bank's own tilt is on the record (9 / 28 / 8 / 0 on 09-30) -- the deal, not the bank, is what evens it",
+          hist.get("1", 0) >= 20 and hist.get("3", 0) == 0, dict(hist))
+    cnt = _co.Counter()
+    for l in LS.LESSONS:
+        for p in l["bank"]:
+            m = _re.search(r'options="([^"]*)"', LS.choices_for(p))
+            if not m:
+                continue
+            opts = [o.strip() for o in m.group(1).split("|")]
+            if str(LS.ans(p)) in opts:
+                cnt[opts.index(str(LS.ans(p)))] += 1
+    tot = sum(cnt.values())
+    check("⭐ choices_for deals the key evenly across the canon's asks: no button holds it more than 38% of the time (43% on the first button before yz)",
+          tot > 3000 and max(cnt.values()) / tot <= 0.38 and min(cnt.values()) / tot >= 0.28, dict(cnt))
+    check("  ...and the deal is still fixed per problem (a replay renders identically)",
+          LS.choices_for({"a": 7, "b": 6, "op": "+"}) == LS.choices_for({"a": 7, "b": 6, "op": "+"})
+          and "k = (p[\"a\"] * 7 + p[\"b\"] * 5 + p.get(\"c\", 0) * 11 + len(str(p.get(\"op\", \"+\")))) % 3" in open(os.path.join(here, "lessonscripts.py"), encoding="utf-8").read(), "")
+    # ---- the page, in a real browser (tools/yzdrive.py) ------------------------------------
+    NAME = "⭐ LIVE: the count-on stars carry 7..11, the 6 by 4 rectangle has 24 numbered squares and the ask has none, the mouth closes on silence, the assessment's deal is even"
+    if dep_gate(NAME, "playwright", "the pictures, the mouth and the deal are proved in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "yzdrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=300, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated yz notes",
+          all("2026-09-30" in notes(f) and "yz" in notes(f) for f in ("static/board.js", "static/math-figures.js", "static/cadabra.js", "static/challenge.html", "lessonscripts.py", "lessons/entry.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -30941,7 +31042,7 @@ def part3gi_the_intervention_teaches_the_problem_that_was_asked():
         check("  ...and the lesson's explanation of the idea",
               "distance is never negative" in note, "")
         check("  the note never says 6 + 9", "6 + 9" not in note, note)
-        check("  the choices tag rides the note", '[[choices options="3 | -3 | 15"]]' in note, "")
+        check("  the choices tag rides the note", "[[choices options=" in note and sorted(note.split("[[choices options=\"")[1].split('"')[0].split(" | ")) == sorted(["3", "-3", "15"]), "")   # (yz) the deal's order moved; the set is the pin
         check("  the reply still comes back", out.startswith("[[step"), out)
         sysp = seen.get("system", "")
         check("⭐ the prompt scopes stars to PLAIN adding/taking away of small numbers",
@@ -32606,8 +32707,8 @@ def part3gv_count_out_loud_with_me():
 
     # ---- it always finishes: three independent belts ---------------------------
     check("⭐ THE STARS ARE BUILT VISIBLE and only hidden by the script that reveals them",
-          "if (counting) runCountAlong(box);" in board
-          and board.index("stage.appendChild(box);") < board.index("if (counting) runCountAlong(box);"),
+          "if (counting || countOn) runCountAlong(box);" in board   # (yz) the count-on row reveals the same way
+          and board.index("stage.appendChild(box);") < board.index("if (counting || countOn) runCountAlong(box);"),
           "if the reveal never runs, the drawing must already be on the board")
     check("  ...a fallback starts it when no sound ever comes",
           "const waiter = setTimeout(begin, OBJ_COUNT_WAIT_MS);" in board,
@@ -32802,7 +32903,11 @@ def part3gw_the_counting_lessons_actually_count():
                 says.append(sp or "")
                 cards.append(("%s[%s%d]" % (les["id"], tag, i), (sp or "") + "\n" + (b or ""), b or ""))
 
-    counted, refused, fired = [], [], []
+    # (yz, 2026-09-30) counton="1" is the COUNT-ON drawing: the first group plain, only the
+    # added stars numbered from the group's size + 1 (board.js refuses it for a take-away,
+    # two rows, no adds, or past twenty things). Held here the same way, counted apart.
+    CNTON = _re.compile(r'\bcounton\s*=\s*"\s*(?:1|true|yes|on)\s*"', _re.I)
+    counted, refused, fired, counted_on = [], [], [], []
     for ident, whole, board in cards:
         for mm in OBJ.finditer(board):
             if CNT.search(mm.group(1)):
@@ -32810,6 +32915,15 @@ def part3gw_the_counting_lessons_actually_count():
                 counted.append(ident)
                 if bad:
                     refused.append((ident, ",".join(bad)))
+            elif CNTON.search(mm.group(1)):
+                attrs = mm.group(1)
+                g = _re.search(r'groups\s*=\s*"([^"]*)"', attrs, _re.I)
+                a = _re.search(r'add\s*=\s*"([^"]*)"', attrs, _re.I)
+                rows = [int(x) for x in (g.group(1) if g else "").replace("|", " ").split() if x.isdigit()]
+                add = int(a.group(1)) if a and a.group(1).strip().isdigit() else 0
+                counted_on.append(ident)
+                if _re.search(r'take\s*=\s*"', attrs, _re.I) or len(rows) != 1 or add < 1 or sum(rows) + add > 20:
+                    refused.append((ident, "counton"))
         if CNT.search(board) and _tt.counted_drawing_conflict(whole):
             fired.append(ident)
 
@@ -32838,8 +32952,14 @@ def part3gw_the_counting_lessons_actually_count():
     # board drew two step lines -- the stars were two beats up the feed and off the
     # top of the screen. Same defect Jim flagged in Algebra I ("I had to croll up to
     # see the bar"), same fix. deixis.py is what found all three.
-    check("  the canon counts twenty-two drawings (the tutor's own modelled counts)",
-          len(counted) == 22, "%d: %s" % (len(counted), ", ".join(sorted(counted))))
+    # (yz, 2026-09-30) TWENTY since yz: add-past-ten's picture and first teach beat COUNT ON
+    # now (counton="1", below) -- they said "start at eight -- nine, ten, eleven" over stars
+    # numbered from one. So does the lesson's worked example (five plus six, starting at six).
+    # The three are held in counted_on: the picture [p0], the first teach beat [t0], the
+    # worked example [w0].
+    check("  the canon counts twenty drawings that count from one (twenty-two until yz), and three that count on",
+          len(counted) == 20 and len(counted_on) == 3 and all(i.startswith("entry-u2-add-past-ten") for i in counted_on),
+          "%d: %s | on: %s" % (len(counted), ", ".join(sorted(counted)), ", ".join(sorted(counted_on))))
 
     # ---- the lessons that had to have it --------------------------------------
     ids = set(counted)
@@ -52999,6 +53119,7 @@ def main():
     part3oq_the_judge_reads_the_ask()
     part3or_trap_is_gone()
     part3os_the_tour_reads_todays_screen()
+    part3ot_the_picture_starts_where_the_words_start()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

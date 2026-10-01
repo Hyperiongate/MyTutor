@@ -2,6 +2,10 @@
    math-figures.js  --  Math Tutor MVP  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-09-30  BUILD yz -- [[rectangle]]'s unit squares are visible: alternating shades, the
+                 figure's colour on the cell lines (1.4px; was a 0.8px grey that vanished on both
+                 boards), and in area mode each cell numbered 1..w*h when thirty or fewer -- Jim's
+                 F28 on the Geometry review ("what it's missing is the squares").
      2026-09-26  BUILD yl -- one line: unitcircle() names a.turn itself when it hands the
                  compass to compassRose(), so the board contract (ruletests _board_contract,
                  which reads a tag's attributes off its own function) credits turn= to
@@ -1680,10 +1684,24 @@
     var half = String(a.half || "") === "1" || String(a.half || "").toLowerCase() === "true";
     var cell = (w > 12 || h > 8) ? 18 : 30, x0 = 60, y0 = 40, W = x0 + w * cell + 60, H = y0 + h * cell + 60;
     var s = svgOpen(W, H, 660);
+    // (yz, 2026-09-30) THE SQUARES ARE SQUARES YOU CAN SEE. Jim, on the Geometry review's
+    // "6 by 4 ... 24 squares": "What it's missing is the squares. It actually shows one
+    // rectangle that's six by four." The unit lines were a 0.8px light grey on a light
+    // fill (and near-black on the dark board) -- invisible on a render. Now: the cells
+    // alternate two shades, their lines are the figure's own colour at 1.4px, and in
+    // area mode each cell carries its count (1 .. w*h, through tspan so it fits) when
+    // there are thirty or fewer -- the picture counts what the words count.
+    // ⚠️ NEVER ON AN ASK. ask="1" is "count the squares inside" -- numbered cells would
+    // hand the child the answer in the last square. The counted picture is for teaching.
+    var numbered = (mode === "area" && !half && !ask && w * h <= 30);
     for (var r = 0; r < h; r++) {
       for (var c = 0; c < w; c++) {
+        var shade = ((r + c) % 2 === 0) ? ".24" : ".12";
         s += '<rect x="' + (x0 + c * cell) + '" y="' + (y0 + r * cell) + '" width="' + cell + '" height="' + cell +
-             '" fill="' + (mode === "area" ? "rgba(91,91,214,.22)" : "rgba(91,91,214,.05)") + '" stroke="var(--bd-c8d0da)" stroke-width="0.8"/>';
+             '" fill="' + (mode === "area" ? "rgba(91,91,214," + shade + ")" : "rgba(91,91,214,.05)") + '" stroke="var(--bd-5b5bd6)" stroke-width="1.4"/>';
+        if (numbered) {
+          s += tspan(x0 + c * cell + cell / 2, y0 + r * cell + cell / 2 + 4, String(r * w + c + 1), "var(--bd-26263a)", 11, 700);
+        }
       }
     }
     var col = mode === "perimeter" ? "var(--bd-e0392b)" : "var(--bd-5b5bd6)";

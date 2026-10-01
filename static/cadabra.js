@@ -4,6 +4,12 @@
    MR. CADABRA, OUT OF THE BOX. The floating companion layer.
 
    CHANGE NOTES (keep newest at top):
+     2026-09-30  (yz) THE MOUTH FOLLOWS THE SOUND. Jim's playthrough (F24): at the ready gate
+                 and through a lesson's end his mouth moved with nothing playing. A clip paused
+                 by the next line or cut by a deadline never fires 'ended', so mt:silent never
+                 came and voiceOn stayed true. The frame loop now reads the page's audio element
+                 and the browser synth: 600 ms with neither sounding closes the mouth. The
+                 events are still trusted first; this only ends a voice that already ended.
      2026-09-23  (xr) THE PENCIL IN THE SCRIPTED LANE (project 5 of the 09-14 deep dive;
                  the fourth gate build). Until now the scripted lane rang him only for
                  answers, misses and the lesson's ends: every teach, picture and
@@ -219,7 +225,7 @@
 (function () {
   "use strict";
 
-  var VERSION    = "2026-09-23xr";
+  var VERSION    = "2026-09-30yz";
   var SCRIPT_URL = "/static/cadabra-script.json";
   var MODE_KEY   = "mt_cadabra_mode";        /* full | quiet | off  (rule 27) */
 
@@ -957,6 +963,25 @@
       var lv = voiceLevel();
       if (lv >= 0) { S.quietMs = (lv < 0.02) ? S.quietMs + dt : 0; if (S.quietMs > 1600) S.voiceOn = false; }
       if (now - S.speakT > 25000) S.voiceOn = false;
+    }
+    /* (yz, 2026-09-30) THE MOUTH FOLLOWS THE SOUND, NOT ONLY THE EVENTS. Jim, at the
+       ready gate and again through a lesson's end: "his mouth is working but no words
+       came out and no words should be coming out." mt:silent is announced by speak()'s
+       finish -- and a clip that is PAUSED by the next line's stopAllSpeech, or cut by a
+       withDeadline timeout, never ends, so its finish never runs and voiceOn stays true
+       until the next real line; on a page whose first mt:silent has already retired
+       the watchdogs, nothing else ever closes his mouth. This reads the page's own
+       audio element and the browser synth every frame: if neither is producing sound
+       for 600 ms, the voice is off. A real line is never cut short by it -- a playing
+       element is playing -- and it changes nothing while sound is actually on. */
+    if (S.voiceOn && S.silentSeen) {
+      var sounding = false;
+      try {
+        if (typeof ttsAudio !== "undefined" && ttsAudio && !ttsAudio.paused && !ttsAudio.ended) sounding = true;
+        if (!sounding && window.speechSynthesis && speechSynthesis.speaking) sounding = true;
+      } catch (e) { sounding = true; }
+      S.stillMs = sounding ? 0 : (S.stillMs || 0) + dt;
+      if (S.stillMs > 600) { S.voiceOn = false; S.stillMs = 0; }
     }
     S.speaking = S.voiceOn || S.bubbleOn;
     followAnchors();
@@ -1894,6 +1919,9 @@
     circle:      direct("circle"),       /* Cadabra.circle("common bottom") */
     bang:        direct("bang"),
     wave:        direct("wave"),
+    /* (yz) is his mouth moving? Read-only, for the battery's headless drive (yzdrive.py):
+       the F24 proof needs to see the voice flag fall when nothing is sounding. */
+    speaking:    function () { return !!(S && S.speaking); },
     comfort:     direct("comfort"),
     party:       direct("party"),
     think:       direct("think"),
