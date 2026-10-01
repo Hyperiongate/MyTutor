@@ -2,6 +2,10 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD za -- PART 3ou, THE TOPIC PAGE AND THE PARENT PAGES: /topic and /practice carry
+#               the lesson page's collapsed sidebar and control strip (the buttons under the board), the
+#               symbol strip follows body data-course, the front page's fourth door and the featured FREE
+#               card (pricing.html too), /family's three numbered steps. PART 3kq's door pin reads four.
 #   2026-09-30  BUILD yz -- PART 3ot, THE PICTURE STARTS WHERE THE WORDS START: the count-on picture
 #               (bigger group first, counton="1"), the rectangle's visible numbered squares, the mouth
 #               that closes on silence, the assessment's dealt choices and choices_for's even deal.
@@ -13037,10 +13041,14 @@ def part3kq_the_front_door_quieted():
 
     # ---- the hero: one sentence, three doors, in order ----------------------------------------
     hero = body[body.find('<header class="wrap hero">'):body.find("</header>")]
-    doors = _re.findall(r'<a class="btn btn-(primary|ghost)" href="([^"]+)">([^<]+)</a>', hero[hero.find('class="doors"'):])
-    check("⭐ three honest doors, in order: Try a lesson (the real lesson), Take the tour (the hosted tour), Sign in",
-          [(k, h) for k, h, _ in doors[:3]] == [("primary", "/demo/lesson"), ("ghost", "/demo?tour=1"), ("ghost", "/login")]
-          and "Try a lesson" in doors[0][2] and doors[1][2] == "Take the tour" and doors[2][2] == "Sign in", str(doors))
+    doors = _re.findall(r'<a class="btn btn-(primary|ghost|free)" href="([^"]+)">([^<]+)</a>', hero[hero.find('class="doors"'):])
+    # (za, 2026-09-30) FOUR doors: Jim's playthrough F1 ("no signup button above the fold")
+    # amends his 09-09 ruling -- "Start free -- create your account" (/family) sits second,
+    # beside the lesson door, and uu's three keep their order around it.
+    check("⭐ four honest doors, in order: Try a lesson (the real lesson), Start free (the account, Jim's F1), Take the tour (the hosted tour), Sign in",
+          [(k, h) for k, h, _ in doors[:4]] == [("primary", "/demo/lesson"), ("free", "/family"), ("ghost", "/demo?tour=1"), ("ghost", "/login")]
+          and "Try a lesson" in doors[0][2] and doors[1][2] == "Start free — create your account"
+          and doors[2][2] == "Take the tour" and doors[3][2] == "Sign in", str(doors))
     check("  one sentence: the headline and one lede, no pill, no second lede",
           "<h1>A math tutor who <span class=\"grad-text\">teaches out loud</span>, one step at a time.</h1>" in hero
           and hero.count('class="lede"') == 1 and 'class="pill"' not in hero, "")
@@ -13101,7 +13109,7 @@ def part3kq_the_front_door_quieted():
     check("  the file ends whole", la.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"), "")
 
     # ---- LIVE: the fold and the phone ------------------------------------------------------------------
-    NAME = "⭐ LIVE at 1280x800 and 390x844: the three doors and the pencil above the fold, no sideways scroll on a phone, no page error"
+    NAME = "⭐ LIVE at 1280x800 and 390x844: the four doors (three until za) and the pencil above the fold, no sideways scroll on a phone, no page error"
     if dep_gate(NAME, "playwright", "the fold is measured in a real browser"):
         try:
             sck = socket.socket(); sck.bind(("127.0.0.1", 0)); port = sck.getsockname()[1]; sck.close()
@@ -13150,12 +13158,13 @@ def part3kq_the_front_door_quieted():
                         p2.goto(f"http://127.0.0.1:{port}/", wait_until="load"); p2.wait_for_timeout(1500)
                         m = p2.evaluate(MEASURE)
                         br.close()
+                        # (za, 2026-09-30) FOUR doors since Jim's F1; at 1280 they take two rows, all inside the first screen.
                         check(NAME,
-                              d["doors"] == 3 and d["doorsOneRow"] == 1 and d["doorsBottom"] <= 800
+                              d["doors"] == 4 and d["doorsOneRow"] <= 2 and d["doorsBottom"] <= 800
                               and d["pencilTop"] is not None and d["pencilTop"] >= 60 and d["pencilBottom"] <= 800 and d["pencilW"] >= 150
                               and d["hearVisible"] and d["navLinks"] == 3 and not d["ribbon"] and d["navRows"] <= 90
                               and d["footLinks"] == len(NEED) and d["docW"] == 1280
-                              and m["docW"] == 390 and m["doors"] == 3 and m["navRows"] <= 120 and not m["ribbon"]
+                              and m["docW"] == 390 and m["doors"] == 4 and m["navRows"] <= 120 and not m["ribbon"]
                               and not errs,
                               f"desk={d} phone={m} errs={errs[:2]}")
         finally:
@@ -26123,6 +26132,143 @@ def part3ot_the_picture_starts_where_the_words_start():
             check(NAME, False, f"the drive did not run: {exc}")
     check("  the changed files carry dated yz notes",
           all("2026-09-30" in notes(f) and "yz" in notes(f) for f in ("static/board.js", "static/math-figures.js", "static/cadabra.js", "static/challenge.html", "lessonscripts.py", "lessons/entry.py", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3ou_the_topic_page_and_the_parent_pages():
+    """PART 3ou (build za, 2026-09-30) -- THE TOPIC PAGE AND THE PARENT PAGES. The last of
+    the six builds off Jim's first-family playthrough. F31: /topic (and /practice) with the
+    sidebar open squeezed the board and put the 72px answer buttons in a 308px column, cut
+    off at the bottom -- "a child sees two different screens for the same tutor"; the two
+    pages get the lesson page's build-or screen, node for node (the collapsed sidebar
+    behind #sbTab, the controls in #ctrlBar under the board, the same mt_sb_open key).
+    F32: the symbol strip follows the course -- the board pages set body data-course before
+    math-keyboard.js runs, and keysFor() picks the tier. F33: read and left -- the page has
+    set body.elem-mode since uc and board-theme.css paints the feed cream; a dark board
+    there is the remembered chip. F1: the front page's hero gets "Start free -- create your
+    account" as its second door and the FREE card is the featured one (pricing.html the
+    same). F2: "Every student covered." F3: /family walks three numbered steps from the real
+    state, and a first visit stacks the two cards in step order. F34 (the code in the URL)
+    is NOT built: it conflicts with Jim's 08-18 ruling ("do not kill the bookmark login")
+    and is brought to him as a question. tools/zadrive.py proves it all in a real browser."""
+    print("\nPART 3ou — the topic page and the parent pages (build za)")
+    import subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    # ---- F31: the two pages carry the lesson page's screen, node for node ------------------
+    sess = code_only(rd("static/session.html"))
+    for page in ("static/topic.html", "static/practice.html"):
+        src = rd(page); code = code_only(src)
+        check("⭐ %s: the sidebar tab outside the aside, the aside by id, the empty control strip under the board" % page,
+              '<button id="sbTab" type="button" aria-controls="sideLeft" aria-expanded="false">&#9656; Open the sidebar</button>' in code
+              and '<aside class="side left" id="sideLeft">' in code
+              and '<div class="ctrlbar" id="ctrlBar"></div>' in code
+              and code.find('id="feed"') < code.find('id="ctrlBar"') < code.find('<div class="feedbar">'), page)
+        for needle in ('body:not(.sbopen) .app { grid-template-columns: 1fr; }',
+                       'body:not(.sbopen) .side.left { display: none; }',
+                       'body.sbopen #sbTab { left: 308px; }',
+                       '.ctrlbar .choicerow { flex: 1 1 100%; order: 6; }',
+                       '.ctrlbar .composer { flex: 1 1 100%; max-width: none; order: 7; }'):
+            check("  %s CSS: %s" % (page, needle[:60]), needle in src and src.find("@media (min-width: 901px) {\n      /* ⚠️ ONE column") > 0, page)
+        check("  %s: #sbTab and .ctrlbar are hidden by default (phones keep dz's dock); the block sits after dz's phone block and before ug's, which stays last" % page,
+              "#sbTab { display: none; }" in src and ".ctrlbar { display: none; }" in src
+              and src.find("(build dz) ACCESSIBILITY + PHONE LAYOUT") < src.find("(build za) THE SAME SCREEN AS THE LESSON =====")
+              < src.find("THE BOARD IS THE SCROLLER, ON EVERY SMALL SCREEN")
+              and src.rfind("@media (min-width: 901px)") < src.find("THE BOARD IS THE SCROLLER, ON EVERY SMALL SCREEN"), page)
+        for needle in ('const sbTab = el("sbTab"), ctrlBar = el("ctrlBar");',
+                       'const DESKTOP_MQ = window.matchMedia("(min-width: 901px)");',
+                       'function placeCtrls() {',
+                       'if (head.parentElement !== ctrlBar) ctrlBar.appendChild(head);',
+                       'if (ctr.parentElement !== ctrlBar) ctrlBar.appendChild(ctr);',
+                       'if (ctr.parentElement !== side) side.appendChild(ctr);',
+                       'sessionStorage.getItem("mt_sb_open")',
+                       'setSidebar(_sb0 === "1");'):
+            check("  %s JS: %s" % (page, needle[:60]), needle in code and needle in sess, "the lesson page's own lines, reused")
+        check("  %s: the sidebar logic runs AFTER the login redirect and BEFORE the elementary block (the helper line rides along)" % page,
+              code.find('if (!CODE) { window.location.href = "/login"; }') < code.find("function placeCtrls() {") < code.find("if (IS_ELEM) {"), page)
+        # ---- F32: the course on the body, before the keyboard script runs ----------------
+        check("  %s sets body data-course from COURSE, in the page script, before math-keyboard.js loads" % page,
+              'document.body.setAttribute("data-course", COURSE);' in code
+              and code.find('document.body.setAttribute("data-course", COURSE);') < code.find('<script src="/static/math-keyboard.js"></script>'), page)
+        # ---- F33: the child skin was there all along ---------------------------------------
+        check("  %s sets body.elem-mode for Entry and Basic (F33 read and left: the dark board was the remembered chip)" % page,
+              'document.body.classList.add("elem-mode");' in code and 'const IS_ELEM = (COURSE === "entry" || COURSE === "basic");' in code, page)
+        check("  %s carries a dated za note and is whole" % page,
+              "(za) 2026-09-30 -- THE SAME SCREEN AS THE LESSON." in src and src.rstrip().endswith("<!-- I did no harm and this file is not truncated. -->"), page)
+    check("  session.html sets body data-course too (its strip shows for a young student who types)",
+          'document.body.setAttribute("data-course", COURSE);' in sess
+          and sess.find('document.body.setAttribute("data-course", COURSE);') < sess.find('<script src="/static/math-keyboard.js"></script>'), "")
+    check("  board-theme.css still paints the warm board for body.elem-mode on the light board only",
+          'body.elem-mode .feed:not([data-board="dark"]) {' in rd("static/board-theme.css"), "")
+    # ---- F32: the strip's tiers ------------------------------------------------------------
+    mk = rd("static/math-keyboard.js")
+    check("⭐ math-keyboard.js: keysFor(course) -- Entry and Basic + − × ÷ (plus first), Pre-Algebra and Algebra I without theta, everything else the full strip",
+          'var YOUNG_KEYS = ["+", "−", "×", "÷"];' in mk
+          and 'entry: "young", basic: "young",' in mk and 'prealgebra: "middle", algebra1: "middle"' in mk
+          and 'if (tier === "middle") return KEYS.filter(function (k) { return k[0] !== "θ"; });' in mk
+          and "return KEYS.slice();" in mk and "keysFor(pageCourse()).forEach(function (k) {" in mk
+          and 'document.body.getAttribute("data-course")' in mk, "")
+    check("  ...the eighteen keys themselves are unchanged (ns's + stays right of −)",
+          mk.count('["÷",  "÷",  0, "divided by"]') == 1 and mk.count('["+",  "+",  0, "plus"]') == 1
+          and mk.find('["−",  "−",  0, "minus"]') < mk.find('["+",  "+",  0, "plus"]') < mk.find('["±",  "±",  0, "plus or minus"]')
+          and mk.count('["≠",  "≠",  0, "not equal"]') == 1, "")
+    # ---- F1: the front page and the pricing page -------------------------------------------
+    la = rd("static/landing.html"); lab = re.sub(r"<!--.*?-->", "", la, flags=re.S)
+    check("⭐ landing.html: 'Start free — create your account' is the hero's second door (/family), styled .btn-free",
+          '<a class="btn btn-free" href="/family">Start free — create your account</a>' in lab
+          and lab.find('href="/demo/lesson">▶ Try a lesson</a>') < lab.find('class="btn btn-free" href="/family"') < lab.find('href="/demo?tour=1">Take the tour</a>')
+          and ".btn-free{background:#fff;color:var(--purple);border:2px solid var(--purple)" in la, "")
+    pr = lab[lab.find('<section id="pricing"'):lab.find('<section id="privacy"')]
+    check("  ...the FREE pricing card is the featured one (the tag 'Start here — free', the filled button); Full access is the plain card with the ghost button",
+          '<div class="plan feat">\n      <span class="tag">Start here — free</span>\n      <h3>Free</h3>' in pr
+          and '<a class="btn btn-primary" href="/family">Start free — create your account</a>' in pr
+          and pr.count('class="plan feat"') == 1 and '<div class="plan">\n      <h3>Full access</h3>' in pr
+          and '<a class="btn btn-ghost" href="/demo/lesson">Try a lesson free</a>' in pr, "")
+    pg = rd("static/pricing.html"); pgb = re.sub(r"<!--.*?-->", "", pg, flags=re.S)
+    check("  pricing.html: the same swap -- the Free card featured with the filled button, Full access plain with the ghost button (yv's id and wiring kept)",
+          '<h3>Free <span class="band" style="margin-left:6px">Start here</span></h3>' in pgb
+          and '<a class="btn btn-primary" style="text-align:center" href="/family">Start free — create your account</a>' in pgb
+          and '<h3>Full access</h3>' in pgb
+          and '<a class="btn btn-ghost" style="text-align:center" href="/family" id="fullAccessBtn">Get full access</a>' in pgb
+          and pgb.count("var(--grad) border-box") == 1 and pgb.find("var(--grad) border-box") < pgb.find("<h3>Free <span") and 'fetch("/api/billing/status")' in pg, "")
+    # ---- F2, F3: the family page ------------------------------------------------------------
+    fam = rd("static/family.html"); famb = re.sub(r"<!--.*?-->", "", fam, flags=re.S)
+    check("⭐ family.html: 'One account. Every student covered.' -- and 'kid' is gone from every visible string",
+          '<h1>One account. <span class="grad-text">Every student covered.</span></h1>' in famb
+          and "Every kid covered" not in famb and not re.search(r"\bkids? (pick|covered)\b", code_only(famb).replace("kids pick", "")), "")
+    check("  ...three numbered steps under the heading, by id, each with a state word",
+          all(('<li id="step%d"><span class="n">%d</span>' % (i, i)) in famb for i in (1, 2, 3))
+          and "Create your parent account" in famb and "Add a student — you get their login code" in famb
+          and "Your student signs in with the code" in famb, "")
+    check("  ...renderSteps() marks them from the real state and stacks a first visit; render() calls it for every state (signed out too)",
+          'if (!me) states = ["now", "next", "next"];' in fam
+          and 'else if (!me.students.length) states = ["done", "now", "next"];' in fam
+          and 'else states = ["done", "done", "now"];' in fam
+          and 'grid.classList.toggle("firstvisit", !!(me && !me.students.length));' in fam
+          and "    renderSteps(me);\n    if (!me) { show(\"auth\"); return; }" in fam
+          and ".g2.firstvisit{grid-template-columns:1fr;max-width:640px" in fam, "")
+    check("  ...the two cards carry their step numbers, and the empty state no longer numbers three steps of its own",
+          '<span class="stepnum">2</span>👧👦 Your students' in famb and '<span class="stepnum">3</span>💳 Your plan' in famb
+          and "Three steps and your student is learning" not in fam and "You’re on step 2 — add your student below" in fam, "")
+    check("  DO NO HARM: sign-in, add-a-student, the code chip, Manage, the attach door, the plan card and the email toggle are all still there",
+          all(s in fam for s in ('id="authForm"', 'id="addForm"', 'login code · tap to copy', "manageLink", 'id="attachLink"',
+                                 "function renderPlan(me)", 'id="mailToggle"', "Remove forever", "goCheckout(")), "")
+    # ---- F34: read, not built -----------------------------------------------------------------
+    check("  F34 (the code in the URL) is NOT built here: main.py's _code_dep still carries Jim's 08-18 bookmark ruling",
+          'Page-NAVIGATION links (/session?code=...) still carry the code BY JIM\'S RULING' in rd("main.py"), "a new ruling is needed first")
+    # ---- the pages, in a real browser (tools/zadrive.py) --------------------------------------
+    NAME = "⭐ LIVE: /topic and /practice are the lesson page's screen (collapsed sidebar, buttons whole under the board, the phone dock untouched), the strip follows the course, the feed is cream on Basic, /family walks its three steps in all three states, the front page's four doors fit the first screen"
+    if dep_gate(NAME, "playwright", "the two board pages and the parent pages are proved in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "zadrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=400, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated za notes",
+          all("2026-09-30" in notes(f) and "za" in notes(f) for f in ("static/topic.html", "static/practice.html", "static/session.html",
+                                                                       "static/math-keyboard.js", "static/landing.html", "static/pricing.html",
+                                                                       "static/family.html", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53120,6 +53266,7 @@ def main():
     part3or_trap_is_gone()
     part3os_the_tour_reads_todays_screen()
     part3ot_the_picture_starts_where_the_words_start()
+    part3ou_the_topic_page_and_the_parent_pages()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

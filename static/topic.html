@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <!--
+    (za) 2026-09-30 -- THE SAME SCREEN AS THE LESSON. Jim's playthrough (F31), on this page
+    for Basic: "the whiteboard doesn't hold all of his words because the sidebar is wide
+    open" -- and the answer buttons (72px in child mode) landed in the 308px sidebar, cut
+    off at the bottom with no obvious scroll, because board.js mounts the choices row
+    beside #composer and this page's composer lived in the sidebar. "A child sees two
+    different screens for the same tutor." Build or (2026-08-27) gave session.html the
+    answer a month ago; this page gets the same, node for node: on a desktop the sidebar
+    starts COLLAPSED behind the edge tab (#sbTab, the same sessionStorage key mt_sb_open,
+    so a student's choice carries between the pages), and placeCtrls() moves .tutor-head
+    and .controls -- the name and status, the mic, Pause, New topic, the hint, the helper
+    line, the composer anchor and so every choices row -- into #ctrlBar, a compact strip
+    under the board. The board takes the whole width; the buttons land under it at full
+    size, like the lesson. Phones (<=900px) are untouched: #sbTab hides, placeCtrls puts
+    the nodes back in the dock, dz's and ug's rules apply as before. The top bar's icon nav
+    (app-nav.js) keeps every sidebar link one tap away while the sidebar is closed.
+    (F32) body data-course="<course>" is set before math-keyboard.js runs, and the symbol
+    strip reads it: Entry and Basic get + - x and divide and nothing else; Pre-Algebra and
+    Algebra I everything but theta; the rest the full strip. (F33, read and left: this page
+    HAS set body.elem-mode for the two youngest courses since uc, and board-theme.css
+    paints the feed cream -- a dark board here is the remembered "Dark board" pick, one
+    key for every page by Jim's yi ruling.) Same build on practice.html. PART 3ou;
+    tools/zadrive.py proves it in a real browser.
     (yu) 2026-09-29 -- AN ANSWER ENDS A PAUSE; IT IS NEVER THROWN AWAY. Jim's playthrough,
     Entry unit 2 lesson 4, "what is 2 + 4 + 6?": he tapped 12, the buttons vanished, nothing
     else happened, and the tutor sat waiting -- he had to turn the microphone on and SAY it.
@@ -610,6 +632,54 @@
       .side.left .talkbtn { padding: 11px 16px; font-size: 15px; }
     }
 
+    /* ===== 2026-09-30 (build za) THE SAME SCREEN AS THE LESSON =====================
+       Desktop only, the lesson page's build-or block brought here: the sidebar starts
+       COLLAPSED (body without .sbopen) behind an edge tab; the name + controls live in
+       a compact strip (.ctrlbar) under the board, so the board has the whole width and
+       the answer buttons land under it at full size instead of in a 308px column.
+       Phones (<=900px) are untouched: #sbTab hides, placeCtrls keeps the nodes in the
+       dock, dz's and ug's rules apply as before.
+       ⚠️ OVERRIDES of the desktop rules, declared after dz's phone block and BEFORE ug's
+       and ul's small-screen blocks, which stay last (the lesson page's order). */
+    #sbTab { display: none; }
+    .ctrlbar { display: none; }   /* phones: the strip is empty AND hidden (dz's dock rules) */
+    @media (min-width: 901px) {
+      /* ⚠️ ONE column, not "0 1fr": with the aside display:none it generates no grid
+         box, so .center becomes the FIRST item and a 0-width first track would
+         swallow it (the lesson page's ordrive caught this on a real render). */
+      body:not(.sbopen) .app { grid-template-columns: 1fr; }
+      body:not(.sbopen) .side.left { display: none; }
+      #sbTab { display: block; position: fixed; left: 0; top: 44%; transform: translateY(-50%);
+        z-index: 40; writing-mode: vertical-rl; text-orientation: mixed;
+        border: 1px solid var(--line); border-left: none; border-radius: 0 12px 12px 0;
+        background: rgba(255,255,255,.94); color: #4a4a68; font-weight: 700; font-size: 13px;
+        letter-spacing: .02em; padding: 14px 7px; cursor: pointer;
+        box-shadow: 2px 4px 14px rgba(40,40,80,.12); }
+      #sbTab:hover { color: var(--accent); border-color: var(--accent); }
+      body.sbopen #sbTab { left: 308px; }
+      .ctrlbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        margin: 0 24px 10px; padding: 7px 12px; background: var(--panel);
+        border: 1.5px solid var(--line); border-radius: 16px;
+        box-shadow: 0 8px 22px rgba(20,30,45,.07); }
+      .ctrlbar .tutor-head { display: flex; align-items: center; gap: 9px; flex: 0 0 auto;
+        padding: 0; margin: 0; border-bottom: none; }
+      .ctrlbar .tutor-name { font-size: 13px; }
+      .ctrlbar .status { font-size: 11px; min-height: 0; margin-top: 0; }
+      .ctrlbar .controls { padding: 0; margin: 0; border: none; flex-direction: row;
+        align-items: center; justify-content: flex-end; gap: 9px; flex: 1 1 auto;
+        min-width: 0; flex-wrap: wrap; }
+      .ctrlbar .talkbtn { width: auto; padding: 11px 20px; font-size: 15px; }
+      .ctrlbar .pausebtn { width: auto; margin-top: 0; padding: 10px 16px; font-size: 14px; }
+      .ctrlbar .quickrow { flex: 0 0 auto; }
+      .ctrlbar .hint { flex: 1 1 140px; min-width: 0; text-align: center; order: 5; }
+      .ctrlbar .elem-hint { flex: 1 1 100%; text-align: center; margin: 0; order: 6; }
+      .ctrlbar .composer { flex: 1 1 100%; max-width: none; order: 7; }
+      .ctrlbar .live { flex: 1 1 100%; min-height: 0; font-size: 15px; order: 8; }
+      .ctrlbar .live:empty { display: none; }
+      /* the choices row (board.js mounts it beside #composer) takes the whole strip */
+      .ctrlbar .choicerow { flex: 1 1 100%; order: 6; }
+    }
+
     /* ===== 2026-09-08 (build ug) THE BOARD IS THE SCROLLER, ON EVERY SMALL SCREEN =====
        Found in ug's own dry run, not in the review: on any screen <=900px the board
        had no bound on its height (dz made .center height:auto and .feed flex:1 with
@@ -751,8 +821,11 @@
   <script src="/static/analytics.js"></script>
 </head>
 <body data-cadabra-page="topic">
+  <!-- build za (2026-09-30): the sidebar's tab, the lesson page's (build or). Fixed to the
+       left edge, OUTSIDE the aside (a display:none aside would swallow it). Desktop only. -->
+  <button id="sbTab" type="button" aria-controls="sideLeft" aria-expanded="false">&#9656; Open the sidebar</button>
   <div class="app">
-    <aside class="side left">
+    <aside class="side left" id="sideLeft">
       <div class="tutor-head">
         <!-- (rj, 2026-09-01) the orb canvas retired -- the pencil is Mr. Cadabra now -->
         <div class="tutor-meta">
@@ -795,6 +868,11 @@
       </div>
       <div class="topicbar" id="topicBar"><span class="ti">💡</span><span class="tl">Topic</span><b id="topicText"></b></div>
       <div class="feed" id="feed" data-cad="board"><div class="stage-hint" id="stageHint">Your topic will appear here.</div></div>
+      <!-- build za (2026-09-30): the compact control strip, the lesson page's (build or).
+           EMPTY in the HTML -- on desktop, placeCtrls() moves .tutor-head and .controls
+           (same nodes, same ids) in here, under the board; on phones they move back to
+           the sidebar so dz's dock is unchanged. -->
+      <div class="ctrlbar" id="ctrlBar"></div>
       <div class="feedbar">
         <input id="chatInput" placeholder="Type your answer here…  (press Enter to send)" autocomplete="off" />
         <button id="chatSend">Send</button>
@@ -834,11 +912,57 @@
     // -- say it, type it, or tap a button. This flag hides the two symbol pads and
     // nothing else about HOW to answer; see the ELEMENTARY MODE block below.
     const IS_ELEM = (COURSE === "entry" || COURSE === "basic");
+    // (za, 2026-09-30) THE SYMBOL STRIP FOLLOWS THE COURSE (Jim's F32: pi, theta and |x|
+    // on a Basic course). math-keyboard.js reads body data-course when it builds the
+    // strip -- set here, before that script runs, on every board page the same way.
+    document.body.setAttribute("data-course", COURSE);
 
     if (!CODE) { window.location.href = "/login"; }
     const cq = "?code=" + encodeURIComponent(CODE) + "&course=" + encodeURIComponent(COURSE);
     el("homeLink").href = "/home" + cq;
     el("entryBack").href = "/home" + cq;
+
+    // ===== 2026-09-30 (build za) THE SAME SCREEN AS THE LESSON =====
+    // The lesson page's build-or block, node for node: the sidebar starts collapsed
+    // behind an edge tab; the name + controls live in a compact strip under the board.
+    // placeCtrls is a JS REPARENT of the same nodes (same ids), so every existing hook
+    // -- mic.js, voice.js, the keyboard, the pencil's targets, board.js's choices row
+    // (it mounts beside #composer, which rides along) -- just works.
+    const sbTab = el("sbTab"), ctrlBar = el("ctrlBar");
+    const DESKTOP_MQ = window.matchMedia("(min-width: 901px)");
+    function sidebarOpen() { return document.body.classList.contains("sbopen"); }
+    function setSidebar(open, remember) {
+      document.body.classList.toggle("sbopen", !!open);
+      if (sbTab) {
+        sbTab.innerHTML = open ? "&#9666; Close the sidebar" : "&#9656; Open the sidebar";
+        sbTab.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+      if (remember) { try { sessionStorage.setItem("mt_sb_open", open ? "1" : "0"); } catch (e) {} }
+    }
+    function placeCtrls() {
+      const head = document.querySelector(".tutor-head");
+      const ctr = document.querySelector(".controls");
+      const side = document.querySelector(".side.left");
+      if (!head || !ctr || !side || !ctrlBar) return;
+      if (DESKTOP_MQ.matches) {
+        if (head.parentElement !== ctrlBar) ctrlBar.appendChild(head);
+        if (ctr.parentElement !== ctrlBar) ctrlBar.appendChild(ctr);
+      } else {
+        // phones: back into the sidebar, in dz's dock order (name first, controls last)
+        if (head.parentElement !== side) side.insertBefore(head, side.firstChild);
+        if (ctr.parentElement !== side) side.appendChild(ctr);
+      }
+    }
+    if (sbTab) sbTab.addEventListener("click", function () { setSidebar(!sidebarOpen(), true); });
+    try { DESKTOP_MQ.addEventListener("change", placeCtrls); }
+    catch (e) { try { DESKTOP_MQ.addListener(placeCtrls); } catch (e2) {} }
+    placeCtrls();
+    // Startup is COLLAPSED (the lesson page's spec); a mid-visit refresh keeps the
+    // student's own choice (sessionStorage, the same key as the lesson page), a fresh
+    // visit starts collapsed again.
+    let _sb0 = "0";
+    try { _sb0 = sessionStorage.getItem("mt_sb_open") || "0"; } catch (e) {}
+    setSidebar(_sb0 === "1");
     // Cross-mode nav (so you can move between the course, practice, and dashboard
     // without going back to the hub first) -- keep the chosen course in every link.
     el("courseLink").href = "/session" + cq;

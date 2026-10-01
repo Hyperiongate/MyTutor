@@ -24,7 +24,20 @@ describe is not on the board — count-on, the 24 squares), a tour written for a
 no longer exists, and a beat every fact of which is right that a first-time reader could not
 follow.
 
-**On Jim's disk: `2026-09-30yz-the-picture-starts-where-the-words-start`** (battery 13,408 passed,
+**On Jim's disk: `2026-09-30za-the-same-screen-as-the-lesson`** (battery 13,461 passed, 0 failed, 3 skipped; the za
+section below) — the sixth and last build off the playthrough: the topic page and the parent
+pages. F31: /topic and /practice get the lesson page's screen node for node (the sidebar
+collapsed behind the edge tab, the controls and the answer buttons in the strip UNDER the
+board — the 72px buttons had been stacked in the 308px sidebar, cut off). F32: the symbol
+strip follows the course (body data-course; + − × ÷ for Entry and Basic, no θ for
+Pre-Algebra and Algebra I, the full strip above). F33 read and left (the page sets elem-mode
+and the feed IS cream — a dark board there is the remembered chip). F1: "Start free — create
+your account" is the hero's second door and the FREE card is the featured one (front page and
+/pricing). F2: "Every student covered." F3: /family walks three numbered steps from the real
+state; a first visit stacks the cards in step order. **F34 (the code in the URL) is NOT
+built: it conflicts with Jim's 08-18 ruling "do not kill the bookmark login" — a question
+for him, with a design that honours both (below).** Proved in a real browser
+(`tools/zadrive.py`, PART 3ou). **Nothing to prewarm.** Before it, **On Jim's disk: `2026-09-30yz-the-picture-starts-where-the-words-start`** (battery 13,408 passed,
 0 failed, 3 skipped; the yz section below) — four flags of one shape: the words were right and
 the screen was not what they described. F21: count-on draws the BIGGER group first, says the
 swap ("five plus six equals six plus five"), and `[[objects counton="1"]]` lands the counted
@@ -87,6 +100,19 @@ player was ported). Three flags settled by reading: F18 (the slow walk-back is t
 consecutive miss going to the model — Jim's own 09-13 design), F12 (only the Pause button
 sets "Paused"), F30 (not a fall-through: the course hub offers three equal tiles and Jim
 tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 line.**
+
+## Written to D:\MyTutor (za, 2026-09-30) — Jim pushes (with yu–yz; one push)
+
+- `static/topic.html` + `static/practice.html` (the sidebar tab, the control strip,
+  `placeCtrls`, `data-course`), `static/session.html` (`data-course`),
+  `static/math-keyboard.js` (`keysFor`), `static/landing.html` (the fourth door; the free
+  card featured), `static/pricing.html` (the free card featured), `static/family.html`
+  (the h1; the three steps; `renderSteps`), `tools/zadrive.py` (NEW), `ruletests.py`
+  (PART 3ou; 3kq's door pin), `main.py` (stamp `2026-09-30za-the-same-screen-as-the-lesson`),
+  `changelog/Build_za_The_Same_Screen_As_The_Lesson_2026-09-30.md`, this handoff. After the
+  push: `/health` = the za stamp; the prewarm is the earlier builds' (nothing new here).
+  To see it: /topic or /practice on any course at a laptop width (the edge tab on the
+  left); the front page's hero; /family signed out, then signed in before adding a student.
 
 ## Written to D:\MyTutor (yz, 2026-09-30) — Jim pushes (with yu–yy; one push)
 
@@ -182,15 +208,34 @@ tapped "Explore a topic" — a product question, below). PART 3oo. **Prewarm: 1 
    key's position is shuffled and pinned (Jim tapped choice 2 throughout and "did pretty
    well"; choice 4 was never right — scan the quiz and reason choices too); 45 questions for
    a six-year-old's first sitting is Jim's call.
-6. **`za` — NEXT: the topic page and the parent pages (F31, F32, F33, F34, F1, F2, F3).** The
+6. ~~`za` — the topic page and the parent pages~~ — done (above): F31, F32, F1, F2, F3 built;
+   F33 read and left; **F34 NOT built — needs Jim's ruling (below)**. As planned: (F31, F32, F33, F34, F1, F2, F3). The
    topic page's board width with the sidebar open; the symbol strip by course (π, θ, |x| on
    Basic); the child skin on every board page; the code out of the URL. Front page: a signup
    button in the first screen and the free box highlighted for a stranger; `/family` as
    steps 1-2-3 for a first visit; "every student", not "every kid".
 
-**Open for Jim:** F20 (the voice said "is" as "eyes" — need the sentence); the placement's
-length (45 taps); (Ruled 09-30: "trap" gone everywhere; the hub keeps its live-lane tiles; no award
-interrupts a lesson.)
+**All six playthrough builds are done (yu, yv, yw, yx, yy, yz, za).** What is left from the
+playthrough is Jim's: the questions below, then the next sitting (the phone pass, Basic u3
+l4, Pre-Calc u2 l3, a graph lesson, the parent's email and dashboard, /admin's minutes card,
+the nightly reports, the money path with the switch on — and `PAYMENTS_OPEN` out of Render
+when the testing is done, the live Stripe key in before launch).
+
+**Open for Jim:**
+- **F34 — the student's code in the URL.** Jim flagged it 09-29 ("security-ish… move it to
+  the session cookie"). It conflicts with his own ruling of 08-18 in `main.py`'s
+  `_code_dep`: "Do not kill the bookmark login" — a family bookmark with the code is how a
+  young student signs in, and the code says a NEW ruling is needed before this changes.
+  Twelve files read the code from the URL. A design that honours both: a session cookie set
+  at sign-in and whenever a page arrives with `?code=`; every page reads the cookie when the
+  URL has none; the in-app links between pages drop the code. A bookmark still signs in;
+  nothing tapped inside the app carries the code. A build of its own (`zb`) once he rules.
+- F20 (the voice said "is" as "eyes" — need the sentence); the placement's length (45 taps).
+- Seen on a 390×844 phone while proving za, not built: /topic for Basic with three 72px
+  child-mode buttons in the dock leaves the board a few pixels tall — identical before and
+  after za (dz's dock + xx's buttons). For the phone pass.
+- (Ruled 09-30: "trap" gone everywhere; the hub keeps its live-lane tiles; no award
+  interrupts a lesson; the free door in the first screen and four hero doors — F1 amends uu.)
 
 ## House decisions added today
 
@@ -206,6 +251,17 @@ interrupts a lesson.)
 - **The first miss is the engine's, the second is the model's (vz, confirmed today).** When
   Jim says "he took a long time to think" after a miss, ask whether it was the second miss
   in a row before reading anything else.
+- **One screen for one tutor (za).** A board page is the lesson page's screen: the sidebar
+  collapsed behind the edge tab on a desktop, the controls in the strip under the board, the
+  choices row mounted beside `#composer` — so `#composer` must live where the buttons should
+  land. A new board page copies session.html's build-or block node for node (`#sbTab`,
+  `#ctrlBar`, `placeCtrls`, `mt_sb_open`) rather than inventing a layout. And anything the
+  page offers by course — the symbol strip, the child skin — keys off `body data-course` /
+  `body.elem-mode`, set by the page script before the shared scripts run.
+- **A ruling is amended by Jim, not by a flag (za).** F34 and the 08-18 bookmark ruling
+  conflict; the flag is brought to him with a design, not built over the ruling. F1 was the
+  reverse — Jim's own words on 09-29 amended his 09-09 three-door ruling — and PART 3kq's pin
+  now says which ruling it carries and why.
 - **The picture starts where the words start (yz).** When a spoken line says "start at six"
   the board draws six first; when it says "24 squares" there are 24 squares to count; when
   the voice stops, the mouth stops. A board tag that cannot draw what the words say is a

@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+  - 2026-09-30  BUILD za -- THE FREE CARD IS THE HIGHLIGHTED ONE (Jim's first-family playthrough,
+    F1, the same change as the front page): the Free card carries the gradient border and a
+    "Start here" band with the filled "Start free" button; the Full-access card is the plain
+    one with the ghost button (its id, its /api/billing/status wiring and its words from yv
+    are untouched). Prices and feature lists unchanged.
   - 2026-09-29  BUILD yv -- THE FULL-ACCESS BUTTON TELLS THE TRUTH. Reads /api/billing/status:
     payments closed (beta) -> "Free during beta -- join the beta" to /beta; payments open ->
     "Get full access" to /family, and the beta ribbon + amber notice hide themselves. Jim's
@@ -199,8 +204,9 @@
 </header>
 <section class="wrap" id="betaNotice" style="padding-bottom:0"><div style="max-width:680px;margin:0 auto;background:#fff7ea;border:1.5px solid #f3ddb5;border-radius:16px;padding:16px 22px;text-align:center;font-weight:600;color:#8a5a12">🧪 <b>Beta period:</b> we're not taking payments yet. These are the launch prices — right now, full access is free for approved beta testers. <a href="/beta" style="color:var(--purple);font-weight:800">Join the beta →</a></div></section>
 <section class="wrap"><div class="grid g2" style="max-width:680px;margin:0 auto">
-  <div class="card" style="display:flex;flex-direction:column">
-    <h3>Free</h3><p>Try it — no card needed</p>
+  <!-- (za, 2026-09-30) the FREE card is the featured one: a stranger's eye goes to the highlighted box -->
+  <div class="card" style="display:flex;flex-direction:column;border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;box-shadow:var(--shadow-lg)">
+    <h3>Free <span class="band" style="margin-left:6px">Start here</span></h3><p>Try it — no card needed</p>
     <div style="font-size:38px;font-weight:850;margin:10px 0 2px">$0</div>
     <p style="min-height:20px">forever</p>
     <ul class="units" style="flex:1;margin:14px 0">
@@ -209,10 +215,10 @@
       <li><b>✓</b> Practice &amp; single-topic help</li>
       <li><b>✓</b> Parent-controlled account</li>
     </ul>
-    <a class="btn btn-ghost" style="text-align:center" href="/family">Start free — create your account</a>
+    <a class="btn btn-primary" style="text-align:center" href="/family">Start free — create your account</a>
   </div>
-  <div class="card" style="display:flex;flex-direction:column;border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--grad) border-box;box-shadow:var(--shadow-lg)">
-    <h3>Mr. Cadabra's Classroom <span class="band" style="margin-left:6px">Full access</span></h3><p>Every course, the warm voice</p>
+  <div class="card" style="display:flex;flex-direction:column">
+    <h3>Full access</h3><p>Every course, the warm voice</p>
     <div style="font-size:38px;font-weight:850;margin:10px 0 2px">$29<span style="font-size:15px;color:var(--muted);font-weight:600">/mo</span></div>
     <p style="min-height:20px">covers up to 2 students · billed monthly · $24/mo billed annually</p>
     <ul class="units" style="flex:1;margin:14px 0">
@@ -223,7 +229,7 @@
       <li><b>✓</b> Progress dashboard, honest time-on-task</li>
       <li><b>✓</b> Parent-controlled account &amp; privacy</li>
     </ul>
-    <a class="btn btn-primary" style="text-align:center" href="/family" id="fullAccessBtn">Get full access</a>
+    <a class="btn btn-ghost" style="text-align:center" href="/family" id="fullAccessBtn">Get full access</a>
     <p class="cap" style="text-align:center;margin-top:8px">Want to see it first? <a href="/demo" style="color:var(--purple);font-weight:700">Try a lesson free →</a></p>
   </div>
 </div>

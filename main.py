@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-09-30  BUILD za -- THE SAME SCREEN AS THE LESSON. Stamp only: topic.html + practice.html (the
+#               lesson page's collapsed sidebar and control strip; the buttons under the board), session.html
+#               + math-keyboard.js (the symbol strip follows body data-course), landing.html + pricing.html (the
+#               free door in the first screen; the FREE card featured), family.html (three numbered steps;
+#               'Every student covered'). F34 (the code in the URL) NOT built -- it needs a new ruling against
+#               the 08-18 bookmark ruling in _code_dep. PART 3ou.
 #   2026-09-30  BUILD yz -- THE PICTURE STARTS WHERE THE WORDS START. Stamp only: board.js (counton),
 #               math-figures.js (the rectangle's squares), cadabra.js (the mouth), challenge.html (the
 #               deal), lessonscripts.py (the count-on walk-back; choices_for), lessons/entry.py. PART 3ot.
@@ -9822,7 +9828,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-09-30yz-the-picture-starts-where-the-words-start"
+APP_BUILD = "2026-09-30za-the-same-screen-as-the-lesson"
 
 
 @app.get("/health")

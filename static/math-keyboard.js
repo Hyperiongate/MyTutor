@@ -1,6 +1,15 @@
 /* =============================================================================
  * math-keyboard.js  --  Math Tutor MVP  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-09-30  THE STRIP FOLLOWS THE COURSE (build za, Jim's playthrough F32: on a
+ *               Basic topic page the strip offered pi, theta and |x| -- "the strip
+ *               should follow the course"). The board pages set body data-course
+ *               before this script runs; keysFor(course) picks the tier: Entry and
+ *               Basic get + - x divide (plus first, the way a child meets them) and
+ *               nothing else; Pre-Algebra and Algebra I get everything but theta;
+ *               Geometry and up, an unknown course, or no attribute at all get the
+ *               full strip exactly as before -- nothing is taken from a page that
+ *               does not name its course. The keys themselves are unchanged.
  *   2026-08-25  THE PLUS KEY (build ns, Jim): "there is a combo button for +- and
  *               a - button but no + button." He is right, and + EARNS its spot: on
  *               a US keyboard + is Shift+= -- a two-finger reach mid-answer -- and
@@ -65,6 +74,32 @@
     ["≠",  "≠",  0, "not equal"]
   ];
 
+  // (za, 2026-09-30) THE STRIP FOLLOWS THE COURSE. Three tiers by the page's course id
+  // (body data-course, set by session/practice/topic before this runs). The young
+  // tier lists its four keys in a child's order (plus first); the middle tier is the
+  // full strip without theta; everything else -- Geometry and up, an unknown id, or no
+  // attribute -- is the full strip in its original order, so no page loses a key by
+  // accident.
+  var YOUNG_KEYS = ["+", "−", "×", "÷"];
+  var TIERS = {
+    entry: "young", basic: "young",
+    prealgebra: "middle", algebra1: "middle"
+  };
+  function keysFor(course) {
+    var tier = TIERS[String(course || "").trim().toLowerCase()] || "full";
+    if (tier === "young") {
+      return YOUNG_KEYS.map(function (label) {
+        for (var i = 0; i < KEYS.length; i++) if (KEYS[i][0] === label) return KEYS[i];
+        return null;
+      }).filter(Boolean);
+    }
+    if (tier === "middle") return KEYS.filter(function (k) { return k[0] !== "θ"; });
+    return KEYS.slice();
+  }
+  function pageCourse() {
+    try { return document.body && document.body.getAttribute("data-course"); } catch (e) { return ""; }
+  }
+
   function ready(fn) {
     if (document.readyState !== "loading") fn();
     else document.addEventListener("DOMContentLoaded", fn);
@@ -104,7 +139,7 @@
     ensureCSS();
     var strip = document.createElement("div");
     strip.className = "mkstrip";
-    KEYS.forEach(function (k) {
+    keysFor(pageCourse()).forEach(function (k) {
       var b = document.createElement("button");
       b.type = "button"; b.className = "mkkey";
       b.textContent = k[0]; b.title = k[3];

@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <!--
+    (za) 2026-09-30 -- THE FREE DOOR IS IN THE FIRST SCREEN. Jim's first-family playthrough
+    (F1), as a stranger: "Start free, create your account is halfway down the page... not
+    highlighted... the full access one is highlighted... far from the main button." Two
+    changes, both copy-and-placement: (1) a FOURTH door in the hero, "Start free -- create
+    your account" (/family), second in the row beside Try a lesson -- uu's three doors are
+    all still there in their order (Try a lesson first, Take the tour, Sign in), this one
+    is Jim's amendment of 09-29 to his own 09-09 ruling; (2) in the pricing section the
+    FREE card is the featured one now (the gradient border and the "Start here" tag) and
+    its button is the filled primary, while the Full-access card is the plain card with
+    the ghost "Try a lesson free" button. The prices, the feature lists, the toggle and
+    every section are unchanged. PART 3kq's door pin reads four doors; PART 3ou pins the
+    cards.
     (uu) 2026-09-09 -- THE FRONT DOOR, QUIETED. Jim, 28 Aug: "the home page... maybe is
     something as simple as log on, new to the site, log on as a guest, or take a tour...
     so it's not so much in your face." The approved direction was the mockup
@@ -283,6 +295,10 @@
   .btn-primary:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
   .btn-ghost:hover{transform:translateY(-2px);border-color:var(--purple)}
+  /* (za) the free door: filled, the brand purple on white, as loud as the lesson door
+     without being a second gradient button in the same row */
+  .btn-free{background:#fff;color:var(--purple);border:2px solid var(--purple);box-shadow:var(--shadow)}
+  .btn-free:hover{transform:translateY(-2px);background:#f6f3ff;box-shadow:var(--shadow-lg)}
   /* NAV (uu): one quiet row -- the brand, Pricing, Sign in. The old twelve-link row
      and the beta ribbon moved to the footer (see .foot-links). */
   nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
@@ -595,6 +611,7 @@
     <p class="lede">He teaches the whole course — not just tonight's homework. He builds the plan around your student, encourages them through every step, and keeps track of it all so you can see how it is going.</p>
     <div class="doors">
       <a class="btn btn-primary" href="/demo/lesson">▶ Try a lesson</a>
+      <a class="btn btn-free" href="/family">Start free — create your account</a>
       <a class="btn btn-ghost" href="/demo?tour=1">Take the tour</a>
       <a class="btn btn-ghost" href="/login">Sign in</a>
     </div>
@@ -687,8 +704,10 @@
     <button id="tAnnual" onclick="setCycle('a')">Annual <span class="save">save ~2 months</span></button>
   </div>
   <div class="grid plans" style="grid-template-columns:repeat(2,1fr);max-width:680px;margin-left:auto;margin-right:auto">
-    <!-- FREE -->
-    <div class="plan">
+    <!-- FREE (za, 2026-09-30: the featured card -- a stranger's eye goes to the
+         highlighted box, and the free door is the one we want them to take first) -->
+    <div class="plan feat">
+      <span class="tag">Start here — free</span>
       <h3>Free</h3>
       <p class="who">Try it — no card needed</p>
       <div class="price">$0</div>
@@ -699,12 +718,11 @@
         <li><span class="chk">✓</span> Practice &amp; single-topic help</li>
         <li><span class="chk">✓</span> Parent-controlled account</li>
       </ul>
-      <a class="btn btn-ghost" href="/family">Start free — create your account</a>
+      <a class="btn btn-primary" href="/family">Start free — create your account</a>
     </div>
-    <!-- FULL ACCESS -->
-    <div class="plan feat">
-      <span class="tag">Full access</span>
-      <h3>Mr. Cadabra's Classroom</h3>
+    <!-- FULL ACCESS (za: the plain card now; the free card beside it is the featured one) -->
+    <div class="plan">
+      <h3>Full access</h3>
       <p class="who">The whole thing — every course, the warm voice</p>
       <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
       <div class="per" data-permo="covers up to 2 students · billed monthly" data-peran="covers up to 2 students · billed annually">covers up to 2 students · billed monthly</div>
@@ -716,7 +734,7 @@
         <li><span class="chk">✓</span> Progress dashboard by unit</li>
         <li><span class="chk">✓</span> Parent-controlled account &amp; privacy</li>
       </ul>
-      <a class="btn btn-primary" href="/demo/lesson">Try a lesson free</a>
+      <a class="btn btn-ghost" href="/demo/lesson">Try a lesson free</a>
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">

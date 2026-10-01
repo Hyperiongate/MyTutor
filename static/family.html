@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <!--
+    2026-09-30  THE FIRST VISIT IS THREE NUMBERED STEPS (build za, Jim's first-family
+                playthrough F2 + F3). F2: "One account. Every kid covered." -> "Every
+                student covered." (the site says student everywhere else since sd). F3: a
+                brand-new parent saw two side-by-side cards ("Your students", "Your plan")
+                with no order -- "step one, step two, step three". Now a STEPS strip under
+                the heading names the path on every visit -- 1 Create your parent account,
+                2 Add a student and get the login code, 3 Your student signs in (and your
+                plan) -- and renderSteps() marks each one done / you are here / next from
+                the real state (signed out; signed in with no student; students added).
+                On a FIRST visit (signed in, no student yet) the two cards stack in that
+                order, one column, the students card first (grid.firstvisit); a family
+                with students keeps the two-column view it knows. The card headings carry
+                their step numbers (2 Your students, 3 Your plan). The empty-state note
+                inside the students card no longer numbers its own three steps (it clashed
+                with the page's). Nothing about sign-in, add-a-student, codes, Manage or
+                billing changed. PART 3ou; tools/zadrive.py renders all three states.
     2026-08-30  NAME THE CHILD ON THE ROW (build qq). Jim, on the parent dashboard: "this
                 should not say 'How are THEY doing, really?' -- it is just for a single
                 child." The same is true here, and MORE so: this page lists a parent's
@@ -214,6 +230,22 @@
   .tag.free{background:#f4f4f8;color:#5b6079}
   .kid .links{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
   .kid .links a{font-weight:700;color:var(--purple);font-size:14px}
+  /* 2026-09-30 (za): the three numbered steps under the heading, and the first-visit stack */
+  .steps{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;list-style:none;margin:18px auto 0;max-width:900px;padding:0}
+  .steps li{display:flex;align-items:center;gap:10px;flex:1 1 240px;max-width:300px;background:#fff;border:1.5px solid var(--line);
+    border-radius:14px;padding:10px 14px;font-size:14px;font-weight:600;color:var(--muted);text-align:left}
+  .steps .n{flex:0 0 30px;width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-weight:850;font-size:14px;background:#f4f4f8;color:var(--muted)}
+  .steps li.now{border-color:var(--purple);color:var(--ink);box-shadow:var(--shadow)}
+  .steps li.now .n{background:var(--grad);color:#fff}
+  .steps li.done{color:var(--ink)}
+  .steps li.done .n{background:#eefaf5;color:#177a52}
+  .steps .st{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:1px}
+  .steps li.now .st{color:var(--purple)}
+  .steps li.done .st{color:#177a52}
+  .stepnum{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--grad);
+    color:#fff;font-size:15px;font-weight:850;margin-right:8px;vertical-align:middle}
+  .g2.firstvisit{grid-template-columns:1fr;max-width:640px;margin-left:auto;margin-right:auto}
   .plan-line{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:6px 0 14px}
   .plan-line b{font-size:26px}
   .cap{font-size:13px;color:var(--muted)}
@@ -252,9 +284,15 @@
 
 <header class="page wrap">
   <span class="eyebrow">Your family</span>
-  <h1>One account. <span class="grad-text">Every kid covered.</span></h1>
+  <h1>One account. <span class="grad-text">Every student covered.</span></h1>
   <p class="sub" id="subline">Create your free parent account, add your students, and each one gets their
   own login code, tutor, and dashboard.</p>
+  <!-- 2026-09-30 (za): the path, numbered, on every visit; renderSteps() marks the state -->
+  <ol class="steps" id="steps" aria-label="The three steps">
+    <li id="step1"><span class="n">1</span><span><span class="st"></span>Create your parent account</span></li>
+    <li id="step2"><span class="n">2</span><span><span class="st"></span>Add a student — you get their login code</span></li>
+    <li id="step3"><span class="n">3</span><span><span class="st"></span>Your student signs in with the code</span></li>
+  </ol>
   <div class="banner" id="banner"></div>
 </header>
 
@@ -317,10 +355,10 @@
 
 <!-- ============ SIGNED IN ============ -->
 <section class="wrap" id="famView" style="display:none">
-  <div class="grid g2" style="align-items:start">
+  <div class="grid g2" id="famGrid" style="align-items:start">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-        <h2 style="font-size:24px;font-weight:820">👧👦 Your students</h2>
+        <h2 style="font-size:24px;font-weight:820"><span class="stepnum">2</span>👧👦 Your students</h2>
         <button class="signout" id="signout" type="button">Sign out</button>
       </div>
       <p class="cap" id="whoami" style="margin:2px 0 16px"></p>
@@ -351,7 +389,7 @@
     </div>
 
     <div class="card" id="planCard">
-      <h2 style="font-size:24px;font-weight:820">💳 Your plan</h2>
+      <h2 style="font-size:24px;font-weight:820"><span class="stepnum">3</span>💳 Your plan</h2>
       <div id="planBody"></div>
       <div class="msg" id="planMsg"></div>
     </div>
@@ -425,11 +463,12 @@
   function renderKids(me) {
     var box = $("kids");
     if (!me.students.length) {
+      // (za, 2026-09-30) the page's steps strip numbers the path now; this note no longer
+      // numbers three steps of its own (two different "step 1"s on one screen).
       box.innerHTML = '<div style="border:1px dashed var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px">' +
-        '<p style="font-weight:800;margin:0 0 8px">Three steps and your student is learning:</p>' +
-        '<p class="cap" style="margin:0">1. Add your student below (a nickname is fine).&nbsp;&nbsp;' +
-        '2. They get a <b>login code</b> — that code is the only thing they sign in with.&nbsp;&nbsp;' +
-        '3. They go to mrcadabra.com, tap <b>Student sign in</b>, and type the code. Done — placement first, then lessons.</p></div>';
+        '<p style="font-weight:800;margin:0 0 8px">You’re on step 2 — add your student below (a nickname is fine).</p>' +
+        '<p class="cap" style="margin:0">You’ll get their <b>login code</b> right here — that code is the only thing they sign in with. ' +
+        'Then step 3: they go to mrcadabra.com, tap <b>Student sign in</b>, and type the code. Placement first, then lessons.</p></div>';
       return;
     }
     box.innerHTML = me.students.map(function (k) {
@@ -770,8 +809,31 @@
     if (ba) ba.addEventListener("click", function () { goCheckout("annual", ba); });
   }
 
+  // (za, 2026-09-30) the three numbered steps: done / you are here / next, from the real
+  // state. Signed out -> step 1 is where they are. Signed in with no student -> 1 done,
+  // 2 here. Students added -> 1 and 2 done, 3 here (the code is in hand; the plan card
+  // sits under the same number). A first visit (signed in, no student yet) also stacks
+  // the two cards in step order, one column; a family with students keeps two columns.
+  function renderSteps(me) {
+    var states;
+    if (!me) states = ["now", "next", "next"];
+    else if (!me.students.length) states = ["done", "now", "next"];
+    else states = ["done", "done", "now"];
+    var words = { now: "You are here", done: "Done", next: "Next" };
+    states.forEach(function (s, i) {
+      var li = $("step" + (i + 1));
+      if (!li) return;
+      li.className = s;
+      var st = li.querySelector(".st");
+      if (st) st.textContent = words[s];
+    });
+    var grid = $("famGrid");
+    if (grid) grid.classList.toggle("firstvisit", !!(me && !me.students.length));
+  }
+
   function render() {
     var me = state.me;
+    renderSteps(me);
     if (!me) { show("auth"); return; }
     show("fam");
     $("whoami").textContent = "Signed in as " + me.parent.email;
