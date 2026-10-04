@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zc) 2026-10-03 -- THE BOARD GETS ITS ROOM ON A PHONE (Jim's phone pass, P3). The answer
+    buttons land in the feed on a screen <=900px (board.js mountChoicesRow; this page's
+    #composer anchor is only for desktops now), and the <=640px dock gives back its name +
+    status line and its helper line. Measured at 390x844: the board was 26px tall under
+    "count the stars"; it is 367px, with the stars and the buttons on it. PART 3ow.
     (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; his 08-18 bookmark
     ruling kept). student-code.js in <head>: an arriving ?code= -- a bookmark, the login hand-off --
     is stored in the mt_student cookie and taken out of the URL in place; a page without one reads
@@ -755,6 +760,13 @@
       .worklist { max-width: 100%; overflow-x: auto; }
       .worklist .wrow.solo .wl { white-space: normal; font-size: 20px; line-height: 1.25; }
       .elem-hint { font-size: 11.5px; font-weight: 500; margin: 0 10px 4px; line-height: 1.3; }
+      /* (zc, 2026-10-03) THE BOARD GETS ITS ROOM. Jim's phone pass, P3: the answer buttons
+         live on the board now (board.js mountChoicesRow), and the dock gives back two more
+         rows -- the name + status line (the title bar names him; the mic, the Pause button
+         and the thinking flag carry the state) and the helper line (the hint above it says
+         the same three doors). Phones only; tablets and desktops keep theirs. */
+      .side.left .tutor-head { display: none; }
+      .side.left .elem-hint { display: none; }
     }
     @media (max-width: 640px) {
       .probbar { margin: 4px 10px; }

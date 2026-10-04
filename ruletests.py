@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-03  BUILD zc -- PART 3ow, THE BUTTONS GO ON THE BOARD ON A PHONE: mountChoicesRow (the feed
+#               under 901px, beside #composer above), rows of ten, the wrapping star row, the phone dock's
+#               two rows given back, /family's phone header; tools/zcdrive.py measures it at 390x844.
 #   2026-10-01  BUILD zb -- PART 3ov, THE CODE LEAVES THE ADDRESS BAR: student-code.js (the cookie, the strip
 #               in place, the code-free links), every page reads it with the URL as the fallback, the parent's
 #               doors keep their code, the login lands clean; tools/zbdrive.py. 3ou's F34 pin reads both rulings.
@@ -26388,6 +26391,66 @@ def part3ov_the_code_leaves_the_address_bar():
           and all(rd(f).rstrip().endswith("I did no harm and this file is not truncated.") or rd(f).rstrip().endswith("I did no harm and this file is not truncated. -->")
                   or rd(f).rstrip().endswith("I did no harm and this file is not truncated. */")
                   for f in ("static/student-code.js", "static/home.html", "static/index.html", "static/drill.html", "static/pilot.html", "static/records.html")), "Jim's rules 8 and 9")
+
+
+def part3ow_the_buttons_go_on_the_board():
+    """PART 3ow (build zc, 2026-10-03) -- THE BUTTONS GO ON THE BOARD ON A PHONE. Jim's phone
+    pass (10-02), P3 the blocker: "count the stars" with no stars -- on a 390px phone the dock
+    held the mic, Pause, the hint, the helper line and three 72px answer buttons (562px), and
+    the board was 26px tall, measured. board.js's mountChoicesRow() is the one place a row
+    lands: into the feed under his words on a screen <=900px, beside #composer on a desktop as
+    before; session.html's own rows go through it. The <=640px dock gives back its name +
+    status line and its helper line. P5: twenty stars ran off both edges -- a plain row past
+    ten is drawn as rows of ten (span.objten) and every .objline may wrap. P1: /family's steps
+    are inside the first screen on a phone. tools/zcdrive.py proves it in a real browser."""
+    print("\nPART 3ow — the buttons go on the board on a phone (build zc)")
+    import subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    bj = code_only(rd("static/board.js"))
+    check("⭐ board.js: mountChoicesRow() -- the feed (before the anchoring pad) on a screen <=900px, beside #composer otherwise -- and showChoices uses it",
+          'function phoneBoard() {' in bj and 'window.matchMedia("(max-width: 900px)").matches' in bj
+          and "function mountChoicesRow(row) {" in bj
+          and "if (phoneBoard() && feed) { feed.insertBefore(row, feedPadEl()); return; }" in bj
+          and "composer.parentNode.insertBefore(row, composer);" in bj
+          and 'choiceBtn("🤔 I\'m not sure", "I\'m not sure", "notsure");\n  mountChoicesRow(row);' in bj, "")
+    check("  ...the row in the feed is full width; the old mount is gone from showChoices",
+          '".feed>.choicerow{align-self:stretch;width:100%;flex:0 0 auto}"' in bj
+          and bj.count("composer.parentNode.insertBefore(row, composer);") == 1, bj.count("composer.parentNode.insertBefore(row, composer);"))
+    check("⭐ board.js: a plain [[objects]] row past ten is rows of TEN (span.objten), an .objline may wrap, and a phone draws a smaller star so ten fit (P5)",
+          "} else if (g > 10 && !(gi === 0 && addN)) {" in bj and 'ten.className = "objten";' in bj
+          and "for (let k = 0; k < n; k += 10) {" in bj
+          and ".objline{font-size:36px;letter-spacing:9px;line-height:1.5;white-space:normal;word-break:break-all;max-width:100%}" in bj
+          and '".objten{display:block}"' in bj
+          and "@media (max-width:640px){.objline{font-size:24px;letter-spacing:3px}.objhad,.objemj{font-size:24px}}" in bj, "")
+    check("  ...the count-along and count-on rows (flex-wrap already) and the take-away row are untouched",
+          '".objcount{letter-spacing:0;display:flex;flex-wrap:wrap;justify-content:center;"' in bj
+          and "} else if (gi === 0 && takeN) {" in bj and "const OBJ_COUNT_MAX = 12;" in bj, "")
+    ses = code_only(rd("static/session.html"))
+    check("⭐ session.html: its own rows (scrChoice, showSeamChoice) land through mountChoicesRow, with the old mount as the fallback",
+          ses.count('if (typeof mountChoicesRow === "function") mountChoicesRow(row); else composer.parentNode.insertBefore(row, composer);') == 2
+          and ses.count("composer.parentNode.insertBefore(row, composer);") == 2, ses.count("composer.parentNode.insertBefore(row, composer);"))
+    for p in ("static/session.html", "static/practice.html", "static/topic.html"):
+        s = rd(p); blk = s[s.find("THE PHONE CLASSROOM -- P1"):]
+        check("  %s: the <=640px dock gives back the name + status line and the helper line" % p,
+              "      .side.left .tutor-head { display: none; }\n      .side.left .elem-hint { display: none; }" in blk
+              and blk.find(".side.left .tutor-head { display: none; }") < blk.find("@media (max-width: 900px) and (max-height: 520px)"), p)
+    fam = rd("static/family.html")
+    check("  family.html (P1): a tighter header under 620px puts step 1 in the first screen",
+          "@media(max-width:620px){header.page{padding:22px 0 4px}h1{font-size:29px;margin:6px 0 6px}.sub{font-size:15px}" in fam
+          and ".steps{margin-top:12px;gap:8px}.steps li{padding:8px 12px;font-size:13px}}" in fam, "")
+    NAME = "⭐ LIVE at 390x844: the board is 300px+ tall with the buttons up (26px before), the row is in the feed with every button on screen on /topic and /session, twenty stars are ten and ten with no sideways scroll, the dock is under 240px; at 1280x800 nothing moved; /family's step 1 is in the first screen"
+    if dep_gate(NAME, "playwright", "the phone board is measured in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "zcdrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=400, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated zc notes",
+          all("2026-10-03" in notes(f) and "zc" in notes(f) for f in ("static/board.js", "static/session.html", "static/practice.html",
+                                                                       "static/topic.html", "static/family.html", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53390,6 +53453,7 @@ def main():
     part3ot_the_picture_starts_where_the_words_start()
     part3ou_the_topic_page_and_the_parent_pages()
     part3ov_the_code_leaves_the_address_bar()
+    part3ow_the_buttons_go_on_the_board()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

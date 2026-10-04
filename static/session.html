@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zc) 2026-10-03 -- THE BUTTONS GO ON THE BOARD ON A PHONE (Jim's phone pass, P3). This
+    page's own choice rows (scrChoice's Yes / Show me again and I'm ready, showSeamChoice's
+    lesson doors) land through board.js's mountChoicesRow(): in the feed under his words on a
+    screen <=900px, beside #composer on a desktop as before. [[choices]] rows already did
+    (board.js). The dock on a phone no longer holds the buttons, so the board has its room.
     (zb) 2026-10-01 -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; his 08-18 bookmark
     ruling kept). student-code.js in <head>: an arriving ?code= -- a bookmark, the login hand-off --
     is stored in the mt_student cookie and taken out of the URL in place; a page without one reads
@@ -1219,6 +1224,13 @@
       .worklist { max-width: 100%; overflow-x: auto; }
       .worklist .wrow.solo .wl { white-space: normal; font-size: 20px; line-height: 1.25; }
       .elem-hint { font-size: 11.5px; font-weight: 500; margin: 0 10px 4px; line-height: 1.3; }
+      /* (zc, 2026-10-03) THE BOARD GETS ITS ROOM. Jim's phone pass, P3: the answer buttons
+         live on the board now (board.js mountChoicesRow), and the dock gives back two more
+         rows -- the name + status line (the title bar names him; the mic, the Pause button
+         and the thinking flag carry the state) and the helper line (the hint above it says
+         the same three doors). Phones only; tablets and desktops keep theirs. */
+      .side.left .tutor-head { display: none; }
+      .side.left .elem-hint { display: none; }
     }
     @media (max-width: 640px) {
       .streakchips { margin-left: 0; gap: 6px; flex: 0 0 auto; }
@@ -4012,7 +4024,8 @@
           });
           row.appendChild(b);
         }
-        composer.parentNode.insertBefore(row, composer);
+        // (zc) the feed on a phone, beside #composer on a desktop -- board.js's one place
+        if (typeof mountChoicesRow === "function") mountChoicesRow(row); else composer.parentNode.insertBefore(row, composer);
         try { scrollFeed(); } catch (e) {}
         busy = false; setPhase("ready"); setState("idle");
       });
@@ -4097,7 +4110,8 @@
         });
         row.appendChild(b);
       }
-      composer.parentNode.insertBefore(row, composer);
+      // (zc) the feed on a phone, beside #composer on a desktop -- board.js's one place
+      if (typeof mountChoicesRow === "function") mountChoicesRow(row); else composer.parentNode.insertBefore(row, composer);
       scrollFeed();
     }
 

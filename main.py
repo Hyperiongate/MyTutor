@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-03  BUILD zc -- THE BUTTONS GO ON THE BOARD ON A PHONE (Jim's phone pass, P3 the blocker,
+#               P5, P1). Stamp only: board.js (mountChoicesRow; rows of ten; wrapping), session.html
+#               (its own rows through it), the three board pages' phone dock, family.html's phone header.
+#               PART 3ow; tools/zcdrive.py.
 #   2026-10-01  BUILD zb -- THE CODE LEAVES THE ADDRESS BAR (Jim's F34, ruled 10-01; the 08-18 bookmark
 #               ruling kept). Stamp + _code_dep's docstring: static/student-code.js (NEW) stores an arriving
 #               ?code= in the mt_student cookie and strips it from the URL; eleven pages and three shared
@@ -9842,7 +9846,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-01zb-the-code-leaves-the-address-bar"
+APP_BUILD = "2026-10-03zc-the-buttons-go-on-the-board"
 
 
 @app.get("/health")

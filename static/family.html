@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    2026-10-03  THE STEPS ARE IN THE FIRST SCREEN ON A PHONE (build zc, Jim's phone pass, P1): a
+                tighter header under 620px -- padding, the h1, the subline, the steps' own gaps --
+                so "1 Create your parent account" shows without scrolling. Laptops unchanged.
     2026-09-30  THE FIRST VISIT IS THREE NUMBERED STEPS (build za, Jim's first-family
                 playthrough F2 + F3). F2: "One account. Every kid covered." -> "Every
                 student covered." (the site says student everywhere else since sd). F3: a
@@ -246,6 +249,11 @@
   .stepnum{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--grad);
     color:#fff;font-size:15px;font-weight:850;margin-right:8px;vertical-align:middle}
   .g2.firstvisit{grid-template-columns:1fr;max-width:640px;margin-left:auto;margin-right:auto}
+  /* (zc, 2026-10-03) Jim's phone pass, P1: the three steps sat just below the fold on a phone --
+     the heading and subline pushed them down. A tighter header on a phone puts step 1 in the
+     first screen; laptops keep their spacing. */
+  @media(max-width:620px){header.page{padding:22px 0 4px}h1{font-size:29px;margin:6px 0 6px}.sub{font-size:15px}
+    .steps{margin-top:12px;gap:8px}.steps li{padding:8px 12px;font-size:13px}}
   .plan-line{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:6px 0 14px}
   .plan-line b{font-size:26px}
   .cap{font-size:13px;color:var(--muted)}

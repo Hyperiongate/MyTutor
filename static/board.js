@@ -2,6 +2,17 @@
    board.js  --  THE WHITEBOARD, ONE COPY  --  Hyperion Shift LLC
    -----------------------------------------------------------------------------
    CHANGE NOTES (keep newest at top):
+     2026-10-03  BUILD zc -- THE BUTTONS GO ON THE BOARD ON A PHONE (Jim's phone pass, P3, the
+                 blocker: "count the stars" with no stars -- on a 390px phone the dock held the
+                 mic, Pause, the hint, the helper line AND three 72px answer buttons, 562px of
+                 it, and the board was 26px tall, measured). mountChoicesRow() is the ONE place
+                 a choices row lands now: on a screen <=900px wide it goes INTO the feed, under
+                 his words and his picture (before the anchoring pad, so follow-the-pen keeps it
+                 in view); on a desktop it sits beside #composer exactly as before. showChoices
+                 uses it; session.html's own rows (scrChoice, showSeamChoice) call it too.
+                 P5 in the same file: a plain [[objects]] row past ten things is drawn as rows
+                 of TEN (span.objten -- "ten and ten", the picture a child counts by), and every
+                 .objline may wrap (word-break) instead of running off both edges of a phone.
      2026-09-30  BUILD yz -- [[objects counton="1"]]: the first group lands plain (already counted),
                  the added stars land one at a time numbered from the group's size + 1 -- the
                  count-on picture the words describe (Jim's F21). count="1" is unchanged.
@@ -580,6 +591,8 @@ function ensureChoicesCSS() {
   const st = document.createElement("style"); st.id = "mtChoicesCSS";
   st.textContent =
     ".choicerow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0 4px}" +
+    // (zc) on a phone the row lives in the feed: full width, under the newest work
+    ".feed>.choicerow{align-self:stretch;width:100%;flex:0 0 auto}" +
     ".choicebtn{font-size:20px;font-weight:800;padding:14px 24px;min-width:64px;min-height:52px;border-radius:16px;" +
     "border:2.5px solid var(--bd-c9beff);background:var(--bd-ffffff);color:var(--bd-20233a);cursor:pointer;box-shadow:0 4px 12px rgba(60,40,120,.10);" +
     "transition:transform .1s ease;font-family:inherit}" +
@@ -597,6 +610,22 @@ function ensureChoicesCSS() {
 }
 
 function clearChoices() { if (choicesRow) { choicesRow.remove(); choicesRow = null; scrollFeed(); } }
+
+// (zc, 2026-10-03) WHERE A CHOICES ROW LANDS -- one place. Jim's phone pass (P3): on a
+// 390px phone the dock held the mic, Pause, the hint, the helper line and three 72px
+// answer buttons -- 562px -- and the board under "count the stars" was 26px tall, with
+// no stars in it. On a screen 900px wide or less the row goes INTO the feed, under his
+// words and his picture (before the anchoring pad, so scrollFeed's follow-the-pen keeps
+// the newest content -- the buttons -- in view); on a desktop it sits beside #composer
+// exactly as it always has (the lesson page's control strip, the topic page's too).
+// The page's own rows (session.html's scrChoice, showSeamChoice) call this as well.
+function phoneBoard() {
+  try { return window.matchMedia("(max-width: 900px)").matches; } catch (e) { return false; }
+}
+function mountChoicesRow(row) {
+  if (phoneBoard() && feed) { feed.insertBefore(row, feedPadEl()); return; }
+  composer.parentNode.insertBefore(row, composer);
+}
 
 function showChoices(a) {
   const opts = String(a.options || "").split("|").map(s => s.trim()).filter(Boolean).slice(0, 6);
@@ -621,7 +650,7 @@ function showChoices(a) {
   }
   for (const o of opts) choiceBtn(o, o);
   choiceBtn("🤔 I'm not sure", "I'm not sure", "notsure");
-  composer.parentNode.insertBefore(row, composer);
+  mountChoicesRow(row);   // (zc) the feed on a phone, beside #composer on a desktop
   // Re-pin the transcript (NOT the page): the buttons take vertical space below it,
   // so without this the tutor's newest words could slip out of view.
   scrollFeed();
@@ -647,7 +676,15 @@ function ensureObjectsCSS() {
   const st = document.createElement("style"); st.id = "mtObjectsCSS";
   st.textContent =
     ".objwrap{padding:10px 6px;text-align:center}" +
-    ".objline{font-size:36px;letter-spacing:9px;line-height:1.5}" +
+    // (zc) a row may WRAP: twenty stars at 45px each is 900px, and a phone is 390 -- Jim
+    // watched them run off both edges. word-break lets a string of emoji break anywhere.
+    ".objline{font-size:36px;letter-spacing:9px;line-height:1.5;white-space:normal;word-break:break-all;max-width:100%}" +
+    // (zc) past ten, a plain row is drawn as rows of ten -- "ten and ten" is the picture a
+    // child counts by, and it is also what fits a phone.
+    ".objten{display:block}" +
+    // (zc) on a phone a row of ten fits only at a smaller star: a 24px emoji + 3px spacing is
+    // ~320px of a 336px row; 36px + 9px (450px) broke every ten into six and four, measured.
+    "@media (max-width:640px){.objline{font-size:24px;letter-spacing:3px}.objhad,.objemj{font-size:24px}}" +
     // (my) the taken ones: struck through AND faded, so it reads as "gone" at a
     // glance and still reads as "gone" to a child who cannot tell the colours apart.
     ".objgone{position:relative;display:inline-block}" +
@@ -856,6 +893,15 @@ function showObjects(a) {
         img.textContent = emoji;
         gone.appendChild(img);
         row.appendChild(gone);
+      }
+    } else if (g > 10 && !(gi === 0 && addN)) {
+      // (zc) past ten, rows of ten: "ten and ten" (a phone cannot hold twenty in a row,
+      // and a child counts twenty as ten and ten anyway). An add row keeps its one line.
+      const n = Math.min(g, 20);
+      for (let k = 0; k < n; k += 10) {
+        const ten = document.createElement("span"); ten.className = "objten";
+        ten.textContent = emoji.repeat(Math.min(10, n - k));
+        row.appendChild(ten);
       }
     } else {
       row.textContent = emoji.repeat(Math.min(g, 20))
