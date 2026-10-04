@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-03  BUILD zd -- PART 3ox, THE PHONE'S MENU AND THE PARENT'S DOOR: phone-menu.js (the ☰ sheet,
+#               the nav reparented by the media query), Sign out on every board page (student-code.js),
+#               index.html's parent door to /family, the tour's ☰ substitution; tools/zddrive.py.
 #   2026-10-03  BUILD zc -- PART 3ow, THE BUTTONS GO ON THE BOARD ON A PHONE: mountChoicesRow (the feed
 #               under 901px, beside #composer above), rows of ten, the wrapping star row, the phone dock's
 #               two rows given back, /family's phone header; tools/zcdrive.py measures it at 390x844.
@@ -10251,7 +10254,9 @@ def part3jz_the_small_fixes_of_the_deep_look():
           "2026-09-07  APP_BUILD -> \"2026-09-07ud-" in notes("main.py")
           and "2026-09-07  BUILD ud" in notes("ruletests.py")
           and "(ud) Tile 10,886" in notes("static/methodology.html")
-          and all("(ud) 2026-09-07" in rd("static/" + p)[:6000]
+          # (zd, 2026-10-03) notes(), not a fixed slice -- topic.html's and practice.html's header grew past 6,000
+          # characters with the builds above the ud note (the very trap notes() was written for, build ui)
+          and all("(ud) 2026-09-07" in notes("static/" + p)
                   for p in ("landing.html", "teachers.html", "students.html", "homeschool.html",
                             "practice.html", "topic.html", "admin.html"))
           and "2026-09-07  (ud)" in notes("static/features.html")
@@ -11552,7 +11557,9 @@ def part3kh_the_landscape_phone():
                            anavRows: rows, pencilH: pr ? Math.round(pr.height) : null, pencilOverWords: words.some(w => over(pr, w)),
                            docW: document.documentElement.scrollWidth, docH: document.documentElement.scrollHeight, label: q('#talkLabel').textContent,
                            oneRow: Math.abs(tb.top - pb.top) < 4 && Math.abs(tb.top - ty.top) < 6,
-                           headBesideNav: Math.abs(head.top - nav.top) < 12, hint: getComputedStyle(q('#hint')).display, vh: innerHeight };
+                           headBesideNav: Math.abs(head.top - nav.top) < 12,
+                           navInSheet: !!(q('#menuSheet') && q('#menuSheet').contains(q('.leftnav'))),   /* (zd) the nav is the ☰ sheet on every screen <=900px */
+                           hint: getComputedStyle(q('#hint')).display, vh: innerHeight };
                 }"""
                 with sync_playwright() as pw:
                     try:
@@ -11589,7 +11596,7 @@ def part3kh_the_landscape_phone():
                         br.close()
                         check(NAME,
                               m["feedH"] >= 180 and m["feedBottom"] <= m["vh"] and m["dockH"] <= 120
-                              and m["anavRows"] == 1 and m["oneRow"] and m["headBesideNav"] and m["hint"] == "none"
+                              and m["anavRows"] == 1 and m["oneRow"] and (m["headBesideNav"] or m["navInSheet"]) and m["hint"] == "none"
                               and m["pencilH"] and m["pencilH"] < 110 and not m["pencilOverWords"]
                               and m["docW"] == 844 and m["docH"] <= 390 and m["label"] == "Listen…",
                               _json.dumps(m))
@@ -26451,6 +26458,72 @@ def part3ow_the_buttons_go_on_the_board():
     check("  the changed files carry dated zc notes",
           all("2026-10-03" in notes(f) and "zc" in notes(f) for f in ("static/board.js", "static/session.html", "static/practice.html",
                                                                        "static/topic.html", "static/family.html", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3ox_the_phones_menu_and_the_parents_door():
+    """PART 3ox (build zd, 2026-10-03) -- THE PHONE'S MENU AND THE PARENT'S DOOR. Jim's phone
+    pass, P6 ("getting around is super cumbersome": the dock's nav strip was one word per
+    screen, the Curriculum a thin column inside it) and P8 (student -> parent on one phone:
+    no Sign out, and the sign-in page's Parent door asked for the student's code).
+    static/phone-menu.js (one copy, loaded last on the three board pages): on a screen
+    <=900px a ☰ Menu button leads the top bar and the page's OWN .leftnav moves into a
+    full-screen sheet as a stacked list; above 900px the nav is back in the sidebar
+    untouched. Every board page carries a "Sign out" link (data-signout, last in the nav),
+    wired by student-code.js to clear the mt_student cookie. index.html's parent door leads
+    with "Sign in to my Family page" (/family); the code form folds under it, same ids. The
+    tour points a sidebar stop at the ☰ while the sheet is closed. tools/zddrive.py proves it."""
+    print("\nPART 3ox — the phone's menu and the parent's door (build zd)")
+    import subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    pm = rd("static/phone-menu.js")
+    check("⭐ phone-menu.js: the ☰ button first in the top bar, the sheet, the nav reparented by the 900px media query both ways, Sign out kept last",
+          'var nav = document.querySelector(".side.left .leftnav") || document.querySelector(".leftnav");' in pm
+          and 'btn.id = "menuBtn"; btn.type = "button";' in pm and "bar.insertBefore(btn, bar.firstChild);" in pm
+          and 'sheet.id = "menuSheet";' in pm and 'var MQ = window.matchMedia("(max-width: 900px)");' in pm
+          and "if (nav.parentElement !== navHome) navHome.appendChild(nav);" in pm
+          and "if (nav.parentElement !== home) home.insertBefore(nav, homeNext && homeNext.parentElement === home ? homeNext : null);" in pm
+          and 'var so = nav.querySelector("[data-signout]");\n    if (so) nav.appendChild(so);' in pm
+          and '"@media (max-width:900px){#menuBtn{display:inline-flex}}"' in pm, "")
+    check("  ...a link, a unit, the ✕ or the backdrop closes it; the pencil steps out while it is up; it ends whole",
+          'var t = ev.target.closest ? ev.target.closest("a, .unit") : null;' in pm and "if (t && nav.contains(t)) open(false);" in pm
+          and 'if (ev.target === sheet) { open(false); return; }' in pm
+          and '"body.menu-open #cadabra-layer{visibility:hidden}"' in pm and 'document.body.classList.toggle("menu-open", !!on);' in pm
+          and pm.rstrip().endswith("/* I did no harm and this file is not truncated. */"), "")
+    sc = rd("static/student-code.js")
+    check("⭐ student-code.js wires [data-signout]: clear the cookie, forget the sidebar choice, go to /login",
+          'var nodes = document.querySelectorAll("[data-signout]");' in sc and "        clear();" in sc
+          and 'window.location.href = "/login";' in sc and "if (document.readyState !== \"loading\") wireSignOut();" in sc, "")
+    for p in ("static/session.html", "static/practice.html", "static/topic.html"):
+        c = code_only(rd(p))
+        check("  %s: the Sign out link (data-signout) in the nav, and phone-menu.js loaded LAST (after library.js and app-nav.js)" % p,
+              '<a class="navbtn" id="signOutLink" href="/login" data-signout>🚪 Sign out</a>' in c
+              and c.find('<script src="/static/phone-menu.js"></script>') > c.find('<script src="/static/app-nav.js"></script>') > c.find('<script src="/static/library.js"></script>') > 0
+              and c.find('<script src="/static/student-code.js"></script>') < c.find("<script>"), p)
+    ses = code_only(rd("static/session.html"))
+    check("  session.html's tour: a sidebar stop points at the ☰ while the sheet is closed",
+          'const sheet = document.getElementById("menuSheet"), menuBtn = document.getElementById("menuBtn");' in ses
+          and "nodes = nodes.map((n) => (sheet.contains(n) ? menuBtn : n)).filter((n, i, arr) => arr.indexOf(n) === i);" in ses, "")
+    ix = code_only(rd("static/index.html"))
+    check("⭐ index.html: the parent door leads with 'Sign in to my Family page' (/family); the code form folds under it with the same ids and the same flow",
+          '<a id="pfamily" class="btn teal" href="/family">Sign in to my Family page →</a>' in ix
+          and '<details class="pfold">' in ix and "<summary>No account? Follow one student with their code</summary>" in ix
+          and '<input id="pcode" autocomplete="off" placeholder="••••" maxlength="20" />' in ix
+          and '<button id="pgo" class="btn teal">See my student\'s progress →</button>' in ix
+          and 'window.location.href = "/dashboard?code=" + encodeURIComponent(code) + "&view=parent";' in ix
+          and ix.find('id="pfamily"') < ix.find('<details class="pfold">'), "")
+    NAME = "⭐ LIVE at 390x844: the ☰ leads the top bar, the nav is out of the dock, the sheet opens stacked (Curriculum first, Sign out last), the units stack, a unit tap closes it, Sign out clears the cookie and lands on /login, topic and practice the same; at 1280x800 nothing moved; the parent door leads to /family with the code form folded"
+    if dep_gate(NAME, "playwright", "the phone menu is proved in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "zddrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=400, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated zd notes",
+          all("2026-10-03" in notes(f) and "zd" in notes(f) for f in ("static/phone-menu.js", "static/student-code.js", "static/session.html",
+                                                                       "static/practice.html", "static/topic.html", "static/index.html", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53454,6 +53527,7 @@ def main():
     part3ou_the_topic_page_and_the_parent_pages()
     part3ov_the_code_leaves_the_address_bar()
     part3ow_the_buttons_go_on_the_board()
+    part3ox_the_phones_menu_and_the_parents_door()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

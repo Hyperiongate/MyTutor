@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (zd) 2026-10-03 -- THE PHONE'S MENU (Jim's phone pass, P6 + P8). phone-menu.js (one copy,
+    loaded last): on a screen <=900px a ☰ Menu button leads the top bar and this page's own
+    .leftnav moves into a full-screen sheet as a plain stacked list (the Curriculum stacked
+    under it); above 900px the nav is back in the sidebar untouched. A "Sign out" link
+    (data-signout, last in the nav) clears the mt_student cookie -- a student had no way out.
+    In the tour, a sidebar stop points at the ☰ while the sheet is closed (highlightEl).
     (zc) 2026-10-03 -- THE BUTTONS GO ON THE BOARD ON A PHONE (Jim's phone pass, P3). This
     page's own choice rows (scrChoice's Yes / Show me again and I'm ready, showSeamChoice's
     lesson doors) land through board.js's mountChoicesRow(): in the feed under his words on a
@@ -1346,6 +1352,8 @@
         <a class="navbtn" id="drillLink" href="#">🤖 Extra practice</a>
         <a class="navbtn" id="topicLink" href="#">💡 Explore a topic</a>
         <a class="navbtn" id="finalLink" href="#">🎓 Final Exam</a>
+        <!-- (zd, 2026-10-03) the way out (Jim's phone pass, P8): student-code.js clears the cookie -->
+        <a class="navbtn" id="signOutLink" href="/login" data-signout>🚪 Sign out</a>
       </nav>
 
       <div class="controls">
@@ -2232,6 +2240,13 @@
       // tag was placed BELOW the group, off the bottom of the window, bobbing behind
       // the taskbar (Jim's F6: "in and out of sight ... behind my toolbar"). Only
       // nodes with a size take part in the placing.
+      // (zd, 2026-10-03) ON A PHONE THE SIDEBAR'S LINKS LIVE IN THE ☰ MENU SHEET (phone-menu.js).
+      // A stop that names one of them while the sheet is closed points at the Menu button
+      // instead -- "over here are the buttons for your lessons..." is true of the ☰ too.
+      const sheet = document.getElementById("menuSheet"), menuBtn = document.getElementById("menuBtn");
+      if (sheet && menuBtn && !sheet.classList.contains("show")) {
+        nodes = nodes.map((n) => (sheet.contains(n) ? menuBtn : n)).filter((n, i, arr) => arr.indexOf(n) === i);
+      }
       nodes = nodes.filter((n) => { const r = n.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
       if (!nodes.length) return;
       // build or (2026-08-27): a glow target living in the COLLAPSED sidebar would glow
@@ -4741,6 +4756,7 @@
   <script src="/static/help-tips.js"></script>
   <script src="/static/library.js"></script>
   <script src="/static/app-nav.js"></script>
+  <script src="/static/phone-menu.js"></script>   <!-- build zd: the phone's ☰ menu sheet (the sidebar nav, stacked) -->
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

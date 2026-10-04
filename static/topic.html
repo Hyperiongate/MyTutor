@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zd) 2026-10-03 -- THE PHONE'S MENU (Jim's phone pass, P6 + P8). phone-menu.js (one copy,
+    loaded last): on a screen <=900px a ☰ Menu button leads the top bar and this page's own
+    .leftnav moves into a full-screen sheet as a plain stacked list (the Curriculum stacked
+    under it); above 900px the nav is back in the sidebar untouched. A "Sign out" link
+    (data-signout, last in the nav) clears the mt_student cookie -- a student had no way out.
     (zc) 2026-10-03 -- THE BOARD GETS ITS ROOM ON A PHONE (Jim's phone pass, P3). The answer
     buttons land in the feed on a screen <=900px (board.js mountChoicesRow; this page's
     #composer anchor is only for desktops now), and the <=640px dock gives back its name +
@@ -855,6 +860,8 @@
         <a class="navbtn" id="courseLink" href="#">📚 My course</a>
         <a class="navbtn" id="practiceLink" href="#">✏️ Practice a problem</a>
         <a class="navbtn" id="dashLink" href="#">📊 Progress dashboard</a>
+        <!-- (zd, 2026-10-03) the way out (Jim's phone pass, P8): student-code.js clears the cookie -->
+        <a class="navbtn" id="signOutLink" href="/login" data-signout>🚪 Sign out</a>
       </nav>
       <div class="controls">
         <button class="talkbtn" id="talkBtn" disabled aria-label="Talk to Mr. Cadabra — tap to record, tap again to send"><svg class="micico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15z"/><path d="M18.5 11.5a6.5 6.5 0 0 1-13 0H3.6a8.4 8.4 0 0 0 7.4 8.33V23h2v-3.17a8.4 8.4 0 0 0 7.4-8.33h-1.9z"/></svg> <span id="talkLabel">Listen…</span></button>
@@ -1723,6 +1730,7 @@
   <script src="/static/help-tips.js"></script>
   <script src="/static/library.js"></script>
   <script src="/static/app-nav.js"></script>
+  <script src="/static/phone-menu.js"></script>   <!-- build zd: the phone's ☰ menu sheet (the sidebar nav, stacked) -->
 </body>
 </html>
 <!-- I did no harm and this file is not truncated. -->

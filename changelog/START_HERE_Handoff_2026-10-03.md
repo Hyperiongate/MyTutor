@@ -11,7 +11,13 @@ method — is in `claude/START_HERE_Handoff_2026-09-29.md`, still true and not r
 through zb in one push on 10-02, confirmed /health, removed `PAYMENTS_OPEN` from Render, and
 ran the prewarm. The first-family ledger (F1–F34) is closed: every flag built or ruled.
 
-**On Jim's disk, not yet pushed: `2026-10-03zc-the-buttons-go-on-the-board`** (battery
+**On Jim's disk, not yet pushed: `2026-10-03zd-the-phones-menu-and-the-parents-door`** (battery
+13,514 passed, 0 failed, 3 skipped; `claude/Build_zd_The_Phones_Menu_And_The_Parents_Door_2026-10-03.md`) — P6 + P8:
+on a phone a **☰ Menu** leads the top bar and the board pages' own nav opens as a stacked
+full-screen sheet (the Curriculum stacked under it; `static/phone-menu.js`, one copy, the same
+nodes moved); every board page has a **Sign out** (clears the zb cookie); the sign-in page's
+Parent door leads to /family with the code form folded under it. **Nothing to prewarm.**
+Before it, on the disk too: **`2026-10-03zc-the-buttons-go-on-the-board`** (battery
 13,504 passed, 0 failed, 3 skipped; `claude/Build_zc_The_Buttons_Go_On_The_Board_2026-10-03.md`). The first build
 off the **phone pass** of 10-02: P3 the blocker (on a phone the answer buttons took the whole
 screen and "count the stars" had no stars — the buttons land on the board under his words now,
@@ -19,6 +25,15 @@ through `board.js`'s one `mountChoicesRow()`; the dock gives back two rows; 26px
 367px, measured), P5 (twenty stars as ten and ten; rows wrap), P1 (/family's steps in the
 first screen). **Nothing to prewarm.** After the push: `/health` = the zc stamp; to see it,
 any Entry lesson on a phone.
+
+## Written to D:\MyTutor (zd, 2026-10-03) — Jim pushes (with zc; one push)
+
+- `static/phone-menu.js` (NEW), `static/student-code.js`, `static/session.html`,
+  `static/practice.html`, `static/topic.html`, `static/index.html`, `tools/zddrive.py` (NEW),
+  `ruletests.py` (PART 3ox), `main.py` (stamp),
+  `changelog/Build_zd_The_Phones_Menu_And_The_Parents_Door_2026-10-03.md` (NEW), this handoff.
+  After the push: `/health` = the zd stamp. To see it: any lesson on a phone — the ☰ at the
+  top left; mrcadabra.com/login — the parent door.
 
 ## Written to D:\MyTutor (zc, 2026-10-03) — Jim pushes
 
@@ -30,14 +45,14 @@ any Entry lesson on a phone.
 ## What to do next — the phone pass's build order
 
 1. ~~`zc`~~ — P3, P5, P1 — done (above).
-2. **`zd` — NEXT: P6 + P8, the phone's menu and the parent's door.** The dock's nav strip
+2. ~~`zd` — P6 + P8, the phone's menu and the parent's door~~ — done (above). As planned: The dock's nav strip
    on a phone is one word per screen and the Curriculum opens as a thin column inside it:
    build a ☰ button in the top bar opening a full-screen sheet with the links in a plain
    vertical list, the Curriculum its own screen with the units stacked, and a plain **Sign
    out** on it that clears the `mt_student` cookie (zb). The sign-in page's Parent door asks
    for the student's code: send a parent with an account to /family (email + password); keep
    the code form only for a parent without one. Render at 390px before and after.
-3. **`ze` — P2 + P7.** The tour names the microphone three times and never lights it (it is
+3. **`ze` — NEXT: P2 + P7.** The tour names the microphone three times and never lights it (it is
    grey while the tour runs): the glow lands on the mic when a line names it, and the mic
    looks alive for that stop. The Progress dashboard at 390px: render it, then a layout fix
    or a shorter phone version (course tiles and "strengthen next" first).
@@ -56,6 +71,10 @@ the Friday email (not yet played); the live Stripe key before launch.
   `#composer` on a desktop. A new page or a new kind of row calls it; nobody writes
   `composer.parentNode.insertBefore` again. The measure is the board's height with the buttons
   up, at 390×844, before and after.
+- **One way around on a phone (zd).** A board page's nav is ONE set of nodes: in the sidebar
+  on a desktop, in the ☰ sheet on a phone, moved by `phone-menu.js` and never duplicated. A
+  new link goes in the page's `.leftnav` and appears in both. Sign out is a `data-signout`
+  link, last in the nav; `student-code.js` owns what it does.
 - **Ten and ten (zc).** A plain row of things past ten is rows of ten. A phone cannot hold
   twenty in a row, and a child counts twenty as ten and ten anyway.
 - **The phone pass has its own ledger (P-numbers) and its own doc**, the first-family

@@ -1,6 +1,9 @@
 /* =============================================================================
  * student-code.js  --  MyTutor  --  Hyperion Shift LLC
  * CHANGE NOTES (keep newest at top):
+ *   2026-10-03  (build zd) SIGN OUT: any [data-signout] element clears the mt_student cookie
+ *               and goes to /login (Jim's phone pass, P8 -- a student had no way out, and a
+ *               cookie on a shared laptop needs one). The board pages carry the link.
  *   2026-10-01  NEW shared component (build zb, Jim's first-family playthrough F34):
  *               THE STUDENT'S CODE LEAVES THE ADDRESS BAR. The login code IS the
  *               credential, and until now every student page carried it in the URL
@@ -116,5 +119,23 @@
   }
 
   window.MTStudent = { code: code, set: write, clear: clear, q: q, strip: strip, KEY: KEY };
+
+  // (zd, 2026-10-03) SIGN OUT. Jim's phone pass (P8): a student had no way out -- and with
+  // the code in a cookie, a shared laptop needs one. Any element with data-signout (the
+  // board pages' "Sign out" link, last in their sidebar nav, and so in the phone menu)
+  // clears the cookie and goes to the sign-in page. Wired once, at DOMContentLoaded.
+  function wireSignOut() {
+    var nodes = document.querySelectorAll("[data-signout]");
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].addEventListener("click", function (ev) {
+        try { ev.preventDefault(); } catch (e) {}
+        clear();
+        try { sessionStorage.removeItem("mt_sb_open"); } catch (e) {}
+        window.location.href = "/login";
+      });
+    }
+  }
+  if (document.readyState !== "loading") wireSignOut();
+  else document.addEventListener("DOMContentLoaded", wireSignOut);
 })();
 /* I did no harm and this file is not truncated. */

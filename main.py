@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-03  BUILD zd -- THE PHONE'S MENU AND THE PARENT'S DOOR (Jim's phone pass, P6 + P8). Stamp only:
+#               static/phone-menu.js (NEW; the ☰ sheet on the three board pages), a Sign out link on each
+#               (student-code.js clears the cookie), index.html's parent door to /family. PART 3ox.
 #   2026-10-03  BUILD zc -- THE BUTTONS GO ON THE BOARD ON A PHONE (Jim's phone pass, P3 the blocker,
 #               P5, P1). Stamp only: board.js (mountChoicesRow; rows of ten; wrapping), session.html
 #               (its own rows through it), the three board pages' phone dock, family.html's phone header.
@@ -9846,7 +9849,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-03zc-the-buttons-go-on-the-board"
+APP_BUILD = "2026-10-03zd-the-phones-menu-and-the-parents-door"
 
 
 @app.get("/health")

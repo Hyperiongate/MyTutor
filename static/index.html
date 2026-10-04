@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+  - 2026-10-03  (zd) THE PARENT'S DOOR IS THE FAMILY PAGE (Jim's phone pass, P8: "logging out as a
+    student and back in as a parent without knowing the student's code is really cumbersome").
+    The parent door leads with "Sign in to my Family page" (/family, email + password); the
+    student-code form folds under "No account? Follow one student with their code" -- same ids
+    (#pcode, #pgo, #pmsg), same verified /dashboard?code=..&view=parent flow. PART 3ox.
   - 2026-10-01  (zb) THE CODE LEAVES THE ADDRESS BAR (Jim's F34; his 08-18 bookmark ruling kept).
     A verified student code goes into the mt_student cookie (student-code.js) and the student is
     sent to /home with a clean address; a cache that lacks the script still hands it on in the URL
@@ -148,6 +153,11 @@
     .btn.teal { background: linear-gradient(90deg, var(--accent2), #0ea5a2);
       box-shadow: 0 10px 24px rgba(20,184,166,.28); }
     .btn.teal:hover { box-shadow: 0 14px 30px rgba(20,184,166,.38); }
+    /* (zd) the parent door's button is a link now; the code form folds under it */
+    a.btn { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+    .pfold { margin-top: 14px; }
+    .pfold summary { cursor: pointer; font-size: 13.5px; font-weight: 700; color: var(--accent2); }
+    .pfold[open] summary { margin-bottom: 4px; }
     .btn.warm { background: linear-gradient(90deg, var(--warm), #f0913f);
       box-shadow: 0 10px 24px rgba(255,122,89,.28); }
     .btn.warm:hover { box-shadow: 0 14px 30px rgba(255,122,89,.38); }
@@ -220,17 +230,24 @@
       </div>
 
       <!-- ================= PARENT ================= -->
+      <!-- (zd, 2026-10-03) THE PARENT'S DOOR IS THE FAMILY PAGE (Jim's phone pass, P8): a parent
+           with an account signs in with their email and password and lands on /family -- every
+           student's code, their progress, the plan. The code form stays for a parent WITHOUT an
+           account (a homeschool parent handed one code), folded under it; same ids, same flow. -->
       <div class="door parent">
         <div class="ic">👪</div>
         <h2>I'm a parent</h2>
-        <p class="who">Follow one student. You'll see their progress, what they've mastered, and
-          where to help next — read-only, so nothing you do can change their work.</p>
-        <label for="pcode">Your student's student code</label>
-        <input id="pcode" autocomplete="off" placeholder="••••" maxlength="20" />
-        <button id="pgo" class="btn teal">See my student's progress →</button>
-        <div id="pmsg" class="msg"></div>
-        <div class="foot-note">Have a family account (or want one)?
-          <a href="/family">Open the Family page →</a></div>
+        <p class="who">Your Family page: every student's login code, their progress, and your
+          plan. Sign in with your email and password.</p>
+        <a id="pfamily" class="btn teal" href="/family">Sign in to my Family page →</a>
+        <details class="pfold">
+          <summary>No account? Follow one student with their code</summary>
+          <p class="who" style="margin-top:8px">Read-only, so nothing you do can change their work.</p>
+          <label for="pcode">Your student's student code</label>
+          <input id="pcode" autocomplete="off" placeholder="••••" maxlength="20" />
+          <button id="pgo" class="btn teal">See my student's progress →</button>
+          <div id="pmsg" class="msg"></div>
+        </details>
       </div>
 
       <!-- ================= TEACHER ================= -->
