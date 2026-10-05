@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    2026-10-05  THE DASHBOARD ON A PHONE (build ze, Jim's phone pass, P7). A <=640px block,
+                declared last: section headings and their notes stack; the journey's nine
+                stops fit one row as numbers (the unit names are the list under it); a unit
+                row's status pill sits under its name. Rendered at 390x844 before and after;
+                no rule above it changed. PART 3oy.
     2026-10-01  THE CODE LEAVES THE ADDRESS BAR -- FOR THE STUDENT (build zb, Jim's first-
                 family playthrough F34). student-code.js in <head>; the student view reads
                 MTStudent.code() (an arriving ?code= is stored in the mt_student cookie and
@@ -540,6 +545,30 @@
       white-space: nowrap; }
     .mc.add { display: flex; align-items: center; justify-content: center; text-align: center;
       color: var(--accent); font-weight: 700; font-size: 13px; border-style: dashed; box-shadow: none; }
+
+    /* ===== 2026-10-05 (build ze) THE DASHBOARD ON A PHONE (Jim's phone pass, P7: "it feels
+       like it's not fitting well on the screen"). Rendered at 390x844: the page already
+       stacks, and three things did not fit -- a section heading and its note fought for one
+       line; the journey's nine stops (74px each with captions) ran off the right into a
+       sideways scroll a young student never finds; and a unit row squeezed its name into three lines
+       beside its status pill. Phones only (<=640px), declared last; tablets and laptops keep
+       every rule above. */
+    @media (max-width: 640px) {
+      .section-h { display: block; }
+      .section-h .note { display: block; margin-top: 3px; }
+      /* the journey: nine stops in one row, numbers only -- the unit names are the list right
+         under it; no sideways scroll */
+      .track { overflow-x: visible; }
+      .stop { min-width: 0; }
+      .stop .node { width: 30px; height: 30px; font-size: 13px; }
+      .stop .bar { top: 14px; height: 3px; }
+      .stop .caption { display: none; }
+      .stop .heretag { font-size: 9px; }
+      /* a unit row: the name gets the width; the status pill sits under it */
+      .unit { flex-wrap: wrap; gap: 10px 14px; }
+      .unit .body { flex: 1 1 calc(100% - 48px); }
+      .unit .pill { margin-left: 48px; }
+    }
   </style>
   <!-- Privacy-friendly analytics by Plausible (shared include) -->
   <script src="/static/analytics.js"></script>

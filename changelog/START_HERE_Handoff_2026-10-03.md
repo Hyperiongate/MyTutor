@@ -11,7 +11,12 @@ method — is in `claude/START_HERE_Handoff_2026-09-29.md`, still true and not r
 through zb in one push on 10-02, confirmed /health, removed `PAYMENTS_OPEN` from Render, and
 ran the prewarm. The first-family ledger (F1–F34) is closed: every flag built or ruled.
 
-**On Jim's disk, not yet pushed: `2026-10-03zd-the-phones-menu-and-the-parents-door`** (battery
+**On Jim's disk, not yet pushed: `2026-10-05ze-the-tour-lights-the-mic`** (battery 13,520 passed,
+0 failed, 3 skipped; `claude/Build_ze_The_Tour_Lights_The_Mic_2026-10-05.md`) — P2 + P7: the tour's answer stops put
+the lit look on the talk button while he names it and glow the mic with the demo buttons; the
+buttons line says "right here"; the dashboard gets a ≤640px block (headings stack their notes,
+nine numbered stops in one row, the pill under the unit's name). **Prewarm: 1 line.** Before it,
+on the disk too: **`2026-10-03zd-the-phones-menu-and-the-parents-door`** (battery
 13,514 passed, 0 failed, 3 skipped; `claude/Build_zd_The_Phones_Menu_And_The_Parents_Door_2026-10-03.md`) — P6 + P8:
 on a phone a **☰ Menu** leads the top bar and the board pages' own nav opens as a stacked
 full-screen sheet (the Curriculum stacked under it; `static/phone-menu.js`, one copy, the same
@@ -25,6 +30,14 @@ through `board.js`'s one `mountChoicesRow()`; the dock gives back two rows; 26px
 367px, measured), P5 (twenty stars as ten and ten; rows wrap), P1 (/family's steps in the
 first screen). **Nothing to prewarm.** After the push: `/health` = the zc stamp; to see it,
 any Entry lesson on a phone.
+
+## Written to D:\MyTutor (ze, 2026-10-05) — Jim pushes (with zc and zd; one push)
+
+- `static/session.html`, `lessonscripts.py`, `static/dashboard.html`, `speechmap.py`,
+  `tools/zedrive.py` (NEW), `ruletests.py` (PART 3oy; 3os's pin), `main.py` (stamp),
+  `changelog/Build_ze_The_Tour_Lights_The_Mic_2026-10-05.md` (NEW), this handoff. After the
+  push: `/health` = the ze stamp; **prewarm 1 line** (the young tour's buttons line). To see it:
+  a new Entry student's tour (or any lesson URL with `&tour=1`); the Progress dashboard on a phone.
 
 ## Written to D:\MyTutor (zd, 2026-10-03) — Jim pushes (with zc; one push)
 
@@ -52,11 +65,11 @@ any Entry lesson on a phone.
    out** on it that clears the `mt_student` cookie (zb). The sign-in page's Parent door asks
    for the student's code: send a parent with an account to /family (email + password); keep
    the code form only for a parent without one. Render at 390px before and after.
-3. **`ze` — NEXT: P2 + P7.** The tour names the microphone three times and never lights it (it is
+3. ~~`ze` — P2 + P7~~ — done (above). As planned: The tour names the microphone three times and never lights it (it is
    grey while the tour runs): the glow lands on the mic when a line names it, and the mic
    looks alive for that stop. The Progress dashboard at 390px: render it, then a layout fix
    or a shorter phone version (course tiles and "strengthen next" first).
-4. **P4** — Entry u1 l1 "counting to 10" never counts to ten: read the lesson against its
+4. **NEXT — P4** — Entry u1 l1 "counting to 10" never counts to ten: read the lesson against its
    title, then one straight count 1–10 with the stars ticking in before the first ask
    (a lesson edit; prewarm).
 

@@ -2,6 +2,9 @@
 # lessonscripts.py  --  THE SCRIPTED-FIRST ENGINE (the course lives in lessons/)  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-05  BUILD ze -- TOUR_LINES: the young tour's buttons line says "right here" (the buttons
+#               land on the board on a phone since zc, in the strip on a laptop -- never "at the
+#               bottom" of both). One line changed; prewarm it.
 #   2026-09-30  BUILD yz (2) -- choices_for deals the key evenly: the old (3a + b + c) % 3 put it on the
 #               first button 43% of the time (a never counted). Fixed per problem still.
 #   2026-09-30  BUILD yz -- _col_add's count-on walk-back draws the BIGGER group first with
@@ -17042,7 +17045,7 @@ TOUR_LINES = (
     "And see the Look-it-up button glowing? Any time you want to just READ about something — fractions, slope, anything — tap it, type the topic, and a page opens right on top. Your lesson waits for you, and closing it puts you right back here.",
     "Now look up top — that's your map, and it never lies. First it tells you in plain words what you're working on right now, and what's still to come today. Then your UNIT: one piece for every topic, with a little quiz marker after each — so you can always see exactly how far away the next quiz is — and the flag at the end is the Unit Quiz. Below that is the whole COURSE: nine units that turn gold as you master them, marching straight toward that Final Exam. After our tour it tucks itself away behind the little Progress button, so the whole board is yours — tap it any time to peek at your map.",
     "And that's me waving — Mr. Cadabra, the pencil with the hat! The big board is mine too: that's where I'll draw every step as we go.",
-    "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right down here at the bottom — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you.",
+    "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right here — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you.",
     "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. Saying 'I'm confused' is a great answer too; it tells me to slow down and try another way. If you'd rather write it, tap the big 'Type my answer' button — and the answer buttons at the bottom always work as well.",
     "Last one, and it's the important one: when it's your turn, tap the glowing microphone button and just SAY your answer out loud — we'll talk back and forth, like a real classroom. Saying 'I'm confused' is a power move, not a problem — it tells me to slow down and try a different way. And if you'd rather not talk, tap the big 'Type my answer' button and type it instead.",
     "See me waving? I'm Mr. Cadabra — the pencil with the hat! And the big board is mine: that's where I'll draw every step, so you can see it while I say it.",

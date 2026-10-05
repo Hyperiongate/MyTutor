@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+    (ze) 2026-10-05 -- THE TOUR LIGHTS THE MIC (Jim's phone pass, P2). The two answer stops
+    (taps, answer) put the lit look on the talk button (.tourlit, the .ready gradient and pulse)
+    while the line names it, and the taps stop's glow lands on the mic AND the demo buttons.
+    The buttons line says "right here" (on the board on a phone since zc). PART 3oy.
     (zd) 2026-10-03 -- THE PHONE'S MENU (Jim's phone pass, P6 + P8). phone-menu.js (one copy,
     loaded last): on a screen <=900px a ☰ Menu button leads the top bar and this page's own
     .leftnav moves into a full-screen sheet as a plain stacked list (the Curriculum stacked
@@ -658,6 +662,8 @@
     .talkbtn { border: none; border-radius: 30px; font-size: 17px; font-weight: 800; padding: 15px 30px;
       display: inline-flex; align-items: center; gap: 9px; color: #fff; background: #c3ccd8; cursor: default;
       transition: background .2s ease, box-shadow .2s ease, transform .08s ease; }
+    /* (ze, 2026-10-05) the tour's two answer stops: the mic wears the lit look while he names it */
+    .talkbtn.tourlit { background: linear-gradient(90deg, var(--accent), var(--accent2)); animation: talkglow 1.5s ease-in-out infinite; }
     .talkbtn.ready { background: linear-gradient(90deg, var(--accent), var(--accent2)); cursor: pointer;
       animation: talkglow 1.5s ease-in-out infinite; }
     .talkbtn.ready:active { transform: scale(.97); }
@@ -2182,7 +2188,9 @@
       // (yy, 2026-09-30) the young tour's own stops: the sidebar's door, and the demo
       // tap buttons the stop draws (showChoices; "choiceRow" is the row's id since yy).
       "sidebar":      "dashLink",
-      "taps":         "choiceRow",
+      // (ze, 2026-10-05) the buttons stop glows the MIC too: the line names it first, and
+      // Jim's phone pass (P2) found it grey and unlit while he talked about it
+      "taps":         ["talkBtn", "choiceRow"],
     };
     // 2026-08-07 (build bi, Jim): if the TOUR opened the curriculum list, close it again
     // when the tour moves on — left open, it pushed Mr. Cadabra below the fold and the
@@ -3433,7 +3441,7 @@
       { id: "sidebar",
         text: "Over here are the buttons for your lessons, your progress, and extra practice. A grown-up can show you those later — today, everything you need is right here on the board." },
       { id: "taps",
-        text: "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right down here at the bottom — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you." },
+        text: "Last one, and it's the important one: when it's your turn, the microphone lights up — tap it and just SAY your answer out loud. And big answer buttons pop up right here — like these. Tap the one you think is right, and if you're not sure, tap 'I'm not sure' and I'll help you." },
     ];
     const tourSteps = () => (IS_ELEM ? TOUR_STEPS_ELEM : TOUR_STEPS);
     const delay = (ms) => new Promise(r => setTimeout(r, ms));
@@ -3511,11 +3519,19 @@
         // on a demo button sends nothing: showChoices's handler gates on `busy`, and
         // the tour runs busy from its first word.
         if (step.id === "taps") { try { showChoices({ options: "3 | 4 | 5" }); } catch (e) {} }
+        // (ze, 2026-10-05) THE MIC LOOKS ALIVE WHILE HE TALKS ABOUT IT. Jim's phone pass (P2):
+        // "he mentions the microphone two or three times and it never really highlights...
+        // it's in a button that's inactive at the time." The tour runs busy, so the talk
+        // button is grey; for the two stops that name it, it wears the lit look (.tourlit --
+        // the same gradient and pulse as .ready) and the glow lands on it. It still records
+        // nothing: the tour is busy, and the button stays disabled underneath the look.
+        if (step.id === "taps" || step.id === "answer") { try { talkBtn.classList.add("tourlit"); } catch (e) {} }
         highlightEl(step.id);
         cadFire("tour." + step.id);       // (yy) the pencil's part in each stop (cadabra-script.json: tour.tutor waves, tour.taps and tour.answer point)
         tourShelf(++_ti);                 // (vb) tourAll[0] is the opener, so a step's index is _ti
         await tourLine(step.text);
         if (step.id === "taps") { try { clearChoices(); } catch (e) {} }
+        if (step.id === "taps" || step.id === "answer") { try { talkBtn.classList.remove("tourlit"); } catch (e) {} }
       }
       // (yy, 2026-09-30) THE TOUR IS SEEN THE MOMENT IT ENDS -- not only when the
       // handoff runs. Jim's playthrough: the tour played, the assessment invitation
@@ -3527,6 +3543,7 @@
       if (sk) { sk.style.display = "none"; sk.disabled = false; sk.onclick = null; }
       document.body.classList.remove("touring");         // (ug)
       clearHighlight();
+      try { talkBtn.classList.remove("tourlit"); } catch (e) {}   // (ze) a skip mid-stop leaves no lit look behind
       setPanelOpen("pbars", false);   // build iq: the tour is over -- give the board back
       if (!sbWasOpen) setSidebar(false);   // build or: and the sidebar tucks away too
       // 2026-08-05: a first-timer with no placement gets the assessment invitation

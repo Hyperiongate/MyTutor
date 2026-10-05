@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-05  BUILD ze -- PART 3oy, THE TOUR LIGHTS THE MIC AND THE DASHBOARD ON A PHONE: .tourlit on the
+#               talk button through the two answer stops, the taps glow on the mic too, "right here" (3os's pin
+#               moved), dashboard.html's <=640px block; tools/zedrive.py.
 #   2026-10-03  BUILD zd -- PART 3ox, THE PHONE'S MENU AND THE PARENT'S DOOR: phone-menu.js (the ☰ sheet,
 #               the nav reparented by the media query), Sign out on every board page (student-code.js),
 #               index.html's parent door to /family, the tour's ☰ substitution; tools/zddrive.py.
@@ -25997,11 +26000,12 @@ def part3os_the_tour_reads_todays_screen():
           and "And that's me waving — Mr. Cadabra, the pencil with the hat!" in tour, "")
     elem = body[body.find("const TOUR_STEPS_ELEM = ["):body.find("const tourSteps = ")]
     check("⭐ the young tour's last stop keeps uc's order (say first) and SHOWS real buttons for the line -- \"like these\"",
-          '{ id: "taps",' in elem and "big answer buttons pop up right down here at the bottom — like these. Tap the one you think is right" in elem
+          # (ze, 2026-10-05) "right here" (the buttons land on the board on a phone since zc); the stop glows the mic too
+          '{ id: "taps",' in elem and "big answer buttons pop up right here — like these. Tap the one you think is right" in elem
           and elem.find("SAY your answer out loud") < elem.find("like these")
           and 'if (step.id === "taps") { try { showChoices({ options: "3 | 4 | 5" }); } catch (e) {} }' in body
           and 'if (step.id === "taps") { try { clearChoices(); } catch (e) {} }' in body
-          and '"taps":         "choiceRow",' in body, "")
+          and '"taps":         ["talkBtn", "choiceRow"],' in body, "")
     check("  ...and the young answer line is one the closure holds (prewarmable), as every tour line is",
           all(st_text in LS.TOUR_LINES for st_text in _re.findall(r'text: "([^"]+)" \}', elem)), "")
     check("  the young tour names the sidebar once, for a grown-up, and still no Course Assessment or Final Exam",
@@ -26524,6 +26528,54 @@ def part3ox_the_phones_menu_and_the_parents_door():
     check("  the changed files carry dated zd notes",
           all("2026-10-03" in notes(f) and "zd" in notes(f) for f in ("static/phone-menu.js", "static/student-code.js", "static/session.html",
                                                                        "static/practice.html", "static/topic.html", "static/index.html", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3oy_the_tour_lights_the_mic():
+    """PART 3oy (build ze, 2026-10-05) -- THE TOUR LIGHTS THE MIC, AND THE DASHBOARD ON A
+    PHONE. Jim's phone pass, P2: "he mentions the microphone two or three times and it never
+    really highlights... it's in a button that's inactive at the time." The tour runs busy,
+    so the talk button was grey while the line said "the microphone lights up". Now the two
+    answer stops (taps, answer) put the lit look on it (.tourlit -- .ready's gradient and
+    pulse) and the taps stop's glow lands on the mic AND the demo buttons; the line says the
+    buttons pop up "right here" (on the board on a phone since zc). P7: the dashboard at
+    390px -- headings and notes stack, the journey's nine stops fit one row as numbers, a
+    unit's status pill sits under its name. tools/zedrive.py proves both in a real browser."""
+    print("\nPART 3oy — the tour lights the mic, and the dashboard on a phone (build ze)")
+    import subprocess as _sp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda fn: open(os.path.join(here, fn), encoding="utf-8").read()
+    ses = rd("static/session.html"); sc = code_only(ses)
+    check("⭐ session.html: the two answer stops put .tourlit on the talk button and take it off; a skip leaves none behind",
+          'if (step.id === "taps" || step.id === "answer") { try { talkBtn.classList.add("tourlit"); } catch (e) {} }' in sc
+          and 'if (step.id === "taps" || step.id === "answer") { try { talkBtn.classList.remove("tourlit"); } catch (e) {} }' in sc
+          and 'try { talkBtn.classList.remove("tourlit"); } catch (e) {}   // (ze) a skip mid-stop leaves no lit look behind' in ses
+          and sc.find('talkBtn.classList.add("tourlit")') < sc.find("highlightEl(step.id);"), "")
+    check("  ...the lit look is .ready's gradient and pulse, and the taps stop glows the mic and the demo row",
+          ".talkbtn.tourlit { background: linear-gradient(90deg, var(--accent), var(--accent2)); animation: talkglow 1.5s ease-in-out infinite; }" in ses
+          and '"taps":         ["talkBtn", "choiceRow"],' in sc and '"answer":       ["talkBtn", "composer"],' in sc, "")
+    import lessonscripts as LS
+    line = [t for t in LS.TOUR_LINES if "like these" in t]
+    check("  the buttons line says \"right here\" in the page and in TOUR_LINES, byte for byte",
+          len(line) == 1 and "pop up right here — like these" in line[0] and "at the bottom" not in line[0]
+          and ('text: "' + line[0] + '"') in ses, line)
+    db = rd("static/dashboard.html")
+    blk = db[db.find("THE DASHBOARD ON A PHONE (Jim's phone pass, P7"):db.find("</style>")]
+    check("⭐ dashboard.html: a <=640px block, declared last -- headings stack their notes, the journey is nine numbered stops in one row, the pill under the name",
+          "@media (max-width: 640px) {" in blk and ".section-h { display: block; }" in blk and ".section-h .note { display: block; margin-top: 3px; }" in blk
+          and ".track { overflow-x: visible; }" in blk and ".stop { min-width: 0; }" in blk and ".stop .caption { display: none; }" in blk
+          and ".unit { flex-wrap: wrap; gap: 10px 14px; }" in blk and ".unit .body { flex: 1 1 calc(100% - 48px); }" in blk
+          and ".unit .pill { margin-left: 48px; }" in blk and db.rfind("@media (max-width: 760px)") < db.find("THE DASHBOARD ON A PHONE (Jim's phone pass, P7"), "")
+    NAME = "⭐ LIVE: through the taps stop the mic is lit and glowing on a phone and a laptop, the demo buttons glow beside it, nothing remains after the tour; the dashboard at 390x844 has no sideways scroll, nine stops in a row, the pill under the name, and at 1280x800 nothing moved"
+    if dep_gate(NAME, "playwright", "the lit mic and the phone dashboard are measured in a real browser"):
+        try:
+            r = _sp.run([sys.executable, os.path.join(here, "tools", "zedrive.py")], cwd=here,
+                        capture_output=True, text=True, timeout=500, env=dict(os.environ, PYTHONPATH=here))
+            fails = [ln for ln in r.stdout.splitlines() if ln.startswith("FAIL")]
+            check(NAME, r.returncode == 0 and not fails and "0 failure(s)" in r.stdout, (fails[:3] or r.stderr[-300:] or r.stdout[-300:]))
+        except Exception as exc:  # noqa: BLE001
+            check(NAME, False, f"the drive did not run: {exc}")
+    check("  the changed files carry dated ze notes",
+          all("2026-10-05" in notes(f) and "ze" in notes(f) for f in ("static/session.html", "static/dashboard.html", "lessonscripts.py", "main.py", "ruletests.py")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53528,6 +53580,7 @@ def main():
     part3ov_the_code_leaves_the_address_bar()
     part3ow_the_buttons_go_on_the_board()
     part3ox_the_phones_menu_and_the_parents_door()
+    part3oy_the_tour_lights_the_mic()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
