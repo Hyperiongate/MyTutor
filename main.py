@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-06  BUILD zf -- THE LESSON COUNTS TO TEN (Jim's phone pass, P4). Stamp only: lessons/entry.py
+#               (u1 "Counting to 10": the second teach beat counts one to ten over ten stars; one line --
+#               prewarm it), speechmap.py. PART 3oz.
 #   2026-10-05  BUILD ze -- THE TOUR LIGHTS THE MIC (P2) AND THE DASHBOARD ON A PHONE (P7). Stamp only:
 #               session.html (.tourlit through the answer stops; the taps glow on the mic; "right here"),
 #               lessonscripts.py (TOUR_LINES, one line -- prewarm it), dashboard.html (the <=640px block). PART 3oy.
@@ -9852,7 +9855,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-05ze-the-tour-lights-the-mic"
+APP_BUILD = "2026-10-06zf-the-lesson-counts-to-ten"
 
 
 @app.get("/health")

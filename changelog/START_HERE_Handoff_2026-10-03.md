@@ -11,7 +11,10 @@ method — is in `claude/START_HERE_Handoff_2026-09-29.md`, still true and not r
 through zb in one push on 10-02, confirmed /health, removed `PAYMENTS_OPEN` from Render, and
 ran the prewarm. The first-family ledger (F1–F34) is closed: every flag built or ruled.
 
-**On Jim's disk, not yet pushed: `2026-10-05ze-the-tour-lights-the-mic`** (battery 13,520 passed,
+**On Jim's disk, not yet pushed: `2026-10-06zf-the-lesson-counts-to-ten`** (battery 13,523 passed,
+0 failed, 3 skipped; `claude/Build_zf_The_Lesson_Counts_To_Ten_2026-10-06.md`) — P4, the last of the phone pass: Entry
+u1 "Counting to 10" counts one to ten over ten stars in its second teach beat (its counts were 5,
+3, 7, 4, 6 and 4). **Prewarm: 1 line.** Before it, on the disk too: **`2026-10-05ze-the-tour-lights-the-mic`** (battery 13,520 passed,
 0 failed, 3 skipped; `claude/Build_ze_The_Tour_Lights_The_Mic_2026-10-05.md`) — P2 + P7: the tour's answer stops put
 the lit look on the talk button while he names it and glow the mic with the demo buttons; the
 buttons line says "right here"; the dashboard gets a ≤640px block (headings stack their notes,
@@ -30,6 +33,12 @@ through `board.js`'s one `mountChoicesRow()`; the dock gives back two rows; 26px
 367px, measured), P5 (twenty stars as ten and ten; rows wrap), P1 (/family's steps in the
 first screen). **Nothing to prewarm.** After the push: `/health` = the zc stamp; to see it,
 any Entry lesson on a phone.
+
+## Written to D:\MyTutor (zf, 2026-10-06) — Jim pushes (with zc, zd and ze; one push)
+
+- `lessons/entry.py`, `speechmap.py`, `ruletests.py` (PART 3oz), `main.py` (stamp),
+  `changelog/Build_zf_The_Lesson_Counts_To_Ten_2026-10-06.md` (NEW), this handoff. After the
+  push: `/health` = the zf stamp; **prewarm 2 lines in all** (ze's tour line, zf's teach beat).
 
 ## Written to D:\MyTutor (ze, 2026-10-05) — Jim pushes (with zc and zd; one push)
 
@@ -69,9 +78,13 @@ any Entry lesson on a phone.
    grey while the tour runs): the glow lands on the mic when a line names it, and the mic
    looks alive for that stop. The Progress dashboard at 390px: render it, then a layout fix
    or a shorter phone version (course tiles and "strengthen next" first).
-4. **NEXT — P4** — Entry u1 l1 "counting to 10" never counts to ten: read the lesson against its
+4. ~~P4~~ — done as `zf` (above). As planned: Entry u1 l1 "counting to 10" never counts to ten: read the lesson against its
    title, then one straight count 1–10 with the stars ticking in before the first ask
    (a lesson edit; prewarm).
+
+**The phone pass is built out (zc, zd, ze, zf).** What is left is Jim's: push the four, prewarm
+two lines, and play the phone again — the ☰ menu, the lesson with the buttons on the board,
+Sign out, the parent door; then the parts not yet played below.
 
 **Open for Jim:** the placement on the phone (not yet played) and its 45-question length;
 F20's "is"/"eyes" sentence when he hears it again; the parent's dashboard on the phone and

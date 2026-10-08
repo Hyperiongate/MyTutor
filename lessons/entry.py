@@ -2,6 +2,9 @@
 # lessons/entry.py  --  ENTRY-LEVEL MATH: THE AUTHORED LESSONS  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-06  BUILD zf -- u1 "Counting to 10" counts to ten: the second teach beat is the whole
+#               count, one to ten, ten stars ticking in (Jim's phone pass, P4 -- the lesson never
+#               reached ten). One line changed; prewarm it.
 #   2026-09-30  BUILD yz -- unit 2 add-past-ten: the worked example draws the bigger group first
 #               and says the swap (Jim's F21); the picture and teach beats ask for counton="1", so
 #               the added stars carry the numbers the words say.
@@ -1547,9 +1550,14 @@ _ENTRY_MORE = [
              "for it: one, two, three. Never skip a star, and never count one "
              "twice. The last number you say is how many there are.",
              '[[objects emoji="⭐" groups="3" count="1" caption="one, two, three — three stars"]]'),
-            ("Watch me count again, a bigger group this time. One, two, three, "
-             "four, five, six, seven. Seven stars.",
-             '[[objects emoji="⭐" groups="7" count="1" caption="count them one at a time"]]'),
+            # (zf, 2026-10-06) THE LESSON COUNTS TO TEN. Jim's phone pass (P4): "this is
+            # counting to 10 and we never actually count to 10 in this entire lesson" -- the
+            # counts were 5, 3, 7, 4, 6 and 4. This beat is the whole count now, one to ten,
+            # every star ticking in, so the lesson does what its title promises before it
+            # asks the student to count a smaller group.
+            ("Watch me count again, all the way to ten this time. One, two, three, "
+             "four, five, six, seven, eight, nine, ten. Ten stars.",
+             '[[objects emoji="⭐" groups="10" count="1" caption="one, two, three... all the way to ten"]]'),
         ],
         "pairs": [
             {"worked": ("Here is one more, done for you. One, two, three, four. "

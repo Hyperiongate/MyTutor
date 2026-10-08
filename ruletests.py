@@ -2,6 +2,8 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-06  BUILD zf -- PART 3oz, THE LESSON COUNTS TO TEN: Entry u1 "Counting to 10" counts one to ten
+#               over ten stars (P4).
 #   2026-10-05  BUILD ze -- PART 3oy, THE TOUR LIGHTS THE MIC AND THE DASHBOARD ON A PHONE: .tourlit on the
 #               talk button through the two answer stops, the taps glow on the mic too, "right here" (3os's pin
 #               moved), dashboard.html's <=640px block; tools/zedrive.py.
@@ -14437,9 +14439,12 @@ def part3kv_a_picture_counts_one_kind_of_thing():
     # are said first; the picture is still the problem, as with counting-to-10), and
     # sides-and-corners names the five shapes with their side counts before a pentagon
     # is asked for by name (the polygon is drawn, and the student counts it).
-    check("  what is LEFT is the exhausted problem spaces and five honest beats -- "
-          "twenty-one candidates in ten lessons, every one of them read",
-          len(rows) == 21 and ids == {
+    # (zf, 2026-10-06) a SIXTH honest beat: counting-to-10 counts one to ten over ten stars
+    # (Jim's phone pass, P4 -- the lesson never reached ten), and the bank asks ten; the
+    # picture is the problem, exactly as wd ruled for counting-past-ten. 21 -> 22 rows.
+    check("  what is LEFT is the exhausted problem spaces and six honest beats -- "
+          "twenty-two candidates in ten lessons, every one of them read",
+          len(rows) == 22 and ids == {
               "entry-u1-counting-to-10", "entry-u2-doubles", "entry-u8-minutes-past-the-hour",
               "entry-u1-counting-past-ten", "entry-u9-sides-and-corners",
               "basic-u2-times-tables", "basic-u9-quarter-turns",
@@ -26576,6 +26581,29 @@ def part3oy_the_tour_lights_the_mic():
             check(NAME, False, f"the drive did not run: {exc}")
     check("  the changed files carry dated ze notes",
           all("2026-10-05" in notes(f) and "ze" in notes(f) for f in ("static/session.html", "static/dashboard.html", "lessonscripts.py", "main.py", "ruletests.py")), "Jim's rule 8")
+
+
+def part3oz_the_lesson_counts_to_ten():
+    """PART 3oz (build zf, 2026-10-06) -- THE LESSON COUNTS TO TEN. Jim's phone pass (P4):
+    Entry unit 1's "Counting to 10" never counted to ten -- its counts were 5, 3, 7, 4, 6 and
+    4. The second teach beat is the whole count now, one to ten, ten stars ticking in
+    (count="1"; OBJ_COUNT_MAX is 12, so the count-along draws it), before the lesson asks the
+    student to count a smaller group. A lesson does what its title promises at least once."""
+    print("\nPART 3oz — the lesson counts to ten (build zf)")
+    try:
+        import lessonscripts as LS
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    les = LS.LESSON_BY_ID.get("entry-u1-counting-to-10")
+    check("⭐ entry-u1-counting-to-10: a teach beat counts one to ten out loud over ten stars that tick in",
+          bool(les) and any("one, two, three, four, five, six, seven, eight, nine, ten. Ten stars." in s.lower().replace("one, two, three, four, five, six, seven, eight, nine, ten. ten stars.", "one, two, three, four, five, six, seven, eight, nine, ten. Ten stars.")
+                            or ("eight, nine, ten. Ten stars." in s) for s, b in les["teach"])
+          and any('groups="10" count="1"' in b for s, b in les["teach"]), les and [s[:60] for s, b in les["teach"]])
+    check("  ...the count is within the count-along's reach (OBJ_COUNT_MAX) and the beat's title promise is kept before the first ask",
+          "const OBJ_COUNT_MAX = 12;" in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "board.js"), encoding="utf-8").read()
+          and les and les["topic"] == "Counting to 10" and 10 in [p["a"] for p in les["bank"]], "")
+    check("  the file carries a dated zf note",
+          "2026-10-06" in notes("lessons/entry.py") and "zf" in notes("lessons/entry.py") and "2026-10-06" in notes("main.py"), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53581,6 +53609,7 @@ def main():
     part3ow_the_buttons_go_on_the_board()
     part3ox_the_phones_menu_and_the_parents_door()
     part3oy_the_tour_lights_the_mic()
+    part3oz_the_lesson_counts_to_ten()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
