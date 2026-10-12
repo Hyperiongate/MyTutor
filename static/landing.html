@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (zg) 2026-10-09 -- ONE PLAN, ONE STUDENT. Jim's ruling D1 on the PM board: "I would set
+    it up for one. That way we know it's one price for one person. If we want to change it, we
+    have to change it later." The two FAQ answers (page and JSON-LD), the $29 card's caption
+    and its monthly/annual toggle text, its first bullet and the Family card now say $29/mo per
+    student ($24 annual) instead of "covers up to 2, a 2nd student free". Prices unchanged;
+    main.py KIDS_PER_SEAT 2 -> 1 enforces it.
     (za) 2026-09-30 -- THE FREE DOOR IS IN THE FIRST SCREEN. Jim's first-family playthrough
     (F1), as a stranger: "Start free, create your account is halfway down the page... not
     highlighted... the full access one is highlighted... far from the main button." Two
@@ -562,7 +568,7 @@
      "name": "What does it cost?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two students ($24/month billed annually). Cancel anytime. See the Pricing page for details."
+      "text": "There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month per student ($24/month billed annually). Cancel anytime. See the Pricing page for details."
      }
     },
     {
@@ -578,7 +584,7 @@
      "name": "Can I use this for more than one student, or a co-op?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Yes. One family plan covers up to two students — the second student is free — and each student gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term."
+      "text": "Yes. One parent account holds every student in the family; each student is one plan at the same price and gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term."
      }
     }
    ]
@@ -725,9 +731,9 @@
       <h3>Full access</h3>
       <p class="who">The whole thing — every course, the warm voice</p>
       <div class="price" data-m="29" data-a="24">$29<small>/mo</small></div>
-      <div class="per" data-permo="covers up to 2 students · billed monthly" data-peran="covers up to 2 students · billed annually">covers up to 2 students · billed monthly</div>
+      <div class="per" data-permo="per student · billed monthly" data-peran="per student · billed annually">per student · billed monthly</div>
       <ul class="feat-list">
-        <li><span class="chk">✓</span> One plan covers up to 2 students — a 2nd student is free</li>
+        <li><span class="chk">✓</span> One plan per student — each with their own login code</li>
         <li><span class="chk">✓</span> All 10 courses, placement → mastery</li>
         <li><span class="chk">✓</span> Mr. Cadabra's warm, natural voice on every lesson</li>
         <li><span class="chk">✓</span> Talk your answers out loud — or type them, your choice</li>
@@ -738,7 +744,7 @@
     </div>
   </div>
   <div class="grid g3" style="margin-top:26px;text-align:left">
-    <div class="card"><h3>👪 Family plan</h3><p>One plan covers up to two students — the second student is free. Each student gets their own login code, tutor, and dashboard. <a href="/family" style="color:var(--purple);font-weight:700">Open your Family page →</a></p></div>
+    <div class="card"><h3>👪 Family plan</h3><p>One parent account holds every student in the family, one plan each at the same price. Each student gets their own login code, tutor, and dashboard. <a href="/family" style="color:var(--purple);font-weight:700">Open your Family page →</a></p></div>
     <div class="card"><h3>🍎 Classrooms &amp; co-ops</h3><p>Teacher dashboard with a class roster and mastery heatmap. Custom pricing for schools, microschools, and co-ops. <a href="/teachers" style="color:var(--purple);font-weight:700">For teachers →</a></p></div>
     <div class="card"><h3>🎓 Free pilots</h3><p>We're partnering with a limited number of classrooms this term for feedback. If that's you, let's talk.</p></div>
   </div>
@@ -781,9 +787,9 @@
   <details><summary>What ages and levels is it for?</summary><p>Ten complete courses, from a first-grader's first numbers to college math: Entry-Level Math (grades 1–3), Basic Math (grades 4–6), Pre-Algebra, Algebra I, Geometry, Algebra II, Trig / Pre-Calculus, Probability &amp; Statistics, Calculus, and Differential Equations. A placement check puts each student exactly where they belong, and they can move between courses anytime.</p></details>
   <details><summary>Will it chat about things besides math?</summary><p>No. Mr. Cadabra is a math tutor and only a math tutor — ask him about video games, other homework, or anything off-topic and he'll kindly steer straight back to the math. Those guardrails are permanent and can't be talked around, which is exactly how a tutor for students should behave.</p></details>
   <details><summary>How do you handle my student's data?</summary><p>Parents create and control the account, and we ask for as little as possible — a first name or even just a nickname is all a student needs. We never sell student data or use it for advertising; when your student talks with the tutor their voice is transcribed to text and the audio is deleted immediately — recordings are never stored — and you can request deletion of your data at any time. See the Parents &amp; Privacy page for specifics.</p></details>
-  <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month, and one plan covers up to two students ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
+  <details><summary>What does it cost?</summary><p>There's a free plan (no card needed): the placement check, a full first unit with Mr. Cadabra, and unlimited practice and topic help. Full access — every course, placement to mastery — is $29/month per student ($24/month billed annually). Cancel anytime. See the Pricing page for details.</p></details>
   <details><summary>What devices does it work on?</summary><p>Any modern browser — Windows, Mac, Chromebook, iPad, or Android tablet. Nothing to install, and a student's login is just their code. Turn the sound on: his voice is half the charm.</p></details>
-  <details><summary>Can I use this for more than one student, or a co-op?</summary><p>Yes. One family plan covers up to two students — the second student is free — and each student gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
+  <details><summary>Can I use this for more than one student, or a co-op?</summary><p>Yes. One parent account holds every student in the family; each student is one plan at the same price and gets their own login code, tutor, and dashboard. For classrooms, microschools, and co-ops, the teacher dashboard adds a roster and a class mastery heatmap; free pilots are running this term.</p></details>
 </section>
 <!-- FINAL CTA -->
 <section class="wrap center">

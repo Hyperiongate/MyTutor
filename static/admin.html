@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (zg) 2026-10-09 -- THE JOBS SAY OFF OR STALE. The System section gets a "Nightly jobs"
+    tile from the stats payload's ops_state (main.py _ops_state): red with the stale jobs
+    named when a job that is switched on has stopped, green otherwise, and a job switched
+    off on purpose (NIGHTWATCH=off) reads "off", never stale. The Subscriptions tile's
+    "1 seat covers up to 2 kids" now reads stats.kids_per_seat (Jim's ruling 10-09: one
+    plan, one student) -- the page keeps no number of its own.
     (yt) 2026-09-28 -- WHERE THE MINUTES GO: a card under Telemetry reading
     /api/admin/lanes -- scripted answers (Lane A) against live tutor turns (Lane B), per
     course and per student (masked), and the live doors by name (opener, seam, intervene,
@@ -1114,7 +1120,9 @@
 
     html += section("💳 Subscriptions", "Live billing — active plans only. Revenue is an estimate from paid seats.", tiles([
       { l: "Active plans", v: num(s.parents_active), cls: s.parents_active ? "good" : "" },
-      { l: "Paid seats", v: num(s.seats_paid), s: "1 seat covers up to 2 kids" },
+      { l: "Paid seats", v: num(s.seats_paid),
+        s: (Number(s.kids_per_seat || 1) === 1 ? "1 seat covers 1 student"
+                                               : "1 seat covers up to " + num(s.kids_per_seat) + " students") },
       { l: "Students covered", v: num(s.children_covered_capacity), s: "capacity at current seats" },
       { l: "Est. monthly", v: money(s.est_monthly_usd), cls: "good", s: "monthly $29 + annual $24/seat" },
       { l: "Payment issues", v: num(s.parents_past_due), cls: s.parents_past_due ? "warn" : "" },
@@ -1388,7 +1396,8 @@
       // OPS (2026-08-05): unhandled server errors, last 24h. Green zero is real —
       // the server logs every crash (and emails you, throttled).
       { l: "Errors (24h)", v: num(errN), cls: errN ? "bad" : "good",
-        s: errN ? "details below — you were emailed" : "no unhandled errors" }
+        s: errN ? "details below — you were emailed" : "no unhandled errors" },
+      opsTile(payload.ops_state)
     ]));
 
     // Recent-errors card: only exists when there ARE errors (a clean board stays clean).
@@ -2095,6 +2104,31 @@
       $("fgLine").textContent = "could not read flags: " + e.message;
       $("fgList").innerHTML = "";
     }
+  }
+
+  // ---------- (zg) the ops jobs: ok / stale / off ----------
+  // One tile for the System section. Red only for a job that is switched ON and has
+  // stopped; a job switched off on purpose says "off" in the caption and never alarms.
+  var OPS_NAMES = { heartbeat: "heartbeat", backup: "backup", offsite: "off-site", nightwatch: "night watch" };
+  function opsAge(sec) {
+    if (sec === null || sec === undefined) return "never";
+    if (sec < 3600) return Math.max(1, Math.floor(sec / 60)) + " min";
+    if (sec < 172800) return Math.floor(sec / 3600) + " h";
+    return Math.floor(sec / 86400) + " days";
+  }
+  function opsTile(st) {
+    if (!st || !st.jobs) return { l: "Nightly jobs", v: '<span style="font-size:16px">—</span>', s: "not reported" };
+    var parts = [];
+    ["heartbeat", "backup", "offsite", "nightwatch"].forEach(function (k) {
+      var j = st.jobs[k];
+      if (!j) return;
+      parts.push(OPS_NAMES[k] + ": " + (j.state === "off" ? "off" : j.state === "stale"
+                 ? "STALE (" + opsAge(j.age_s) + ")" : j.state === "unknown" ? "no database" : opsAge(j.age_s)));
+    });
+    var bad = (st.stale || []).length;
+    return { l: "Nightly jobs",
+             v: '<span style="font-size:16px">' + (bad ? bad + " stale" : "All fresh") + '</span>',
+             cls: bad ? "bad" : "good", s: parts.join(" · ") };   // tiles() escapes it
   }
 
   // ---------- night watch (build gp) ----------

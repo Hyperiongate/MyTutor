@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-09  BUILD zg -- PART 3pa, THE JOBS SAY OFF OR STALE AND ONE PLAN IS ONE STUDENT: /health's
+#               ops_state (ok / stale / off / unknown per job, judged against its own cadence; NIGHTWATCH=off
+#               is "off", never stale), the heartbeat's 12-hour STALE JOB email, the admin tile; KIDS_PER_SEAT
+#               1 (Jim's ruling D1) read by the family page, store.admin_stats and the admin tile; no page
+#               says "up to 2 students" or "a 2nd student is free" any more.
 #   2026-10-06  BUILD zf -- PART 3oz, THE LESSON COUNTS TO TEN: Entry u1 "Counting to 10" counts one to ten
 #               over ten stars (P4).
 #   2026-10-05  BUILD ze -- PART 3oy, THE TOUR LIGHTS THE MIC AND THE DASHBOARD ON A PHONE: .tourlit on the
@@ -26604,6 +26609,158 @@ def part3oz_the_lesson_counts_to_ten():
           and les and les["topic"] == "Counting to 10" and 10 in [p["a"] for p in les["bank"]], "")
     check("  the file carries a dated zf note",
           "2026-10-06" in notes("lessons/entry.py") and "zf" in notes("lessons/entry.py") and "2026-10-06" in notes("main.py"), "Jim's rule 8")
+
+
+def part3pa_the_jobs_say_off_or_stale():
+    """PART 3pa (build zg, 2026-10-09) -- THE JOBS SAY OFF OR STALE, AND ONE PLAN IS ONE
+    STUDENT. Two items off the PM board.
+
+    PM-2: /health printed each ops job's AGE and never a verdict, so the 10-09 deep dive read
+    the night watch's 21 days as a dead job when Jim had switched it off on purpose. Each job
+    now carries ok / stale / off / unknown beside its age, judged against its own cadence; a
+    job switched off is "off" and never an alarm; a switched-on job past its limit emails Jim
+    from the heartbeat at most once per 12 hours, with a subject no reader takes for a
+    night-watch report; the admin System section has a tile that turns red.
+
+    PM-4 / D1: Jim's ruling, "I would set it up for one. That way we know it's one price for
+    one person." KIDS_PER_SEAT is 1; the family page, store.admin_stats and the admin tile
+    read it instead of keeping a 2 of their own; no page promises a free second student."""
+    print("\nPART 3pa — the jobs say off or stale; one plan, one student (build zg)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    msrc = rd("main.py")
+
+    # ---- source pins ------------------------------------------------------------------------
+    hbody = msrc.split("def health():", 1)[1].split("\n@app.", 1)[0]
+    check("⭐ /health carries ops_state beside the ages it always had (ages read by the shared helper)",
+          '"ops_state": _ops_state(ops)' in hbody and "ops = _ops_ages()" in hbody and '"ops": ops,' in hbody
+          and '"status": "ok"' in hbody, "")
+    loop = msrc.split("def _digest_loop():", 1)[1].split("\ndef ", 1)[0]
+    check("  the heartbeat runs the stale pass in its own fence",
+          "_ops_stale_pass()" in loop and 'print(f"[ops] stale pass error: {exc}")' in loop, "")
+    stale_body = msrc.split("def _ops_stale_pass()", 1)[1].split("\n@app.", 1)[0]
+    check("  the alarm is throttled to 12 hours per job, skips the heartbeat itself, and says STALE JOB first",
+          "throttle_minutes=720" in stale_body and 'if job == "heartbeat":' in stale_body
+          and 'f"STALE JOB — {label}' in stale_body and '"stale:" + job' in stale_body, "")
+    check("  the admin stats payload carries ops_state, and admin_stats gets the one constant",
+          '"ops_state": _ops_state(),' in msrc
+          and "store.admin_stats(kids_per_seat=KIDS_PER_SEAT)" in msrc, "")
+
+    # ---- behaviour: the verdicts ------------------------------------------------------------
+    try:
+        import main as M
+    except Exception as exc:  # noqa: BLE001
+        skip("ops verdicts", f"main not importable here: {exc}")
+        M = None
+    if M is not None:
+        _old_en, _old_nw, _old_start = M.store.enabled, os.environ.get("NIGHTWATCH"), M._PROCESS_STARTED
+        _old_off = M.OFFSITE_BACKUP_DAYS
+        try:
+            M.store.enabled = lambda: True
+            M.OFFSITE_BACKUP_DAYS = 7
+            now = 2_000_000_000.0
+            M._PROCESS_STARTED = now - 10 * 86400            # up ten days
+            fresh = {"heartbeat_age_s": 177, "backup_age_s": 54218,
+                     "offsite_age_s": 275617, "nightwatch_age_s": 3600}
+            os.environ["NIGHTWATCH"] = "on"
+            st = M._ops_state(dict(fresh), now=now)
+            check("⭐ fresh jobs are all ok, and the whole is ok",
+                  st["ok"] is True and st["stale"] == []
+                  and all(st["jobs"][k]["state"] == "ok" for k in ("heartbeat", "backup", "offsite", "nightwatch")), st)
+            os.environ["NIGHTWATCH"] = "off"
+            live = dict(fresh, nightwatch_age_s=1863911)     # the 10-09 /health, exactly
+            st = M._ops_state(live, now=now)
+            check("⭐⭐ THE 10-09 READING: the night watch 21 days old WITH NIGHTWATCH=off is 'off', never stale, "
+                  "and the whole is ok",
+                  st["jobs"]["nightwatch"]["state"] == "off" and st["jobs"]["nightwatch"]["why"] == "NIGHTWATCH=off"
+                  and st["jobs"]["nightwatch"]["age_s"] == 1863911 and st["ok"] is True, st)
+            os.environ["NIGHTWATCH"] = "on"
+            st = M._ops_state(live, now=now)
+            check("⭐ ...and the same age with the watch switched ON is stale, named",
+                  st["jobs"]["nightwatch"]["state"] == "stale" and st["stale"] == ["nightwatch"] and st["ok"] is False, st)
+            st = M._ops_state(dict(fresh, backup_age_s=3 * 86400), now=now)
+            check("  a backup three days old is stale (limit two days)", st["stale"] == ["backup"], st)
+            st = M._ops_state(dict(fresh, offsite_age_s=8 * 86400), now=now)
+            check("  an off-site copy eight days old is not (limit OFFSITE_BACKUP_DAYS + 2 = nine)",
+                  st["jobs"]["offsite"]["state"] == "ok", st)
+            M.OFFSITE_BACKUP_DAYS = 0
+            st = M._ops_state(dict(fresh, offsite_age_s=None), now=now)
+            check("  OFFSITE_BACKUP_DAYS=0 is 'off' with its reason", st["jobs"]["offsite"]["state"] == "off"
+                  and st["jobs"]["offsite"]["why"] == "OFFSITE_BACKUP_DAYS=0", st)
+            M.OFFSITE_BACKUP_DAYS = 7
+            M._PROCESS_STARTED = now - 600                   # deployed ten minutes ago
+            st = M._ops_state(dict(fresh, heartbeat_age_s=None, backup_age_s=None), now=now)
+            check("⭐ a fresh deploy is not stale: 'never' inside the job's own limit is ok",
+                  st["jobs"]["heartbeat"]["state"] == "ok" and st["jobs"]["backup"]["state"] == "ok", st)
+            M._PROCESS_STARTED = now - 3 * 3600
+            st = M._ops_state(dict(fresh, heartbeat_age_s=None), now=now)
+            check("  ...but a heartbeat that never beat in three hours up is stale", "heartbeat" in st["stale"], st)
+            M.store.enabled = lambda: False
+            st = M._ops_state(dict(fresh), now=now)
+            check("  no database: 'unknown', never stale (storage already says so)",
+                  st["jobs"]["backup"]["state"] == "unknown" and st["stale"] == [], st)
+            # the alarm: a stale backup mails once, an off night watch never
+            M.store.enabled = lambda: True
+            M._PROCESS_STARTED = now - 10 * 86400
+            sent = []
+            _old_alert, _old_ages, _old_time = M._ops_alert, M._ops_ages, M.time.time
+            M._ops_alert = lambda kind, subject, body, throttle_minutes=None: sent.append((kind, subject, throttle_minutes))
+            M._ops_ages = lambda: dict(fresh, backup_age_s=3 * 86400, nightwatch_age_s=1863911, heartbeat_age_s=99999)
+            M.time.time = lambda: now
+            os.environ["NIGHTWATCH"] = "off"
+            try:
+                M._ops_stale_pass()
+            finally:
+                M._ops_alert, M._ops_ages, M.time.time = _old_alert, _old_ages, _old_time
+            check("⭐ the stale pass mails the stale backup ONLY: not the off night watch, not the heartbeat that is running it",
+                  [k for k, _s, _t in sent] == ["stale:backup"] and sent[0][2] == 720
+                  and sent[0][1].startswith("STALE JOB — the nightly backup last ran 3 days"), sent)
+        finally:
+            M.store.enabled, M._PROCESS_STARTED, M.OFFSITE_BACKUP_DAYS = _old_en, _old_start, _old_off
+            if _old_nw is None:
+                os.environ.pop("NIGHTWATCH", None)
+            else:
+                os.environ["NIGHTWATCH"] = _old_nw
+
+        # ---- one plan, one student ------------------------------------------------------------
+        check("⭐⭐ ONE PLAN, ONE STUDENT (Jim's ruling D1): KIDS_PER_SEAT is 1; one student is one seat, "
+              "three are three, and three seats cover three",
+              M.KIDS_PER_SEAT == 1 and M._seats_for(0) == 0 and M._seats_for(1) == 1 and M._seats_for(2) == 2
+              and M._seats_for(3) == 3 and M._covered_count(3) == 3, "")
+        pp = msrc.split("def _parent_payload(", 1)[1].split("\ndef ", 1)[0]
+        check("  the family payload carries kids_per_seat from the constant", '"kids_per_seat": KIDS_PER_SEAT,' in pp, "")
+
+    ssrc = rd("store.py")
+    sbody = ssrc.split("def admin_stats(", 1)[1].split("\ndef ", 1)[0]
+    check("  store.admin_stats multiplies by the caller's kids_per_seat (no hardcoded x2) and reports it",
+          sbody.startswith("kids_per_seat: int = 1)") and 'out["seats_paid"] * kids_per_seat' in sbody
+          and '"kids_per_seat": kids_per_seat,' in sbody and '* 2\n' not in sbody, "")
+    fam = rd("static/family.html")
+    check("⭐ the family page reads me.kids_per_seat and keeps no 2 of its own",
+          "Number(me.kids_per_seat) || 1" in fam and "Math.ceil(Math.max(0, x) / kps)" in fam
+          and "Math.ceil(Math.max(0, x) / 2)" not in fam and "one plan covers up to 2 students ·" not in fam, "")
+    adm = rd("static/admin.html")
+    check("  the admin tiles: Paid seats reads stats.kids_per_seat; Nightly jobs reads ops_state, red only when stale",
+          "s.kids_per_seat" in adm and "1 seat covers up to 2 kids" not in adm.split("<html", 1)[-1]
+          and "opsTile(payload.ops_state)" in adm and 'cls: bad ? "bad" : "good"' in adm
+          and 'j.state === "off" ? "off"' in adm, "")
+    stale_words = ("covers up to 2 students", "covers up to two students", "2nd student is free",
+                   "second student is free", "second student at no extra charge", "covered in pairs")
+    for rel in ("static/pricing.html", "static/landing.html", "static/features.html", "static/llms.txt"):
+        body = rd(rel)
+        if rel.endswith(".html") and "<html" in body:   # the notes header may quote the old copy
+            body = body.split("<html", 1)[1]
+        hits = [w for w in stale_words if w in body.lower()]
+        check(f"  {rel} promises no free second student", not hits, hits)
+    check("⭐ the pricing and front pages say per student, in the card, the toggle and the JSON-LD",
+          "per student · billed monthly" in rd("static/pricing.html")
+          and '"name": "Monthly — per student (introductory)"' in rd("static/pricing.html")
+          and 'data-permo="per student · billed monthly"' in rd("static/landing.html")
+          and "is $29/month per student ($24/month billed annually)." in rd("static/landing.html")
+          and "$29/month per student" in rd("static/llms.txt"), "")
+    check("  every changed file carries a dated zg note",
+          all("2026-10-09" in notes(f) for f in ("main.py", "store.py", "static/family.html", "static/admin.html",
+                                                  "static/pricing.html", "static/landing.html", "static/features.html")), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53610,6 +53767,7 @@ def main():
     part3ox_the_phones_menu_and_the_parents_door()
     part3oy_the_tour_lights_the_mic()
     part3oz_the_lesson_counts_to_ten()
+    part3pa_the_jobs_say_off_or_stale()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

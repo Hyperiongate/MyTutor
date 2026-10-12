@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    2026-10-09  ONE PLAN, ONE STUDENT (build zg, Jim's ruling D1 on the PM board: "I would set
+                it up for one. That way we know it's one price for one person."). The plan card
+                reads me.kids_per_seat (main.py KIDS_PER_SEAT, now 1) for its subscribe totals
+                and its words -- "$29/mo per student", "one plan per student" -- instead of a
+                hardcoded 2. The per-student "covered" flag and the Cover button are unchanged.
     2026-10-03  THE STEPS ARE IN THE FIRST SCREEN ON A PHONE (build zc, Jim's phone pass, P1): a
                 tighter header under 620px -- padding, the h1, the subline, the steps' own gaps --
                 so "1 Create your parent account" shows without scrolling. Laptops unchanged.
@@ -763,15 +768,19 @@
   function renderPlan(me) {
     var s = me.subscription, n = me.students.length, body = $("planBody"), html = "";
     var childWord = function (x) { return x === 1 ? "1 student" : x + " students"; };
-    var seatsFor = function (x) { return Math.max(0, Math.ceil(Math.max(0, x) / 2)); };
-    // Covered students come straight from the server's per-student "covered" flag
-    // (one plan covers up to two students), so this display can never drift from
-    // the real access a student has.
+    // (zg) what one plan covers comes from the server (main.py KIDS_PER_SEAT), never
+    // from a number kept here: 1 since 10-09 (one plan, one student).
+    var kps = Math.max(1, Number(me.kids_per_seat) || 1);
+    var seatsFor = function (x) { return Math.max(0, Math.ceil(Math.max(0, x) / kps)); };
+    var unitWord = kps === 1 ? "student" : "plan";
+    var coverWords = kps === 1 ? "one plan per student" : "one plan covers up to " + kps + " students";
+    // Covered students come straight from the server's per-student "covered" flag,
+    // so this display can never drift from the real access a student has.
     var coveredCount = me.students.filter(function (k) { return k.covered; }).length;
     if (s.status === "active") {
-      var planName = s.plan === "annual" ? "$24/mo per plan, billed annually" : "$29/mo per plan";
+      var planName = s.plan === "annual" ? "$24/mo per " + unitWord + ", billed annually" : "$29/mo per " + unitWord;
       html += '<div class="plan-line"><b>Full access</b><span class="tag full">Active</span></div>' +
-        '<p>' + childWord(coveredCount) + ' covered · one plan covers up to 2 students · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
+        '<p>' + childWord(coveredCount) + ' covered · ' + coverWords + ' · ' + esc(planName) + (s.period_end ? ' · renews ' + esc(planDate(s.period_end)) : '') + '</p>';
       if (n > coveredCount) {
         var extra = n - coveredCount;
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
@@ -798,10 +807,10 @@
         html += '<div class="rowbtns">' +
           '<button class="btn btn-primary" id="buyMonthly" type="button">Subscribe — $' + (seats * 29) + '/mo</button>' +
           '<button class="btn btn-ghost" id="buyAnnual" type="button">$' + (seats * 24) + '/mo billed annually</button></div>' +
-          '<p class="cap" style="margin-top:12px">One plan covers up to 2 students' +
+          '<p class="cap" style="margin-top:12px">' + coverWords.charAt(0).toUpperCase() + coverWords.slice(1) +
           (seats > 1 ? ' — ' + seats + ' plans cover your ' + childWord(q) : '') + '. ' +
           'Checkout is hosted by Stripe — cards, Apple Pay, Google Pay. Cancel anytime.' +
-          (n === 0 ? " Add your student first — one plan covers up to two students." : "") + '</p>';
+          (n === 0 ? " Add your student first — " + coverWords + "." : "") + '</p>';
       } else {
         html += '<div class="msg warn" style="display:block;background:#fff7ea;color:#8a5a12;border:1px solid #f3ddb5;margin-top:12px">' +
           '🧪 <b>We’re in beta and not taking payments yet.</b> Prices shown are what launch will look like. ' +

@@ -2,6 +2,14 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-09  BUILD zg -- THE JOBS SAY OFF OR STALE (PM-2) AND ONE PLAN IS ONE STUDENT (PM-4, Jim's
+#               ruling D1). /health keeps its ops ages and adds ops_state: each job ok / stale / off /
+#               unknown against its own cadence (heartbeat 2 h, backup 2 d, off-site OFFSITE_BACKUP_DAYS+2,
+#               night watch 2 d); NIGHTWATCH=off is "off", never stale -- the 10-09 deep dive misread
+#               exactly that. _ops_stale_pass on the heartbeat emails a stale job, once per job per 12 h,
+#               subject "STALE JOB — ..."; /api/admin/stats carries ops_state for the admin tile.
+#               KIDS_PER_SEAT 2 -> 1; _parent_payload sends kids_per_seat; store.admin_stats gets it.
+#               Copy: family, pricing, landing, features, admin. PART 3pa.
 #   2026-10-06  BUILD zf -- THE LESSON COUNTS TO TEN (Jim's phone pass, P4). Stamp only: lessons/entry.py
 #               (u1 "Counting to 10": the second teach beat counts one to ten over ten stars; one line --
 #               prewarm it), speechmap.py. PART 3oz.
@@ -3399,17 +3407,23 @@ def _issue_token(parent_id: str) -> str:
     return token
 
 
-# FAMILY PLAN (2026-08-03): one paid "seat" covers up to this many children, so a
-# parent adding a SECOND child pays nothing more; the THIRD child needs a second
-# seat, and so on in pairs. Change this one number to change the family policy.
+# FAMILY PLAN (2026-08-03): one paid "seat" covers up to this many children.
+# Change this one number to change the family policy -- the /family page, the admin
+# panel's capacity tile and store.admin_stats all read it (zg), none keeps its own copy.
 # Oldest children are always covered first (see _student_tier), so buying fewer
 # seats never bumps a currently-covered child to Free.
-KIDS_PER_SEAT = 2
+# (zg, 2026-10-09) ONE PLAN, ONE STUDENT. Jim's ruling (D1 on the PM board): "I would
+# set it up for one. That way we know it's one price for one person. If we want to
+# change it, we have to change it later." Was 2 (a second student free, then pairs).
+# Payments are closed (no live key), so no paying family moves; a test family with two
+# students on one seat sees the newer one on Free and the Family page's existing
+# "Cover them -- prorated fairly" button, the same path as adding a student.
+KIDS_PER_SEAT = 1
 
 
 def _seats_for(n_children: int) -> int:
-    """How many paid Stripe seats cover this many children (in pairs, rounded up).
-    0 children -> 0 seats, 1 or 2 -> 1 seat, 3 or 4 -> 2 seats, and so on."""
+    """How many paid Stripe seats cover this many children (KIDS_PER_SEAT each, rounded
+    up). At 1 (zg): one seat per child. At 2 it was 1 or 2 -> 1 seat, 3 or 4 -> 2."""
     n = max(0, int(n_children or 0))
     return (n + KIDS_PER_SEAT - 1) // KIDS_PER_SEAT
 
@@ -3444,6 +3458,9 @@ def _parent_payload(parent: dict) -> dict:
                         and i < _covered_count(quantity)),
         } for i, s in enumerate(students)],
         "billing_ready": _payments_open(),
+        # (zg) the family policy, from the one constant: the page computes its subscribe
+        # totals and its wording from this, never from a number of its own.
+        "kids_per_seat": KIDS_PER_SEAT,
     }
 
 
@@ -4121,6 +4138,12 @@ def _digest_loop():
             _ops_watch_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[ops] watch loop error: {exc}")
+        # (zg) a job switched on that has stopped emails Jim -- once per job per 12 h;
+        # a job switched off on purpose never does. Fenced like every pass here.
+        try:
+            _ops_stale_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[ops] stale pass error: {exc}")
         # build cn: the usage log is one row per model call and per TTS request. At
         # 10,000 students that is millions of rows a month, and nothing ever removed
         # one. The cost dashboard only ever looks back weeks, so anything older than
@@ -4911,7 +4934,7 @@ def admin_stats_api(key: str = "",
         "prompt_cache_ttl": (os.environ.get("PROMPT_CACHE_TTL", "") or "5m (default)"),
         "payments_open": _payments_open(),
         "storage": store.status(),
-        "stats": store.admin_stats(),
+        "stats": store.admin_stats(kids_per_seat=KIDS_PER_SEAT),   # (zg) the one constant
         "usage7": _usage_with_dollars(7),
         "usage30": _usage_with_dollars(30),
         # (mq) THE COST EPOCH. `usage_epoch` is None until Jim starts an era, so the
@@ -4922,6 +4945,9 @@ def admin_stats_api(key: str = "",
         # OPS (2026-08-05): unhandled-error visibility for the System section.
         "errors24": store.errors_count(24),
         "errors_recent": store.recent_errors(24, 20),
+        # (zg) the ops jobs' verdicts, so the System section can turn a stale job red
+        # and say "off" for one switched off on purpose.
+        "ops_state": _ops_state(),
     }
 
 
@@ -9855,7 +9881,132 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-06zf-the-lesson-counts-to-ten"
+APP_BUILD = "2026-10-09zg-the-jobs-say-off-or-stale"
+
+
+# =============================================================================
+# (zg, 2026-10-09) THE JOBS SAY OFF OR STALE -- PM-2 on the PM board.
+# -----------------------------------------------------------------------------
+# /health has printed each ops job's AGE since build ha, and nothing ever said whether
+# an age was BAD. The 10-09 deep dive read "night watch 1,863,911 s" as a dead job and
+# called it the biggest operational finding -- and it was not: Jim had switched it off
+# on purpose (NIGHTWATCH=off, for the sweep rounds). A number that cannot tell "off"
+# from "stale" misleads the one reader it exists for. So each job now gets a VERDICT
+# beside its age, judged against its own cadence:
+#   ok      -- ran inside its limit
+#   stale   -- switched on, and older than its limit (or never ran, once the process
+#              has been up longer than that limit -- a fresh deploy is not stale)
+#   off     -- switched off on purpose (NIGHTWATCH=off; OFFSITE_BACKUP_DAYS=0); its age
+#              is still printed, and it is never an alarm
+#   unknown -- no database, so there is nothing to age (storage says so already)
+# Limits: heartbeat 2 h (it beats every 30 min); backup 2 days (nightly); off-site
+# OFFSITE_BACKUP_DAYS + 2 days; night watch 2 days (nightly). A stale job also EMAILS
+# Jim from the heartbeat (_ops_stale_pass), at most once per job per 12 hours -- the
+# heartbeat itself cannot report its own death that way, which is what /health's
+# number and the admin tile are for.
+_PROCESS_STARTED = time.time()
+OPS_LIMITS_S = {"heartbeat": 2 * 3600, "backup": 2 * 86400, "nightwatch": 2 * 86400}
+_OPS_LABELS = {"heartbeat": "the heartbeat", "backup": "the nightly backup",
+               "offsite": "the off-site backup", "nightwatch": "the night watch"}
+
+
+def _ops_limit_s(job: str):
+    """The age past which `job` is stale, or None when the job is switched off."""
+    if job == "offsite":
+        return None if OFFSITE_BACKUP_DAYS <= 0 else (OFFSITE_BACKUP_DAYS + 2) * 86400
+    if job == "nightwatch":
+        return None if (nightwatch is None or not nightwatch.enabled()) else OPS_LIMITS_S[job]
+    return OPS_LIMITS_S.get(job)
+
+
+def _ops_off_reason(job: str) -> str:
+    if job == "offsite":
+        return "OFFSITE_BACKUP_DAYS=0"
+    if job == "nightwatch":
+        return "nightwatch.py not deployed" if nightwatch is None else "NIGHTWATCH=off"
+    return ""
+
+
+def _ops_state(ages: dict | None = None, now: float | None = None) -> dict:
+    """Each ops job's age AND verdict (ok / stale / off / unknown), the list of stale
+    jobs, and one ok flag. `ages` is /health's ops dict ({job}_age_s -> seconds or None);
+    read fresh when omitted. Never raises: an ops reader must never be the outage."""
+    try:
+        if ages is None:
+            ages = _ops_ages()
+        now = time.time() if now is None else now
+        up_s = max(0, int(now - _PROCESS_STARTED))
+        db = bool(store.enabled())
+        jobs, stale = {}, []
+        for job in ("heartbeat", "backup", "offsite", "nightwatch"):
+            age = ages.get(job + "_age_s")
+            limit = _ops_limit_s(job)
+            if limit is None:
+                state = "off"
+            elif not db:
+                state = "unknown"
+            elif age is None:
+                state = "stale" if up_s > limit else "ok"
+            else:
+                state = "stale" if age > limit else "ok"
+            row = {"state": state, "age_s": age, "limit_s": limit}
+            if state == "off":
+                row["why"] = _ops_off_reason(job)
+            jobs[job] = row
+            if state == "stale":
+                stale.append(job)
+        return {"ok": not stale, "stale": stale, "jobs": jobs}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[health] ops state failed: {exc}")
+        return {"ok": None, "stale": [], "jobs": {}, "error": str(exc)[:200]}
+
+
+def _ops_ages() -> dict:
+    """Seconds since each ops job last recorded a pass (None = never, or DB off)."""
+    ops = {}
+    try:
+        from datetime import datetime as _hdt, timezone as _htz
+        for nm in ("heartbeat", "backup", "nightwatch", "offsite"):
+            ts = store.last_event_at("ops_pass", nm)
+            if ts is not None and ts.tzinfo is None:
+                ts = ts.replace(tzinfo=_htz.utc)
+            ops[nm + "_age_s"] = (int((_hdt.now(_htz.utc) - ts).total_seconds())
+                                  if ts else None)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[health] ops ages failed: {exc}")
+        ops = {"heartbeat_age_s": None, "backup_age_s": None, "nightwatch_age_s": None}
+    return ops
+
+
+def _ops_age_words(age_s) -> str:
+    if age_s is None:
+        return "never"
+    if age_s < 3600:
+        return f"{max(1, age_s // 60)} min"
+    if age_s < 2 * 86400:
+        return f"{age_s // 3600} h"
+    return f"{age_s // 86400} days"
+
+
+def _ops_stale_pass() -> None:
+    """Heartbeat pass: email Jim about each STALE job (never an 'off' one), at most once
+    per job per 12 hours. The subject says STALE JOB first so no reader -- Jim or the
+    morning digest -- mistakes it for a night-watch report."""
+    st = _ops_state()
+    for job in st.get("stale", []):
+        if job == "heartbeat":
+            continue                     # this pass IS the heartbeat; it is alive
+        row = st["jobs"].get(job, {})
+        label = _OPS_LABELS.get(job, job)
+        _ops_alert("stale:" + job,
+                   f"STALE JOB — {label} last ran {_ops_age_words(row.get('age_s'))} ago",
+                   f"{label[0].upper() + label[1:]} is switched on but has not recorded a pass "
+                   f"in {_ops_age_words(row.get('age_s'))} (its limit is "
+                   f"{_ops_age_words(row.get('limit_s'))}).\n\n"
+                   "If it is meant to be off, switch it off in Render and this alarm stops. "
+                   "If not, the Render logs say why it stopped.\n\n"
+                   "Live state: https://mrcadabra.com/health (ops_state).",
+                   throttle_minutes=720)
 
 
 @app.get("/health")
@@ -9881,18 +10032,7 @@ def health():
         subsystems.update(tutor.subsystems())
     except Exception as exc:  # noqa: BLE001
         print(f"[health] tutor.subsystems failed: {exc}")
-    ops = {}
-    try:
-        from datetime import datetime as _hdt, timezone as _htz
-        for nm in ("heartbeat", "backup", "nightwatch", "offsite"):
-            ts = store.last_event_at("ops_pass", nm)
-            if ts is not None and ts.tzinfo is None:
-                ts = ts.replace(tzinfo=_htz.utc)
-            ops[nm + "_age_s"] = (int((_hdt.now(_htz.utc) - ts).total_seconds())
-                                  if ts else None)
-    except Exception as exc:  # noqa: BLE001
-        print(f"[health] ops ages failed: {exc}")
-        ops = {"heartbeat_age_s": None, "backup_age_s": None, "nightwatch_age_s": None}
+    ops = _ops_ages()      # (zg) the same read, moved into a helper the alarm shares
     return {
         "status": "ok",
         "build": APP_BUILD,
@@ -9903,6 +10043,9 @@ def health():
         "storage": store.status(),
         "subsystems": subsystems,
         "ops": ops,
+        # (zg) each job's verdict beside its age: ok / stale / off / unknown. An age alone
+        # could not tell a job switched off on purpose from a dead one.
+        "ops_state": _ops_state(ops),
         # (ud) two booleans a deploy can be checked against: does /login print the
         # test codes (it must not on Render), and is the owner gate armed (an unset
         # admin key means the owner's tools are closed to everyone).

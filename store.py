@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-09  BUILD zg -- admin_stats(kids_per_seat=1): children_covered_capacity is
+#               seats x the caller's KIDS_PER_SEAT (main.py, the one constant) instead of a
+#               hardcoded x2, and the number rides out as stats.kids_per_seat so the /admin
+#               tile says what one seat covers. Jim's ruling 10-09: one plan, one student.
 #   2026-09-29  BUILD yv -- free_units: the (course, unit) of a free student's FIRST scripted
 #               lesson, written once (record_free_unit, first writer wins; free_unit reads it).
 #               The Free plan's "a first unit to try" is enforced on the scripted lane from
@@ -4528,21 +4532,24 @@ def usage_stats(days: int = 7, since=None) -> dict:
     return out
 
 
-def admin_stats() -> dict:
+def admin_stats(kids_per_seat: int = 1) -> dict:
     """Privacy-safe aggregate numbers for Jim's /admin dashboard. Returns only
     COUNTS and TOTALS -- never a name, email, or login code -- read straight from
     the live tables, so nothing here is invented. If the database is off, every
     number is 0 and db_enabled is False. Any query error is swallowed (the
     dashboard must never 500) and reported in an 'error' key.
 
-    seats = paid Stripe seats; one seat covers up to 2 children (see KIDS_PER_SEAT
-    in main.py), so children_covered_capacity = seats * 2."""
+    seats = paid Stripe seats; one seat covers `kids_per_seat` children (main.py passes
+    its KIDS_PER_SEAT, the one constant -- 1 since zg, 2 before), so
+    children_covered_capacity = seats * kids_per_seat."""
+    kids_per_seat = max(1, int(kids_per_seat or 1))
     out = {
         "db_enabled": _ENABLED,
         "parents_total": 0, "parents_active": 0, "parents_past_due": 0,
         "parents_canceled": 0, "parents_free": 0,
         "seats_paid": 0, "seats_monthly": 0, "seats_annual": 0,
         "children_covered_capacity": 0, "est_monthly_usd": 0,
+        "kids_per_seat": kids_per_seat,          # (zg) what one seat covers, for the tile
         "students_total": 0, "students_family": 0,
         "active_7d": 0, "active_30d": 0,
         "minutes_total": 0, "minutes_7d": 0,
@@ -4586,7 +4593,7 @@ def admin_stats() -> dict:
                 else:
                     out["seats_monthly"] += seats
             out["seats_paid"] = out["seats_monthly"] + out["seats_annual"]
-            out["children_covered_capacity"] = out["seats_paid"] * 2
+            out["children_covered_capacity"] = out["seats_paid"] * kids_per_seat
             out["est_monthly_usd"] = out["seats_monthly"] * 29 + out["seats_annual"] * 24
             # Students (family students = accounts tied to a real parent account).
             out["students_total"] = scalar(select(func.count()).select_from(A))
