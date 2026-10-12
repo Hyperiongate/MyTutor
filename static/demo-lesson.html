@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-10-12  (zh) THE BROWSER'S CRASHES REACH JIM (PM-6 on the PM board). This page did not
+    load static/client-log.js, so a script error here was invisible -- 23 of 33 pages had no
+    beacon, the sign-in page among them. It now loads FIRST in <head>, like the ten app pages
+    (build ha); main.py's heartbeat emails Jim each NEW browser error. Nothing else changed.
     (vc) 2026-09-10 -- THE REAL forSpeech, NOT A STUB. This page defined its own
     `function forSpeech(t) { return t; }` with the note "the cache is keyed on the
     verbatim text". That was true, and it was the bug: the prewarm filed clips under the
@@ -68,6 +72,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build zh: FIRST, so it hears every later script's failure -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index, follow">

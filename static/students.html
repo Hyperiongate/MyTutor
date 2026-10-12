@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-10-12  (zh) THE BROWSER'S CRASHES REACH JIM (PM-6 on the PM board). This page did not
+    load static/client-log.js, so a script error here was invisible -- 23 of 33 pages had no
+    beacon, the sign-in page among them. It now loads FIRST in <head>, like the ten app pages
+    (build ha); main.py's heartbeat emails Jim each NEW browser error. Nothing else changed.
     (ud) 2026-09-07 -- THE COPY CATCHES UP WITH uc (the deep look, P0). "Do I have to
     talk out loud?" said the youngest "don't type at all: they tap big answer buttons";
     it now says they say their answers, with the big buttons right there too. PART 3jz.
@@ -87,6 +91,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build zh: FIRST, so it hears every later script's failure -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mr. Cadabra's Classroom — For Students: how it works &amp; what you can earn</title>

@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <!--
+  - 2026-10-12  (zh) THE BROWSER'S CRASHES REACH JIM (PM-6 on the PM board). This page did not
+    load static/client-log.js, so a script error here was invisible -- 23 of 33 pages had no
+    beacon, the sign-in page among them. It now loads FIRST in <head>, like the ten app pages
+    (build ha); main.py's heartbeat emails Jim each NEW browser error. Nothing else changed.
   =============================================================================
   methodology.html  --  HOW WE TEACH, AND WHAT IT IS BUILT ON  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
@@ -885,6 +889,7 @@
 -->
 <html lang="en">
 <head>
+  <script src="/static/client-log.js"></script>  <!-- build zh: FIRST, so it hears every later script's failure -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>How we teach — Mr. Cadabra's Classroom</title>

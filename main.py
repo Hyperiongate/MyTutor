@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zh -- THE BROWSER'S CRASHES REACH JIM (PM-6). _client_error_pass on the heartbeat:
+#               the browser errors filed since its own last pass (an ops_pass 'clienterrors' marker
+#               written before reading, so windows meet), noise dropped (Script error., ResizeObserver
+#               loop, extension stacks), grouped by page + message, ONE email per pass listing the kinds
+#               not seen in the 7 days before. client-log.js now loads FIRST on 22 more pages (23 of 33
+#               had none, the sign-in page among them). store.events_between. PART 3pb.
 #   2026-10-09  BUILD zg -- THE JOBS SAY OFF OR STALE (PM-2) AND ONE PLAN IS ONE STUDENT (PM-4, Jim's
 #               ruling D1). /health keeps its ops ages and adds ops_state: each job ok / stale / off /
 #               unknown against its own cadence (heartbeat 2 h, backup 2 d, off-site OFFSITE_BACKUP_DAYS+2,
@@ -4144,6 +4150,12 @@ def _digest_loop():
             _ops_stale_pass()
         except Exception as exc:  # noqa: BLE001
             print(f"[ops] stale pass error: {exc}")
+        # (zh) each NEW kind of browser error since the last pass emails Jim -- one email
+        # per pass at most, never for a kind already seen in the past week. Fenced.
+        try:
+            _client_error_pass()
+        except Exception as exc:  # noqa: BLE001
+            print(f"[ops] client error pass error: {exc}")
         # build cn: the usage log is one row per model call and per TTS request. At
         # 10,000 students that is millions of rows a month, and nothing ever removed
         # one. The cost dashboard only ever looks back weeks, so anything older than
@@ -9881,7 +9893,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-09zg-the-jobs-say-off-or-stale"
+APP_BUILD = "2026-10-12zh-the-browsers-crashes-reach-jim"
 
 
 # =============================================================================
@@ -10007,6 +10019,107 @@ def _ops_stale_pass() -> None:
                    "If not, the Render logs say why it stopped.\n\n"
                    "Live state: https://mrcadabra.com/health (ops_state).",
                    throttle_minutes=720)
+
+
+# =============================================================================
+# (zh, 2026-10-12) THE BROWSER'S CRASHES REACH JIM -- PM-6 on the PM board.
+# -----------------------------------------------------------------------------
+# Since build ha a script error in a student's browser has been beaconed to
+# /api/client-error and filed as a 'clienterror' row -- and then waited on the /admin
+# telemetry card for someone to look. A server crash emails Jim (_ops_alert); a browser
+# crash, which is what a student actually meets, did not. And 23 of the 33 pages never
+# loaded the beacon at all (the sign-in page among them) -- zh puts it FIRST on every
+# page that runs a script.
+# This pass rides the heartbeat (every 30 min). It reads the browser errors filed since
+# its own last pass (an ops_pass 'clienterrors' row it writes BEFORE reading, so the
+# windows meet with no gap and no overlap), drops the known noise, groups the rest by
+# page + message, and emails Jim ONE message listing the kinds NOT seen in the 7 days
+# before. A kind that keeps happening is mailed once a week, not every half hour.
+# Noise, still filed and counted, never mailed: "Script error." (a cross-origin script
+# that the browser will not describe), "ResizeObserver loop" (a benign layout notice),
+# and anything whose stack runs through a browser EXTENSION (the student's add-on, not
+# our code).
+CLIENT_ERROR_KNOWN_DAYS = 7
+_CLIENT_ERROR_NOISE_MESSAGES = ("script error.", "script error")
+_CLIENT_ERROR_NOISE_PARTS = ("resizeobserver loop",)
+_CLIENT_ERROR_EXTENSION_SCHEMES = ("chrome-extension://", "moz-extension://",
+                                   "safari-extension://", "safari-web-extension://")
+
+
+def _client_error_message(row: dict) -> str:
+    return str(row.get("detail") or "").split(" | ", 1)[0].strip()
+
+
+def _client_error_signature(row: dict) -> str:
+    """Page + message, numbers blanked, so 'line 412' and 'line 413' are one kind."""
+    msg = re.sub(r"\d+", "#", _client_error_message(row).lower())
+    return (str(row.get("name") or "") + "|" + " ".join(msg.split())[:160])
+
+
+def _client_error_is_noise(row: dict) -> bool:
+    msg = _client_error_message(row).lower()
+    detail = str(row.get("detail") or "").lower()
+    return (msg in _CLIENT_ERROR_NOISE_MESSAGES
+            or any(p in msg for p in _CLIENT_ERROR_NOISE_PARTS)
+            or any(x in detail for x in _CLIENT_ERROR_EXTENSION_SCHEMES))
+
+
+def _client_error_pass() -> dict:
+    """Heartbeat pass: email Jim the NEW kinds of browser error since the last pass.
+    Returns what it did (the battery reads it): {"read", "noise", "known", "new_kinds"}."""
+    out = {"read": 0, "noise": 0, "known": 0, "new_kinds": 0}
+    if not store.enabled():
+        return out
+    from datetime import timezone as _ctz, timedelta as _ctd
+    prev = store.last_event_at("ops_pass", "clienterrors")
+    store.record_event("ops_pass", "clienterrors")
+    cur = store.last_event_at("ops_pass", "clienterrors")
+    if cur is None or (prev is not None and cur <= prev):
+        return out                                   # the marker did not write; try next pass
+    if cur.tzinfo is None:
+        cur = cur.replace(tzinfo=_ctz.utc)
+    if prev is None:
+        prev = cur - _ctd(hours=1)                   # the first pass after this build: the last hour
+    elif prev.tzinfo is None:
+        prev = prev.replace(tzinfo=_ctz.utc)
+    new = store.events_between(["clienterror"], prev, cur, 500)
+    out["read"] = len(new)
+    if not new:
+        return out
+    known = {_client_error_signature(r) for r in store.events_between(
+        ["clienterror"], prev - _ctd(days=CLIENT_ERROR_KNOWN_DAYS), prev, 5000)}
+    groups = {}
+    for r in new:
+        if _client_error_is_noise(r):
+            out["noise"] += 1
+            continue
+        sig = _client_error_signature(r)
+        if sig in known:
+            out["known"] += 1
+            continue
+        g = groups.setdefault(sig, {"row": r, "n": 0})
+        g["n"] += 1
+    out["new_kinds"] = len(groups)
+    if not groups:
+        return out
+    pages = sorted({str(g["row"].get("name") or "?") for g in groups.values()})
+    lines = []
+    for g in list(groups.values())[:10]:
+        r = g["row"]
+        parts = str(r.get("detail") or "").split(" | ", 1)
+        lines.append(f"- {r.get('name') or '?'}  ({g['n']}x since the last check)\n"
+                     f"  {_client_error_message(r)[:240]}"
+                     + (f"\n  at: {parts[1][:200]}" if len(parts) > 1 and parts[1] else ""))
+    more = len(groups) - len(lines)
+    _ops_alert("clienterrors",
+               f"BROWSER ERROR — {len(groups)} new kind(s) on {', '.join(pages)[:80]}",
+               "A student's or parent's browser hit a script error not seen in the last "
+               f"{CLIENT_ERROR_KNOWN_DAYS} days:\n\n" + "\n".join(lines)
+               + (f"\n\n...and {more} more kind(s)." if more > 0 else "")
+               + "\n\nEvery browser error, old and new, is on /admin under Telemetry. A kind "
+               "that keeps happening is mailed again only after a quiet week.",
+               throttle_minutes=0)
+    return out
 
 
 @app.get("/health")

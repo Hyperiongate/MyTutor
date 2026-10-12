@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zh -- PART 3pb, THE BROWSER'S CRASHES REACH JIM: client-log.js live and FIRST on every
+#               page that runs a script (22 more pages); _client_error_pass on a real SQLite database: the
+#               window, the noise, the week-old kind, one email for the new kind, none for a repeat.
 #   2026-10-09  BUILD zg -- PART 3pa, THE JOBS SAY OFF OR STALE AND ONE PLAN IS ONE STUDENT: /health's
 #               ops_state (ok / stale / off / unknown per job, judged against its own cadence; NIGHTWATCH=off
 #               is "off", never stale), the heartbeat's 12-hour STALE JOB email, the admin tile; KIDS_PER_SEAT
@@ -26761,6 +26764,115 @@ def part3pa_the_jobs_say_off_or_stale():
     check("  every changed file carries a dated zg note",
           all("2026-10-09" in notes(f) for f in ("main.py", "store.py", "static/family.html", "static/admin.html",
                                                   "static/pricing.html", "static/landing.html", "static/features.html")), "Jim's rule 8")
+
+
+def part3pb_the_browsers_crashes_reach_jim():
+    """PART 3pb (build zh, 2026-10-12) -- THE BROWSER'S CRASHES REACH JIM. PM-6 on the PM
+    board: "a real user's crash reaches Jim unasked." A server crash already emailed him; a
+    browser crash -- the one a student meets -- was filed and waited on /admin, and 23 of the
+    33 pages never loaded the beacon (the sign-in page among them). Now every page that runs
+    a script loads client-log.js FIRST, and the heartbeat's _client_error_pass emails ONE
+    message per pass naming the kinds of browser error not seen in the week before, with the
+    known noise (Script error., ResizeObserver loop, extension stacks) filed but never mailed."""
+    print("\nPART 3pb — the browser's crashes reach Jim (build zh)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    msrc = rd("main.py")
+
+    # ---- every page that runs a script carries the beacon, live and FIRST ---------------------
+    sdir = os.path.join(here, "static")
+    pages = sorted(f for f in os.listdir(sdir) if f.endswith(".html"))
+    missing, notfirst, stray_pages = [], [], []
+    for page in pages:
+        src = rd(os.path.join("static", page))
+        live = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+        if "<script" not in live:
+            continue                                  # a page with no script cannot throw
+        if "client-log.js" not in live:
+            missing.append(page); continue
+        first = live.find("<script")
+        if "client-log.js" not in live[first:first + 200]:
+            notfirst.append(page)
+        mhead = re.search(r"<head\b", live, re.I)
+        if mhead:
+            pre = re.sub(r"<!DOCTYPE[^>]*>", " ", live[:mhead.start()], flags=re.I)
+            if " ".join(re.sub(r"<[^>]*>", " ", pre).split()).replace("<html", "").strip():
+                stray_pages.append(page)
+    check("⭐⭐ EVERY page that runs a script loads the beacon, live (not inside a comment)", not missing, missing)
+    check("⭐ ...and on every one it is the FIRST live script", not notfirst, notfirst)
+    check("  ...and no page has prose spilled before <head> (build ha's comment accident)", not stray_pages, stray_pages)
+    check("  the sign-in page, the drill page and the public demo lesson are among them",
+          all("client-log.js" in re.sub(r"<!--.*?-->", "", rd("static/" + p), flags=re.S)
+              for p in ("index.html", "drill.html", "demo-lesson.html", "home.html")), "")
+
+    # ---- the pass: wiring ---------------------------------------------------------------------
+    loop = msrc.split("def _digest_loop():", 1)[1].split("\ndef ", 1)[0]
+    check("  the heartbeat runs _client_error_pass in its own fence",
+          "_client_error_pass()" in loop and 'print(f"[ops] client error pass error: {exc}")' in loop, "")
+    body = msrc.split("def _client_error_pass()", 1)[1].split("\ndef ", 1)[0]
+    check("⭐ the pass writes its marker BEFORE reading, and reads exactly (previous marker, this marker]",
+          body.find('store.record_event("ops_pass", "clienterrors")') < body.find("store.events_between")
+          and 'store.events_between(["clienterror"], prev, cur, 500)' in body, "")
+    check("  one email per pass, subject BROWSER ERROR, never throttled away (the pass is the throttle)",
+          '_ops_alert("clienterrors",' in body and 'f"BROWSER ERROR — ' in body and "throttle_minutes=0" in body, "")
+    check("  store.events_between exists and reads oldest-first inside an exact window",
+          "def events_between(kinds, since, until=None, limit: int = 500)" in rd("store.py")
+          and "order_by(t.c.created_at.asc())" in rd("store.py").split("def events_between(", 1)[1].split("\ndef ", 1)[0], "")
+
+    # ---- the pass: behaviour, on a real database ------------------------------------------------
+    import tempfile, subprocess
+    tmp = tempfile.mkdtemp(prefix="zh_")
+    script = os.path.join(tmp, "zh_drive.py")
+    open(script, "w", encoding="utf-8").write(
+        "import os, sys, datetime as dt\n"
+        "import main as M, store\n"
+        "sent = []\n"
+        "M._ops_alert = lambda kind, subject, body, throttle_minutes=None: sent.append((kind, subject, body, throttle_minutes))\n"
+        "assert store.enabled(), 'no db'\n"
+        "# a week-old kind, then the first pass marks the start\n"
+        "store.record_event('clienterror', '/session', 'boardRedraw is not defined | at session.html:900')\n"
+        "t = store._tables['system_events']\n"
+        "with store._engine.begin() as c:\n"
+        "    c.execute(t.update().values(created_at=store._now() - dt.timedelta(days=2)))\n"
+        "r0 = M._client_error_pass()\n"
+        "print('FIRST', r0, len(sent))\n"
+        "import time; time.sleep(0.05)\n"
+        "store.record_event('clienterror', '/session', 'boardRedraw is not defined | at session.html:901')\n"
+        "store.record_event('clienterror', '/login', 'cookieKey is not defined | at index.html:212')\n"
+        "store.record_event('clienterror', '/login', 'cookieKey is not defined | at index.html:212')\n"
+        "store.record_event('clienterror', '/drill', 'Script error.')\n"
+        "store.record_event('clienterror', '/drill', 'ResizeObserver loop completed with undelivered notifications.')\n"
+        "store.record_event('clienterror', '/topic', 'x is null | at chrome-extension://abc/content.js:1')\n"
+        "store.record_event('voice_fallback', '/session', 'clip would not start')\n"
+        "time.sleep(0.05)\n"
+        "r1 = M._client_error_pass()\n"
+        "print('SECOND', r1, len(sent), sent and sent[-1][1], sent and sent[-1][3])\n"
+        "print('BODY', sent and ('cookieKey is not defined' in sent[-1][2]) and ('2x since' in sent[-1][2]) and ('boardRedraw' not in sent[-1][2]))\n"
+        "time.sleep(0.05)\n"
+        "store.record_event('clienterror', '/login', 'cookieKey is not defined | at index.html:212')\n"
+        "time.sleep(0.05)\n"
+        "r2 = M._client_error_pass()\n"
+        "print('THIRD', r2, len(sent))\n"
+        "r3 = M._client_error_pass()\n"
+        "print('FOURTH', r3, len(sent))\n")
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'zh.db')}",
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="")
+    env.pop("ANTHROPIC_API_KEY", None)
+    if dep_gate("LIVE: the browser-error pass on a real database", "sqlalchemy", "the pass reads system_events"):
+        r = subprocess.run([sys.executable, script], cwd=here, env=env, capture_output=True, text=True, timeout=240)
+        o = r.stdout
+        check("  LIVE: the first pass after the build reads the last hour only (the two-day-old row is not new) and mails nothing",
+              r.returncode == 0 and "FIRST {'read': 0, 'noise': 0, 'known': 0, 'new_kinds': 0} 0" in o, (o + r.stderr)[-600:])
+        check("⭐⭐ LIVE: the second pass reads the six browser rows (not the voice event), drops three as noise, "
+              "knows the week-old kind, and mails ONE email naming the one new kind",
+              "SECOND {'read': 6, 'noise': 3, 'known': 1, 'new_kinds': 1} 1 BROWSER ERROR — 1 new kind(s) on /login 0" in o
+              and "BODY True" in o, o[-600:])
+        check("⭐ LIVE: the same kind again in the next half hour is known -- no second email; an empty pass reads nothing",
+              "THIRD {'read': 1, 'noise': 0, 'known': 1, 'new_kinds': 0} 1" in o
+              and "FOURTH {'read': 0, 'noise': 0, 'known': 0, 'new_kinds': 0} 1" in o, o[-600:])
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-12" in notes(f) and "zh" in notes(f) for f in ("main.py", "store.py", "static/index.html", "static/drill.html", "static/landing.html")),
+          "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53768,6 +53880,7 @@ def main():
     part3oy_the_tour_lights_the_mic()
     part3oz_the_lesson_counts_to_ten()
     part3pa_the_jobs_say_off_or_stale()
+    part3pb_the_browsers_crashes_reach_jim()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

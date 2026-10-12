@@ -2,6 +2,10 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zh -- events_between(kinds, since, until, limit): the events of some kinds
+#               inside an exact window, oldest first, for main.py's browser-error pass (which
+#               emails Jim the NEW ones since its last pass). recent_events reads a window back
+#               from now and is capped newest-first, so it cannot answer "since my last pass".
 #   2026-10-09  BUILD zg -- admin_stats(kids_per_seat=1): children_covered_capacity is
 #               seats x the caller's KIDS_PER_SEAT (main.py, the one constant) instead of a
 #               hardcoded x2, and the number rides out as stats.kids_per_seat so the /admin
@@ -3835,6 +3839,35 @@ def recent_events(hours: int = 168, limit: int = 50, kinds=None) -> list:
         print(f"[events] recent failed: {_redact(str(exc))}")
         return []
 
+
+def events_between(kinds, since, until=None, limit: int = 500) -> list:
+    """(zh) Events of `kinds` with since < created_at <= until (until defaults to now),
+    OLDEST first, at most `limit` rows. `since`/`until` are datetimes (aware, or naive
+    read as UTC). Same row shape as recent_events. Empty list when the DB is off or on any
+    failure -- a reader of telemetry must never be the outage."""
+    if not _ENABLED or not kinds:
+        return []
+    from sqlalchemy import select
+    try:
+        def _aware(d):              # the same aware-UTC form recent_events compares with
+            if d is not None and getattr(d, "tzinfo", None) is None:
+                d = d.replace(tzinfo=_dt.timezone.utc)
+            return d
+        t = _tables["system_events"]
+        lo, hi = _aware(since), _aware(until if until is not None else _now())
+        q = select(t.c.kind, t.c.name, t.c.detail, t.c.code, t.c.course, t.c.created_at
+                   ).where(t.c.kind.in_(list(kinds)))
+        if lo is not None:
+            q = q.where(t.c.created_at > lo)
+        q = q.where(t.c.created_at <= hi)
+        q = q.order_by(t.c.created_at.asc()).limit(max(1, min(int(limit), 5000)))
+        with _engine.connect() as conn:
+            rows = conn.execute(q).fetchall()
+        return [{"kind": r[0], "name": r[1], "detail": r[2], "code": r[3],
+                 "course": r[4], "at": (r[5].isoformat() if r[5] else "")} for r in rows]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[events] between failed: {_redact(str(exc))}")
+        return []
 
 def last_event_at(kind: str, name: str = ""):
     """The newest created_at for an event kind (optionally a specific name), or None.

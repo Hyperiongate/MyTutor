@@ -1,5 +1,8 @@
 # RECOVERY.md — how to get Mr. Cadabra's Classroom back, no matter what broke
 
+_2026-10-12 (build zh): Drill 4 added — the rehearsal that restores a real backup into a
+throwaway file and times it (PM-5 on the PM board). Not yet run._
+
 _New file 2026-08-11 (build dj). Written for Jim, to be read on a bad day. Everything
 here has a tested path; nothing is aspirational. The one-line summary: **the code lives
 on GitHub, the voice cache is $20 and one button, and the database now has three
@@ -49,6 +52,26 @@ backup + your password manager.** That is why those two are non-negotiable.
 6. Point mrcadabra.com's DNS at the new service.
 Realistic time: an afternoon. Realistic data loss: whatever happened since your last
 downloaded backup — which is why the weekly click matters.
+
+## Drill 4 — the rehearsal: prove a backup restores (added 2026-10-12, build zh, PM-5)
+Drills 2 and 3 have a tested *path* (the battery restores a synthetic database every run,
+PART 3bm), but no real Mr. Cadabra backup has ever been restored and timed. This drill does
+that once before launch, and again whenever the database's shape changes a lot. It never
+touches the live database: the target is a throwaway file.
+1. **Jim:** /admin → 🛟 Backups → **Download a fresh backup**. Save it in a NEW folder
+   outside the repo, e.g. `D:\RestoreDrill` (never inside D:\MyTutor — it holds families'
+   names and emails, and nothing in the repo folder may carry them).
+2. **Jim:** connect that folder to a Claude session and say "run the restore drill".
+3. **Claude, on Jim's computer** (the file never leaves it): the dry look
+   (`restore_backup.py <file>`), then the real restore into a throwaway SQLite file in the
+   same folder (`DATABASE_URL=sqlite:///.../drill.db`), timed; then boot the app against
+   `drill.db` and open one family's dashboard through the app itself.
+4. **Pass:** every table's restored row count equals the snapshot's own count; one
+   family's dashboard loads with its students and mastery; the time is written in the
+   log below. **Fail:** any table short, any error — that is a build, before launch.
+5. **Jim:** delete `D:\RestoreDrill` when it passes.
+
+**Drill log** (newest first): _not yet run._
 
 ## The secrets to keep in your password manager (names; you hold the values)
 `ANTHROPIC_API_KEY` · `ELEVENLABS_API_KEY` · `OPENAI_API_KEY` · `DATABASE_URL` ·
