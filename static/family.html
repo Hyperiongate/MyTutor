@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-10-13  THE SAFETY NET (build zk, PM-12). A "Safety notes" card under the students and the
+                plan, shown ONLY when there is something to show: each note says which student,
+                when, where, their own words, and what Mr. Cadabra did (a crisis: he stopped the
+                math and pointed them to a trusted adult, 9-1-1 and 9-8-8; personal information:
+                he reminded them to keep it private). Unread notes are marked; "Mark all as
+                read" clears them. Reads GET /api/parent/safety; never blocks the page.
     2026-10-12  THE PARENT CAN DELETE EVERYTHING (build zi, PM-13 on the PM board). A "Delete my
                 account" card at the foot of the signed-in view, folded shut: it says what goes
                 (every student and their progress, the email, password and sign-ins, the weekly
@@ -412,6 +418,18 @@
       <div id="planBody"></div>
       <div class="msg" id="planMsg"></div>
     </div>
+  </div>
+
+  <!-- (zk) 2026-10-13: the safety notes. Hidden unless there is a note to show. -->
+  <div class="card" id="safetyCard" style="margin-top:20px;display:none;border:2px solid #f3c0bb">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h2 style="font-size:20px;font-weight:820">🛟 Safety notes</h2>
+      <button class="btn btn-ghost" id="safetySeen" type="button" style="display:none">Mark all as read</button>
+    </div>
+    <p class="cap" style="margin-top:4px">Mr. Cadabra watches for words that suggest a student may be hurt or
+    unsafe, or is sharing private details. He can be wrong — we would rather tell you about a false alarm
+    than miss something real.</p>
+    <div id="safetyList" style="margin-top:10px"></div>
   </div>
 
   <!-- 2026-08-11 (dq): the family toolbox — email toggle + the links parents kept
@@ -884,7 +902,46 @@
     renderKids(me);
     renderPlan(me);
     loadOverview();   // dq: stats + email toggle load AFTER the page renders (bonus, never blocks)
+    loadSafety();     // (zk) the safety notes, after the page renders, never blocking it
   }
+
+  // ---------- (zk) the safety notes ----------
+  var safetyIds = [];
+  function whereWords(p) {
+    return { chat: "in a lesson", practice: "in homework help", topic: "in topic help",
+             ask: "asking a question in a lesson", answer: "answering in a lesson" }[p] || "in a lesson";
+  }
+  async function loadSafety() {
+    var card = $("safetyCard");
+    try {
+      var d = await api("/api/parent/safety");
+      var rows = (d && d.alerts) || [];
+      if (!rows.length) { card.style.display = "none"; return; }
+      safetyIds = rows.filter(function (r) { return !r.seen; }).map(function (r) { return r.id; });
+      $("safetyList").innerHTML = rows.map(function (r) {
+        var when = ""; try { when = new Date(r.at).toLocaleString(); } catch (e) {}
+        var crisis = r.category === "crisis";
+        var did = crisis
+          ? "Mr. Cadabra stopped the math and told them, kindly, to talk to a grown-up they trust today, with 9-1-1 for danger right now and 9-8-8 to talk with someone who can help. Please check in with them."
+          : "They shared something personal. Mr. Cadabra reminded them to keep private details private online.";
+        return '<div style="border-top:1px solid var(--line);padding:10px 0">' +
+          '<div><b>' + esc(r.student) + '</b> · ' + esc(when) + ' · ' + esc(whereWords(r.page)) +
+          (r.seen ? '' : ' <span class="tag" style="background:#fdecea;color:#b42318">new</span>') +
+          (crisis ? ' <span class="tag" style="background:#fdecea;color:#b42318">may need you</span>' : '') + '</div>' +
+          '<div style="margin:6px 0;font-style:italic">“' + esc(r.words) + '”</div>' +
+          '<div class="cap">' + esc(did) + '</div></div>';
+      }).join("");
+      $("safetySeen").style.display = safetyIds.length ? "" : "none";
+      card.style.display = "";
+    } catch (e) { card.style.display = "none"; }
+  }
+  $("safetySeen").addEventListener("click", async function () {
+    try {
+      await api("/api/parent/safety-seen", { method: "POST",
+        body: JSON.stringify({ token: token(), ids: safetyIds }) });
+    } catch (e) {}
+    loadSafety();
+  });
 
   // ---------- actions ----------
   async function refresh() {

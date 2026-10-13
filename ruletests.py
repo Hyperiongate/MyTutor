@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zk -- PART 3pe, THE SAFETY NET: safety.py offline (the keyword screen's precision both
+#               ways, personal information, the model reader with a fake client, its fall-back to keywords,
+#               SAFETY_CHECK=off, no call for a bare number, the crisis reply's wording); every door screens
+#               before the tutor; and live on SQLite: the crisis reply, history, the parent email, Jim's email,
+#               the 6-hour email throttle, personal information, the Family feed, a pilot code, the cascade.
 #   2026-10-12  BUILD zj -- PART 3pd, THE BACKUP COMES HOME: the export key forgotten only on a 401; the
 #               backup route records the PC copy; /health ages it (off until installed, stale after 9 days);
 #               tools/pc-backup's scripts pinned (ASCII, DPAPI, Sunday task, gzip check, keep 8, CRLF .cmd);
@@ -27166,6 +27171,186 @@ def part3pd_the_backup_comes_home():
           and "2026-10-12" in run[:900] and "build zj" in inst[:600], "Jim's rule 8")
 
 
+def part3pe_the_safety_net():
+    """PART 3pe (build zk, 2026-10-13) -- THE SAFETY NET. PM-12 on the PM board. Until zk the
+    only thing between a child saying they want to die and Mr. Cadabra's next fraction was
+    ground rule 31 in the tutor's own prompt. safety.py is a separate reader (a small fast
+    model, with a keyword screen that takes over when the model can't answer) in front of
+    every free-text door; a crisis gets a kind fixed reply instead of teaching, and the parent
+    is told -- by email and on the Family page -- with the student's own words."""
+    print("\nPART 3pe — the safety net (build zk)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    try:
+        import safety as SF
+    except Exception as exc:  # noqa: BLE001
+        bad("safety.py imports", str(exc)); return
+
+    # ---- the reader, offline ----------------------------------------------------------------
+    pos = ["I want to die", "i wanna die lol no really", "I hurt myself last night", "my dad hits me when I get it wrong",
+           "someone is hurting me", "I'm scared to go home", "I think about suicide", "i dont want to live anymore"]
+    neg = ["this homework is killing me", "the car hits a wall at 30 mph", "hit me with a harder one",
+           "I hate fractions", "x = 5", "is it 12?", "my mom helps me with math", "can you die in a video game"]
+    check("⭐ the keyword screen catches the unmistakable and leaves ordinary frustration and story text alone",
+          all(SF.quick_screen(m) for m in pos) and not any(SF.quick_screen(m) for m in neg),
+          ([m for m in pos if not SF.quick_screen(m)], [m for m in neg if SF.quick_screen(m)]))
+    check("  personal information: a phone, an email, a street address",
+          SF.keyword_category("call me at 415-555-0199") == "personal_info"
+          and SF.keyword_category("my email is ana.b@example.com") == "personal_info"
+          and SF.keyword_category("I live at 12 Oak Street") == "personal_info"
+          and SF.keyword_category("12 oaks plus 3 oaks") == "none", "")
+
+    class _Resp:
+        def __init__(s, text): s.content = [type("B", (), {"type": "text", "text": text})()]; s.usage = type("U", (), {"input_tokens": 300, "output_tokens": 12})()
+    class _Client:
+        def __init__(s, text): s.text = text; s.calls = 0; s.messages = s
+        def create(s, **k):
+            s.calls += 1; s.kw = k
+            if s.text is None: raise TimeoutError("slow")
+            return _Resp(s.text)
+    _old = os.environ.get("ANTHROPIC_API_KEY"); _oldsc = os.environ.get("SAFETY_CHECK")
+    try:
+        os.environ["ANTHROPIC_API_KEY"] = "test"; os.environ.pop("SAFETY_CHECK", None)
+        c = _Client('{"category": "crisis", "why": "says they want to disappear"}')
+        v = SF.classify("I just want to disappear forever", client=c)
+        check("⭐ the model reader decides (crisis), at temperature 0 with the strict prompt, and its tokens come back for the cost log",
+              v["category"] == "crisis" and v["source"] == "model" and c.kw.get("temperature") == 0
+              and c.kw.get("system") == SF.SAFETY_SYSTEM and v["usage"]["in"] == 300
+              and c.kw.get("model") == SF.DEFAULT_SAFETY_MODEL == "claude-haiku-5-5", v)
+        c = _Client('{"category": "none", "why": "joke"}')
+        v = SF.classify("i want to die lol", client=c)
+        check("  an unmistakable phrase is a crisis even when the model says none (belt and braces)",
+              v["category"] == "crisis" and v["why"].startswith("keyword"), v)
+        c = _Client(None)
+        v = SF.classify("my dad hits me", client=c)
+        check("⭐ the model unreachable -> the keyword screen decides; the net never vanishes",
+              v["category"] == "crisis" and v["source"] == "keywords" and "TimeoutError" in v["why"], v)
+        c = _Client("I think this is fine")
+        v = SF.classify("I hate fractions", client=c)
+        check("  a reply that is not JSON -> keywords decide (none here)", v["category"] == "none" and v["source"] == "keywords", v)
+        c = _Client('{"category": "crisis"}')
+        v = SF.classify("12", client=c)
+        check("  an answer with no words never calls the model", v["category"] == "none" and c.calls == 0, v)
+        os.environ["SAFETY_CHECK"] = "off"
+        c = _Client('{"category": "none"}')
+        v = SF.classify("I want to die", client=c)
+        check("  SAFETY_CHECK=off switches the model off -- the keywords still catch a crisis",
+              v["category"] == "crisis" and c.calls == 0 and v["why"] == "SAFETY_CHECK=off", v)
+    finally:
+        for k, o in (("ANTHROPIC_API_KEY", _old), ("SAFETY_CHECK", _oldsc)):
+            if o is None: os.environ.pop(k, None)
+            else: os.environ[k] = o
+    check("  the crisis reply: kind, a trusted adult, 9-1-1 and 9-8-8 written as digits for the voice, no math",
+          "grown-up you trust" in SF.CRISIS_REPLY and "9-1-1" in SF.CRISIS_REPLY and "9-8-8" in SF.CRISIS_REPLY
+          and "911" not in SF.CRISIS_REPLY and "988" not in SF.CRISIS_REPLY, SF.CRISIS_REPLY[:80])
+
+    # ---- the doors -----------------------------------------------------------------------------
+    msrc = rd("main.py")
+    chat_b = msrc.split("def chat(req: ChatRequest):", 1)[1].split("\n@app.", 1)[0]
+    check("⭐ /api/chat screens BEFORE the free gate, the exam gate and the tutor, and keeps the exchange in history",
+          chat_b.find('_safety_gate(code, message, "chat", req.course)') < chat_b.find("gate = _free_gate(")
+          and "mutate_history(code, req.course, lambda h: h + [" in chat_b.split("FREE PLAN GATE", 1)[0], "")
+    prac = msrc.split("def practice(req: PracticeRequest):", 1)[1].split("\n@app.", 1)[0]
+    top = msrc.split("def topic(req: TopicRequest):", 1)[1].split("\n@app.", 1)[0]
+    ask = msrc.split("def script_ask(body: ScriptAskIn):", 1)[1].split("\n@app.", 1)[0]
+    ans = msrc.split("def _script_answer_turn(body: ScriptAnswerIn):", 1)[1].split("\ndef ", 1)[0]
+    check("  practice, topic and the raised hand screen before the tutor; a crisis question is not counted against the allowance",
+          prac.find('_safety_gate(req.code.strip(), message, "practice"') < prac.find("tutor.get_practice_reply")
+          and top.find('_safety_gate(req.code.strip(), message, "topic"') < top.find("tutor.get_topic_reply")
+          and ask.find('_safety_gate(code, q, "ask"') < ask.find('sess["q_turns"] = asked + 1'), "")
+    check("⭐ the scripted lane: spoken answers are screened by keywords first (zero latency), before the reason door and read_answer, and the question stays on screen",
+          'confirm_only=True' in ans and ans.find('_safety_gate(code, body.said, "answer"') < ans.find("THE REASON QUESTION IS GRADED BY ITS LABEL")
+          and ans.find('_safety_gate(code, body.said, "answer"') < ans.find("lessonscripts.read_answer(body.said)")
+          and '"board": _pb' in ans, "")
+    check("  /health says whether the net is loaded; the alerts age out; the table joins the delete cascade",
+          '"safety": safety is not None' in msrc and "store.purge_safety_alerts()" in msrc
+          and '("safety_alerts", "code")' in rd("store.py").split("_STUDENT_CODE_TABLES = [", 1)[1].split("\n]", 1)[0], "")
+    fam, pv = rd("static/family.html"), rd("static/privacy.html").split("<html", 1)[-1]
+    check("  the Family page shows safety notes (hidden when empty) and the privacy page says how the check works",
+          'id="safetyCard"' in fam and '"/api/parent/safety"' in fam and "loadSafety();" in fam
+          and "Keeping students safe" in pv and "9-8-8" in pv, "")
+
+    # ---- live, on a real database ----------------------------------------------------------------
+    import tempfile, subprocess
+    tmp = tempfile.mkdtemp(prefix="zk_")
+    script = os.path.join(tmp, "zk_drive.py")
+    open(script, "w", encoding="utf-8").write(r'''
+import time
+from fastapi.testclient import TestClient
+import main as M, store, safety
+def fake(msg, client=None):
+    m = msg.lower()
+    cat = "crisis" if ("die" in m or "hurt" in m) else "personal_info" if "address" in m else "none"
+    return cat, "test", {"model": "claude-haiku-5-5", "in": 300, "out": 10}
+safety._model_reader = fake
+mails, ops = [], []
+M._smtp_configured = lambda: True
+M._send_email = lambda to, subj, body, attachment=None: (mails.append((to, subj, body)), "")[1]
+M._ops_alert = lambda kind, subj, body, throttle_minutes=None: ops.append((kind, subj, body))
+cl = TestClient(M.app)
+def fam(email):
+    r = cl.post("/api/parent/signup", json={"email": email, "password": "correct horse"}); tok = r.json()["token"]
+    cl.post("/api/parent/students", json={"token": tok, "name": "Ana"})
+    me = cl.get("/api/parent/me", headers={"X-Parent-Token": tok}).json()
+    return tok, me["students"][0]["code"]
+tok, code = fam("p1@example.com")
+tok2, code2 = fam("p2@example.com")
+r = cl.post("/api/chat", json={"code": code, "message": "I want to die", "course": "basic"})
+time.sleep(0.3)
+j = r.json()
+print("CHAT", r.status_code, j.get("safety"), j.get("reply") == safety.CRISIS_REPLY)
+hist = M.get_session(code, "basic").get("history", [])
+print("HIST", hist[-2:] == [{"role": "user", "content": "I want to die"}, {"role": "assistant", "content": safety.CRISIS_REPLY}])
+print("MAIL", len(mails), mails and mails[0][0], mails and ("I want to die" in mails[0][2]) and ("Ana" in mails[0][1]))
+print("OPS", len(ops), ops and ops[0][1].startswith("SAFETY"), ops and ("I want to die" not in ops[0][2]))
+r = cl.post("/api/practice", json={"code": code, "message": "someone will hurt me", "course": "basic"})
+time.sleep(0.3)
+print("PRACTICE", r.json().get("safety"), len(mails))
+r = cl.post("/api/topic", json={"code": code, "message": "i want to die", "course": "basic"})
+print("TOPIC", r.json().get("safety"))
+print("PI", M._safety_gate(code, "my address is 12 Oak Street", "chat", "basic"), len(mails))
+print("NONE", M._safety_gate(code, "is it 12 or 13?", "chat", "basic"))
+s = cl.get("/api/parent/safety", headers={"X-Parent-Token": tok}).json()
+cats = sorted(a["category"] for a in s["alerts"])
+print("LIST", len(s["alerts"]), s["unseen"], cats, s["alerts"][0]["student"], s["alerts"][-1]["words"])
+s2 = cl.get("/api/parent/safety", headers={"X-Parent-Token": tok2}).json()
+print("OTHER", len(s2["alerts"]))
+cl.post("/api/parent/safety-seen", json={"token": tok2, "ids": [a["id"] for a in s["alerts"]]})
+print("OTHERCANT", cl.get("/api/parent/safety", headers={"X-Parent-Token": tok}).json()["unseen"])
+cl.post("/api/parent/safety-seen", json={"token": tok, "ids": [a["id"] for a in s["alerts"]]})
+print("SEEN", cl.get("/api/parent/safety", headers={"X-Parent-Token": tok}).json()["unseen"])
+r = cl.post("/api/chat", json={"code": "0000", "message": "i want to die", "course": "basic"})
+time.sleep(0.3)
+print("PILOT", r.json().get("safety"), ops[-1][2].count("i want to die"))
+print("HEALTH", cl.get("/health").json()["subsystems"].get("safety"))
+cl.post("/api/parent/student-remove", json={"token": tok, "code": code, "name": "Ana"})
+print("GONE", len(store.safety_alerts_for_parent(store.get_parent_by_email("p1@example.com")["id"])))
+''')
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'zk.db')}", DATA_DIR=tmp,
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="")
+    env.pop("ANTHROPIC_API_KEY", None)
+    if dep_gate("LIVE: the safety net on a real database", "sqlalchemy", "the alerts are written to a real database"):
+        r = subprocess.run([sys.executable, script], cwd=here, env=env, capture_output=True, text=True, timeout=300)
+        o = r.stdout; tail = (o + r.stderr)[-900:]
+        check("⭐⭐ LIVE: a crisis in the live lesson gets the crisis reply, not math -- and the conversation keeps both lines",
+              "CHAT 200 True True" in o and "HIST True" in o, tail)
+        check("⭐ LIVE: the parent is emailed with the student's name and own words; Jim is told WITHOUT the words (the parent has them)",
+              "MAIL 1 p1@example.com True" in o and "OPS 1 True True" in o, tail)
+        check("  LIVE: homework help and topic help answer a crisis the same way; a second crisis within 6 hours is not a second email",
+              "PRACTICE True 1" in o and "TOPIC True" in o, tail)
+        check("  LIVE: personal information is recorded and answered by the tutor (no crisis reply, no email); a plain answer is nothing",
+              "PI None 1" in o and "NONE None" in o, tail)
+        check("⭐ LIVE: the Family page feed: four notes, newest first, the student's name and words; another parent sees none and cannot mark them",
+              "LIST 4 4 ['crisis', 'crisis', 'crisis', 'personal_info'] Ana I want to die" in o and "OTHER 0" in o
+              and "OTHERCANT 4" in o and "SEEN 0" in o, tail)
+        check("⭐ LIVE: a student with no parent account (a pilot code) -> Jim's email carries the words, because nobody else will see them",
+              "PILOT True 1" in o, tail)
+        check("  LIVE: /health reports the net loaded; removing the student removes their notes", "HEALTH True" in o and "GONE 0" in o, tail)
+    check("  the dated notes are in (Jim's rule 8)",
+          "2026-10-13" in notes("safety.py") and all("2026-10-13" in notes(f) and "zk" in notes(f)
+          for f in ("main.py", "store.py", "static/family.html", "static/privacy.html")), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -54174,6 +54359,7 @@ def main():
     part3pb_the_browsers_crashes_reach_jim()
     part3pc_the_parent_can_delete_everything()
     part3pd_the_backup_comes_home()
+    part3pe_the_safety_net()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

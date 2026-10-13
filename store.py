@@ -2,6 +2,14 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zk -- THE SAFETY NET (PM-12). safety_alerts: one row per message the safety
+#               reader (safety.py) judged a crisis or personal information -- the student's code,
+#               their parent, the category, where (page/course), the student's words (capped 600),
+#               what Mr. Cadabra did, who decided (model / keywords), whether the parent was emailed
+#               and whether the parent has marked it read. Joins _STUDENT_CODE_TABLES on day one (a
+#               removed student's alerts go with them); purged after SAFETY_ALERT_DAYS (180).
+#               add_safety_alert / safety_alerts_for_parent / mark_safety_seen /
+#               last_safety_email_at / purge_safety_alerts.
 #   2026-10-12  BUILD zi -- THE PARENT CAN DELETE EVERYTHING (PM-13). (1) drill_daily and
 #               student_phrasings JOIN _STUDENT_CODE_TABLES: both are per-student and both were
 #               missing, so Remove / Start Fresh / a parent's delete left a student's drill days and
@@ -587,6 +595,25 @@ def init():
             Column("course", String(32)),
             Column("unit", Integer),
             Column("opened_at", DateTime(timezone=True)),
+        )
+        # (zk, 2026-10-13) THE SAFETY NET. One row per student message the safety reader
+        # judged "crisis" or "personal_info". Brand-new table -> create_all builds it;
+        # joins _STUDENT_CODE_TABLES on day one. `words` is the student's own message
+        # (capped) because the parent must be able to read exactly what was said.
+        _tables["safety_alerts"] = Table(
+            "safety_alerts", _meta,
+            Column("id", String(64), primary_key=True),
+            Column("code", String(64), index=True),
+            Column("parent_id", String(64), index=True),
+            Column("category", String(24)),
+            Column("page", String(24)),
+            Column("course", String(32)),
+            Column("words", String(600)),
+            Column("action", String(40)),
+            Column("source", String(16)),
+            Column("emailed", Integer, default=0),
+            Column("seen", Integer, default=0),
+            Column("created_at", DateTime(timezone=True)),
         )
         _tables["script_done"] = Table(
             "script_done", _meta,
@@ -3163,6 +3190,8 @@ _STUDENT_CODE_TABLES = [
     # phrasings stayed behind, and a regenerated code left them on the dead code.
     ("drill_daily", "code"),
     ("student_phrasings", "code"),
+    # 2026-10-13 (build zk): safety alerts, on day one -- a removed student's alerts go too.
+    ("safety_alerts", "code"),
 ]
 # (zi) Tables that KEEP their rows when a student is deleted -- the cost ledger, the
 # health tally, Jim's own flags -- but must not keep the student's code: it is blanked in
@@ -3719,6 +3748,113 @@ def reset_student_data(code: str) -> dict:
     record_deletion("student", c)
     return {"ok": True, "deleted": deleted, "scrubbed": scrubbed}
 
+
+# ---- (zk) THE SAFETY NET ------------------------------------------------------------------
+SAFETY_ALERT_DAYS = int(os.environ.get("SAFETY_ALERT_DAYS", "180") or 180)
+
+
+def add_safety_alert(code: str, parent_id: str, category: str, page: str, course: str,
+                     words: str, action: str, source: str, emailed: bool = False) -> str:
+    """Record one safety alert; returns its id ("" when the store is off). Never raises."""
+    if not _ENABLED:
+        return ""
+    try:
+        import uuid as _uuid
+        aid = _uuid.uuid4().hex
+        t = _tables["safety_alerts"]
+        with _engine.begin() as conn:
+            conn.execute(t.insert().values(
+                id=aid, code=str(code or "")[:64], parent_id=str(parent_id or "")[:64],
+                category=str(category or "")[:24], page=str(page or "")[:24],
+                course=str(course or "")[:32], words=str(words or "")[:600],
+                action=str(action or "")[:40], source=str(source or "")[:16],
+                emailed=1 if emailed else 0, seen=0, created_at=_now()))
+        return aid
+    except Exception as exc:  # noqa: BLE001
+        print(f"[safety] could not record an alert: {_redact(str(exc))}")
+        return ""
+
+
+def set_safety_emailed(alert_id: str) -> None:
+    if not _ENABLED or not alert_id:
+        return
+    try:
+        from sqlalchemy import update
+        t = _tables["safety_alerts"]
+        with _engine.begin() as conn:
+            conn.execute(update(t).where(t.c.id == alert_id).values(emailed=1))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[safety] could not mark emailed: {_redact(str(exc))}")
+
+
+def last_safety_email_at(code: str):
+    """When this student's parent was last emailed a safety alert (None if never)."""
+    if not _ENABLED:
+        return None
+    try:
+        from sqlalchemy import select, func
+        t = _tables["safety_alerts"]
+        with _engine.connect() as conn:
+            return conn.execute(select(func.max(t.c.created_at))
+                                .where((t.c.code == code) & (t.c.emailed == 1))).scalar()
+    except Exception as exc:  # noqa: BLE001
+        print(f"[safety] last email read failed: {_redact(str(exc))}")
+        return None
+
+
+def safety_alerts_for_parent(parent_id: str, days: int = 90) -> list:
+    """This parent's students' alerts, newest first, with the student's name."""
+    if not _ENABLED or not parent_id:
+        return []
+    try:
+        from sqlalchemy import select
+        t, a = _tables["safety_alerts"], _tables["accounts"]
+        cutoff = _now() - _dt.timedelta(days=int(days))
+        with _engine.connect() as conn:
+            rows = conn.execute(
+                select(t.c.id, t.c.code, t.c.category, t.c.page, t.c.words, t.c.action,
+                       t.c.seen, t.c.created_at, a.c.name)
+                .select_from(t.outerjoin(a, a.c.code == t.c.code))
+                .where((t.c.parent_id == parent_id) & (t.c.created_at >= cutoff))
+                .order_by(t.c.created_at.desc()).limit(100)).fetchall()
+        return [{"id": r[0], "code": r[1], "category": r[2], "page": r[3], "words": r[4],
+                 "action": r[5], "seen": bool(r[6]),
+                 "at": r[7].isoformat() if r[7] else "", "student": r[8] or "Student"}
+                for r in rows]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[safety] list failed: {_redact(str(exc))}")
+        return []
+
+
+def mark_safety_seen(parent_id: str, alert_ids) -> int:
+    """Mark this parent's alerts read. Only their own rows can change."""
+    if not _ENABLED or not parent_id:
+        return 0
+    from sqlalchemy import update
+    ids = [str(i) for i in (alert_ids or []) if i][:200]
+    t = _tables["safety_alerts"]
+    with _engine.begin() as conn:
+        q = update(t).where(t.c.parent_id == parent_id)
+        if ids:
+            q = q.where(t.c.id.in_(ids))
+        r = conn.execute(q.values(seen=1))
+    return int(r.rowcount or 0)
+
+
+def purge_safety_alerts(days: int = None) -> int:
+    """Delete alerts older than SAFETY_ALERT_DAYS. Never raises."""
+    if not _ENABLED:
+        return 0
+    try:
+        from sqlalchemy import delete
+        t = _tables["safety_alerts"]
+        cutoff = _now() - _dt.timedelta(days=int(days or SAFETY_ALERT_DAYS))
+        with _engine.begin() as conn:
+            r = conn.execute(delete(t).where(t.c.created_at < cutoff))
+        return int(r.rowcount or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[safety] purge failed: {_redact(str(exc))}")
+        return 0
 
 def record_error(where: str, what: str) -> None:
     """Log one unhandled server error. Best-effort by design: this function must

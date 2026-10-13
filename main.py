@@ -2,6 +2,13 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zk -- THE SAFETY NET (PM-12). safety.py reads every student's free text before the
+#               tutor does -- /api/chat, /api/practice, /api/topic, /api/script/ask, and /api/script/answer's
+#               `said` (keyword screen there, model-confirmed, zero added latency). A crisis gets
+#               safety.CRISIS_REPLY instead of teaching, is recorded (store.safety_alerts), emails the
+#               parent (once per student per SAFETY_EMAIL_HOURS) and Jim; personal information is recorded
+#               and shown to the parent. GET /api/parent/safety, POST /api/parent/safety-seen; /health
+#               subsystems.safety; alerts purged after 180 days. PART 3pe.
 #   2026-10-12  BUILD zj -- THE BACKUP COMES HOME. /api/admin/backup records who took it: X-Backup-Client:
 #               pc (tools/pc-backup's weekly Task Scheduler job) -> ops_pass 'pcbackup'; a click on /admin
 #               -> 'download'. _ops_state gains the pcbackup job: 'off' until its first pass is on record
@@ -824,6 +831,14 @@ try:
 except Exception as _nw_exc:  # noqa: BLE001
     nightwatch = None
     print(f"[nightwatch] module unavailable, the night watch is off: {_nw_exc}")
+# (zk, 2026-10-13) THE SAFETY NET. Imported defensively like the other optional readers,
+# but its absence is LOUD: /health's subsystems says safety false, and the tutor's own
+# rule 31 is the only net left.
+try:
+    import safety
+except Exception as _sf_exc:  # noqa: BLE001
+    safety = None
+    print(f"[safety] module unavailable -- THE SAFETY NET IS OFF: {_sf_exc}")
 # (wa, 2026-09-15) THE COURSE SWEEP -- the reviewer over the scripted course. Same law
 # as the night watch: offline tooling, imported defensively, a deploy without it still
 # teaches children.
@@ -4406,6 +4421,10 @@ def _usage_purge_pass() -> None:
     removed_ev = store.purge_system_events(EVENTS_DAYS)
     if removed_ev:
         print(f"[events] purged {removed_ev} rows older than {EVENTS_DAYS} days")
+    # (zk) safety alerts age out too (SAFETY_ALERT_DAYS, 180)
+    removed_sa = store.purge_safety_alerts()
+    if removed_sa:
+        print(f"[safety] purged {removed_sa} alerts older than {store.SAFETY_ALERT_DAYS} days")
 
 
 _digest_thread_started = False
@@ -4810,6 +4829,28 @@ def parent_delete_account(body: ParentDeleteIn, request: Request):
                 print(f"[delete] confirmation email failed: {err}")
         threading.Thread(target=_confirm, daemon=True, name="delete-confirm").start()
     return {"ok": True, "students_removed": len(codes)}
+
+
+# (zk) THE SAFETY NET, the parent's side: every alert for this parent's students (crisis and
+# personal information), newest first, with the student's name and their own words; and a
+# way to mark them read. Only the signed-in parent's own rows are ever returned or changed.
+@app.get("/api/parent/safety")
+def parent_safety(request: Request):
+    parent = _require_parent(request.headers.get("x-parent-token", ""))
+    rows = store.safety_alerts_for_parent(parent["id"])
+    return {"ok": True, "alerts": rows, "unseen": sum(1 for r in rows if not r.get("seen"))}
+
+
+class ParentSafetySeenIn(BaseModel):
+    token: str = ""
+    ids: list[str] = []
+
+
+@app.post("/api/parent/safety-seen")
+def parent_safety_seen(body: ParentSafetySeenIn, request: Request):
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    n = store.mark_safety_seen(parent["id"], body.ids)
+    return {"ok": True, "marked": n}
 
 
 @app.post("/api/parent/student-attach")
@@ -6702,6 +6743,11 @@ def script_ask(body: ScriptAskIn):
     if not q:
         raise HTTPException(status_code=400, detail="Type your question first.")
     lesson = sess["lesson"]
+    # (zk) the raised hand is a free-text door too; a crisis is answered and not counted
+    # against the lesson's question allowance
+    if _safety_gate(code, q, "ask", lesson.get("course", "")):
+        _script_log(code, lesson["course"], t0)
+        return {"ok": True, "answer": safety.CRISIS_REPLY, "capped": False, "safety": True}
     asked = sess.get("q_turns", 0)
     if asked >= SCRIPT_QUESTIONS_PER_LESSON:
         _script_log(code, lesson["course"], t0)
@@ -6836,6 +6882,17 @@ def _script_answer_turn(body: ScriptAnswerIn):
     #   unsure    -> "saying you are not sure is a good move" + the ✋ is right
     #                there, then the same re-ask. Never graded wrong for it.
     pre = []
+
+    # (zk) THE SAFETY NET in the scripted lane: zero latency -- the keyword screen only,
+    # and a hit is confirmed by the model reader. A crisis is answered, nothing is graded,
+    # and the question on screen stays where it is (its board comes back with the line).
+    # FIRST, before the reason-label door and read_answer, so no door can grade it.
+    if body.value is None and (body.said or "").strip() and \
+            _safety_gate(code, body.said, "answer", lesson.get("course", ""), confirm_only=True):
+        _script_log(code, lesson["course"], t0)
+        _pb = ((state.get("pending") or {}).get("board") or "") if isinstance(state, dict) else ""
+        return {"ok": True, "safety": True,
+                "steps": [{"kind": "say", "spoken": safety.CRISIS_REPLY, "board": _pb}]}
 
     # ---- (sp, 2026-09-05) THE REASON QUESTION IS GRADED BY ITS LABEL -------------
     # Beat six of the shape ("Say it"): the engine asked WHY, with text options, and
@@ -10017,7 +10074,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-12zj-the-backup-comes-home"
+APP_BUILD = "2026-10-13zk-the-safety-net"
 
 
 # =============================================================================
@@ -10275,7 +10332,9 @@ def health():
                   "nightwatch": nightwatch is not None,
                   # (mm) so a deploy that lost drillpool.py SAYS so on /health rather
                   # than looking fine until a child taps a lesson and gets nothing.
-                  "drillpool": drillpool is not None}
+                  "drillpool": drillpool is not None,
+                  # (zk) the safety net: False means only the prompt's rule 31 is left
+                  "safety": safety is not None}
     try:
         subsystems.update(tutor.subsystems())
     except Exception as exc:  # noqa: BLE001
@@ -11257,6 +11316,127 @@ def _event_safe(kind: str, name: str, detail: str, code: str = "", course: str =
         pass
 
 
+# =============================================================================
+# (zk, 2026-10-13) THE SAFETY NET -- PM-12 on the PM board.
+# -----------------------------------------------------------------------------
+# Every free-text door a student talks through -- the live lesson (/api/chat), homework
+# help (/api/practice), topic help (/api/topic), the raised hand in a scripted lesson
+# (/api/script/ask), and a spoken or typed answer in a scripted lesson (/api/script/answer
+# `said`) -- passes the student's words to safety.py BEFORE the tutor sees them.
+#   crisis        -> Mr. Cadabra does NOT teach: he says safety.CRISIS_REPLY (kind, brief,
+#                    a trusted adult, 911, 988), the exchange is kept in the conversation so
+#                    the next turn knows, the alert is recorded, the parent is EMAILED (at
+#                    most once per student per SAFETY_EMAIL_HOURS, 6; every alert still
+#                    shows on the Family page), and Jim gets an ops email. A student with no
+#                    parent account (pilot, beta, class) -> Jim's email carries the words,
+#                    because nobody else will see them.
+#   personal_info -> the tutor answers as usual (ground rule 31b tells him not to repeat it);
+#                    the alert is recorded and shows on the Family page; no email.
+#   none          -> nothing at all.
+# The scripted lane's spoken answers never wait on a model (build ou's whole point): there
+# the zero-latency keyword screen runs, and only a hit is confirmed by the model reader.
+# Every decision is counted (system_events kind "safety") and the reader's tokens are logged
+# (usage kind "safety"), so cost and latency show on /admin. Fail-safe: any error inside
+# the gate lets the turn through -- the prompt's rule 31 is still there -- and says so.
+SAFETY_EMAIL_HOURS = int(os.environ.get("SAFETY_EMAIL_HOURS", "6") or 6)
+
+
+def _safety_parent(code: str):
+    try:
+        acct = store.get_account(code) or {}
+        pid = (acct.get("parent_id") or "").strip()
+        return (store.get_parent(pid) if pid else None), (acct.get("name") or "your student")
+    except Exception:  # noqa: BLE001
+        return None, "your student"
+
+
+def _safety_email_parent(parent: dict, name: str, words: str, page: str, alert_id: str) -> None:
+    to_addr = (parent.get("email") or "").strip()
+    if not to_addr or not _smtp_configured():
+        return
+    where = {"chat": "a lesson", "practice": "homework help", "topic": "topic help",
+             "ask": "a lesson (a question)", "answer": "a lesson (an answer)"}.get(page, "a lesson")
+
+    def _go():
+        err = _send_email(
+            to_addr, f"Mr. Cadabra: something {name} said may need you",
+            f"Hello,\n\nDuring {where} today, {name} said something that sounded like they may "
+            "be hurt, unsafe, or thinking about hurting themselves. These were their words:\n\n"
+            f"    \"{words[:600]}\"\n\n"
+            "Mr. Cadabra stopped the math and told them, kindly and calmly, that this matters "
+            "and to talk to a grown-up they trust today. He also gave them 911 for danger right "
+            "now and 988 (call or text, any time) to talk with someone who can help.\n\n"
+            f"Please check in with {name} soon. If anyone is in immediate danger, call 911. In "
+            "the US you can also call or text 988 for support, including advice for parents.\n\n"
+            "Every safety note is also on your Family page: https://mrcadabra.com/family\n\n"
+            "Mr. Cadabra is a math tutor, not a counselor, and this check can be wrong. We would "
+            "rather tell you about a false alarm than miss something real.\n\n"
+            "-- Mr. Cadabra's Classroom, support@mrcadabra.com")
+        if err:
+            print(f"[safety] parent email failed: {err}")
+        else:
+            store.set_safety_emailed(alert_id)
+    threading.Thread(target=_go, daemon=True, name="safety-email").start()
+
+
+def _safety_gate(code: str, words: str, page: str, course: str = "", confirm_only: bool = False):
+    """Screen a student's words. Returns the verdict dict for a CRISIS (the caller answers
+    with safety.CRISIS_REPLY instead of teaching), else None. `confirm_only` is the
+    scripted lane: only a keyword hit is sent to the model reader. Never raises."""
+    if safety is None:
+        return None
+    try:
+        text = (words or "").strip()
+        if not text:
+            return None
+        if confirm_only and not safety.quick_screen(text):
+            return None
+        verdict = safety.classify(text)
+        cat = verdict.get("category", "none")
+        _event_safe("safety", f"{page}:{cat}", f"{verdict.get('source')} {verdict.get('ms')}ms", code, course)
+        u = verdict.get("usage")
+        if u:
+            try:
+                store.log_usage("safety", code=code, course=course, mode=page, model=u.get("model", ""),
+                                input_tokens=u.get("in", 0), output_tokens=u.get("out", 0))
+            except Exception:  # noqa: BLE001
+                pass
+        if cat == "none":
+            return None
+        parent, name = _safety_parent(code)
+        pid = (parent or {}).get("id", "") if parent else ""
+        action = "crisis reply, no teaching" if cat == "crisis" else "tutor answered (rule 31b)"
+        alert_id = store.add_safety_alert(code, pid, cat, page, course, text, action,
+                                          verdict.get("source", ""))
+        if cat != "crisis":
+            return None
+        print(f"[safety] CRISIS on {page} ({verdict.get('source')}) for {_mask_code(code)}")
+        emailed_recently = False
+        last = store.last_safety_email_at(code)
+        if last is not None:
+            from datetime import datetime as _sdt, timezone as _stz
+            if last.tzinfo is None:
+                last = last.replace(tzinfo=_stz.utc)
+            emailed_recently = (_sdt.now(_stz.utc) - last).total_seconds() < SAFETY_EMAIL_HOURS * 3600
+        if parent and not emailed_recently:
+            _safety_email_parent(parent, name, text, page, alert_id)
+        _ops_alert("safety:" + code,
+                   "SAFETY — a student may be unsafe (" + page + ")",
+                   "The safety check judged a student's message a CRISIS and Mr. Cadabra gave the "
+                   "calm crisis reply instead of teaching.\n\n"
+                   f"Student: {_mask_code(code)}  ·  page: {page}  ·  decided by: {verdict.get('source')}\n"
+                   + ("The parent was emailed and it is on their Family page.\n" if parent and not emailed_recently
+                      else "The parent was emailed within the last few hours; this one is on their Family page.\n" if parent
+                      else "This student has NO parent account (pilot, beta or class code), so nobody else "
+                           "will see this. Their words:\n\n    \"" + text[:600] + "\"\n")
+                   + "\nPlease make sure a real adult follows up.",
+                   throttle_minutes=0)
+        return verdict
+    except Exception as exc:  # noqa: BLE001 -- the gate must never cost a turn
+        print(f"[safety] gate failed open on {page}: {exc}")
+        return None
+
+
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Send the student's message to the tutor and return the tutor's reply."""
@@ -11272,6 +11452,14 @@ def chat(req: ChatRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please type a message first.")
+
+    # (zk) THE SAFETY NET -- before the free gate, the final-exam gate and the tutor: a
+    # child in crisis is answered whatever plan they are on and whatever page state says.
+    if _safety_gate(code, message, "chat", req.course):
+        _crisis = safety.CRISIS_REPLY
+        mutate_history(code, req.course, lambda h: h + [
+            {"role": "user", "content": message}, {"role": "assistant", "content": _crisis}])
+        return {"reply": _crisis, "safety": True}
 
     # FREE PLAN GATE (2026-07-31): a free student who has mastered their first unit
     # gets a warm upgrade note instead of a lesson -- checked BEFORE the paid call.
@@ -11831,6 +12019,9 @@ def practice(req: PracticeRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please say what you're stuck on first.")
+    # (zk) the safety net: the browser holds this conversation, so the reply is all it needs
+    if _safety_gate(req.code.strip(), message, "practice", req.course):
+        return {"reply": safety.CRISIS_REPLY, "safety": True}
 
     # Sanitize the client-supplied history to just clean user/assistant text turns.
     safe_history = []
@@ -11888,6 +12079,8 @@ def topic(req: TopicRequest):
     message = (req.message or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="Please pick or name a topic first.")
+    if _safety_gate(req.code.strip(), message, "topic", req.course):    # (zk)
+        return {"reply": safety.CRISIS_REPLY, "safety": True}
     student["foundations_heard"] = _foundations_heard(req.code.strip(), req.course)
     reply = _bold_first_terms(tutor.get_topic_reply(student, req.topic, _sanitize_history(req.history), message, req.course, code=req.code.strip()), req.history)
     _record_learned(req.code.strip(), req.course, reply)
