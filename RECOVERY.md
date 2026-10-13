@@ -1,7 +1,7 @@
 # RECOVERY.md — how to get Mr. Cadabra's Classroom back, no matter what broke
 
 _2026-10-12 (build zh): Drill 4 added — the rehearsal that restores a real backup into a
-throwaway file and times it (PM-5 on the PM board). Not yet run._
+throwaway file and times it (PM-5 on the PM board). First run 2026-10-12: PASS, 2.3 s (log below)._
 
 _New file 2026-08-11 (build dj). Written for Jim, to be read on a bad day. Everything
 here has a tested path; nothing is aspirational. The one-line summary: **the code lives
@@ -71,7 +71,18 @@ touches the live database: the target is a throwaway file.
    log below. **Fail:** any table short, any error — that is a build, before launch.
 5. **Jim:** delete `D:\RestoreDrill` when it passes.
 
-**Drill log** (newest first): _not yet run._
+**Drill log** (newest first):
+- **2026-10-12 — PASS.** Snapshot `mrcadabra-backup-20260908.json.gz` (taken 2026-09-08 from the live
+  Postgres; 39 tables, 72,636 rows), restored into a throwaway SQLite file by `restore_backup.py`
+  in **2.3 seconds**. Every table's row count matched the snapshot exactly, except `parent_tokens` (3)
+  and `teacher_tokens` (1), which are withheld from every restore **on purpose** (build hs: a restore
+  never brings old sign-ins back; families sign in again). Today's build booted on the restored copy:
+  `/health` db true; 4 families with students; one family's Family-page payload and one student's
+  dashboard (9 units, real progress in a course) loaded. An older snapshot restores into today's
+  schema. Run in Claude's cloud workspace with Jim's consent (the computer bridge cannot run code in
+  connected folders); the backup copy and the restored file were deleted there afterwards.
+  **Follow-ups:** the newest download on hand was a month old — the weekly habit below has lapsed;
+  and the original file in `D:\RestoreDrill` is Jim's to delete.
 
 ## The secrets to keep in your password manager (names; you hold the values)
 `ANTHROPIC_API_KEY` · `ELEVENLABS_API_KEY` · `OPENAI_API_KEY` · `DATABASE_URL` ·

@@ -2,6 +2,17 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zj -- THE BACKUP COMES HOME. /api/admin/backup records who took it: X-Backup-Client:
+#               pc (tools/pc-backup's weekly Task Scheduler job) -> ops_pass 'pcbackup'; a click on /admin
+#               -> 'download'. _ops_state gains the pcbackup job: 'off' until its first pass is on record
+#               (not installed is not broken), then stale after 9 days -> the STALE JOB email. PART 3pd.
+#   2026-10-12  BUILD zi -- THE PARENT CAN DELETE EVERYTHING (PM-13). POST /api/parent/delete-account:
+#               password + the typed word DELETE; billing canceled FIRST (every live Stripe subscription,
+#               then the customer) or nothing is deleted; then store.delete_parent_cascade(anonymize_forum
+#               =True) in one transaction; lesson state dropped; a confirmation email after the fact;
+#               rate-limited 5/hour/IP. Student Remove now drops lesson state too. store.py: drill_daily
+#               and student_phrasings join the cascade; codes blanked on usage_log / system_events /
+#               flags. family.html: the Delete my account card. privacy.html: how to delete. PART 3pc.
 #   2026-10-12  BUILD zh -- THE BROWSER'S CRASHES REACH JIM (PM-6). _client_error_pass on the heartbeat:
 #               the browser errors filed since its own last pass (an ops_pass 'clienterrors' marker
 #               written before reading, so windows meet), noise dropped (Script error., ResizeObserver
@@ -4691,7 +4702,114 @@ def parent_student_remove(body: ParentChildIn, request: Request):
             "To remove this student, type their name exactly as it appears — this "
             "permanently deletes their progress."))
     store.reset_student_data(code)
+    _SCRIPT_SESSIONS.pop(code, None)                # (zi) no lesson state outlives its student
     return _parent_payload(store.get_parent(parent["id"]))
+
+
+# =============================================================================
+# (zi, 2026-10-12) THE PARENT CAN DELETE EVERYTHING -- PM-13 on the PM board.
+# -----------------------------------------------------------------------------
+# A parent could remove one student (dy) but could not close the account: the email, the
+# name, the password, the sign-ins and the billing link stayed until someone emailed
+# support. The amended COPPA Rule (enforceable since 2026-04-22) expects deletion on a
+# parent's request; the privacy page promised "a self-serve delete button is on the
+# roadmap". This is the button.
+# Consent is the password (proves it is the parent, not a child on an open laptop) AND the
+# typed word DELETE (proves it is not a slip). Order matters, and it is all-or-nothing:
+#   1. billing FIRST -- every live Stripe subscription is canceled now and the Stripe
+#      customer deleted (its saved cards go with it). If Stripe cannot be reached, NOTHING
+#      is deleted and the parent is told: deleting the account while a subscription keeps
+#      charging would be the worst possible outcome.
+#   2. store.delete_parent_cascade(anonymize_forum=True) -- one transaction: every student
+#      and every per-student row, the sign-ins, reset links, email settings, the parent row;
+#      the students' codes blanked on the cost and health tallies; forum posts kept but
+#      signed "Former member". The deletions ledger keeps a backup restore from bringing
+#      any of it back.
+#   3. in-memory lesson state for those students is dropped; a confirmation email goes to
+#      the address being deleted (best-effort, sent after the delete, never before).
+# Rate-limited per IP: the password is checked here, so it must not become a guessing door.
+class ParentDeleteIn(BaseModel):
+    token: str = ""
+    password: str = ""
+    confirm: str = ""            # the typed word DELETE
+
+
+_LIVE_SUB_STATUSES = ("active", "trialing", "past_due", "unpaid", "incomplete")
+
+
+def _cancel_billing_for_delete(parent: dict) -> str:
+    """Cancel every live subscription and delete the Stripe customer. Returns "" when
+    billing is clear, or the reason it is not (the caller then deletes nothing)."""
+    cust = (parent.get("stripe_customer_id") or "").strip()
+    status = (parent.get("sub_status") or "").strip()
+    if not cust:
+        return ""                                   # never had billing
+    if not os.environ.get("STRIPE_SECRET_KEY", "").strip():
+        if status in _LIVE_SUB_STATUSES:
+            return ("Your subscription is still active and billing can't be reached from "
+                    "here right now, so nothing was deleted. Email support@mrcadabra.com and "
+                    "we'll cancel it and delete the account by hand.")
+        return ""                                   # no key, no live plan: nothing to stop
+    try:
+        stripe = _stripe()
+        subs = stripe.Subscription.list(customer=cust, status="all", limit=20)
+        for sub in subs.data:
+            if (sub.get("status") or "") in _LIVE_SUB_STATUSES:
+                stripe.Subscription.cancel(sub.id)
+        stripe.Customer.delete(cust)
+    except Exception as exc:  # noqa: BLE001
+        msg = str(exc)
+        if "No such customer" in msg:              # already gone in Stripe: clear
+            return ""
+        print(f"[delete] billing cancel failed for {parent.get('id')}: {msg[:200]}")
+        return ("We couldn't cancel your subscription with our payment processor just now, "
+                "so nothing was deleted (we never delete an account that might keep "
+                "charging). Please try again in a few minutes, or email support@mrcadabra.com.")
+    return ""
+
+
+@app.post("/api/parent/delete-account")
+def parent_delete_account(body: ParentDeleteIn, request: Request):
+    """PERMANENT. The parent's own delete: the account, every student and all their data.
+    Needs the password AND the typed word DELETE. Billing is canceled first; if that fails,
+    nothing is deleted."""
+    _require_db()
+    _rate_limit("pdel:" + _client_ip(request), limit=5, window_seconds=3600,
+                what="delete attempts")
+    parent = _require_parent(body.token or request.headers.get("x-parent-token", ""))
+    full = store.get_parent(parent["id"]) or {}
+    if not _verify_password(body.password or "", full.get("password_hash") or ""):
+        raise HTTPException(status_code=403, detail=(
+            "That password isn't right, so nothing was deleted."))
+    if (body.confirm or "").strip().upper() != "DELETE":
+        raise HTTPException(status_code=400, detail=(
+            "Type the word DELETE in the box to confirm — this can't be undone."))
+    why = _cancel_billing_for_delete(full)
+    if why:
+        raise HTTPException(status_code=409, detail=why)
+    email = (full.get("email") or "").strip()
+    result = store.delete_parent_cascade(full["id"], anonymize_forum=True)
+    if not result.get("ok"):
+        raise HTTPException(status_code=500, detail=(
+            "Couldn't complete the delete — nothing was deleted. Please try again."))
+    codes = result.get("student_codes") or []
+    for c in codes:
+        _SCRIPT_SESSIONS.pop(c, None)               # no lesson state outlives its student
+    store.record_event("account", "parent_deleted", f"{len(codes)} student(s)")
+    if email and _smtp_configured():
+        def _confirm():
+            err = _send_email(email, "Your Mr. Cadabra account has been deleted",
+                "As you asked, your Mr. Cadabra's Classroom account has been deleted: your "
+                f"sign-in, {len(codes)} student account(s) with all their progress, and your "
+                "email settings. Any subscription was canceled first, so there will be no "
+                "further charges.\n\nOur short-lived backups are never used to bring a "
+                "deleted account back, and they age out on their own.\n\nIf you did not ask "
+                "for this, reply to this email right away.\n\n— Mr. Cadabra's Classroom, "
+                "support@mrcadabra.com")
+            if err:
+                print(f"[delete] confirmation email failed: {err}")
+        threading.Thread(target=_confirm, daemon=True, name="delete-confirm").start()
+    return {"ok": True, "students_removed": len(codes)}
 
 
 @app.post("/api/parent/student-attach")
@@ -5593,7 +5711,8 @@ def admin_coursesweep_report(name: str = "", key: str = "",
 
 @app.get("/api/admin/backup")
 def admin_backup_download(key: str = "",
-                          x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+                          x_admin_key: str = Header(default="", alias="X-Admin-Key"),
+                          x_backup_client: str = Header(default="", alias="X-Backup-Client")):
     """A FRESH full snapshot, streamed as a download -- not a file from the disk, so
     what Jim saves is the database as of this click. This is the offsite copy: the
     nightly file protects against deploys and app mistakes; this one protects against
@@ -5604,6 +5723,11 @@ def admin_backup_download(key: str = "",
     _require_db()
     blob, counts = _backup_blob()
     fname = "mrcadabra-backup-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + ".json.gz"
+    # (zj) the PC copy says who it is, so /health can age it and alarm when it stops
+    # landing; a click on /admin is recorded too, as its own kind of pass.
+    via = "pc" if (x_backup_client or "").strip().lower() == "pc" else "admin"
+    store.record_event("ops_pass", "pcbackup" if via == "pc" else "download",
+                       f"{sum(counts.values())} rows, {len(blob)} bytes")
     return Response(blob, media_type="application/gzip",
                     headers={"Content-Disposition": f'attachment; filename="{fname}"',
                              "X-Backup-Rows": str(sum(counts.values())),
@@ -9893,7 +10017,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-12zh-the-browsers-crashes-reach-jim"
+APP_BUILD = "2026-10-12zj-the-backup-comes-home"
 
 
 # =============================================================================
@@ -9917,17 +10041,25 @@ APP_BUILD = "2026-10-12zh-the-browsers-crashes-reach-jim"
 # heartbeat itself cannot report its own death that way, which is what /health's
 # number and the admin tile are for.
 _PROCESS_STARTED = time.time()
-OPS_LIMITS_S = {"heartbeat": 2 * 3600, "backup": 2 * 86400, "nightwatch": 2 * 86400}
+OPS_LIMITS_S = {"heartbeat": 2 * 3600, "backup": 2 * 86400, "nightwatch": 2 * 86400,
+                # (zj) the weekly copy Jim's PC pulls (tools/pc-backup): a week + 2 days
+                "pcbackup": 9 * 86400}
 _OPS_LABELS = {"heartbeat": "the heartbeat", "backup": "the nightly backup",
-               "offsite": "the off-site backup", "nightwatch": "the night watch"}
+               "offsite": "the off-site backup", "nightwatch": "the night watch",
+               "pcbackup": "the weekly backup to Jim's PC"}
+_OPS_JOBS = ("heartbeat", "backup", "offsite", "nightwatch", "pcbackup")
 
 
-def _ops_limit_s(job: str):
-    """The age past which `job` is stale, or None when the job is switched off."""
+def _ops_limit_s(job: str, ages: dict | None = None):
+    """The age past which `job` is stale, or None when the job is switched off.
+    (zj) The PC backup is 'off' until its first pass is on record -- a job Jim has not
+    installed yet is not a broken one."""
     if job == "offsite":
         return None if OFFSITE_BACKUP_DAYS <= 0 else (OFFSITE_BACKUP_DAYS + 2) * 86400
     if job == "nightwatch":
         return None if (nightwatch is None or not nightwatch.enabled()) else OPS_LIMITS_S[job]
+    if job == "pcbackup" and ages is not None and ages.get("pcbackup_age_s") is None:
+        return None                     # (zj) not set up yet: off, never an alarm
     return OPS_LIMITS_S.get(job)
 
 
@@ -9936,6 +10068,8 @@ def _ops_off_reason(job: str) -> str:
         return "OFFSITE_BACKUP_DAYS=0"
     if job == "nightwatch":
         return "nightwatch.py not deployed" if nightwatch is None else "NIGHTWATCH=off"
+    if job == "pcbackup":
+        return "not set up yet (tools/pc-backup/Install-Backup.cmd)"
     return ""
 
 
@@ -9950,9 +10084,9 @@ def _ops_state(ages: dict | None = None, now: float | None = None) -> dict:
         up_s = max(0, int(now - _PROCESS_STARTED))
         db = bool(store.enabled())
         jobs, stale = {}, []
-        for job in ("heartbeat", "backup", "offsite", "nightwatch"):
+        for job in _OPS_JOBS:
             age = ages.get(job + "_age_s")
-            limit = _ops_limit_s(job)
+            limit = _ops_limit_s(job, ages)
             if limit is None:
                 state = "off"
             elif not db:
@@ -9978,7 +10112,7 @@ def _ops_ages() -> dict:
     ops = {}
     try:
         from datetime import datetime as _hdt, timezone as _htz
-        for nm in ("heartbeat", "backup", "nightwatch", "offsite"):
+        for nm in ("heartbeat", "backup", "nightwatch", "offsite", "pcbackup"):
             ts = store.last_event_at("ops_pass", nm)
             if ts is not None and ts.tzinfo is None:
                 ts = ts.replace(tzinfo=_htz.utc)
@@ -9986,7 +10120,8 @@ def _ops_ages() -> dict:
                                   if ts else None)
     except Exception as exc:  # noqa: BLE001
         print(f"[health] ops ages failed: {exc}")
-        ops = {"heartbeat_age_s": None, "backup_age_s": None, "nightwatch_age_s": None}
+        ops = {"heartbeat_age_s": None, "backup_age_s": None, "nightwatch_age_s": None,
+               "offsite_age_s": None, "pcbackup_age_s": None}
     return ops
 
 

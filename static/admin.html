@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    (zj) 2026-10-12 -- THE BACKUP COMES HOME. Jim: the backup "didn't work because the
+    DATA_EXPORT_KEY was dropped". The Download button threw the remembered export key away on
+    ANY failure -- a slow snapshot (502/504), a restart -- so a good key had to be typed again
+    every time something unrelated went wrong. Now it is forgotten ONLY when the server says
+    the key itself is wrong (401), and the message says which it was. The Nightly jobs tile
+    also shows the weekly PC copy (tools/pc-backup): off until it is installed, then its age.
     (zg) 2026-10-09 -- THE JOBS SAY OFF OR STALE. The System section gets a "Nightly jobs"
     tile from the stats payload's ops_state (main.py _ops_state): red with the stale jobs
     named when a job that is switched on has stopped, green otherwise, and a job switched
@@ -2109,7 +2115,8 @@
   // ---------- (zg) the ops jobs: ok / stale / off ----------
   // One tile for the System section. Red only for a job that is switched ON and has
   // stopped; a job switched off on purpose says "off" in the caption and never alarms.
-  var OPS_NAMES = { heartbeat: "heartbeat", backup: "backup", offsite: "off-site", nightwatch: "night watch" };
+  var OPS_NAMES = { heartbeat: "heartbeat", backup: "backup", offsite: "off-site", nightwatch: "night watch",
+                   pcbackup: "PC copy" };   // (zj) the weekly copy on Jim's PC
   function opsAge(sec) {
     if (sec === null || sec === undefined) return "never";
     if (sec < 3600) return Math.max(1, Math.floor(sec / 60)) + " min";
@@ -2119,7 +2126,7 @@
   function opsTile(st) {
     if (!st || !st.jobs) return { l: "Nightly jobs", v: '<span style="font-size:16px">—</span>', s: "not reported" };
     var parts = [];
-    ["heartbeat", "backup", "offsite", "nightwatch"].forEach(function (k) {
+    ["heartbeat", "backup", "offsite", "nightwatch", "pcbackup"].forEach(function (k) {
       var j = st.jobs[k];
       if (!j) return;
       parts.push(OPS_NAMES[k] + ": " + (j.state === "off" ? "off" : j.state === "stale"
@@ -2360,8 +2367,15 @@
       if (!r.ok) {
         if (r.status === 503) { var d503 = {}; try { d503 = await r.json(); } catch (e) {}
           throw new Error((d503 && d503.detail) || "DATA_EXPORT_KEY is not set in Render yet."); }
-        try { sessionStorage.removeItem("mt_export_key"); } catch (e) {}   // wrong key: re-ask next time
-        throw new Error(r.status === 401 ? "That key didn't work." : "Backup failed (" + r.status + ").");
+        // (zj) forget the key ONLY when the server says the key itself is wrong. A slow
+        // snapshot (502/504) or a restart is not a bad key, and dropping it on those made
+        // a good key vanish ("the DATA_EXPORT_KEY was dropped").
+        if (r.status === 401) {
+          try { sessionStorage.removeItem("mt_export_key"); } catch (e) {}
+          throw new Error("That key didn't work — it is not the DATA_EXPORT_KEY in Render. Press again to re-enter it.");
+        }
+        throw new Error("The backup didn't finish (HTTP " + r.status + ") — the server was busy or restarting. " +
+                        "Your key is still remembered; press again in a minute.");
       }
       var blob = await r.blob();
       var cd = r.headers.get("Content-Disposition") || "";

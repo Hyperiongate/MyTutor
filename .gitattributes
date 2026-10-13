@@ -2,6 +2,9 @@
 # .gitattributes  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zj -- *.cmd and *.bat are CRLF. tools/pc-backup/Install-Backup.cmd is the
+#               first Windows batch file in the repo, and cmd.exe wants CRLF line endings;
+#               every other rule is untouched (no existing file changes).
 #   2026-08-26  NEW FILE (build oa). Marketing's fresh Windows clone showed 98
 #               files "modified" with identical content: the repo stores LF,
 #               their machine checked out CRLF, and their git offered to commit
@@ -43,4 +46,8 @@
 *.woff   binary
 *.woff2  binary
 
+
+# (zj) Windows batch files: cmd.exe wants CRLF.
+*.cmd    text eol=crlf
+*.bat    text eol=crlf
 # I did no harm and this file is not truncated.

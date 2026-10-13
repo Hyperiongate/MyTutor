@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <!--
+    2026-10-12  THE PARENT CAN DELETE EVERYTHING (build zi, PM-13 on the PM board). A "Delete my
+                account" card at the foot of the signed-in view, folded shut: it says what goes
+                (every student and their progress, the email, password and sign-ins, the weekly
+                email; any subscription canceled first) and what stays (forum posts, signed
+                "Former member"); it asks for the password and the typed word DELETE, then
+                POSTs /api/parent/delete-account, signs this browser out and says it is done.
     2026-10-09  ONE PLAN, ONE STUDENT (build zg, Jim's ruling D1 on the PM board: "I would set
                 it up for one. That way we know it's one price for one person."). The plan card
                 reads me.kids_per_seat (main.py KIDS_PER_SEAT, now 1) for its subscribe totals
@@ -426,6 +432,27 @@
       &nbsp;·&nbsp; Each student's <b>Records</b> link above is the printable report homeschool
       families file with their state (hours log + mastery evidence).</p>
   </div>
+
+  <!-- (zi) 2026-10-12: the parent's own delete. Folded shut so it is never in the way. -->
+  <details class="card" id="delCard" style="margin-top:20px">
+    <summary style="cursor:pointer;font-weight:800">🗑️ Delete my account</summary>
+    <p class="cap" style="margin-top:12px">This permanently deletes <b>every student on this account
+    and all of their progress</b>, your email address, password and sign-ins, and your weekly-email
+    settings. If you have a subscription, it is canceled first, so there are no further charges.
+    Posts you wrote in the community forum stay up for the families who replied, signed
+    “Former member”. Our short-lived backups are never used to bring a deleted account back.
+    <b>This can't be undone.</b> To remove just one student, use Remove on that student instead.</p>
+    <form id="delForm" style="margin-top:12px">
+      <label for="delPass">Your password</label>
+      <input id="delPass" type="password" autocomplete="current-password" />
+      <label for="delWord" style="margin-top:10px">Type DELETE to confirm</label>
+      <input id="delWord" autocomplete="off" maxlength="10" placeholder="DELETE" />
+      <div class="rowbtns" style="margin-top:12px">
+        <button class="btn btn-ghost" id="delGo" type="submit" style="color:#b42318;border-color:#f3c0bb">Delete my account and all its data</button>
+      </div>
+      <div class="msg" id="delMsg"></div>
+    </form>
+  </details>
 </section>
 
 <footer><div class="wrap">
@@ -955,6 +982,27 @@
       }
     }
     state.busy = false; $("authGo").disabled = false;
+  });
+
+  // (zi) the parent's own delete: password + DELETE; on success this browser signs out.
+  $("delForm").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    if (state.busy) return;
+    var pw = $("delPass").value || "", word = ($("delWord").value || "").trim();
+    if (word.toUpperCase() !== "DELETE") { msg("delMsg", "Type the word DELETE to confirm.", "err"); return; }
+    if (!pw) { msg("delMsg", "Enter your password.", "err"); return; }
+    state.busy = true; $("delGo").disabled = true; msg("delMsg", "");
+    try {
+      await api("/api/parent/delete-account", { method: "POST",
+        body: JSON.stringify({ token: token(), password: pw, confirm: word }) });
+      setToken(""); state.me = null;
+      $("delPass").value = ""; $("delWord").value = ""; $("delCard").open = false;
+      render();
+      banner("Your account and all of your students' data have been deleted. A confirmation is on its way to your email.", "warn");
+    } catch (e) {
+      msg("delMsg", e.message, "err");
+    }
+    state.busy = false; $("delGo").disabled = false;
   });
 
   $("signout").addEventListener("click", async function () {

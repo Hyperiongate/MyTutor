@@ -2,6 +2,16 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zi -- THE PARENT CAN DELETE EVERYTHING (PM-13). (1) drill_daily and
+#               student_phrasings JOIN _STUDENT_CODE_TABLES: both are per-student and both were
+#               missing, so Remove / Start Fresh / a parent's delete left a student's drill days and
+#               the tutor's phrasing memory behind, and a regenerated login code orphaned them.
+#               (2) _STUDENT_CODE_SCRUB: usage_log, system_events and flags keep their rows (cost
+#               tallies, health counts, Jim's flags) but a deleted student's code is BLANKED on them,
+#               in the same transaction -- reset_student_data and delete_parent_cascade both. (3)
+#               delete_parent_cascade(pid, anonymize_forum=False): True (the parent's own delete)
+#               turns their forum posts and replies into "Former member" with no parent_id; the
+#               admin Start Fresh keeps today's behaviour.
 #   2026-10-12  BUILD zh -- events_between(kinds, since, until, limit): the events of some kinds
 #               inside an exact window, oldest first, for main.py's browser-error pass (which
 #               emails Jim the NEW ones since its last pass). recent_events reads a window back
@@ -3147,19 +3157,51 @@ _STUDENT_CODE_TABLES = [
     # 2026-09-02 (build sb): the practice goal, same rule -- it follows a
     # regenerated login code and dies with a reset or removed student.
     ("practice_goals", "code"),
+    # 2026-10-12 (build zi): TWO LATE JOINERS. drill_daily (build ng, the drill lane's
+    # days) and student_phrasings (build jr, the tutor's first-phrasing memory) are both
+    # one-student-per-row and missed the day-one rule: a removed student's drill days and
+    # phrasings stayed behind, and a regenerated code left them on the dead code.
+    ("drill_daily", "code"),
+    ("student_phrasings", "code"),
 ]
+# (zi) Tables that KEEP their rows when a student is deleted -- the cost ledger, the
+# health tally, Jim's own flags -- but must not keep the student's code: it is blanked in
+# the same transaction, so nothing left behind points back at a deleted child.
+_STUDENT_CODE_SCRUB = [
+    ("usage_log", "code"), ("system_events", "code"), ("flags", "code"),
+]
+
+
+def _scrub_codes(conn, codes) -> dict:
+    """(zi) Blank `codes` on the keep-the-row tables, inside the caller's transaction."""
+    from sqlalchemy import update
+    out: dict = {}
+    codes = [c for c in (codes or []) if c]
+    if not codes:
+        return out
+    for tname, col in _STUDENT_CODE_SCRUB:
+        t = _tables.get(tname)
+        if t is None:
+            continue
+        r = conn.execute(update(t).where(t.c[col].in_(codes)).values(**{col: ""}))
+        out[tname] = int(r.rowcount or 0)
+    return out
 _PARENT_KEYED_TABLES = [
     ("parent_tokens", "parent_id"), ("parent_resets", "parent_id"),
     ("parent_digests", "parent_id"),
 ]
 
 
-def delete_parent_cascade(parent_id: str) -> dict:
+def delete_parent_cascade(parent_id: str, anonymize_forum: bool = False) -> dict:
     """Remove a parent, their student accounts, and every per-student and
     per-parent row tied to them. Returns {ok, deleted:{table: rows_deleted},
-    student_codes:[...]}. All-or-nothing: one transaction, so a failure midway
-    rolls the whole thing back and nothing is left half-deleted."""
-    from sqlalchemy import delete, select
+    student_codes:[...], scrubbed:{table: rows}}. All-or-nothing: one transaction, so
+    a failure midway rolls the whole thing back and nothing is left half-deleted.
+    (zi) The students' codes are blanked on the keep-the-row tables (_STUDENT_CODE_SCRUB)
+    in the same transaction. anonymize_forum=True -- the parent's OWN delete -- also turns
+    their forum posts and replies into "Former member" with no parent_id (the posts stay,
+    because other families replied to them); the admin Start Fresh leaves it False."""
+    from sqlalchemy import delete, select, update
     pid = (parent_id or "").strip()
     if not pid:
         return {"ok": False, "reason": "no parent_id", "deleted": {}, "student_codes": []}
@@ -3194,7 +3236,18 @@ def delete_parent_cascade(parent_id: str) -> dict:
                 continue
             res = conn.execute(delete(t).where(t.c[col] == pid))
             deleted[tname] = deleted.get(tname, 0) + int(res.rowcount or 0)
-        # 4) finally the parent row itself
+        # 4) (zi) the students' codes leave the keep-the-row tables
+        scrubbed = _scrub_codes(conn, codes)
+        # 5) (zi) the parent's own delete: their forum words stay, their name does not
+        if anonymize_forum:
+            for tname in ("forum_posts", "forum_replies"):
+                t = _tables.get(tname)
+                if t is None:
+                    continue
+                res = conn.execute(update(t).where(t.c.parent_id == pid)
+                                   .values(parent_id="", author_name="Former member"))
+                scrubbed[tname] = int(res.rowcount or 0)
+        # 6) finally the parent row itself
         p = _tables["parents"]
         res = conn.execute(delete(p).where(p.c.id == pid))
         deleted["parents"] = deleted.get("parents", 0) + int(res.rowcount or 0)
@@ -3203,7 +3256,7 @@ def delete_parent_cascade(parent_id: str) -> dict:
         record_deletion("parent", _email)
     for _c in codes:
         record_deletion("student", _c)
-    return {"ok": True, "deleted": deleted, "student_codes": codes}
+    return {"ok": True, "deleted": deleted, "student_codes": codes, "scrubbed": scrubbed}
 
 
 # ---- weekly parent email (2026-08-04) ---------------------------------------
@@ -3636,6 +3689,7 @@ def delete_beta_cascade(code: str) -> dict:
                 continue
             r = conn.execute(delete(t).where(t.c[col] == c))
             deleted[tname] = int(r.rowcount or 0)
+        _scrub_codes(conn, [c])          # (zi) the keep-the-row tables forget it too
     return {"ok": True, "existed": existed, "deleted": deleted}
 
 
@@ -3658,10 +3712,12 @@ def reset_student_data(code: str) -> dict:
                 continue
             r = conn.execute(delete(t).where(t.c[col] == c))
             deleted[tname] = int(r.rowcount or 0)
+        # (zi) the keep-the-row tables forget the code, same transaction
+        scrubbed = _scrub_codes(conn, [c])
     # build hv: a reset is a deliberate erasure -- the ledger keeps a restore from
     # quietly undoing it (Start Fresh must stay fresh across a snapshot restore).
     record_deletion("student", c)
-    return {"ok": True, "deleted": deleted}
+    return {"ok": True, "deleted": deleted, "scrubbed": scrubbed}
 
 
 def record_error(where: str, what: str) -> None:

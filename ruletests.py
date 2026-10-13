@@ -2,6 +2,15 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-12  BUILD zj -- PART 3pd, THE BACKUP COMES HOME: the export key forgotten only on a 401; the
+#               backup route records the PC copy; /health ages it (off until installed, stale after 9 days);
+#               tools/pc-backup's scripts pinned (ASCII, DPAPI, Sunday task, gzip check, keep 8, CRLF .cmd);
+#               and, when pwsh is on the machine, run.ps1 driven against the real app (3 runs, keep 2, bad key).
+#   2026-10-12  BUILD zi -- PART 3pc, THE PARENT CAN DELETE EVERYTHING: the delete-account route on a real
+#               SQLite database -- the password and DELETE guards, billing first (no key + live plan, Stripe
+#               down: nothing deleted; Stripe up: cancel, delete customer, then the data), every per-student
+#               row gone (drill_daily and student_phrasings now in the cascade), the tallies' codes blanked,
+#               the forum post kept as Former member, the other family untouched, the ledger written.
 #   2026-10-12  BUILD zh -- PART 3pb, THE BROWSER'S CRASHES REACH JIM: client-log.js live and FIRST on every
 #               page that runs a script (22 more pages); _client_error_pass on a real SQLite database: the
 #               window, the noise, the week-old kind, one email for the new kind, none for a repeat.
@@ -26873,6 +26882,288 @@ def part3pb_the_browsers_crashes_reach_jim():
     check("  the dated notes are in (Jim's rule 8)",
           all("2026-10-12" in notes(f) and "zh" in notes(f) for f in ("main.py", "store.py", "static/index.html", "static/drill.html", "static/landing.html")),
           "Jim's rule 8")
+
+
+def part3pc_the_parent_can_delete_everything():
+    """PART 3pc (build zi, 2026-10-12) -- THE PARENT CAN DELETE EVERYTHING. PM-13 on the PM
+    board. A parent could remove one student but not close the account; the privacy page said
+    the button was "on the roadmap". POST /api/parent/delete-account takes the password AND the
+    typed word DELETE, cancels billing FIRST (or deletes nothing), then runs
+    delete_parent_cascade(anonymize_forum=True) in one transaction. Found on the way and
+    fixed: drill_daily and student_phrasings were never in _STUDENT_CODE_TABLES, so every
+    Remove / Start Fresh left them behind; and the cost / health / flag tables kept a deleted
+    student's code -- now blanked in the same transaction."""
+    print("\nPART 3pc — the parent can delete everything (build zi)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    ssrc, msrc = rd("store.py"), rd("main.py")
+    reg = ssrc.split("_STUDENT_CODE_TABLES = [", 1)[1].split("\n]", 1)[0]
+    check("⭐ drill_daily and student_phrasings JOIN _STUDENT_CODE_TABLES (both per-student, both were missing)",
+          '("drill_daily", "code")' in reg and '("student_phrasings", "code")' in reg, "")
+    check("  usage_log, system_events and flags keep their rows but forget the code (_STUDENT_CODE_SCRUB), "
+          "in reset, beta delete and the parent cascade",
+          '("usage_log", "code"), ("system_events", "code"), ("flags", "code")' in ssrc
+          and ssrc.count("_scrub_codes(conn,") >= 3, "")
+    body = msrc.split("def parent_delete_account(", 1)[1].split("\n@app.", 1)[0]
+    check("⭐ the route: rate-limited, password checked, DELETE typed, billing BEFORE the cascade",
+          '_rate_limit("pdel:"' in body and "_verify_password(body.password" in body
+          and '!= "DELETE"' in body
+          and body.find("_cancel_billing_for_delete(full)") < body.find("store.delete_parent_cascade(full[\"id\"], anonymize_forum=True)"), "")
+    fam = rd("static/family.html")
+    check("  the Family page has the folded Delete my account card, posting password + DELETE and signing out",
+          'id="delCard"' in fam and '"/api/parent/delete-account"' in fam and "setToken(\"\"); state.me = null;" in fam
+          and 'type="password" autocomplete="current-password"' in fam, "")
+    pv = rd("static/privacy.html").split("<html", 1)[-1]
+    check("  the privacy page says how to delete, and no longer says the button is on the roadmap",
+          "Delete my account" in pv and "on\n    the roadmap" not in pv and "roadmap alongside parent accounts" not in pv, "")
+
+    import tempfile, subprocess
+    tmp = tempfile.mkdtemp(prefix="zi_")
+    script = os.path.join(tmp, "zi_drive.py")
+    open(script, "w", encoding="utf-8").write(r'''
+import os, uuid
+from fastapi.testclient import TestClient
+import main as M, store
+from sqlalchemy import select, func
+cl = TestClient(M.app)
+def count(tname, col, val):
+    t = store._tables[tname]
+    with store._engine.connect() as c:
+        return c.execute(select(func.count()).select_from(t).where(t.c[col] == val)).scalar()
+def mk(email):
+    r = cl.post("/api/parent/signup", json={"email": email, "password": "correct horse", "name": "Pat"})
+    assert r.status_code == 200, r.text
+    tok = r.json()["token"]
+    for n in ("Ana", "Ben"):
+        r = cl.post("/api/parent/students", json={"token": tok, "name": n}); assert r.status_code == 200, r.text
+    me = cl.get("/api/parent/me", headers={"X-Parent-Token": tok}).json()
+    return tok, me, [s["code"] for s in me["students"]]
+tok, me, codes = mk("del@example.com")
+pid = store.get_parent_by_email("del@example.com")["id"]
+other_tok, other_me, other_codes = mk("keep@example.com")
+for c in codes + other_codes:
+    store.record_drill(c, "times-tables", 3, 4)
+    store.remember_phrasing(c, "basic", "carry", "ten or more")
+    store.log_usage("brain", code=c, course="basic", mode="lesson")
+    store.record_event("turn", "live:chat", "x", code=c)
+    store.add_flag("session", "basic", c, "he said piece", "angle")
+store.create_forum_post(uuid.uuid4().hex, "working", "Hi", "hello", pid, "Pat")
+# 1) wrong password, 2) wrong word -> nothing deleted
+r1 = cl.post("/api/parent/delete-account", json={"token": tok, "password": "nope nope", "confirm": "DELETE"})
+r2 = cl.post("/api/parent/delete-account", json={"token": tok, "password": "correct horse", "confirm": "delet"})
+print("GUARDS", r1.status_code, r2.status_code, count("accounts", "parent_id", pid))
+# 3) a live subscription with no Stripe key -> 409, nothing deleted
+store.update_parent(pid, stripe_customer_id="cus_test", sub_status="active")
+os.environ.pop("STRIPE_SECRET_KEY", None)
+r3 = cl.post("/api/parent/delete-account", json={"token": tok, "password": "correct horse", "confirm": "DELETE"})
+print("NOKEY", r3.status_code, count("accounts", "parent_id", pid), "support@mrcadabra.com" in r3.text)
+# 4) Stripe down -> 409, nothing deleted
+calls = []
+class Boom:
+    class Subscription:
+        @staticmethod
+        def list(**k): raise RuntimeError("stripe is down")
+os.environ["STRIPE_SECRET_KEY"] = "sk_test_x"
+M._stripe = lambda: Boom
+r4 = cl.post("/api/parent/delete-account", json={"token": tok, "password": "correct horse", "confirm": "DELETE"})
+print("STRIPEDOWN", r4.status_code, count("accounts", "parent_id", pid))
+# 5) Stripe up -> the live sub is canceled, the customer deleted, THEN the data goes
+class Sub(dict):
+    def __init__(s, i, st): super().__init__(status=st); s.id = i
+class Fake:
+    class Subscription:
+        @staticmethod
+        def list(**k):
+            calls.append(("list", k.get("customer")))
+            class R: data = [Sub("sub_live", "active"), Sub("sub_old", "canceled")]
+            return R
+        @staticmethod
+        def cancel(i): calls.append(("cancel", i))
+    class Customer:
+        @staticmethod
+        def delete(c): calls.append(("delete", c))
+M._stripe = lambda: Fake
+M._SCRIPT_SESSIONS[codes[0]] = {"state": {}}
+r5 = cl.post("/api/parent/delete-account", json={"token": tok, "password": "correct horse", "confirm": "delete"})
+print("OK", r5.status_code, r5.json())
+print("CALLS", calls)
+left = sum(count(t, col, c) for c in codes for t, col in store._STUDENT_CODE_TABLES)
+print("LEFT", left, count("parents", "id", pid), count("parent_tokens", "parent_id", pid))
+print("SCRUB", sum(count(t, col, c) for c in codes for t, col in store._STUDENT_CODE_SCRUB),
+      count("usage_log", "code", ""), count("flags", "code", ""))
+fp = store._tables["forum_posts"]
+with store._engine.connect() as c:
+    row = c.execute(select(fp.c.author_name, fp.c.parent_id, fp.c.body)).first()
+print("FORUM", tuple(row))
+print("OTHER", sum(count(t, col, c) for c in other_codes for t, col in store._STUDENT_CODE_TABLES) > 0,
+      sum(count(t, col, c) for c in other_codes for t, col in store._STUDENT_CODE_SCRUB))
+print("SIGNEDOUT", cl.get("/api/parent/me", headers={"X-Parent-Token": tok}).status_code,
+      codes[0] in M._SCRIPT_SESSIONS)
+dl = store._tables["deletions"]
+with store._engine.connect() as c:
+    keys = {r[0] for r in c.execute(select(dl.c.key))}
+print("LEDGER", "del@example.com" in keys, all(k.lower() in keys for k in codes))
+''')
+    env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'zi.db')}", DATA_DIR=tmp,
+               PYTHONPATH=here, SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="")
+    for k in ("ANTHROPIC_API_KEY", "STRIPE_SECRET_KEY", "SMTP_HOST", "SMTP_USER", "SMTP_PASS"):
+        env.pop(k, None)
+    if dep_gate("LIVE: a parent deletes everything", "sqlalchemy", "the delete runs on a real database"):
+        r = subprocess.run([sys.executable, script], cwd=here, env=env, capture_output=True, text=True, timeout=300)
+        o = r.stdout
+        tail = (o + r.stderr)[-900:]
+        check("⭐ LIVE: a wrong password is 403 and a mistyped DELETE is 400 -- and nothing is deleted",
+              "GUARDS 403 400 2" in o, tail)
+        check("⭐ LIVE: a live subscription with billing unreachable is 409 and nothing is deleted (a "
+              "deleted account must never keep charging)",
+              "NOKEY 409 2 True" in o and "STRIPEDOWN 409 2" in o, tail)
+        check("⭐⭐ LIVE: with billing up, the live subscription is canceled (not the old one), the Stripe "
+              "customer deleted, THEN the account goes: 2 students removed",
+              "OK 200 {'ok': True, 'students_removed': 2}" in o
+              and "CALLS [('list', 'cus_test'), ('cancel', 'sub_live'), ('delete', 'cus_test')]" in o, tail)
+        check("⭐ LIVE: nothing of the two students is left in any per-student table (drill days and phrasings "
+              "included); the parent row and its sign-ins are gone",
+              "LEFT 0 0 0" in o, tail)
+        check("  LIVE: the cost, health and flag rows remain, with the deleted codes blanked",
+              "SCRUB 0 " in o and "SCRUB 0 0 " not in o, tail)
+        check("  LIVE: the forum post stays, signed Former member, with no parent behind it",
+              "FORUM ('Former member', '', 'hello')" in o, tail)
+        check("⭐ LIVE: the OTHER family is untouched -- every row, and its 6 tally rows (2 students x usage, event, flag) still carry their codes",
+              "OTHER True 6" in o, tail)
+        check("  LIVE: the old token is refused, the lesson state is dropped, and the deletions ledger keeps a "
+              "restore from bringing the email or the codes back",
+              "SIGNEDOUT 401 False" in o and "LEDGER True True" in o, tail)
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-12" in notes(f) and "zi" in notes(f) for f in ("main.py", "store.py", "static/family.html", "static/privacy.html")),
+          "Jim's rule 8")
+
+
+def part3pd_the_backup_comes_home():
+    """PART 3pd (build zj, 2026-10-12) -- THE BACKUP COMES HOME. Jim: the backup "didn't work
+    because the DATA_EXPORT_KEY was dropped ... It needs to know to automatically download it
+    to D:\\MrCadabra Backup." Two fixes. (1) The admin Download button threw the remembered
+    export key away on ANY failure (a slow snapshot, a restart); now only a 401 -- the key
+    itself wrong -- forgets it. (2) tools/pc-backup: a Windows Task Scheduler job that pulls a
+    fresh backup into D:\\MrCadabra Backup every week with the key stored encrypted by Windows
+    (DPAPI), keeps the newest 8, logs each run, and tells the server it is the PC copy, so
+    /health ages it ('off' until installed, stale after 9 days -> the STALE JOB email)."""
+    print("\nPART 3pd — the backup comes home (build zj)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    adm, msrc = rd("static/admin.html"), rd("main.py")
+    dl = adm.split('$("bkDownload").addEventListener("click"', 1)[1].split("\n  });", 1)[0]
+    check("⭐ the Download button forgets the export key ONLY on a 401, and says the key is kept otherwise",
+          'if (r.status === 401) {' in dl and dl.count('sessionStorage.removeItem("mt_export_key")') == 1
+          and dl.find('sessionStorage.removeItem("mt_export_key")') > dl.find("if (r.status === 401) {")
+          and "Your key is still remembered" in dl, "")
+    body = msrc.split("def admin_backup_download(", 1)[1].split("\n@app.", 1)[0]
+    check("  the backup route records who took it: the PC copy as ops_pass 'pcbackup', a click as 'download'",
+          'alias="X-Backup-Client"' in body and '"pcbackup" if via == "pc" else "download"' in body
+          and body.find('_require_admin(x_admin_key or key, tier="export")') < body.find("store.record_event"), "")
+    check("  /health ages the PC copy among the ops jobs",
+          '"pcbackup": 9 * 86400' in msrc and '_OPS_JOBS = ("heartbeat", "backup", "offsite", "nightwatch", "pcbackup")' in msrc
+          and 'for nm in ("heartbeat", "backup", "nightwatch", "offsite", "pcbackup"):' in msrc
+          and "pcbackup" in adm.split("var OPS_NAMES", 1)[1][:200], "")
+    try:
+        import main as M
+    except Exception as exc:  # noqa: BLE001
+        skip("pc backup verdicts", f"main not importable: {exc}"); M = None
+    if M is not None:
+        _old_en, _old_start = M.store.enabled, M._PROCESS_STARTED
+        try:
+            M.store.enabled = lambda: True
+            now = 2_000_000_000.0
+            M._PROCESS_STARTED = now - 30 * 86400
+            base = {"heartbeat_age_s": 60, "backup_age_s": 3600, "offsite_age_s": 86400, "nightwatch_age_s": None}
+            st = M._ops_state(dict(base, pcbackup_age_s=None), now=now)
+            check("⭐ a PC copy never taken is 'off' (not installed is not broken), with how to set it up",
+                  st["jobs"]["pcbackup"]["state"] == "off" and "Install-Backup.cmd" in st["jobs"]["pcbackup"]["why"]
+                  and "pcbackup" not in st["stale"], st)
+            st = M._ops_state(dict(base, pcbackup_age_s=3 * 86400), now=now)
+            check("  three days old is ok", st["jobs"]["pcbackup"]["state"] == "ok", st)
+            st = M._ops_state(dict(base, pcbackup_age_s=10 * 86400), now=now)
+            check("⭐ ten days old is STALE (a week + 2 days) and names itself for the STALE JOB email",
+                  st["jobs"]["pcbackup"]["state"] == "stale" and "pcbackup" in st["stale"]
+                  and M._OPS_LABELS["pcbackup"] == "the weekly backup to Jim's PC", st)
+        finally:
+            M.store.enabled, M._PROCESS_STARTED = _old_en, _old_start
+
+    # ---- the PC side ------------------------------------------------------------------------
+    pdir = os.path.join(here, "tools", "pc-backup")
+    names = ("Install-Backup.cmd", "Uninstall-Backup.cmd", "install.ps1", "run.ps1", "uninstall.ps1", "README.md")
+    check("  tools/pc-backup has its six files", all(os.path.exists(os.path.join(pdir, n)) for n in names), "")
+    run, inst = rd("tools/pc-backup/run.ps1"), rd("tools/pc-backup/install.ps1")
+    raw = {n: open(os.path.join(pdir, n), "rb").read() for n in names if os.path.exists(os.path.join(pdir, n))}
+    check("⭐ the PowerShell is ASCII only (Windows PowerShell 5.1 reads a BOM-less file as ANSI) and no key is in any file",
+          all(all(b < 128 for b in raw[n]) for n in ("install.ps1", "run.ps1", "uninstall.ps1"))
+          and not re.search(r"DATA_EXPORT_KEY\s*=\s*['\"]\w", run + inst), "")
+    check("⭐ the key is stored by Windows' per-user encryption (DPAPI) outside the repo, and read back the same way",
+          "ConvertFrom-SecureString $sec" in inst and "Read-Host -AsSecureString" in inst
+          and 'Join-Path $env:LOCALAPPDATA "MrCadabraBackup"' in inst
+          and "ConvertTo-SecureString $enc" in run and "ZeroFreeBSTR" in run, "")
+    check("  the weekly task: Sundays 9:00, catches up when the PC was off, runs the copy kept outside the repo",
+          "New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 9am" in inst and "-StartWhenAvailable" in inst
+          and 'Copy-Item -LiteralPath (Join-Path $PSScriptRoot "run.ps1")' in inst, "")
+    check("⭐ run.ps1: D:\\MrCadabra Backup, the PC header, a real gzip check, write-then-rename, newest 8 kept, a log line either way",
+          '[string]$Dest     = "D:\\MrCadabra Backup"' in run and '$req.Headers.Add("X-Backup-Client", "pc")' in run
+          and "$bytes[0] -ne 0x1f -or $bytes[1] -ne 0x8b" in run and '$tmp = $final + ".part"' in run
+          and "[int]   $Keep     = 8" in run and 'Write-Log ("FAILED  "' in run and 'Write-Log ("OK    ' in run, "")
+    check("  the .cmd launchers are CRLF and git keeps them CRLF",
+          all(b"\r\n" in raw[n] and b"\n" not in raw[n].replace(b"\r\n", b"") for n in ("Install-Backup.cmd", "Uninstall-Backup.cmd"))
+          and "*.cmd    text eol=crlf" in rd(".gitattributes"), "")
+
+    # ---- dry run: the real script against the real app, when PowerShell is on this machine ----
+    import shutil, tempfile, subprocess
+    pw = shutil.which("pwsh") or ("/opt/pwsh/pwsh" if os.path.exists("/opt/pwsh/pwsh") else "")
+    if not pw:
+        skip("run.ps1 dry run", "PowerShell (pwsh) is not installed here -- the source checks above still ran")
+    elif dep_gate("run.ps1 dry run", "uvicorn", "the script talks to a real server"):
+        tmp = tempfile.mkdtemp(prefix="zj_")
+        port = 8700 + (os.getpid() % 200)
+        env = dict(os.environ, DATABASE_URL=f"sqlite:///{os.path.join(tmp, 'z.db')}", DATA_DIR=tmp,
+                   DATA_EXPORT_KEY="zj-test-key-123", SPEC_DISABLE_THREAD="1", ALLOW_FILE_FALLBACK="",
+                   LOCALAPPDATA=os.path.join(tmp, "appdata"), PYTHONPATH=here)
+        env.pop("ANTHROPIC_API_KEY", None)
+        srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--port", str(port)],
+                               cwd=here, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            import urllib.request, time as _t
+            for _ in range(90):
+                try:
+                    urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=2); break
+                except Exception:  # noqa: BLE001
+                    _t.sleep(1)
+            dest = os.path.join(tmp, "MrCadabra Backup")
+            codes = []
+            for i in range(3):
+                r = subprocess.run([pw, "-NoProfile", "-File", os.path.join(pdir, "run.ps1"), "-BaseUrl",
+                                    f"http://127.0.0.1:{port}", "-Dest", dest, "-KeyPlain", "zj-test-key-123", "-Keep", "2"],
+                                   env=env, capture_output=True, text=True, timeout=120)
+                codes.append(r.returncode); _t.sleep(1.2)
+            bad = subprocess.run([pw, "-NoProfile", "-File", os.path.join(pdir, "run.ps1"), "-BaseUrl",
+                                  f"http://127.0.0.1:{port}", "-Dest", dest, "-KeyPlain", "not-the-key"],
+                                 env=env, capture_output=True, text=True, timeout=120)
+            files = sorted(f for f in os.listdir(dest) if f.endswith(".json.gz"))
+            log = open(os.path.join(dest, "backup-log.txt"), encoding="utf-8").read()
+            import gzip as _gz, json as _js
+            ok_snap = bool(files) and "tables" in _js.loads(_gz.open(os.path.join(dest, files[-1])).read())
+            health = _js.loads(urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5).read())
+            check("⭐⭐ DRY RUN: three weekly runs save three real backups and keep the newest 2; each logs OK",
+                  codes == [0, 0, 0] and len(files) == 2 and ok_snap and log.count("OK    mrcadabra-backup-") == 3
+                  and "removed 1 older" in log, (codes, files, log[-400:]))
+            check("⭐ DRY RUN: a wrong key exits 1 and logs that the key in Render changed -- nothing saved",
+                  bad.returncode == 1 and "The saved key was refused (401)" in log and len(files) == 2, log[-300:])
+            check("  DRY RUN: the server now ages the PC copy as ok", health["ops_state"]["jobs"]["pcbackup"]["state"] == "ok",
+                  health["ops_state"]["jobs"].get("pcbackup"))
+        finally:
+            srv.terminate()
+            try:
+                srv.wait(timeout=10)
+            except Exception:  # noqa: BLE001
+                srv.kill()
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-12" in notes(f) and "zj" in notes(f) for f in ("main.py", "static/admin.html"))
+          and "2026-10-12" in run[:900] and "build zj" in inst[:600], "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -53881,6 +54172,8 @@ def main():
     part3oz_the_lesson_counts_to_ten()
     part3pa_the_jobs_say_off_or_stale()
     part3pb_the_browsers_crashes_reach_jim()
+    part3pc_the_parent_can_delete_everything()
+    part3pd_the_backup_comes_home()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()
