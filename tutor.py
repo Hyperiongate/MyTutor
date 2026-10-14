@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zl -- THE MODEL TRIAL (PM-20). Two seams, nothing else moves:
+#               (1) model_override(model): a with-block that makes THIS THREAD's brain turns use
+#               `model` on the Anthropic seat (claude_model() reads it; the env CLAUDE_MODEL is the
+#               default exactly as before). A trial in a background thread can therefore teach on
+#               Sonnet 5.5 while every real student, on every other thread, keeps the live model.
+#               (2) tap_events is THREAD-SCOPED: a tap now hears only the events raised on the thread
+#               that opened it. EVENT_TAPS was one global list, so a night-watch (or trial) lesson
+#               counted any live student's referee fires that happened at the same moment as its
+#               own -- found while designing the trial's per-model counts. The pipeline runs a
+#               turn on one thread, so a lesson's own events are unchanged.
 #   2026-09-28  BUILD ys -- THE BUTTONS ANSWER THE QUESTION ASKED. Jim's live flag on a
 #               Basic column-addition turn: the words asked "what is 2 plus 1 plus 1?"
 #               (the tens column) while the [[choices]] row offered 40 | 41 | 42 (the
@@ -1028,12 +1038,17 @@ class tap_events:
 
     def __init__(self, bucket):
         self.bucket = bucket
+        self._tid = None
 
     def _tap(self, kind, name, detail):
+        # (zl) THREAD-SCOPED: only the events raised on the thread that opened this tap.
+        if self._tid is not None and threading.get_ident() != self._tid:
+            return
         self.bucket.append({"kind": str(kind or ""), "name": str(name or ""),
                             "detail": str(detail or "")})
 
     def __enter__(self):
+        self._tid = threading.get_ident()
         EVENT_TAPS.append(self._tap)
         return self.bucket
 
@@ -1043,6 +1058,40 @@ class tap_events:
         except ValueError:
             pass
         return False
+
+
+# (zl) THE MODEL TRIAL'S SEAM. One thread-local slot; empty means "the configured model".
+_MODEL_OVERRIDE = threading.local()
+
+
+def claude_model() -> str:
+    """The Anthropic model for a brain turn on THIS thread: a trial's override when one is
+    open (model_override), otherwise CLAUDE_MODEL from the environment, otherwise the
+    default -- exactly what every turn read before zl."""
+    o = getattr(_MODEL_OVERRIDE, "model", "") or ""
+    return o or os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+
+
+class model_override:
+    """`with tutor.model_override("claude-sonnet-5-5"): ...` -- brain turns on this thread
+    teach on that model, on the Anthropic seat. Nests; restores the previous value."""
+
+    def __init__(self, model: str):
+        self.model = (model or "").strip()
+        self._prev = ""
+
+    def __enter__(self):
+        self._prev = getattr(_MODEL_OVERRIDE, "model", "") or ""
+        _MODEL_OVERRIDE.model = self.model
+        return self
+
+    def __exit__(self, *exc):
+        _MODEL_OVERRIDE.model = self._prev
+        return False
+
+
+def model_override_active() -> bool:
+    return bool(getattr(_MODEL_OVERRIDE, "model", "") or "")
 
 
 def _event(kind: str, name: str, detail: str = "", code: str = "", course: str = "") -> None:
@@ -14348,6 +14397,8 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
     # DEFAULT_OPENAI_TUTOR_MODEL. Default is the Anthropic path, byte-identical
     # to what shipped before this build.
     provider = (os.environ.get("TUTOR_PROVIDER", "anthropic") or "anthropic").strip().lower()
+    if model_override_active():
+        provider = "anthropic"            # (zl) a model trial always teaches on Anthropic
     if provider == "openai":
         _blocked = _openai_teaching_allowed()
         if _blocked:
@@ -14383,7 +14434,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
             return ("(Setup needed: I can't reach my brain yet. Please add the "
                     "ANTHROPIC_API_KEY environment variable in Render, then reload "
                     "this page.)")
-        model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+        model = claude_model()
 
     # (qh) a seat already proved unusable this process is not asked again -- one
     # child pays the failed lookup, not every child after them.
@@ -14395,7 +14446,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
                 print(f"[tutor] {provider}/{model} is down this process -- teaching "
                       f"on anthropic. It said: {_down}")
                 provider, api_key = "anthropic", house_key
-                model = os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+                model = claude_model()
 
     messages = _trim_history(list(history or []))
     messages.append({"role": "user",
@@ -14410,7 +14461,7 @@ def _reply_pipeline(prompt_fn, history, user_message: str, log_tag: str,
     seats = [(provider, model, api_key)]
     _house_key = os.environ.get("ANTHROPIC_API_KEY")
     if provider != "anthropic" and _house_key:
-        seats.append(("anthropic", os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL),
+        seats.append(("anthropic", claude_model(),
                       _house_key))
     system_blocks = None
     for seat_provider, seat_model, seat_key in seats:

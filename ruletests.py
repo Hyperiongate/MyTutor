@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zl -- PART 3pf, THE MODEL TRIAL: tutor.model_override is per-thread (a real student on
+#               another thread keeps the live model; it nests), taps hear only their own thread, the brain path
+#               reads claude_model(); modeltrial with stand-ins: same lessons, own codes, alternating order, the
+#               measures, the price table, the report, a refused model, the routes, the admin card, the files.
+#               Pin moved: 3on's "(yt) 2026-09-28 in the admin header" read a 1500-char slice; notes() now.
 #   2026-10-13  BUILD zk -- PART 3pe, THE SAFETY NET: safety.py offline (the keyword screen's precision both
 #               ways, personal information, the model reader with a fake client, its fall-back to keywords,
 #               SAFETY_CHECK=off, no call for a bare number, the crisis reply's wording); every door screens
@@ -25687,7 +25692,7 @@ def part3on_the_personas_are_the_owners():
           all(x in asrc for x in ('id="lnDays7"', 'id="lnDays30"', 'id="lnDays90"', 'id="lnTiles"',
                                   'id="lnCourses"', 'id="lnStudents"', "/api/admin/lanes?days=",
                                   "lnStatus();", "<i>opener</i>", "<i>seam</i>", "<i>intervene</i>"))
-          and "(yt) 2026-09-28" in asrc[:1500], "")
+          and "(yt) 2026-09-28" in notes("static/admin.html"), "")   # (zl) notes(), not a 1500-char slice
     check("  the changed files carry dated yt notes",
           all("2026-09-28" in notes(f) and "yt" in notes(f) for f in ("main.py", "store.py", "ruletests.py")), "Jim's rule 8")
 
@@ -27349,6 +27354,119 @@ print("GONE", len(store.safety_alerts_for_parent(store.get_parent_by_email("p1@e
     check("  the dated notes are in (Jim's rule 8)",
           "2026-10-13" in notes("safety.py") and all("2026-10-13" in notes(f) and "zk" in notes(f)
           for f in ("main.py", "store.py", "static/family.html", "static/privacy.html")), "Jim's rule 8")
+
+
+def part3pf_the_model_trial():
+    """PART 3pf (build zl, 2026-10-13) -- THE MODEL TRIAL. PM-20: "Move to Sonnet 5.5, through
+    a measured trial, not a blind swap." Two models teach the same scenario lessons on the
+    trial's own thread (tutor.model_override), and the wait, length, spoken characters,
+    referee retries, findings and dollars come back side by side. Two seams in tutor.py: the
+    per-thread model, and taps that hear only their own thread (they heard every thread)."""
+    print("\nPART 3pf — the model trial (build zl)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+    import threading as _th
+    try:
+        import tutor as T, modeltrial as MT
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+
+    # ---- the seams ---------------------------------------------------------------------------
+    _old = os.environ.get("CLAUDE_MODEL")
+    try:
+        os.environ["CLAUDE_MODEL"] = "claude-sonnet-5"
+        seen = {}
+        def other():
+            seen["other"] = T.claude_model()
+        with T.model_override("claude-sonnet-5-5"):
+            seen["inside"] = T.claude_model()
+            th = _th.Thread(target=other); th.start(); th.join()
+            with T.model_override("claude-opus-5-5"):
+                seen["nested"] = T.claude_model()
+            seen["after_nest"] = T.claude_model()
+        seen["after"] = T.claude_model()
+        check("⭐⭐ the override is THIS THREAD's only: inside it the trial model, on any other thread (a real student) the live model; it nests and restores",
+              seen == {"inside": "claude-sonnet-5-5", "other": "claude-sonnet-5", "nested": "claude-opus-5-5",
+                       "after_nest": "claude-sonnet-5-5", "after": "claude-sonnet-5"}, seen)
+    finally:
+        if _old is None: os.environ.pop("CLAUDE_MODEL", None)
+        else: os.environ["CLAUDE_MODEL"] = _old
+    tsrc = rd("tutor.py")
+    brain = tsrc.split("# (qh) THE SEAT ORDER.", 1)[0].rsplit('    provider = (os.environ.get("TUTOR_PROVIDER"', 1)[1] \
+        + tsrc.split("# (qh) THE SEAT ORDER.", 1)[1][:3000]
+    check("  the brain path reads claude_model() at all three places, and an open override teaches on Anthropic",
+          brain.count("claude_model()") == 3 and 'os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)' not in brain
+          and 'if model_override_active():\n        provider = "anthropic"' in tsrc, "")
+    mine, theirs = [], []
+    def noisy():
+        T._event("referee_fire", "zl-other-thread", "")
+    with T.tap_events(mine):
+        T._event("referee_fire", "zl-mine", "")
+        th = _th.Thread(target=noisy); th.start(); th.join()
+    check("⭐ a tap hears only its own thread: a live student's referee fire at the same moment is not counted in a lesson's bucket",
+          [e["name"] for e in mine] == ["zl-mine"], mine)
+
+    # ---- a trial, with stand-ins for the four outside calls ------------------------------------
+    calls = []
+    def fake_reply(student, history, message, course, code):
+        m = T.claude_model()
+        calls.append((code, m))
+        T._event("referee_fire", "zl-fake", "")
+        if m == "model-b":
+            T._event("referee_fire", "zl-fake-2", "")
+        return ("Let's look at that together. " * (2 if m == "model-a" else 1)).strip()
+    deps = {"reply": fake_reply,
+            "student_turn": lambda sc, tr: ("I think it is 4", None),
+            "critique": lambda sc, tr: ({"findings": [{"severity": "low"}]}, None),
+            "usage": lambda codes, since: {"TRIAL-A": {"turns": 6, "in": 1000, "out": 100, "cr": 50000, "cw": 0, "retried": 1, "spoken_chars": 600},
+                                           "TRIAL-B": {"turns": 6, "in": 1000, "out": 80, "cr": 50000, "cw": 0, "retried": 0, "spoken_chars": 420}},
+            "probe": lambda m: (True, "OK")}
+    r = MT.run_trial(("model-a", "model-b"), lessons=2, turns=3, critic=True, deps=deps)
+    A, B = r["arm"]["model-a"], r["arm"]["model-b"]
+    check("⭐ both models teach the same lessons, each on its own code, in alternating order (A first, then B first)",
+          r["lessons"] == [s["id"] for s in MT.pick_scenarios(2)]
+          and [c for c, _ in calls[:3]] == ["TRIAL-A"] * 3 and [c for c, _ in calls[3:6]] == ["TRIAL-B"] * 3
+          and [c for c, _ in calls[6:9]] == ["TRIAL-B"] * 3 and all((c == "TRIAL-A") == (m == "model-a") for c, m in calls), calls[:9])
+    check("  the measures: turns, reply length, referee fires from the thread's own tap, findings, retries and spoken characters from the log",
+          A["turns"] == 6 and B["turns"] == 6 and A["reply_chars_avg"] > B["reply_chars_avg"]
+          and A["referee"] == {"referee_fire": 6} and B["referee"] == {"referee_fire": 12}
+          and A["findings"]["low"] == 2 and A["retried_turns"] == 1 and B["spoken_chars_avg"] == 70, (A, B))
+    r2 = MT.run_trial(("claude-sonnet-5", "claude-sonnet-5-5"), lessons=1, turns=2, critic=False, deps=deps)
+    check("  dollars: Sonnet 5.5's cheaper cache read shows up (same tokens, lower price)",
+          r2["arm"]["claude-sonnet-5-5"]["usd"] < r2["arm"]["claude-sonnet-5"]["usd"]
+          and MT.price_of("claude-sonnet-5-5")[3] == 0.10 and MT.price_of("claude-sonnet-5")[3] == 0.20, r2["arm"])
+    md = MT.report_markdown(r)
+    check("⭐ the report: a side-by-side table with a verdict per row, how to read it, and the opening replies",
+          "| Student's wait per turn, median (s) |" in md and "B better" in md and "A better" in md
+          and "CLAUDE_MODEL" in md and "First replies, side by side" in md, md[:300])
+    bad_deps = dict(deps, probe=lambda m: (m != "model-x", "model not found"))
+    r3 = MT.run_trial(("model-a", "model-x"), lessons=1, turns=2, deps=bad_deps)
+    check("  a model the key cannot reach stops the trial before a lesson is taught, and the report says why",
+          "model-x could not be reached" in r3["stopped"] and "stopped" in MT.report_markdown(r3).lower(), r3["stopped"])
+    check("  the same model twice is refused", MT.run_trial(("m", "m"), deps=deps)["stopped"] == "a trial needs two different models", "")
+    p = MT.plan(("a", "b"), 4, 6, True)
+    check("  Price it is free and honest: lessons, turns, tutor turns, dollars, minutes",
+          p["tutor_turns"] == 48 and p["est_usd"] > 0 and p["est_minutes"] > 0 and len(p["lessons"]) == 4, p)
+
+    # ---- the server side ---------------------------------------------------------------------
+    msrc, adm = rd("main.py"), rd("static/admin.html")
+    st = msrc.split("def admin_model_trial_start(", 1)[1].split("\n@app.", 1)[0]
+    check("  the routes: admin key, dry run by default, one trial at a time, a background thread, a saved report",
+          "_require_admin(x_admin_key or key)" in st and "if body.dry_run:" in st and "A model trial is already running." in st
+          and 'threading.Thread(target=_go, daemon=True, name="model-trial")' in st and "modeltrial.write_report(DATA_DIR, r)" in st
+          and '@app.get("/api/admin/model-trial/status")' in msrc and '@app.get("/api/admin/model-trial/report")' in msrc, "")
+    check("  the admin card: two models (B defaults to claude-sonnet-5-5), Price FREE / Run SPENDS, the report read in place",
+          'id="mtB" class="btn" placeholder="model B" value="claude-sonnet-5-5"' in adm and "mtStatus();" in adm
+          and '"/api/admin/model-trial/start"' in adm and '"/api/admin/model-trial/report?name="' in adm, "")
+    import tempfile
+    d = tempfile.mkdtemp(prefix="zl_")
+    name = MT.write_report(d, r)
+    check("  reports are written, listed and read back; a path is never accepted as a name",
+          MT.list_reports(d) == [name] and MT.read_report(d, name).startswith("# Model trial")
+          and MT.read_report(d, "../x.md") == "", name)
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-13" in notes(f) and "zl" in notes(f) for f in ("main.py", "tutor.py", "store.py", "static/admin.html"))
+          and "2026-10-13" in notes("modeltrial.py"), "Jim's rule 8")
 
 
 def part3he_the_main_road_moves_the_star():
@@ -54360,6 +54478,7 @@ def main():
     part3pc_the_parent_can_delete_everything()
     part3pd_the_backup_comes_home()
     part3pe_the_safety_net()
+    part3pf_the_model_trial()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

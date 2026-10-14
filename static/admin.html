@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!--
+    (zl) 2026-10-13 -- THE MODEL TRIAL CARD (PM-20). Two model names (A defaults to the live model,
+    B to claude-sonnet-5-5), lessons and turns; (1) Price it -- FREE; (2) Run the trial -- SPENDS, in the
+    background (real students keep the live model throughout); the card follows it and lists the
+    reports, read in place: wait, length, spoken characters, referee retries, findings and dollars
+    side by side. Switching models stays one Render setting (CLAUDE_MODEL).
     (zj) 2026-10-12 -- THE BACKUP COMES HOME. Jim: the backup "didn't work because the
     DATA_EXPORT_KEY was dropped". The Download button threw the remembered export key away on
     ANY failure -- a slow snapshot (502/504), a restart -- so a good key had to be typed again
@@ -854,6 +859,37 @@
        walked by the engine, read once, findings grouped by GENERATOR (fix once, fixes
        many) and by AUTHORED beat. Same two-button discipline as the prewarm: (1) is FREE,
        (2) SPENDS. It never touches a lesson. -->
+  <!-- (zl) 2026-10-13: the model trial -->
+  <section class="wrap"><div class="card">
+    <div class="sechead"><h2>&#9878;&#65039; Model trial</h2>
+      <span class="note">Two models teach the <b>same</b> scenario lessons, and the numbers come back side by
+        side: the student's wait, how much he talks, how often the math referees made him redo a turn,
+        teaching findings, and dollars. Real students keep the live model the whole time. Switching is one
+        Render setting (<b>CLAUDE_MODEL</b>) &mdash; this card never changes it.</span></div>
+    <div class="note" id="mtLine">reading&hellip;</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <input id="mtA" class="btn" placeholder="model A (blank = live)" style="max-width:220px">
+      <input id="mtB" class="btn" placeholder="model B" value="claude-sonnet-5-5" style="max-width:220px">
+      <input id="mtLessons" class="btn" type="number" min="1" max="10" value="4" style="max-width:110px" title="lessons">
+      <input id="mtTurns" class="btn" type="number" min="2" max="10" value="6" style="max-width:110px" title="turns per lesson">
+      <label class="note"><input id="mtCritic" type="checkbox" checked> marker reads each lesson</label>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <button class="btn" id="mtPrice" type="button">&#9312; Price it &mdash; FREE</button>
+      <button class="btn btn-primary" id="mtRun" type="button">&#9313; Run the trial &mdash; SPENDS</button>
+    </div>
+    <div class="note" style="margin-top:8px">&#9888;&#65039; <b>Do not push to GitHub while a trial runs</b> &mdash; a
+      deploy restarts the server and ends the trial (run it again; nothing is changed).</div>
+    <div class="msg" id="mtMsg"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <select id="mtPick" class="btn" style="max-width:260px"></select>
+      <button class="btn" id="mtRead" type="button">&#128196; Read that report</button>
+    </div>
+    <pre id="mtReport" style="display:none;white-space:pre-wrap;background:#0f172a;color:#e6edf7;
+         padding:14px;border-radius:10px;margin-top:12px;font-size:12.5px;line-height:1.5;
+         max-height:520px;overflow:auto"></pre>
+  </div></section>
+
   <section class="wrap"><div class="card">
     <div class="sechead"><h2>&#128269; Course sweep</h2>
       <span class="note">The reviewer over the <b>scripted</b> course, one course at a time:
@@ -2138,6 +2174,55 @@
              cls: bad ? "bad" : "good", s: parts.join(" · ") };   // tiles() escapes it
   }
 
+  // ---------- (zl) the model trial ----------
+  function mtMsg(t, kind) { var e = $("mtMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
+  function mtBody(dry) {
+    return JSON.stringify({ model_a: ($("mtA").value || "").trim(), model_b: ($("mtB").value || "").trim(),
+      lessons: Number($("mtLessons").value || 4), turns: Number($("mtTurns").value || 6),
+      critic: !!$("mtCritic").checked, dry_run: !!dry });
+  }
+  var mtTimer = null;
+  async function mtStatus() {
+    try {
+      var d = await api("/api/admin/model-trial/status");
+      if (!d.ok) { $("mtLine").textContent = d.note || "the model trial is not deployed on this build"; return; }
+      var j = d.job || {};
+      var line = "live model: " + d.live_model;
+      if (j.state === "running") line += " \u00b7 RUNNING " + (j.arms || []).join(" vs ") + " \u2014 " + (j.at || "") + " (" + (j.elapsed_s || 0) + "s)";
+      else if (j.state === "done") line += " \u00b7 last trial finished" + (j.error ? " \u2014 stopped: " + j.error : ": " + j.report);
+      else if (j.state === "failed") line += " \u00b7 last trial FAILED: " + (j.error || "");
+      $("mtLine").textContent = line;
+      var pick = $("mtPick"), cur = pick.value;
+      pick.innerHTML = (d.reports || []).map(function (n) { return '<option>' + esc(n) + '</option>'; }).join("");
+      if (cur) pick.value = cur;
+      if (j.state === "running") { if (!mtTimer) mtTimer = setInterval(mtStatus, 10000); }
+      else if (mtTimer) { clearInterval(mtTimer); mtTimer = null; }
+    } catch (e) { $("mtLine").textContent = "could not read the trial status: " + e.message; }
+  }
+  $("mtPrice").addEventListener("click", async function () {
+    mtMsg("Working it out\u2026", "ok");
+    try {
+      var p = await api("/api/admin/model-trial/start", { method: "POST", body: mtBody(true) });
+      mtMsg(p.arms.join(" vs ") + ": " + p.lessons.length + " lessons \u00d7 " + p.turns + " turns on each = " +
+            p.tutor_turns + " tutor turns, about $" + p.est_usd + " and " + p.est_minutes + " minutes. Nothing was spent.", "ok");
+    } catch (e) { mtMsg(e.message); }
+  });
+  $("mtRun").addEventListener("click", async function () {
+    if (!window.confirm("Run the model trial now? It spends real money (press \u2460 first to see how much).")) return;
+    mtMsg("Starting\u2026", "ok");
+    try {
+      await api("/api/admin/model-trial/start", { method: "POST", body: mtBody(false) });
+      mtMsg("Running in the background \u2014 this card follows it.", "ok"); mtStatus();
+    } catch (e) { mtMsg(e.message); }
+  });
+  $("mtRead").addEventListener("click", async function () {
+    var n = $("mtPick").value; if (!n) { mtMsg("No report yet."); return; }
+    try {
+      var d = await api("/api/admin/model-trial/report?name=" + encodeURIComponent(n));
+      var pre = $("mtReport"); pre.textContent = d.markdown; pre.style.display = "";
+    } catch (e) { mtMsg(e.message); }
+  });
+
   // ---------- night watch (build gp) ----------
   function nwMsg(t, kind) { var e = $("nwMsg"); e.textContent = t || ""; e.className = "msg" + (kind ? " " + kind : ""); }
   async function nwStatus() {
@@ -2910,7 +2995,7 @@
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}
-      try { bkStatus(); nwStatus(); csStatus(); tmStatus(); lnStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + wa course sweep + ha telemetry + yt lanes + nq flags
+      try { bkStatus(); nwStatus(); csStatus(); mtStatus(); tmStatus(); lnStatus(); fgStatus(); fgPaintDevice(); } catch (e) {}   // build dj backups + gp night watch + wa course sweep + ha telemetry + yt lanes + nq flags
       // BUILD kq: an interrupted render used to be invisible -- the page came back
       // clean and Jim had no way to know a job had died mid-way. Ask once, on load.
       try {

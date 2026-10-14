@@ -2,6 +2,12 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zl -- THE MODEL TRIAL (PM-20). /api/admin/model-trial/start (dry_run prices it; a run
+#               is a background thread, one at a time), /status, /report. modeltrial.py teaches the same
+#               scenario lessons on two models (default: the live model vs claude-sonnet-5-5) inside
+#               tutor.model_override -- its own thread, so real students keep the live model -- and reports
+#               wait, length, spoken characters, referee retries, apologies, findings and dollars side by
+#               side. The /admin Model trial card. PART 3pf.
 #   2026-10-13  BUILD zk -- THE SAFETY NET (PM-12). safety.py reads every student's free text before the
 #               tutor does -- /api/chat, /api/practice, /api/topic, /api/script/ask, and /api/script/answer's
 #               `said` (keyword screen there, model-confirmed, zero added latency). A crisis gets
@@ -5721,6 +5727,110 @@ def admin_coursesweep_start(body: CourseSweepIn, key: str = "",
             "lessons": est["lessons"], "estimated_usd": est["estimated_usd"]}
 
 
+# =============================================================================
+# (zl, 2026-10-13) THE MODEL TRIAL -- PM-20 on the PM board. The /admin "Model trial" card.
+# -----------------------------------------------------------------------------
+# Price (free) -> Run (a background thread; one at a time) -> the report, side by side.
+# The trial teaches on its OWN thread inside tutor.model_override, so every real student
+# keeps the live model the whole time; its turns are logged as TRIAL-A / TRIAL-B. A server
+# restart mid-run loses the run (it is minutes long and repeatable); finished reports are
+# kept in DATA_DIR/modeltrial.
+try:
+    import modeltrial
+except Exception as _mt_exc:  # noqa: BLE001
+    modeltrial = None
+    print(f"[modeltrial] module unavailable: {_mt_exc}")
+
+_TRIAL_LOCK = threading.Lock()
+_TRIAL_JOB: dict = {"state": "idle"}
+
+
+class ModelTrialIn(BaseModel):
+    model_a: str = ""
+    model_b: str = ""
+    lessons: int = 4
+    turns: int = 6
+    critic: bool = True
+    dry_run: bool = True
+
+
+def _trial_arms(body: ModelTrialIn):
+    a = (body.model_a or "").strip() or tutor.claude_model()
+    b = (body.model_b or "").strip() or "claude-sonnet-5-5"
+    if not re.fullmatch(r"[a-z0-9][a-z0-9.\-]{2,63}", a) or not re.fullmatch(r"[a-z0-9][a-z0-9.\-]{2,63}", b):
+        raise HTTPException(status_code=400, detail="Model names look like claude-sonnet-5-5.")
+    return a, b
+
+
+@app.post("/api/admin/model-trial/start")
+def admin_model_trial_start(body: ModelTrialIn, key: str = "",
+                            x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    """dry_run=True (default) prices the trial and spends nothing. dry_run=False starts it
+    in the background; a second trial while one runs is refused."""
+    _require_admin(x_admin_key or key)
+    if modeltrial is None:
+        raise HTTPException(status_code=404, detail="modeltrial.py is not deployed")
+    a, b = _trial_arms(body)
+    lessons = max(1, min(int(body.lessons or 4), len(lessonaudit_scenarios())))
+    turns = max(2, min(int(body.turns or 6), 10))
+    p = modeltrial.plan((a, b), lessons, turns, bool(body.critic))
+    if body.dry_run:
+        return p
+    with _TRIAL_LOCK:
+        if _TRIAL_JOB.get("state") == "running":
+            raise HTTPException(status_code=409, detail="A model trial is already running.")
+        _TRIAL_JOB.clear()
+        _TRIAL_JOB.update(state="running", arms=[a, b], at="starting", started=time.time(),
+                          plan=p, report="", error="")
+
+    def _go():
+        try:
+            r = modeltrial.run_trial((a, b), lessons, turns, bool(body.critic),
+                                     progress=lambda s: _TRIAL_JOB.update(at=s))
+            name = modeltrial.write_report(DATA_DIR, r)
+            _TRIAL_JOB.update(state="done", report=name, at="",
+                              error=r.get("stopped", ""))
+            store.record_event("ops_pass", "modeltrial", f"{a} vs {b}: {name}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[modeltrial] run failed: {exc}")
+            _TRIAL_JOB.update(state="failed", error=str(exc)[:300], at="")
+    threading.Thread(target=_go, daemon=True, name="model-trial").start()
+    return {"ok": True, "started": True, "plan": p}
+
+
+def lessonaudit_scenarios():
+    try:
+        import lessonaudit as _la
+        return _la.SCENARIOS
+    except Exception:  # noqa: BLE001
+        return []
+
+
+@app.get("/api/admin/model-trial/status")
+def admin_model_trial_status(key: str = "",
+                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    _require_admin(x_admin_key or key)
+    if modeltrial is None:
+        return {"ok": False, "job": {}, "reports": [], "note": "modeltrial.py is not deployed"}
+    job = dict(_TRIAL_JOB)
+    if job.get("started"):
+        job["elapsed_s"] = int(time.time() - job["started"])
+    return {"ok": True, "job": job, "live_model": tutor.claude_model(),
+            "reports": modeltrial.list_reports(DATA_DIR)}
+
+
+@app.get("/api/admin/model-trial/report")
+def admin_model_trial_report(name: str = "", key: str = "",
+                             x_admin_key: str = Header(default="", alias="X-Admin-Key")):
+    _require_admin(x_admin_key or key)
+    if modeltrial is None:
+        raise HTTPException(status_code=404, detail="modeltrial.py is not deployed")
+    text = modeltrial.read_report(DATA_DIR, name)
+    if not text:
+        raise HTTPException(status_code=404, detail="No such report.")
+    return {"ok": True, "name": name, "markdown": text}
+
+
 @app.get("/api/admin/coursesweep/status")
 def admin_coursesweep_status(key: str = "",
                              x_admin_key: str = Header(default="", alias="X-Admin-Key")):
@@ -10074,7 +10184,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-13zk-the-safety-net"
+APP_BUILD = "2026-10-13zl-the-model-trial"
 
 
 # =============================================================================

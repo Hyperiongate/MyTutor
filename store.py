@@ -2,6 +2,9 @@
 # store.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-13  BUILD zl -- usage_for_codes(codes, since): per-code brain-turn totals (turns, tokens by
+#               kind, retried turns, wall and model milliseconds, spoken characters) since a moment --
+#               the model trial reads its two arms' real consumption from the same log /admin uses.
 #   2026-10-13  BUILD zk -- THE SAFETY NET (PM-12). safety_alerts: one row per message the safety
 #               reader (safety.py) judged a crisis or personal information -- the student's code,
 #               their parent, the category, where (page/course), the student's words (capped 600),
@@ -4060,6 +4063,43 @@ def events_between(kinds, since, until=None, limit: int = 500) -> list:
     except Exception as exc:  # noqa: BLE001
         print(f"[events] between failed: {_redact(str(exc))}")
         return []
+
+def usage_for_codes(codes, since) -> dict:
+    """(zl) {code: {turns, in, out, cr, cw, retried, ms_total, ms_model, spoken_chars, model}}
+    for brain rows of `codes` created after `since` (aware or naive-UTC datetime). Empty
+    when the store is off or on any failure."""
+    out: dict = {}
+    if not _ENABLED or not codes:
+        return out
+    try:
+        from sqlalchemy import select
+        t = _tables["usage_log"]
+        lo = since
+        if lo is not None and getattr(lo, "tzinfo", None) is None:
+            lo = lo.replace(tzinfo=_dt.timezone.utc)
+        cols = [t.c.code, t.c.model, t.c.input_tokens, t.c.output_tokens, t.c.cache_read_tokens,
+                t.c.cache_write_tokens, t.c.attempts, t.c.ms_total, t.c.ms_model]
+        has_spoken = "out_spoken_chars" in t.c
+        if has_spoken:
+            cols.append(t.c.out_spoken_chars)
+        q = select(*cols).where((t.c.kind == "brain") & (t.c.code.in_(list(codes))))
+        if lo is not None:
+            q = q.where(t.c.created_at > lo)
+        with _engine.connect() as conn:
+            for r in conn.execute(q).fetchall():
+                d = out.setdefault(r[0], {"turns": 0, "in": 0, "out": 0, "cr": 0, "cw": 0,
+                                          "retried": 0, "ms_total": 0, "ms_model": 0,
+                                          "spoken_chars": 0, "model": r[1] or ""})
+                d["turns"] += 1
+                d["in"] += int(r[2] or 0); d["out"] += int(r[3] or 0)
+                d["cr"] += int(r[4] or 0); d["cw"] += int(r[5] or 0)
+                d["retried"] += 1 if int(r[6] or 1) > 1 else 0
+                d["ms_total"] += int(r[7] or 0); d["ms_model"] += int(r[8] or 0)
+                if has_spoken:
+                    d["spoken_chars"] += int(r[9] or 0)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[usage] usage_for_codes failed: {_redact(str(exc))}")
+    return out
 
 def last_event_at(kind: str, name: str = ""):
     """The newest created_at for an event kind (optionally a specific name), or None.
