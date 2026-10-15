@@ -4,6 +4,7 @@ Stamp: `2026-10-14zm-the-trial-card-says-finished`. Battery: **13,632 passed · 
 
 ## What was wrong
 
+Jim, after his first model trial: *"I can't tell if this is finished running the report or
 not. It looks like there's a report there, but I didn't tell it to, something's running in the
 background."*
 
