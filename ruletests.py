@@ -2,6 +2,11 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-15  BUILD zn -- PART 3ph, THE SECOND OPINION GETS ONE REWRITE: critic_retry_budget (default 1, clamped,
+#               unreadable = default); through the real _create_verified -- two objections settle after two drafts
+#               and log 2 attempts; =2 restores the old three; =0 records only; the math and prose referees keep
+#               their attempts; a truth draft never ships; the floor is untouched; the tile shows the cap.
+#               Re-pinned: px's and sj's "three critic objections" pins run with LIVE_CRITIC_RETRIES=2 (the old behaviour).
 #   2026-10-14  BUILD zm -- PART 3pg, THE TRIAL CARD SAYS FINISHED: the Model trial card's real script, driven
 #               in node with a stub DOM -- the message while running, Finished with the report picked, Stopped,
 #               FAILED, replaced once only, Run disabled while a trial runs.
@@ -27545,6 +27550,144 @@ def part3pg_the_trial_card_says_finished():
           all("2026-10-14" in notes(f) and "zm" in notes(f) for f in ("main.py", "static/admin.html")), "Jim's rule 8")
 
 
+def part3ph_the_second_opinion_gets_one_rewrite():
+    """PART 3ph (build zn, 2026-10-15) -- THE SECOND OPINION GETS ONE REWRITE. The 10-14
+    Cost & verifier card: retries were 37.2% of all turn time, and 10 of the week's 12
+    shipped-with-a-finding replies carried a live-critic objection that two rewrites never
+    satisfied. A critic objection now buys LIVE_CRITIC_RETRIES rewrites (default 1); the math
+    and prose referees keep all three attempts; the floor and the least-bad choice are the
+    same _settle door as before. Driven through the real _create_verified with stand-ins."""
+    print("\nPART 3ph — the second opinion gets one rewrite (build zn)")
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        import tutor as _t, mathcheck as _mc
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+
+    _saved_env = os.environ.get("LIVE_CRITIC_RETRIES")
+
+    def _env(v):
+        if v is None:
+            os.environ.pop("LIVE_CRITIC_RETRIES", None)
+        else:
+            os.environ["LIVE_CRITIC_RETRIES"] = v
+
+    try:
+        got = {}
+        for v in (None, "", "0", "1", "2", "9", "-3", "two"):
+            _env(v)
+            got[str(v)] = _t.critic_retry_budget()
+    finally:
+        _env(_saved_env)
+    check("⭐ the budget: default 1; 0, 1, 2 as set; clamped to 0..2; unreadable is the default",
+          got == {"None": 1, "": 1, "0": 0, "1": 1, "2": 2, "9": 2, "-3": 0, "two": 1}, str(got))
+
+    class _B:
+        pass
+
+    def _resp(text):
+        r = _B(); b = _B()
+        b.type, b.text = "text", text
+        r.content, r.stop_reason, r.usage = [b], "end_turn", None
+        return r
+
+    class _Stub:
+        def __init__(self, script):
+            self.script, self.calls, self.messages = list(script), [], self
+
+        def create(self, **kw):
+            self.calls.append(kw)
+            return _resp(self.script.pop(0))
+
+    saved = (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event,
+             _t._log_brain_usage)
+    events, usage = [], []
+
+    def _run(drafts, verdicts=None, prose=None, critic=None, budget=None):
+        verdicts, prose, critic = verdicts or {}, prose or {}, critic or {}
+        _mc.verify_reply = lambda r: verdicts.get(r, ("ok", ""))
+
+        def _prose(r, *a, **k):
+            name, det = prose.get(r, ("", ""))
+            if det:
+                _t._note_fire(name)
+            return det
+        _t.prose_board_conflict = _prose
+        _t._live_critic_review = lambda r, *a, **k: critic.get(r, "")
+        _t._event = lambda kind, name, detail="", code="", course="": events.append(
+            (kind, name, detail))
+        _t._log_brain_usage = lambda meta, model, tokens, attempts, status: usage.append(
+            (attempts, status))
+        events.clear(); usage.clear()
+        _env(budget)
+        stub = _Stub(drafts)
+        try:
+            out = _t._create_verified(stub, "zn-stub", None,
+                                      [{"role": "user", "content": "what is 3 plus 4"}],
+                                      " [test]", {"code": "T", "course": "basic"})
+        finally:
+            _env(_saved_env)
+        return out, len(stub.calls)
+
+    try:
+        out, n = _run(["Seven."])
+        check("⭐ DO NO HARM: a clean draft ships unchanged, one call, no event",
+              out == "Seven." and n == 1 and not [e for e in events if e[0] in ("pass_through", "floor")]
+              and usage == [(1, "ok")], f"out={out!r} n={n} usage={usage}")
+
+        out, n = _run(["D1", "D2"], critic={"D1": "never graded 7"})
+        check("  an objection still buys a rewrite, and a clean rewrite ships (unchanged)",
+              out == "D2" and n == 2 and not [e for e in events if e[0] == "pass_through"], f"out={out!r} n={n}")
+
+        out, n = _run(["D1", "D2", "D3"], critic={"D1": "a", "D2": "b", "D3": "c"})
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("⭐⭐ THE FIX: objected twice -> settles after TWO drafts, not three; the newer ships",
+              out == "D2" and n == 2 and len(pt) == 1 and pt[0][1] == "livecritic"
+              and "attempt 2 of 3" in pt[0][2] and "(livecritic)" in pt[0][2], f"out={out!r} n={n} {pt}")
+        check("  ...and the usage row says 2 attempts were made, not 3",
+              usage == [(2, "critic-unresolved")], str(usage))
+
+        out, n = _run(["D1", "D2", "D3"], critic={"D1": "a", "D2": "b", "D3": "c"}, budget="2")
+        check("  LIVE_CRITIC_RETRIES=2 restores the old behaviour exactly: three drafts, the last ships",
+              out == "D3" and n == 3 and usage == [(3, "critic-unresolved")], f"out={out!r} n={n} {usage}")
+
+        out, n = _run(["D1", "D2"], critic={"D1": "a"}, budget="0")
+        pt = [e for e in events if e[0] == "pass_through"]
+        check("  LIVE_CRITIC_RETRIES=0: the critic only records -- one draft, shipped with the pass-through",
+              out == "D1" and n == 1 and pt and pt[0][1] == "livecritic", f"out={out!r} n={n} {pt}")
+
+        out, n = _run(["D1", "D2", "D3"], verdicts={"D2": ("wrong", "3+4 is 7")}, critic={"D1": "a"})
+        check("⭐ the math referee keeps its attempts after the critic's rewrite: wrong D2 -> D3 is written and ships",
+              out == "D3" and n == 3, f"out={out!r} n={n}")
+
+        out, n = _run(["D1", "D2", "D3"], verdicts={"D2": ("wrong", "x")}, critic={"D1": "a", "D3": "c"})
+        check("⭐ a truth draft never ships: critic, math-wrong, critic (budget spent) -> the newer critic draft",
+              out == "D3" and n == 3 and not [e for e in events if e[0] == "floor"], f"out={out!r} n={n}")
+
+        out, n = _run(["D1", "D2", "D3"], prose={"D2": ("compare", "p2"), "D3": ("compare", "p3")},
+                      critic={"D1": "a"})
+        check("  the prose referees keep all three attempts (the watch's case: critic-only D1 still ships)",
+              out == "D1" and n == 3, f"out={out!r} n={n}")
+
+        out, n = _run(["D1", "D2", "D3"], verdicts={"D1": ("wrong", "x"), "D2": ("wrong", "y"),
+                                                   "D3": ("wrong", "z")})
+        check("  the floor is untouched: three math-wrong drafts -> nothing ships",
+              out == "" and [e for e in events if e[0] == "floor"] and usage == [(3, "floored")],
+              f"out={out!r} {usage}")
+    finally:
+        (_mc.verify_reply, _t.prose_board_conflict, _t._live_critic_review, _t._event,
+         _t._log_brain_usage) = saved
+
+    msrc = open(os.path.join(here, "main.py"), encoding="utf-8").read()
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    check("  the cap is visible: the payload's critic_seat carries retries; the Second opinion tile says it",
+          '"retries": tutor.critic_retry_budget()' in msrc
+          and "payload.critic_seat.retries" in adm and '" per objection"' in adm, "")
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-15" in notes(f) and "zn" in notes(f)
+              for f in ("main.py", "tutor.py", "static/admin.html")), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -31776,8 +31919,20 @@ def part3gb_ship_the_best_draft():
                          {"D1": ("wrong", "x"), "D3": ("wrong", "z")}, {}, {"D2": "c"})
         check("⭐ arithmetic wrong on 1 and 3, critic-only on 2: draft 2 ships",
               out == "D2", f"out={out!r}")
-        # critic unresolved three times: the last ships, logged as livecritic
-        out, stub = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        # critic unresolved three times: the last ships, logged as livecritic.
+        # (zn) RE-PINNED, deliberately: since zn a critic objection buys
+        # LIVE_CRITIC_RETRIES rewrites (default 1), so this pin runs with the setting at
+        # 2 -- the pre-zn behaviour, which the setting must still reproduce exactly.
+        # The new default (one rewrite, then settle) is PART 3ph.
+        _zn_saved = os.environ.get("LIVE_CRITIC_RETRIES")
+        os.environ["LIVE_CRITIC_RETRIES"] = "2"
+        try:
+            out, stub = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        finally:
+            if _zn_saved is None:
+                os.environ.pop("LIVE_CRITIC_RETRIES", None)
+            else:
+                os.environ["LIVE_CRITIC_RETRIES"] = _zn_saved
         pt = [e for e in events if e[0] == "pass_through"]
         check("  three critic objections: the LAST ships, logged as livecritic",
               out == "D3" and pt and pt[0][1] == "livecritic" and "attempt 3 of 3" in pt[0][2],
@@ -38251,7 +38406,18 @@ def part3ig_the_floor():
         check("  wrong, critic-only, wrong: the critic-only draft ships (px, untouched)",
               out == "D2", f"out={out!r}")
 
-        out, _ = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        # (zn) RE-PINNED, deliberately: three critic objections only happen with the
+        # pre-zn setting (LIVE_CRITIC_RETRIES=2), which must still ship the newest. The
+        # default since zn (one rewrite, then settle) is PART 3ph.
+        _zn_saved = os.environ.get("LIVE_CRITIC_RETRIES")
+        os.environ["LIVE_CRITIC_RETRIES"] = "2"
+        try:
+            out, _ = _run(["D1", "D2", "D3"], {}, {}, {"D1": "a", "D2": "b", "D3": "c"})
+        finally:
+            if _zn_saved is None:
+                os.environ.pop("LIVE_CRITIC_RETRIES", None)
+            else:
+                os.environ["LIVE_CRITIC_RETRIES"] = _zn_saved
         check("  three critic objections: the newest ships (px, untouched)",
               out == "D3", f"out={out!r}")
 
@@ -54556,6 +54722,7 @@ def main():
     part3pe_the_safety_net()
     part3pf_the_model_trial()
     part3pg_the_trial_card_says_finished()
+    part3ph_the_second_opinion_gets_one_rewrite()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

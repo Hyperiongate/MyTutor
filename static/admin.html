@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!--
+    (zn) 2026-10-15 -- THE SECOND OPINION GETS ONE REWRITE. The Second opinion tile now says how many
+    rewrites a critic objection may buy per turn (payload.critic_seat.retries, from LIVE_CRITIC_RETRIES;
+    default 1 since zn, 2 before it). CRITIC_RETRIES holds it beside CRITIC_SEAT.
     (zm) 2026-10-14 -- THE TRIAL CARD SAYS FINISHED. Jim, after his first trial: "I can't tell if this is
     finished running the report or not." The green line said "Running in the background" from the press of
     (2) until the page was reloaded -- mtStatus updated the status line when the job ended but never the
@@ -1037,6 +1040,7 @@
   var params = new URLSearchParams(window.location.search);
   var KEY = "";
   var CRITIC_SEAT = "";   // build ny: the actual second-opinion model, from the payload
+  var CRITIC_RETRIES = null;   // (zn) rewrites a critic objection may buy per turn, from the payload
   try { KEY = (sessionStorage.getItem("mt_admin_key") || "").trim(); } catch (e) {}
   var legacyKey = (params.get("key") || "").trim();
   if (legacyKey) {
@@ -1309,6 +1313,8 @@
              ? num(u7.critic_calls) + " reads by " + (CRITIC_SEAT || "?") + " · " + (u7.ms_critic_share || 0)
                + "% of all turn time · " + (u7.critic_usd === null || u7.critic_usd === undefined
                    ? "set CRITIC_IN/OUT_USD_PER_MTOK" : usd(u7.critic_usd))
+               + (CRITIC_RETRIES === null ? "" : " · " + CRITIC_RETRIES + " rewrite"
+                   + (CRITIC_RETRIES === 1 ? "" : "s") + " per objection")
              : "LIVE_CRITIC is off — no second model reads the drafts" },
       { l: "Lost to retries", v: secs(u7.ms_retry_avg), cls: retryCls,
         s: u7.timed_turns
@@ -3025,6 +3031,8 @@
       CRITIC_SEAT = (payload.critic_seat && payload.critic_seat.model)
         ? payload.critic_seat.model
         : (payload.critic_seat && payload.critic_seat.provider) || "";
+      CRITIC_RETRIES = (payload.critic_seat && typeof payload.critic_seat.retries === "number")
+        ? payload.critic_seat.retries : null;
       renderBoard(payload);
       renderLinks();
       try { renderTable((await api("/api/beta/list")).codes); } catch (e) {}

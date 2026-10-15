@@ -2,6 +2,10 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-15  BUILD zn -- THE SECOND OPINION GETS ONE REWRITE. tutor.critic_retry_budget()
+#               (LIVE_CRITIC_RETRIES, default 1) caps the rewrites a live-critic objection may buy in a
+#               turn; the math and prose referees keep all three attempts. The stats payload's
+#               critic_seat gains `retries` so the Second opinion tile says the cap in force. PART 3ph.
 #   2026-10-14  BUILD zm -- THE TRIAL CARD SAYS FINISHED. Stamp only on the server side: the fix is in
 #               static/admin.html (the Model trial card's message now says Finished / Stopped / FAILED when
 #               the job ends, instead of "Running in the background" until a reload). PART 3pg.
@@ -5109,7 +5113,9 @@ def admin_stats_api(key: str = "",
         # build ny (latency deep dive): the SEATS, visible. The critic tile used to
         # hardcode "Opus reads" -- if Jim A/Bs a faster critic model the panel must
         # tell the truth about which model is actually in the seat.
-        "critic_seat": (lambda _s: {"provider": _s[0] or "off", "model": _s[1] or ""})(
+        # (zn) `retries`: the rewrites a critic objection may buy per turn (LIVE_CRITIC_RETRIES).
+        "critic_seat": (lambda _s: {"provider": _s[0] or "off", "model": _s[1] or "",
+                                    "retries": tutor.critic_retry_budget()})(
             tutor._live_critic_seat()),
         "prompt_cache_ttl": (os.environ.get("PROMPT_CACHE_TTL", "") or "5m (default)"),
         "payments_open": _payments_open(),
@@ -10187,7 +10193,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-14zm-the-trial-card-says-finished"
+APP_BUILD = "2026-10-15zn-the-second-opinion-gets-one-rewrite"
 
 
 # =============================================================================

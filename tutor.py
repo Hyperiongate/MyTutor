@@ -2,6 +2,16 @@
 # tutor.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-15  BUILD zn -- THE SECOND OPINION GETS ONE REWRITE. The 10-14 Cost & verifier card: retries
+#               were 37.2% of all turn time, and 10 of the week's 12 replies shipped WITH a finding
+#               carried a live-critic objection the rewrites never satisfied -- each of those turns paid
+#               for three drafts and then shipped one the critic still objected to (the 30-82 s turns).
+#               A critic objection now buys at most LIVE_CRITIC_RETRIES rewrites per turn (default 1;
+#               2 restores the old behaviour exactly; 0 = the critic only records). When the budget is
+#               spent, the turn settles through the SAME _settle door as before: least-bad draft, the
+#               pass_through event, the floor for truth findings. The math and prose referees keep all
+#               MATHCHECK_MAX_ATTEMPTS. _settle now logs the attempts actually made (the newest draft's
+#               attempt number), not always 3. critic_retry_budget() reads the setting.
 #   2026-10-13  BUILD zl -- THE MODEL TRIAL (PM-20). Two seams, nothing else moves:
 #               (1) model_override(model): a with-block that makes THIS THREAD's brain turns use
 #               `model` on the Anthropic seat (claude_model() reads it; the env CLAUDE_MODEL is the
@@ -12985,6 +12995,32 @@ def _live_critic_review(reply: str, messages, log_prefix: str = "", meta=None,
 
 MATHCHECK_MAX_ATTEMPTS = 3   # 1 normal attempt + up to 2 corrected retries
 
+# (zn, 2026-10-15) THE SECOND OPINION GETS ONE REWRITE. A live-critic objection used to
+# buy every remaining attempt, exactly like a math error. Measured on the 10-14 Cost &
+# verifier card: retries were 37% of all turn time, and 10 of the week's 12 shipped-with-a-
+# finding replies carried a critic objection that two rewrites had NOT satisfied -- three
+# drafts paid for, the slowest turns of the week, and a draft the critic still objected to
+# shipped anyway. The critic now gets LIVE_CRITIC_RETRIES rewrites per turn (default 1).
+# Its read still runs on every draft the deterministic referees pass, so its objection is
+# still recorded, still ranks the drafts and still names the pass-through. The math and
+# prose referees are untouched: they keep all MATHCHECK_MAX_ATTEMPTS, and the floor still
+# withholds a draft that would teach something false.
+DEFAULT_CRITIC_RETRIES = 1
+
+
+def critic_retry_budget() -> int:
+    """How many rewrites a live-critic objection may buy in one turn: LIVE_CRITIC_RETRIES
+    (0..MATHCHECK_MAX_ATTEMPTS-1), default DEFAULT_CRITIC_RETRIES. 2 is the behaviour before
+    build zn; 0 makes the critic a recorder only. Anything unreadable is the default."""
+    raw = (os.environ.get("LIVE_CRITIC_RETRIES", "") or "").strip()
+    try:
+        n = int(raw) if raw else DEFAULT_CRITIC_RETRIES
+    except ValueError:
+        print(f"[livecritic] LIVE_CRITIC_RETRIES={raw!r} is not a number -- using "
+              f"{DEFAULT_CRITIC_RETRIES}")
+        n = DEFAULT_CRITIC_RETRIES
+    return max(0, min(n, MATHCHECK_MAX_ATTEMPTS - 1))
+
 _MATHCHECK_NUDGE = (
     "(SYSTEM: A math engine checked your previous draft and found an error: {detail}. "
     "The student NEVER saw that draft. Write your reply again from scratch with the "
@@ -14105,6 +14141,9 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
     # (px) EVERY DRAFT IS KEPT WITH WHAT WAS FOUND IN IT -- see _best_draft. When the
     # attempts run out, the child gets the LEAST-BAD draft, not merely the LAST one.
     drafts = []
+    # (zn) the rewrites a critic objection may still buy this turn -- see critic_retry_budget
+    critic_budget = critic_retry_budget()
+    critic_retries = 0
 
     def _shipped(reply):
         """(qw) THE ONE DOOR A REPLY LEAVES THROUGH. The buttons guarantee runs at
@@ -14187,6 +14226,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
         lesson continues next turn. See THE FLOOR above _best_draft."""
         _d = _best_draft(kept)
         b_attempt, reply, b_kind, b_detail = _d[:4]
+        # (zn) the attempts this turn actually made -- the newest kept draft's number. It is
+        # MATHCHECK_MAX_ATTEMPTS whenever the attempts ran out (every pre-zn exit), and
+        # fewer when a spent critic budget settled the turn early. The event wording keeps
+        # "of {MATHCHECK_MAX_ATTEMPTS}" because the night watch reads that shape.
+        try:
+            made = max(int(k[0]) for k in kept) if kept else MATHCHECK_MAX_ATTEMPTS
+        except Exception:  # noqa: BLE001
+            made = MATHCHECK_MAX_ATTEMPTS
         b_name = (_d[4] if len(_d) > 4 else "") or {
             "critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")
         referee = {"critic": "livecritic", "prose": "prosecheck"}.get(b_kind, "mathcheck")
@@ -14201,7 +14248,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             _event("floor", b_name,
                    f"withheld attempt {b_attempt} of {MATHCHECK_MAX_ATTEMPTS}: {b_detail}",
                    (meta or {}).get("code", ""), (meta or {}).get("course", ""))
-            _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, "floored")
+            _log_brain_usage(meta, model, tokens, made, "floored")
             return ""
         status = {"critic": "critic-unresolved", "prose": "prose-unresolved"}.get(
             b_kind, "unresolved")
@@ -14220,7 +14267,7 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                (meta or {}).get("code", ""), (meta or {}).get("course", ""))
         _measure_output(tokens, reply, meta)                    # build jq
         remember_phrasings(reply, meta)                         # build jr
-        _log_brain_usage(meta, model, tokens, MATHCHECK_MAX_ATTEMPTS, status)
+        _log_brain_usage(meta, model, tokens, made, status)
         return _shipped(mathcheck.strip_verify_tags(reply))
 
     for attempt in range(1, MATHCHECK_MAX_ATTEMPTS + 1):
@@ -14289,7 +14336,9 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
             if not prose_detail:
                 critic_detail = _live_critic_review(reply, messages, log_prefix,
                                                     meta, tokens)
-                if critic_detail and attempt < MATHCHECK_MAX_ATTEMPTS:
+                if critic_detail and attempt < MATHCHECK_MAX_ATTEMPTS \
+                        and critic_retries < critic_budget:
+                    critic_retries += 1                  # (zn) one rewrite spent
                     print(f"[livecritic]{log_prefix} OBJECTION on attempt "
                           f"{attempt}/{MATHCHECK_MAX_ATTEMPTS}: {critic_detail}")
                     _event("referee_fire", "livecritic", critic_detail,
@@ -14303,6 +14352,14 @@ def _create_verified(client, model, system_blocks, messages, log_prefix, meta=No
                     # (px) attempts spent with a critic objection standing: every kept
                     # draft is critic-only at worst, so the newest wins the tie -- the
                     # same reply as before, now logged with WHICH attempt shipped.
+                    # (zn) ...or the critic's rewrite budget is spent before the attempts
+                    # are: the same settle, one or two drafts sooner. _best_draft still
+                    # prefers this conduct-only draft over any truth-class one kept.
+                    if attempt < MATHCHECK_MAX_ATTEMPTS:
+                        print(f"[livecritic]{log_prefix} OBJECTION on attempt "
+                              f"{attempt}/{MATHCHECK_MAX_ATTEMPTS} -- rewrite budget "
+                              f"spent ({critic_retries}/{critic_budget}), settling: "
+                              f"{critic_detail}")
                     drafts.append((attempt, reply, "critic", critic_detail, "livecritic"))
                     return _settle(drafts)
             # build gv: MEASUREMENT ONLY -- claims about what has already happened.
