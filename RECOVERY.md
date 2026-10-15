@@ -1,5 +1,10 @@
 # RECOVERY.md — how to get Mr. Cadabra's Classroom back, no matter what broke
 
+_2026-10-15 (build zo, the truth pass): the weekly download is automatic now (the PC backup,
+`tools/pc-backup/`, live since 10-13), so the database row and the habits say so; the settings
+list carries the ones added since August (`CLAUDE_MODEL=claude-sonnet-5-5`, the second opinion's,
+`DATA_EXPORT_KEY`, `NIGHTWATCH=off`, the safety net's optional two)._
+
 _2026-10-12 (build zh): Drill 4 added — the rehearsal that restores a real backup into a
 throwaway file and times it (PM-5 on the PM board). First run 2026-10-12: PASS, 2.3 s (log below)._
 
@@ -16,7 +21,7 @@ weekly download on your computer.** The last one is the copy that survives anyth
 | Asset | Where it lives | Its backup | How it comes back |
 |---|---|---|---|
 | **The code** (app, prompts, scripts, tests) | GitHub `Hyperiongate/MyTutor` | GitHub itself + the copy on D:\MyTutor | Render rebuilds from GitHub automatically |
-| **The database** (students, mastery, quizzes, parents, passes) | Render Postgres | 1) Render's own daily backups (paid DB plans) · 2) nightly `/var/data/backups/backup-*.json.gz` on the persistent disk (14 kept) · 3) **your weekly download** from /admin → 🛟 Backups | `restore_backup.py` (below) |
+| **The database** (students, mastery, quizzes, parents, passes) | Render Postgres | 1) Render's own daily backups (paid DB plans) · 2) nightly `/var/data/backups/backup-*.json.gz` on the persistent disk (14 kept) · 3) **the weekly copy on your PC** in `D:\MrCadabra Backup` — automatic since 2026-10-13 (`tools/pc-backup/`, Sundays 9:00, newest 8 kept), or by hand from /admin → 🛟 Backups | `restore_backup.py` (below) |
 | **The voice cache** (186 rendered clips) | Persistent disk `/var/data/tts_cache` | none needed — recreatable | /admin → pre-render button, ~$13–27, ~5 min |
 | **Secrets** (API keys, admin key) | Render → Environment | **your password manager** (keep every name + value there; see the list below) | typed back into Render |
 | **The domain** (mrcadabra.com) | your registrar + Render custom domain | registrar account | re-point DNS at the new service |
@@ -81,19 +86,28 @@ touches the live database: the target is a throwaway file.
   dashboard (9 units, real progress in a course) loaded. An older snapshot restores into today's
   schema. Run in Claude's cloud workspace with Jim's consent (the computer bridge cannot run code in
   connected folders); the backup copy and the restored file were deleted there afterwards.
-  **Follow-ups:** the newest download on hand was a month old — the weekly habit below has lapsed;
-  and the original file in `D:\RestoreDrill` is Jim's to delete.
+  **Follow-ups:** the newest download on hand was a month old — the weekly habit below had lapsed
+  (closed 2026-10-13: the PC backup now takes it automatically); and the original file in
+  `D:\RestoreDrill` is Jim's to delete.
 
 ## The secrets to keep in your password manager (names; you hold the values)
 `ANTHROPIC_API_KEY` · `ELEVENLABS_API_KEY` · `OPENAI_API_KEY` · `DATABASE_URL` ·
-`FORUM_MOD_KEY` · `STRIPE_SECRET_KEY` · `STRIPE_WEBHOOK_SECRET` · plus the settings:
-`CLAUDE_MODEL=claude-sonnet-5`, `SITE_URL`, `DATA_DIR=/var/data`, and any of the
-optional tuning vars you have set (`OPENAI_AUDIT_MODEL`, `USAGE_LOG_DAYS`,
-`DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `BACKUP_KEEP`, `WEEKLY_EMAIL`, `ALERT_EMAIL`,
-`COST_ALERT_USD`, SMTP settings).
+`FORUM_MOD_KEY` · `STRIPE_SECRET_KEY` · `STRIPE_WEBHOOK_SECRET` · `DATA_EXPORT_KEY` (the
+backup download; the PC backup keeps its own encrypted copy) · plus the settings:
+`CLAUDE_MODEL=claude-sonnet-5-5` (since 2026-10-15), `SITE_URL`, `DATA_DIR=/var/data`,
+`TTS_CACHE_MAX_MB=8000`, the second opinion's `LIVE_CRITIC=anthropic`,
+`LIVE_CRITIC_MODEL=claude-haiku-5-5`, `CRITIC_IN_USD_PER_MTOK=0.10`,
+`CRITIC_OUT_USD_PER_MTOK=0.50`, `NIGHTWATCH=off` (off on purpose since mid-September, Jim 2026-10-09), and any of
+the optional vars you have set (`LIVE_CRITIC_RETRIES`, `SAFETY_CHECK`, `SAFETY_MODEL`,
+`ANTHROPIC_IN_USD_PER_MTOK`, `ANTHROPIC_OUT_USD_PER_MTOK`, `ELEVEN_USD_PER_1K_CHARS`,
+`OPENAI_AUDIT_MODEL`, `USAGE_LOG_DAYS`, `DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `BACKUP_KEEP`,
+`WEEKLY_EMAIL`, `ALERT_EMAIL`, `COST_ALERT_USD`, SMTP settings).
 
 ## The habits that make all of this true
-- **Weekly:** /admin → 🛟 Backups → Download a fresh backup → keep the newest few files.
+- **Weekly (automatic since 2026-10-13):** the PC backup saves a fresh copy to `D:\MrCadabra Backup`
+  every Sunday and keeps the newest 8. Glance at its `backup-log.txt` now and then; /health's
+  `pcbackup` job turns stale (and emails STALE JOB) if nine days pass without one. By hand any
+  time: /admin → 🛟 Backups → Download a fresh backup.
 - **After any deploy:** glance at /health; once, press ① Price it on the pre-render to
   confirm "186 already cached" (proves the persistent disk).
 - **Never** put a secret in a file in this repo, a chat, or a URL.

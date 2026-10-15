@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-15  BUILD zo -- THE TRUTH PASS (PM-43). Stamp only in this file: the copy that changed is
+#               static (methodology's counted strip and its accuracy paragraph, landing's FAQ, features,
+#               parents, llms.txt) and the docs (README, MARKETING, RECOVERY, render.yaml). PART 3pi.
 #   2026-10-15  BUILD zn -- THE SECOND OPINION GETS ONE REWRITE. tutor.critic_retry_budget()
 #               (LIVE_CRITIC_RETRIES, default 1) caps the rewrites a live-critic objection may buy in a
 #               turn; the math and prose referees keep all three attempts. The stats payload's
@@ -10193,7 +10196,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-15zn-the-second-opinion-gets-one-rewrite"
+APP_BUILD = "2026-10-15zo-the-truth-pass"
 
 
 # =============================================================================

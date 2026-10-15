@@ -2,6 +2,12 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-15  BUILD zo -- PART 3pi, THE NUMBERS ARE COUNTED: /methodology's strip against the code (lessons,
+#               courses, the drill pool -- PART 3de now leaves its total in DRILL_POOL_TOTAL -- and the
+#               release-check floor against this run's pass count); the same counts in README, MARKETING and
+#               llms.txt; the live model named alike in render.yaml, README, RECOVERY and the landing FAQ; the
+#               overclaims gone from the visible copy; deletion said as self-serve. Runs LAST, after
+#               part3ai, so the pass count is the run's. Re-pinned: 3dq's "<b>11,582</b>" (now a floor).
 #   2026-10-15  BUILD zn -- PART 3ph, THE SECOND OPINION GETS ONE REWRITE: critic_retry_budget (default 1, clamped,
 #               unreadable = default); through the real _create_verified -- two objections settle after two drafts
 #               and log 2 attempts; =2 restores the old three; =0 records only; the math and prose referees keep
@@ -841,6 +847,7 @@ COURSES = ["entry", "basic", "prealgebra", "algebra1", "geometry",
 STUDENT = {"name": "Testy", "grade": "7"}
 
 PASS, FAIL, SKIP = [], [], []
+DRILL_POOL_TOTAL = None   # (zo) set by PART 3de; PART 3pi counts it itself when 3de did not run
 
 
 def ok(name):
@@ -8300,6 +8307,8 @@ def part3de_drill_pool():
     bt = set(_tags.BOARD_TAGS)
     pool = drillpool.build()
     total = sum(len(v) for v in pool.values())
+    global DRILL_POOL_TOTAL
+    DRILL_POOL_TOTAL = total     # (zo) PART 3pi checks /methodology's tile against this count
     check("the pool is worth having", total > 5000, f"only {total:,} extra problems")
 
     bad_rows, dup, taught_clash = [], 0, 0
@@ -27688,6 +27697,121 @@ def part3ph_the_second_opinion_gets_one_rewrite():
               for f in ("main.py", "tutor.py", "static/admin.html")), "Jim's rule 8")
 
 
+def part3pi_the_numbers_are_counted():
+    """PART 3pi (build zo, 2026-10-15) -- THE NUMBERS ARE COUNTED (PM-43, the truth pass).
+    /methodology's strip promised "counted, not claimed" and said 336 lessons, 25,376
+    practice problems and 11,582 release checks a month after all three had moved (360,
+    29,037, 13,600+). A number on the site is now checked against the code on every run,
+    and the same counts are held alike in README, MARKETING and llms.txt. Runs LAST, so
+    the release-check floor is compared with this run's own pass count."""
+    print("\nPART 3pi — the numbers are counted (build zo)")
+    import html as _html
+    import inspect as _insp
+    here = os.path.dirname(os.path.abspath(__file__))
+    rd = lambda rel: open(os.path.join(here, rel), encoding="utf-8").read()
+
+    def visible(src):
+        t = re.sub(r"<!--.*?-->", " ", src, flags=re.S)
+        t = re.sub(r"<(script|style)\b.*?</\1>", " ", t, flags=re.S | re.I)
+        return " ".join(_html.unescape(re.sub(r"<[^>]+>", " ", t)).split())
+
+    try:
+        import lessonscripts as _L, curriculum as _C, tutor as _T
+    except Exception as exc:  # noqa: BLE001
+        bad("imports", str(exc)); return
+    n_lessons = len(_L.LESSONS)
+    n_courses = len(_C.COURSES)
+    n_ref = len(re.findall(r"(?m)^def\s+\w+_conflict\s*\(", _insp.getsource(_T)))
+    ops = set()
+    for les in _L.LESSONS:
+        o = les.get("op")
+        ops.update(o if isinstance(o, (list, tuple)) else [o])
+    pool = DRILL_POOL_TOTAL
+    if pool is None:
+        import drillpool as _dp
+        pool = sum(len(v) for v in _dp.build().values())
+
+    meth = rd("static/methodology.html")
+    tiles = dict((lab.strip(), num) for num, lab in
+                 re.findall(r'<div class="num"><b>([^<]+)</b><span>([^<]+)</span></div>', meth))
+    num = lambda t: int(t.replace(",", "").rstrip("+")) if t and re.fullmatch(r"[\d,]+\+?", t) else None
+    check("⭐ /methodology: the lessons tile is the course's own count",
+          num(tiles.get("hand-built lessons")) == n_lessons, f"{tiles.get('hand-built lessons')} vs {n_lessons}")
+    check("⭐ /methodology: the courses tile is curriculum.py's count",
+          num(tiles.get("full courses")) == n_courses, f"{tiles.get('full courses')} vs {n_courses}")
+    check("⭐ /methodology: the practice-problems tile is the drill pool, counted this run",
+          num(tiles.get("practice problems")) == pool, f"{tiles.get('practice problems')} vs {pool:,}")
+    mv = visible(meth)
+    said = [int(x.replace(",", "")) for x in re.findall(r"([\d,]{4,}) practice problems", mv)]
+    check("  ...and every practice-problem count in the page's prose says the same",
+          said and all(x == pool for x in said), f"{said} vs {pool:,}")
+    rules_md = rd("RULES.md")
+    _rt = re.search(r"\*\*(\d+) rules\.\*\*", rules_md)
+    _re_ = re.search(r"\|\s*\*\*ENFORCED\*\*\s*\|\s*(\d+)\s*\|", rules_md)
+    check("⭐ /methodology: the written-rules and enforced-by-code counts are RULES.md's (generated from the code)",
+          _rt and _re_ and f"{_rt.group(1)} written teaching rules" in mv
+          and f"{_re_.group(1)} of them are not merely written down" in mv,
+          f"RULES.md: {_rt.group(1) if _rt else '?'} rules, {_re_.group(1) if _re_ else '?'} enforced")
+    rc = tiles.get("automated checks per release", "")
+    floor = num(rc)
+    passed = len(PASS)
+    check("⭐ /methodology: the release-check tile is a floor this run meets (and is within 1,000 of)",
+          rc.endswith("+") and floor is not None and floor <= passed and passed - floor < 1000,
+          f"tile {rc!r} vs {passed:,} passed so far -- raise the floor to the run's count rounded down to 100")
+    check("  ...and the strip's date is a month the page says, with the floor explained",
+          re.search(r"figures as of (January|February|March|April|May|June|July|August|September|October|"
+                    r"November|December) 20\d\d", mv) is not None and "shown as a floor" in mv, "")
+
+    # ---- the overclaims stay gone from the visible copy -------------------------------------
+    pages = {f: visible(rd("static/" + f)) for f in
+             ("landing.html", "features.html", "parents.html", "methodology.html", "pricing.html",
+              "homeschool.html", "students.html", "teachers.html", "help.html")}
+    gone = ("Two AIs and a math engine", "rejected and rewritten, not shipped",
+            "Every problem and answer Mr. Cadabra states", "Every answer math-checked",
+            "with one email", "delete-my-data on request", "request deletion of your data",
+            "silently corrected", "door is wide open")
+    hits = [(f, g) for f, t in pages.items() for g in gone if g in t]
+    check("⭐ the truth pass's overclaims are gone from every marketing page's visible copy",
+          not hits, str(hits))
+    land = rd("static/landing.html")
+    check("  the landing FAQ's math answer is the same in the page and in its JSON-LD twin",
+          land.count("are re-computed by a separate math engine — real symbolic math software, not another AI") == 2
+          and land.count("if it still can't be put right, it isn't sent") == 2, "")
+    check("  deletion is said as self-serve on the landing page (FAQ, JSON-LD, trust strip) and parents page",
+          land.count("yourself, any time, from your Family page") == 2
+          and "a delete-everything button on your Family page" in pages["landing.html"]
+          and pages["parents.html"].count("from your Family page") >= 2, "")
+
+    # ---- the same counts everywhere they are written ----------------------------------------
+    readme = rd("README.md")
+    readme_v = re.sub(r"<!--.*?-->", " ", readme, flags=re.S)     # change notes are records, not copy
+    check("⭐ README: the course, lesson, generator and referee counts are the code's",
+          f"The {n_courses} courses × 9 units" in readme_v and f"{n_lessons} authored" in readme_v
+          and f"the {len(ops)} generators" in readme_v and f"{n_ref} referees" in readme_v
+          and "8 courses" not in readme_v,
+          f"courses {n_courses} · lessons {n_lessons} · generators {len(ops)} · referees {n_ref}")
+    check("  MARKETING.md and llms.txt quote the same lesson count, and the per-student price",
+          f"**{n_lessons} lessons**" in rd("MARKETING.md") and f"{n_lessons} hand-built lessons" in rd("static/llms.txt")
+          and "$29/month per student" in rd("MARKETING.md"), "")
+    # render.yaml read with a pattern, not a YAML library: the battery must run where only
+    # requirements.txt is installed, and PyYAML is not in it.
+    _mm = re.search(r"-\s*key:\s*CLAUDE_MODEL\s*\n\s*value:\s*([A-Za-z0-9.\-]+)", rd("render.yaml"))
+    model = _mm.group(1) if _mm else ""
+    m = re.fullmatch(r"claude-sonnet-(\d+)(?:-(\d+))?", model)
+    marketed = ("Claude Sonnet " + m.group(1) + ("." + m.group(2) if m.group(2) else "")) if m else ""
+    check("⭐ one live model, named alike: render.yaml, README, RECOVERY and the landing FAQ",
+          bool(marketed) and f"Production runs **`{model}`**" in readme
+          and f"`CLAUDE_MODEL={model}`" in rd("RECOVERY.md")
+          and land.count(f"(currently {marketed})") == 2,
+          f"render.yaml {model!r} -> {marketed!r}")
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-15" in notes(f) and "zo" in notes(f) for f in
+              ("static/methodology.html", "static/landing.html", "static/features.html",
+               "static/parents.html", "render.yaml"))
+          and all("2026-10-15" in notes(f) and "zo" in notes(f)
+                  for f in ("README.md", "MARKETING.md", "RECOVERY.md")), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -37898,11 +38022,14 @@ def part3dq_the_methodology_page_keeps_its_receipts():
     check("  ...and no endorsement is claimed anywhere a source is",
           page.count("endorsement") >= 4,
           "every cite block carries its own no-endorsement line")
-    check("  ...and the numbers strip counts THIS battery",
-          "<b>11,582</b>" in page,
-          "the automated-checks tile went stale -- update it when the battery grows "
-          "(this pin's own number included, deliberately: growing the battery means "
-          "touching the page, which is the reminder working)")
+    # (zo) RE-PINNED, deliberately. This pin held one exact number ("<b>11,582</b>") as a
+    # reminder to touch the page whenever the battery grew -- and the reminder stopped
+    # working: the tile still said 11,582 a month and two thousand checks later. The tile is
+    # a FLOOR now ("13,600+") and PART 3pi checks it against this run's own pass count, so
+    # it fails the build when it overstates the battery or falls 1,000 behind it.
+    check("  ...and the numbers strip counts THIS battery (a floor PART 3pi checks against the run)",
+          bool(re.search(r"<b>[0-9][0-9,]*\+</b><span>automated checks per release</span>", page)),
+          "the automated-checks tile must be a floor, N+ -- PART 3pi holds its value")
 
 
 def part3ie_the_watch_says_what_it_was_told_to_do():
@@ -54736,6 +54863,7 @@ def main():
     part3ho_three_one_line_holes()
     part3ec_follow_the_pen()
     part3ai_deploy_stamp()
+    part3pi_the_numbers_are_counted()   # (zo) LAST: it reads this run's pass count
     if live:
         part4_live()
     else:

@@ -3,6 +3,10 @@
   MARKETING.md  --  rules of the road for the marketing clone  --  Hyperion Shift LLC
   -----------------------------------------------------------------------------
   CHANGE NOTES (keep newest at top):
+  - 2026-10-15  (build zo, the truth pass) rule 3 gains the price as it now stands -- one
+    plan per student (Jim's 2026-10-09 ruling) -- and the two claims marketing copy must not
+    outgrow: what the math engine checks, and that deleting is self-serve. "a assistant"
+    -> "an assistant".
   - 2026-09-28  (build yt) the battery's size brought up to date (13,000+ checks, was
     "6,000+"); the numbers a marketer might quote -- ten courses, 360 lessons -- added
     to rule 3 so nobody writes "eight courses" from the old README.
@@ -46,6 +50,13 @@ will bounce.
 - The company's experience is always written **"Hundreds"** — never "300+".
 - The product is **ten courses** (Entry-Level Math through Differential Equations) and
   **360 lessons**; an older README said eight. Quote these, not that.
+- The price is **$29/month per student** ($24/month billed annually), introductory: **one
+  plan covers one student**. Never write "up to 2 students" or a family price.
+- The math engine **checks the answers the live tutor gives and the equations it draws**,
+  and the written lessons' answers are computed by code. Do not write "every claim" or
+  "every word is checked" — that is more than it does.
+- Parents **delete data themselves** on the Family page (a student, or the whole
+  account). Do not write "email us to delete" — that is how it used to work.
 - Numbers on the methodology page (checks per release, checks per reply,
   problem counts) are **machine-counted** — never edit them by hand. (That page
   is off-limits per rule 2 anyway.)
@@ -79,6 +90,6 @@ its copy before the next build. Staying in your lane (rule 2) makes collisions
 nearly impossible; the note makes them actually impossible.
 
 ---
-*Questions? Ask Jim — he has a assistant who knows every file in here.*
+*Questions? Ask Jim — he has an assistant who knows every file in here.*
 
 <!-- I did no harm and this file is not truncated. -->

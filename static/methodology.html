@@ -1,5 +1,19 @@
 <!DOCTYPE html>
 <!--
+  - 2026-10-15  (zo) THE TRUTH PASS (PM-43). The numbers strip had gone stale while its foot-note
+    promised "counted, not claimed": 336 lessons (there are 360 since August), 25,376 practice
+    problems (the drill pool counts 29,037 today), 11,582 release checks (13,600+). The tiles and the
+    prose's practice-problem count are corrected, the strip says October 2026, and ruletests PART
+    3pi now COUNTS each figure from the code on every run (lessons, courses, the drill pool, the
+    referees) and checks the release-check floor against the run's own pass count -- so this strip
+    can no longer drift unnoticed. The "machinery to keep it accurate" paragraph overclaimed ("every
+    mathematical claim", "rejected and rewritten, not shipped", "two AIs ... on every single
+    reply"); it now says what the code does: the engine re-computes the answers the tutor gives
+    and the equations it draws, wrong math is rewritten or withheld, a teaching miss that
+    survives its rewrites ships as the best draft and is logged, and the second AI reads each
+    reply the automated checks pass. Section 3's opening said "Thirty-three" rules are enforced by
+    code -- RULES.md (generated from the code) says 32 -- and "rejected and rewritten, not shipped";
+    it now says 32, and that wrong math is never sent. PART 3pi holds both counts to RULES.md.
   - 2026-10-12  (zh) THE BROWSER'S CRASHES REACH JIM (PM-6 on the PM board). This page did not
     load static/client-log.js, so a script error here was invisible -- 23 of 33 pages had no
     beacon, the sign-in page among them. It now loads FIRST in <head>, like the ten app pages
@@ -1023,15 +1037,16 @@
 
 <section class="wrap">
   <div class="numbers">
-    <div class="num"><b>336</b><span>hand-built lessons</span></div>
+    <div class="num"><b>360</b><span>hand-built lessons</span></div>
     <div class="num"><b>10</b><span>full courses</span></div>
-    <div class="num"><b>25,376</b><span>practice problems</span></div>
+    <div class="num"><b>29,037</b><span>practice problems</span></div>
     <div class="num"><b>101</b><span>checks on every single reply</span></div>
-    <div class="num"><b>11,582</b><span>automated checks per release</span></div>
+    <div class="num"><b>13,600+</b><span>automated checks per release</span></div>
   </div>
-  <p class="foot-note">Counted, not claimed — figures as of August 2026. Every number above is
-    machine-counted from the app itself, by the same test run that has to pass before anything
-    ships. They go up as we build; none of them is an estimate.</p>
+  <p class="foot-note">Counted, not claimed — figures as of October 2026. Every number above is
+    machine-counted from the app itself, and the same test run that has to pass before anything
+    ships checks each one against the app. They go up as we build; none of them is an estimate.
+    The release-check count is shown as a floor, because it grows with almost every release.</p>
 </section>
 
 <section class="wrap">
@@ -1061,12 +1076,13 @@
         <h3>The AI is powerful — so we built machinery to keep it accurate</h3>
         <p>Artificial intelligence is what makes a real conversation possible, and we use it
           proudly. We also do not simply trust it. Every practice problem's answer is computed by a
-          math engine, never typed in by a person. When the tutor speaks, every mathematical claim
-          in the reply is re-computed by that same engine to confirm it is literally true, and
+          math engine, never typed in by a person. When the tutor writes a reply of its own, the
+          answers it gives and the equations it draws are re-computed by that same engine, and
           <strong><span data-referees>101</span> separate automated checks</strong> read the reply before your student sees
-          it — a reply that fails one is rejected and rewritten, not shipped. Then a
-          <strong>second, independent AI</strong> reviews what the first one wrote. Two AIs and a
-          math engine, checking each other, on every single reply.</p>
+          it. A reply with wrong math is rewritten, and if it still cannot be put right it is never
+          sent. A reply that trips a teaching check is rewritten too; when the rewrites run out, the
+          best draft is sent and the miss is logged for us to fix. A <strong>second, independent
+          AI</strong> also reads each reply the automated checks pass.</p>
       </div>
     </div>
 
@@ -1203,10 +1219,10 @@
   <div class="card">
     <h2>3. How we teach — and the rules we hold ourselves to</h2>
     <p class="sub" style="margin:8px 0 22px 0">Our tutor works from <strong>65 written teaching
-      rules</strong>. Thirty-three of them are not merely written down — they are enforced by code,
+      rules</strong>. 32 of them are not merely written down — they are enforced by code,
       and <strong><span data-referees>101</span> separate checks read every reply before a student ever sees it.</strong> A reply
-      that breaks one is rejected and rewritten, not shipped and apologised for. Here are the ones
-      that matter most.</p>
+      that breaks one is sent back and rewritten before a student sees it, and one whose math is
+      still wrong is never sent at all. Here are the ones that matter most.</p>
 
     <div class="rule">
       <h3>Teach it before you ask it</h3>
@@ -1246,7 +1262,7 @@
 
     <div class="rule">
       <h3>Every problem is checked before a student sees it</h3>
-      <p>Every one of our 25,376 practice problems is put through the same validator: the answer is
+      <p>Every one of our 29,037 practice problems is put through the same validator: the answer is
         computed, never typed; the numbers stay inside the range the lesson promises; the difficulty
         only ever climbs; and every sentence is read aloud against a fixed vocabulary.
         <span class="why">This is the MAA guide's <em>selecting appropriate mathematical tasks</em>,
