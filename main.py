@@ -2,6 +2,9 @@
 # main.py  --  Math Tutor MVP  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-14  BUILD zm -- THE TRIAL CARD SAYS FINISHED. Stamp only on the server side: the fix is in
+#               static/admin.html (the Model trial card's message now says Finished / Stopped / FAILED when
+#               the job ends, instead of "Running in the background" until a reload). PART 3pg.
 #   2026-10-13  BUILD zl -- THE MODEL TRIAL (PM-20). /api/admin/model-trial/start (dry_run prices it; a run
 #               is a background thread, one at a time), /status, /report. modeltrial.py teaches the same
 #               scenario lessons on two models (default: the live model vs claude-sonnet-5-5) inside
@@ -10184,7 +10187,7 @@ def get_placement(request: Request, code: str = Depends(_code_dep), course: str 
 # BUILD when any shipped file carries a dated change note newer than this stamp. It went
 # nine builds stale before that existed, and cost Jim part of a live debugging session --
 # he could not tell a stale deploy from a real bug, which is the one question this answers.
-APP_BUILD = "2026-10-13zl-the-model-trial"
+APP_BUILD = "2026-10-14zm-the-trial-card-says-finished"
 
 
 # =============================================================================

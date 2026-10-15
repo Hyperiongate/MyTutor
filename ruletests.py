@@ -2,6 +2,9 @@
 # ruletests.py  --  the RULE REGRESSION BATTERY  --  Hyperion Shift LLC
 # -----------------------------------------------------------------------------
 # CHANGE NOTES (keep newest at top):
+#   2026-10-14  BUILD zm -- PART 3pg, THE TRIAL CARD SAYS FINISHED: the Model trial card's real script, driven
+#               in node with a stub DOM -- the message while running, Finished with the report picked, Stopped,
+#               FAILED, replaced once only, Run disabled while a trial runs.
 #   2026-10-13  BUILD zl -- PART 3pf, THE MODEL TRIAL: tutor.model_override is per-thread (a real student on
 #               another thread keeps the live model; it nests), taps hear only their own thread, the brain path
 #               reads claude_model(); modeltrial with stand-ins: same lessons, own codes, alternating order, the
@@ -27469,6 +27472,79 @@ def part3pf_the_model_trial():
           and "2026-10-13" in notes("modeltrial.py"), "Jim's rule 8")
 
 
+def part3pg_the_trial_card_says_finished():
+    """PART 3pg (build zm, 2026-10-14) -- THE TRIAL CARD SAYS FINISHED. Jim, after his first
+    model trial: "I can't tell if this is finished running the report or not." The message
+    under the buttons said "Running in the background" from the press of Run until a reload;
+    only the status line knew the job had ended. This drives the card's REAL script in node
+    (stub DOM, stub api) through Run -> running -> done / stopped / failed, and a reload."""
+    print("\nPART 3pg — the trial card says finished (build zm)")
+    import shutil as _sh, subprocess as _sp, json as _j
+    here = os.path.dirname(os.path.abspath(__file__))
+    adm = open(os.path.join(here, "static", "admin.html"), encoding="utf-8").read()
+    a = adm.find("// ---------- (zl) the model trial ----------")
+    b = adm.find("// ---------- night watch (build gp) ----------")
+    if a < 0 or b < a:
+        bad("the trial card's script block is found", "markers moved"); return
+    block = adm[a:b]
+    check("  the card remembers it is following a trial, and Run is disabled while one runs",
+          "var mtWatching = false;" in block and '$("mtRun").disabled = (j.state === "running");' in block, "")
+    if not _sh.which("node"):
+        skip("  the card driven in node", "node is not installed"); return
+    # the block is passed in as a string and eval'd, so no escaping games are needed
+    prog = (
+        "const BLOCK = " + _j.dumps(block) + ";\n"
+        "const els = {};\n"
+        "function el(id) { if (!els[id]) els[id] = { id, textContent: '', className: '', value: '', innerHTML: '',\n"
+        "  disabled: false, checked: true, style: {}, h: {}, addEventListener(ev, f) { this.h[ev] = f; } }; return els[id]; }\n"
+        "const $ = el; const esc = (s) => String(s);\n"
+        "let STATUS = { ok: true, live_model: 'claude-sonnet-5', job: { state: 'idle' }, reports: [] };\n"
+        "async function api(url) { if (url.indexOf('/status') >= 0) return JSON.parse(JSON.stringify(STATUS)); return { ok: true }; }\n"
+        "const window = { confirm: () => true };\n"
+        "function setInterval() { return 7; } function clearInterval() {}\n"
+        "eval(BLOCK);\n"
+        "const out = {};\n"
+        "(async () => {\n"
+        "  STATUS.job = { state: 'running', arms: ['a', 'b'], at: 'lesson 1', elapsed_s: 5 };\n"
+        "  await el('mtRun').h.click(); await new Promise(r => setTimeout(r, 0));\n"
+        "  out.running = el('mtMsg').textContent; out.runDisabled = el('mtRun').disabled;\n"
+        "  STATUS.job = { state: 'done', report: 'trial-1.md', error: '' }; STATUS.reports = ['trial-1.md', 'old.md'];\n"
+        "  await mtStatus();\n"
+        "  out.done = el('mtMsg').textContent; out.pick = el('mtPick').value; out.runAfter = el('mtRun').disabled;\n"
+        "  out.line = el('mtLine').textContent;\n"
+        "  el('mtMsg').textContent = 'untouched';\n"
+        "  await mtStatus(); out.second = el('mtMsg').textContent;\n"
+        "  STATUS.job = { state: 'running', elapsed_s: 1 }; await mtStatus();\n"
+        "  STATUS.job = { state: 'done', report: 'trial-2.md', error: 'model claude-x refused' }; await mtStatus();\n"
+        "  out.stopped = el('mtMsg').textContent;\n"
+        "  STATUS.job = { state: 'running', elapsed_s: 1 }; await mtStatus();\n"
+        "  STATUS.job = { state: 'failed', error: 'boom' }; await mtStatus();\n"
+        "  out.failed = el('mtMsg').textContent;\n"
+        "  console.log(JSON.stringify(out));\n"
+        "})().catch(e => console.log(JSON.stringify({ err: String(e) })));\n")
+    try:
+        res = _sp.run(["node", "-e", prog], capture_output=True, text=True, timeout=30)
+        o = _j.loads((res.stdout or "").strip().splitlines()[-1])
+    except Exception as exc:  # noqa: BLE001
+        bad("  the card driven in node", f"{exc} {getattr(res, 'stderr', '')[:300] if 'res' in dir() else ''}"); return
+    if o.get("err"):
+        bad("  the card driven in node", o["err"]); return
+    check("  while it runs: the message says so with the seconds, and Run is disabled",
+          o.get("running", "").startswith("Running in the background") and "5s so far" in o.get("running", "")
+          and o.get("runDisabled") is True, str(o))
+    check("  when it finishes: the message says Finished, the new report is picked, Run is back",
+          o.get("done", "").startswith("Finished. Nothing is running now.") and "Read that report" in o.get("done", "")
+          and o.get("pick") == "trial-1.md" and o.get("runAfter") is False
+          and "last trial finished: trial-1.md" in o.get("line", ""), str(o))
+    check("  the message is replaced once, at the end -- a later status read leaves it alone",
+          o.get("second") == "untouched", str(o))
+    check("  a trial that stopped early says Stopped with the reason; a failed one says FAILED",
+          o.get("stopped", "").startswith("Stopped early: model claude-x refused")
+          and o.get("failed", "").startswith("The trial FAILED: boom"), str(o))
+    check("  the dated notes are in (Jim's rule 8)",
+          all("2026-10-14" in notes(f) and "zm" in notes(f) for f in ("main.py", "static/admin.html")), "Jim's rule 8")
+
+
 def part3he_the_main_road_moves_the_star():
     """PART 3he (build rd, 2026-08-31) -- THE MAIN ROAD MOVES THE STAR.
 
@@ -54479,6 +54555,7 @@ def main():
     part3pd_the_backup_comes_home()
     part3pe_the_safety_net()
     part3pf_the_model_trial()
+    part3pg_the_trial_card_says_finished()
     part3he_the_main_road_moves_the_star()
     part3hf_the_factors_are_checked_by_expanding_them()
     part3hg_the_asked_for_picture_is_drawn_now()

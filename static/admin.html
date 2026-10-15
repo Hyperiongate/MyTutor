@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <!--
+    (zm) 2026-10-14 -- THE TRIAL CARD SAYS FINISHED. Jim, after his first trial: "I can't tell if this is
+    finished running the report or not." The green line said "Running in the background" from the press of
+    (2) until the page was reloaded -- mtStatus updated the status line when the job ended but never the
+    message under the buttons. Now the card remembers it is following a trial (mtWatching, set by Run or by
+    any status read that finds one running) and, the moment the job is no longer running, replaces the
+    message: "Finished" with the new report picked in the list, "Stopped" with the reason, or "FAILED"
+    with the error. The Run button is disabled while a trial runs, so a second press cannot be mistaken
+    for the first one's progress.
     (zl) 2026-10-13 -- THE MODEL TRIAL CARD (PM-20). Two model names (A defaults to the live model,
     B to claude-sonnet-5-5), lessons and turns; (1) Price it -- FREE; (2) Run the trial -- SPENDS, in the
     background (real students keep the live model throughout); the card follows it and lists the
@@ -2182,6 +2190,10 @@
       critic: !!$("mtCritic").checked, dry_run: !!dry });
   }
   var mtTimer = null;
+  // (zm) true while this card is following a trial -- set by Run, or by any status read that finds
+  // one running (a reload mid-trial). When the job stops running, the message under the buttons is
+  // replaced with how it ended; until zm it kept saying "Running in the background" forever.
+  var mtWatching = false;
   async function mtStatus() {
     try {
       var d = await api("/api/admin/model-trial/status");
@@ -2195,8 +2207,28 @@
       var pick = $("mtPick"), cur = pick.value;
       pick.innerHTML = (d.reports || []).map(function (n) { return '<option>' + esc(n) + '</option>'; }).join("");
       if (cur) pick.value = cur;
-      if (j.state === "running") { if (!mtTimer) mtTimer = setInterval(mtStatus, 10000); }
-      else if (mtTimer) { clearInterval(mtTimer); mtTimer = null; }
+      $("mtRun").disabled = (j.state === "running");
+      if (j.state === "running") {
+        mtWatching = true;
+        if (!mtTimer) mtTimer = setInterval(mtStatus, 10000);
+        mtMsg("Running in the background \u2014 " + (j.elapsed_s || 0) + "s so far. This card follows it; nothing else to press yet.", "ok");
+      } else {
+        if (mtTimer) { clearInterval(mtTimer); mtTimer = null; }
+        if (mtWatching) {
+          mtWatching = false;
+          if (j.state === "done" && !j.error) {
+            if (j.report) pick.value = j.report;
+            mtMsg("Finished. Nothing is running now. The new report is picked below \u2014 press Read that report.", "ok");
+          } else if (j.state === "done") {
+            if (j.report) pick.value = j.report;
+            mtMsg("Stopped early: " + j.error + " (the report below says what was measured before it stopped).");
+          } else if (j.state === "failed") {
+            mtMsg("The trial FAILED: " + (j.error || "no reason given") + ". Nothing is running now.");
+          } else {
+            mtMsg("Nothing is running now.", "ok");
+          }
+        }
+      }
     } catch (e) { $("mtLine").textContent = "could not read the trial status: " + e.message; }
   }
   $("mtPrice").addEventListener("click", async function () {
@@ -2212,6 +2244,7 @@
     mtMsg("Starting\u2026", "ok");
     try {
       await api("/api/admin/model-trial/start", { method: "POST", body: mtBody(false) });
+      mtWatching = true;
       mtMsg("Running in the background \u2014 this card follows it.", "ok"); mtStatus();
     } catch (e) { mtMsg(e.message); }
   });
